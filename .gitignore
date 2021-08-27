@@ -1,6 +1,6 @@
 tags
 compile_commands.json
-*.0
+*.o
 ldtest
 dam
 .cache

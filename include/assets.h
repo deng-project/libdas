@@ -101,17 +101,17 @@ typedef das_ObjPosData2D das_GL2DVertexUnmapped;
 typedef struct __das_VertDynamic3D {
     struct {
         das_ObjPosData *pos;
-        size_t pn;
+        uint64_t pn;
         das_ObjTextureData *tex;
-        size_t tn;
+        uint64_t tn;
         das_ObjNormalData *norm;
-        size_t nn;
+        uint64_t nn;
     } mul;
 
     struct {
         das_GL3DVertex *vert;
         das_GL3DVertexUnmapped *uvert;
-        size_t n;
+        uint64_t n;
     } mer;
 } __das_VertDynamic3D;
 
@@ -119,16 +119,16 @@ typedef struct __das_VertDynamic3D {
 typedef union __das_VertDynamic2D {
     struct {
         das_ObjPosData2D *pos;
-        size_t pn;
+        uint64_t pn;
         das_ObjTextureData *tex;
-        size_t tn;
+        uint64_t tn;
         uint32_t hier;
     } mul;
 
     struct {
         das_GL2DVertex *vert;
         das_GL2DVertexUnmapped *uvert;
-        size_t n;
+        uint64_t n;
     } mer;
 } __das_VertDynamic2D;
 
@@ -146,14 +146,14 @@ typedef struct das_IndicesDynamic {
     uint32_t *tex;
     uint32_t *norm;
     uint32_t *gl;
-    size_t n;
+    uint64_t n;
 } das_IndicesDynamic;
 
 
 /// Structure for universal texture image bitmap data storage
 typedef struct das_PixelDataDynamic {
     uint8_t *pixel_data;
-    size_t size;
+    uint64_t size;
     uint16_t width;
     uint16_t height;
     uint64_t memory_offset;

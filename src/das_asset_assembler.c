@@ -1,234 +1,290 @@
-/// libdas: DENG asset loader and assembler library
+/// libdas: DENG asset handling management library
 /// licence: Apache, see LICENCE file
-/// file: das_asset_assembler.h - assembler source code for das binary files
+/// file: das_asset_assembler.c - das binary writer source code
 /// author: Karl-Mihkel Ott
 
 
+#define DAS_FILE
 #define __DAS_ASSET_ASSEMBLER_C
-#include <data/das_asset_assembler.h>
+#include <das_asset_assembler.h>
+
+
+/// Assemble an asset file from given das_Asset instance
+void das_StaticAssemble(das_Asset *asset, const char *file_name, char *meta) {
+    openFileStreamWO(file_name);
+    writeFILE_HDR(file_name);
+    writeINFO_HDR(asset, file_name);
+    if(meta) writeMETA_HDR(meta, file_name);
+    writeVERT_HDR(asset, file_name);
+
+    // Check the asset mode and decide which vertex attributes to write
+    switch(asset->asset_mode) {
+        case DAS_ASSET_MODE_2D_UNMAPPED:
+            writeGenericVertAttrHDR(asset->vertices.v2d.mul.pos, asset->vertices.v2d.mul.pn,
+                                    2, DAS_VPOS_HEADER_SIG, 
+                                    "Could not write 2D asset vertex position attributes", 
+                                    file_name);
+            break;
+
+        case DAS_ASSET_MODE_2D_TEXTURE_MAPPED:
+            writeGenericVertAttrHDR(asset->vertices.v2d.mul.pos, asset->vertices.v2d.mul.pn,
+                                    2, DAS_VPOS_HEADER_SIG, 
+                                    "Could not write 2D asset vertex position attributes", 
+                                    file_name);
+
+            writeGenericVertAttrHDR(asset->vertices.v2d.mul.tex, asset->vertices.v2d.mul.tn,
+                                    2, DAS_VPOS_HEADER_SIG, 
+                                    "Could not write 2D asset vertex texture attributes", 
+                                    file_name);
+            break;
+        
+        case __DAS_ASSET_MODE_3D_UNMAPPED_UNOR:
+            writeGenericVertAttrHDR(asset->vertices.v3d.mul.pos, asset->vertices.v3d.mul.pn,
+                                    3, DAS_VPOS_HEADER_SIG, 
+                                    "Could not write 3D asset vertex position attributes", 
+                                    file_name);
+            break;
+
+        case DAS_ASSET_MODE_3D_UNMAPPED:
+            writeGenericVertAttrHDR(asset->vertices.v3d.mul.pos, asset->vertices.v3d.mul.pn,
+                                    3, DAS_VPOS_HEADER_SIG, 
+                                    "Could not write 3D asset vertex position attributes", 
+                                    file_name);
+
+            writeGenericVertAttrHDR(asset->vertices.v3d.mul.norm, asset->vertices.v3d.mul.nn,
+                                    3, DAS_VPOS_HEADER_SIG, 
+                                    "Could not write 3D asset vertex normal attributes", 
+                                    file_name);
+            break;
+
+        case __DAS_ASSET_MODE_3D_TEXTURE_MAPPED_UNOR:
+            writeGenericVertAttrHDR(asset->vertices.v3d.mul.pos, asset->vertices.v3d.mul.pn,
+                                    3, DAS_VPOS_HEADER_SIG, 
+                                    "Could not write 3D asset vertex position attributes", 
+                                    file_name);
+
+            writeGenericVertAttrHDR(asset->vertices.v3d.mul.tex, asset->vertices.v3d.mul.tn,
+                                    3, DAS_VPOS_HEADER_SIG, 
+                                    "Could not write 3D asset vertex texture attributes", 
+                                    file_name);
+            break;
+        
+        case DAS_ASSET_MODE_3D_TEXTURE_MAPPED:
+            writeGenericVertAttrHDR(asset->vertices.v3d.mul.pos, asset->vertices.v3d.mul.pn,
+                                    3, DAS_VPOS_HEADER_SIG, 
+                                    "Could not write 3D asset vertex position attributes", 
+                                    file_name);
+
+            writeGenericVertAttrHDR(asset->vertices.v3d.mul.tex, asset->vertices.v3d.mul.tn,
+                                    3, DAS_VPOS_HEADER_SIG, 
+                                    "Could not write 3D asset vertex texture attributes", 
+                                    file_name);
+
+            writeGenericVertAttrHDR(asset->vertices.v3d.mul.norm, asset->vertices.v3d.mul.nn,
+                                    3, DAS_VPOS_HEADER_SIG, 
+                                    "Could not write 3D asset vertex normal attributes", 
+                                    file_name);
+            break;
+
+        default: break;
+    }
+
+    writeINDX_HDR(asset, file_name);
+    closeFileStream();
+}
 
 
 /***********************************/
 /**** Header assembly functions ****/
 /***********************************/
 
-/// Assemble the info header of the asset
-/// NOTE: This function call assumes that __wfile is a valid pointer to a stream
-static void __das_AssembleINFO_HDR(das_AssetMode dst_mode) {
-    char *uuid = uuid_Generate();
-    das_INFO_HDR inf_hdr = { 
-        .magic_number = __DAS_ASSET_MAGIC_NUMBER,
-        .hdr_name = __DAS_INFO_HEADER_NAME_NN, 
-        .hdr_size = __DAS_INFO_HEADER_SIZE,
-        .uuid = { 0 },
-        .time_st = (deng_ui64_t) time(NULL),
-        .asset_type = dst_mode,
 
-        // Temporary
-        .cmpr = 0
-    };
-
-    strncpy(inf_hdr.uuid, uuid, __DAS_UUID_LEN);
-    inf_hdr.asset_type = dst_mode;
-
-    fwrite(&inf_hdr, sizeof(das_INFO_HDR), 1, __wfile);
+/// Write the initial FILE_HDR data into file
+static void writeFILE_HDR(const char *file_name) {
+    das_FILE_HDR fhdr = { 0 };
+    fhdr.hdr_sig = DAS_FILE_HEADER_SIG;
+    dataWrite(&fhdr, sizeof(das_FILE_HDR), "Could not write FILE_HDR", file_name);
 }
 
 
-/// Assemble vertex header of the asset
-/// NOTE: This function call assumes that __wfile is a valid pointer to a stream
-static void __das_AssembleVERT_HDR(das_VertDynamic vert, das_AssetMode dst_mode) {
-    das_VERT_HDR vert_hdr = {
-        .hdr_name = __DAS_VERTICES_HEADER_NAME_NN
-    };
+/// Write INFO_HDR data into file
+static void writeINFO_HDR(const das_Asset *asset, const char *file_name) {
+    das_INFO_HDR ihdr = { 0 };
 
-    // Check the vertices' destination mode for calculating the header size
-    switch(dst_mode) {
-    case __DAS_ASSET_MODE_3D_UNMAPPED_UNOR:
-        vert_hdr.hdr_size = sizeof(__das_VertTemplate) + vert.v3d.mul.pn * sizeof(das_ObjPosData) + 28;
-        break;
+    ihdr.hdr_sig = DAS_INFO_HEADER_SIG;
+    ihdr.hdr_size = sizeof(das_INFO_HDR);
+    ihdr.asset_type = (das_AssetMode) asset->asset_mode;
+    // reserved for future compression algorithms
+    ihdr.cmpr = 0;
+    ihdr.time_st = time(NULL);
+    strcpy(ihdr.uuid, asset->uuid);
 
-    case DAS_ASSET_MODE_3D_UNMAPPED:
-        // Store only vertex position data
-        vert_hdr.hdr_size = 2 * sizeof(__das_VertTemplate) + vert.v3d.mul.pn * sizeof(das_ObjPosData) + 
-            vert.v3d.mul.nn + sizeof(das_ObjNormalData) + 28;
-        break;
-
-    case __DAS_ASSET_MODE_3D_TEXTURE_MAPPED_UNOR:
-        vert_hdr.hdr_size = 2 * sizeof(__das_VertTemplate) + vert.v3d.mul.pn * (sizeof(das_ObjPosData) + 
-            vert.v3d.mul.tn * sizeof(das_ObjTextureData)) + 28;
-        break;
-
-    case DAS_ASSET_MODE_3D_TEXTURE_MAPPED:
-        vert_hdr.hdr_size = 3 * sizeof(__das_VertTemplate) + vert.v3d.mul.pn * sizeof(das_ObjPosData) + 
-            vert.v3d.mul.tn * sizeof(das_ObjTextureData) + vert.v3d.mul.nn * sizeof(das_ObjNormalData) + 28;
-        break;
-
-    default:
-        break;
-    }
-
-    // Write vertices header data into stream
-    fwrite(&vert_hdr, sizeof(das_VERT_HDR), 1, __wfile);
-
-    // Check which subheaders to build
-    __das_AssembleVPOS_HDR(&vert);
-    switch(dst_mode) {
-    case DAS_ASSET_MODE_3D_UNMAPPED:
-        __das_AssembleVNOR_HDR(&vert);
-        break;
-
-    case __DAS_ASSET_MODE_3D_TEXTURE_MAPPED_UNOR:
-        __das_AssembleVTEX_HDR(&vert);
-        break;
-
-    case DAS_ASSET_MODE_3D_TEXTURE_MAPPED:
-        __das_AssembleVTEX_HDR(&vert);
-        __das_AssembleVNOR_HDR(&vert);
-        break;
-
-    default:
-        break;
-    }
+    dataWrite(&ihdr, sizeof(das_INFO_HDR), 
+              "Could not write INFO_HDR",
+              file_name);
 }
 
 
-/// Assemble vertex position subheader
-/// NOTE: This function call assumes that __wfile is a valid pointer to a stream
-static void __das_AssembleVPOS_HDR(das_VertDynamic *p_vert) {
-    das_VPOS_HDR vpos_hdr = {
-        .hdr_name = __DAS_VERT_POSITION_HEADER_NAME_NN,
-        .vert_c = p_vert->v3d.mul.pn,
-        .hdr_size = p_vert->v3d.mul.pn * sizeof(das_ObjPosData) + 16
-    };
+/// Write metadata into its corresponding header
+static void writeMETA_HDR(char *meta, const char *file_name) {
+    das_META_HDR mhdr = { 0 };
 
-    // Write the header beginning to stream
-    fwrite(&vpos_hdr, sizeof(das_VPOS_HDR), 1, __wfile);
+    const size_t ndsize = 16;
+    mhdr.hdr_sig = DAS_META_HEADER_SIG;
+    mhdr.data_size = strlen(meta) + 1;
+    mhdr.hdr_size = ndsize + mhdr.data_size;
 
-    // Write vertices data to the stream
-    fwrite(p_vert->v3d.mul.pos, sizeof(das_ObjPosData), vpos_hdr.vert_c, __wfile);
+    dataWrite(&mhdr, ndsize, 
+              "Could not write initial META_HDR data",
+              file_name);
+
+    dataWrite(meta, mhdr.data_size,
+              "Could not write metadata",
+              file_name);
 }
 
 
-/// Assemble texture position subheader
-/// NOTE: This function call assumes that __wfile is a valid pointer to a stream
-static void __das_AssembleVTEX_HDR(das_VertDynamic *p_vert) { 
-    das_VTEX_HDR vtex_hdr = {
-        .hdr_name = __DAS_TEX_POSITION_HEADER_NAME_NN,
-        .vert_c = p_vert->v3d.mul.tn,
-        .hdr_size = p_vert->v3d.mul.tn * sizeof(das_ObjTextureData) + 16
-    };
-    
-    // Write the header beginning to stream
-    fwrite(&vtex_hdr, sizeof(das_VTEX_HDR), 1, __wfile);
+/// Write the initial VERT_HDR data to the file
+static void writeVERT_HDR(const das_Asset *asset, const char *file_name) {
+    das_VERT_HDR vhdr = { 0 };
+    vhdr.hdr_sig = DAS_VERT_HEADER_SIG;
+    vhdr.hdr_size = sizeof(das_VERT_HDR);
 
-    // Write vertices data to the stream
-    fwrite(p_vert->v3d.mul.tex, sizeof(das_ObjTextureData), vtex_hdr.vert_c, __wfile);
-}
+    // Find out the header size according to assets asset mode
+    const size_t gnd_size = 17;
+    switch(asset->asset_mode) {
+        case DAS_ASSET_MODE_2D_UNMAPPED:
+            vhdr.hdr_size += gnd_size;
+            vhdr.hdr_size += asset->vertices.v2d.mul.pn * sizeof(das_ObjPosData2D);
+            break;
 
+        case DAS_ASSET_MODE_2D_TEXTURE_MAPPED:
+            vhdr.hdr_size += 2 * gnd_size;
+            vhdr.hdr_size += asset->vertices.v2d.mul.pn * sizeof(das_ObjPosData2D);
+            vhdr.hdr_size += asset->vertices.v2d.mul.tn * sizeof(das_ObjTextureData);
+            break;
 
-/// Assemble texture position subheader
-/// NOTE: This function call assumes that __wfile is a valid pointer to a stream
-static void __das_AssembleVNOR_HDR(das_VertDynamic *p_vert) { 
-    das_VTEX_HDR vnor_hdr = {
-        .hdr_name = __DAS_NORM_POSITION_HEADER_NAME_NN,
-        .vert_c = p_vert->v3d.mul.nn,
-        .hdr_size = p_vert->v3d.mul.nn * sizeof(das_ObjNormalData) + 16
-    };
-    
-    // Write the header beginning to stream
-    fwrite(&vnor_hdr, sizeof(das_VNOR_HDR), 1, __wfile);
+        case __DAS_ASSET_MODE_3D_UNMAPPED_UNOR:
+            vhdr.hdr_size += gnd_size;
+            vhdr.hdr_size += asset->vertices.v3d.mul.pn * sizeof(das_ObjPosData);
+            break;
 
-    // Write vertices data to the stream
-    fwrite(p_vert->v3d.mul.norm, sizeof(das_ObjNormalData), vnor_hdr.vert_c, __wfile);
-}
+        case DAS_ASSET_MODE_3D_UNMAPPED:
+            vhdr.hdr_size += 2 * gnd_size;
+            vhdr.hdr_size += asset->vertices.v3d.mul.pn * sizeof(das_ObjPosData);
+            vhdr.hdr_size += asset->vertices.v3d.mul.nn * sizeof(das_ObjNormalData);
+            break;
 
-    
-/// Assemble META_HDR with additional meta data 
-/// NOTE: This function call assumes that __wfile is a valid pointer to a stream
-static void __das_AssembleMETA_HDR(char *meta_data) {
-    das_META_HDR meta_hdr = {
-        .beg = __DAS_META_HEADER_NAME,
-        .hdr_size = 16 + strlen(meta_data),
-        .data_size = strlen(meta_data),
-        .data = meta_data,
-    };
+        case __DAS_ASSET_MODE_3D_TEXTURE_MAPPED_UNOR:
+            vhdr.hdr_size += 2 * gnd_size;
+            vhdr.hdr_size += asset->vertices.v3d.mul.pn * sizeof(das_ObjPosData);
+            vhdr.hdr_size += asset->vertices.v3d.mul.tn * sizeof(das_ObjTextureData);
+            break;
 
-    
-    // Write the first part of the header into the stream
-    fwrite(&meta_hdr, 8, 2, __wfile);
+        case DAS_ASSET_MODE_3D_TEXTURE_MAPPED:
+            vhdr.hdr_size += 3 * gnd_size;
+            vhdr.hdr_size += asset->vertices.v3d.mul.pn * sizeof(das_ObjPosData);
+            vhdr.hdr_size += asset->vertices.v3d.mul.tn * sizeof(das_ObjTextureData);
+            vhdr.hdr_size += asset->vertices.v3d.mul.nn * sizeof(das_ObjNormalData);
+            break;
 
-    // Write metadata into the stream
-    fwrite(meta_hdr.data, sizeof(char), strlen(meta_hdr.data), __wfile);
-}
-
-
-/// Assemble indices header of the asset
-/// NOTE: This function call assumes that __wfile is a valid pointer to a stream
-static void __das_AssembleINDX_HDR(das_IndicesDynamic inds, das_AssetMode am) {
-    // 
-    das_INDX_HDR indx_hdr = {
-        .hdr_name = __DAS_INDICES_HEADER_NAME,
-        .hdr_size = (deng_ui32_t) (16 + inds.n * sizeof(deng_ui32_t)),
-        .ind_c = (deng_ui32_t) inds.n
-    };
-
-    // Write the header into the stream
-    fwrite(&indx_hdr, sizeof(das_INDX_HDR), 1, __wfile);
-
-    // Write position indices array into the stream
-    fwrite(inds.pos, sizeof(deng_ui32_t), inds.n, __wfile);
-
-    // Write position indices array into the stream
-    if(am == __DAS_ASSET_MODE_3D_TEXTURE_MAPPED_UNOR || 
-       am == DAS_ASSET_MODE_3D_TEXTURE_MAPPED)
-        fwrite(inds.tex, sizeof(deng_ui32_t), inds.n, __wfile);
-
-    // Write position indices array into the stream
-    if(am == DAS_ASSET_MODE_3D_UNMAPPED ||
-       am == DAS_ASSET_MODE_3D_TEXTURE_MAPPED)
-        fwrite(inds.norm, sizeof(deng_ui32_t), inds.n, __wfile);
-}
-
-
-/// Open new file stream for writing 
-static void __das_OpenFileStream(char *file_name) {
-    __wfile = fopen(file_name, "wb");
-    if(!__wfile)
-        FILE_ERR(file_name);
-}
-
-
-/// Close the current file stream
-static void __das_CloseFileStream() {
-    if(__wfile) {
-        fclose(__wfile);
-        __wfile = NULL;
+        default:
+            DAS_FWOASSERT(NULL, "Invalid asset mode specified", file_name);
+            break;
     }
 }
 
 
-/// Assemble static DENG asset from das_Asset instance
-void das_StaticAssemble (
-    das_Asset *p_asset,
-    char *file_name,
-    char **meta_data,
-    size_t meta_c
-) {
-    __das_OpenFileStream(file_name);
+/// Write generic vertex attribute header and its data
+static void writeGenericVertAttrHDR(void *vt, uint32_t vc, uint32_t esize, uint64_t sig,
+                                    const char *emsg, const char *file_name) {
+    __das_VertTemplate vthdr = { 0 };
+    const uint32_t ndsize = 17;
+    const uint64_t dsize = vc * esize * sizeof(float);
+    vthdr.hdr_sig = sig;
+    vthdr.esize = esize;
+    vthdr.vert_c = vc;
+    vthdr.hdr_size = ndsize + dsize;
 
-    // Assemble INFO_HDR
-    __das_AssembleINFO_HDR(p_asset->asset_mode);
+    // Write header without its data
+    dataWrite(&vthdr, ndsize, emsg, file_name);
 
-    // Check for any metadata and write it to the stream if it exists
-    for(size_t i = 0; i < meta_c; i++)
-        __das_AssembleMETA_HDR(meta_data[i]);
-
-    // Assemble VERT_HDR
-    __das_AssembleVERT_HDR(p_asset->vertices, p_asset->asset_mode);
-
-    // Assemble INDX_HDR
-    __das_AssembleINDX_HDR(p_asset->indices, p_asset->asset_mode);
-    __das_CloseFileStream();
+    // Write header data
+    dataWrite(vt, dsize, emsg, file_name);
 }
 
+
+/// Write INDX_HDR and all indicies data associated with it
+static void writeINDX_HDR(const das_Asset *asset, const char *file_name) {
+    const uint32_t ndsize = 16;
+    das_INDX_HDR ihdr = { 0 };
+    ihdr.hdr_sig = DAS_INDX_HEADER_SIG;
+    ihdr.ind_c = asset->indices.n;
+    ihdr.hdr_size = ndsize; 
+
+    // Write header data without actual indices
+    dataWrite(&ihdr, ndsize, "Could not write initial INDX_HDR data", file_name);
+
+    // Check the asset type and write correct indices to the file
+    switch(asset->asset_mode) {
+        case DAS_ASSET_MODE_2D_UNMAPPED:
+            dataWrite(asset->indices.pos, ihdr.ind_c, 
+                      "Could not write 2D asset position indices",
+                      file_name);
+            break;
+
+        case DAS_ASSET_MODE_2D_TEXTURE_MAPPED:
+            dataWrite(asset->indices.pos, ihdr.ind_c,
+                      "Could not write 2D asset position indices",
+                      file_name);
+
+            dataWrite(asset->indices.tex, ihdr.ind_c,
+                      "Could not write 2D asset texture indices",
+                      file_name);
+            break;
+
+        case __DAS_ASSET_MODE_3D_UNMAPPED_UNOR:
+            dataWrite(asset->indices.pos, ihdr.ind_c, 
+                      "Could not write 3D asset position indices",
+                      file_name);
+            break;
+
+        case DAS_ASSET_MODE_3D_UNMAPPED:
+            dataWrite(asset->indices.pos, ihdr.ind_c, 
+                      "Could not write 3D asset position indices",
+                      file_name);
+
+            dataWrite(asset->indices.norm, ihdr.ind_c, 
+                      "Could not write 3D asset vertex normal indices",
+                      file_name);
+            break;
+
+        case __DAS_ASSET_MODE_3D_TEXTURE_MAPPED_UNOR:
+            dataWrite(asset->indices.pos, ihdr.ind_c, 
+                      "Could not write 3D asset position indices",
+                      file_name);
+
+            dataWrite(asset->indices.tex, ihdr.ind_c, 
+                      "Could not write 3D asset texture indices",
+                      file_name);
+            break;
+
+        case DAS_ASSET_MODE_3D_TEXTURE_MAPPED:
+            dataWrite(asset->indices.pos, ihdr.ind_c, 
+                      "Could not write 3D asset position indices",
+                      file_name);
+
+            dataWrite(asset->indices.tex, ihdr.ind_c, 
+                      "Could not write 3D asset texture indices",
+                      file_name);
+
+            dataWrite(asset->indices.norm, ihdr.ind_c, 
+                      "Could not write 3D asset vertex normal indices",
+                      file_name);
+            break;
+
+        default:
+            DAS_FWOASSERT(NULL, "Invalid asset mode specified for writing INDX_HDR", file_name);
+            break;
+    }
+}

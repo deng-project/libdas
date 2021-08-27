@@ -14,16 +14,18 @@ OBJ = $(DSTDIR)/ldtest.c.o \
 LD_TEST_OBJ = $(DSTDIR)/ldtest.c.o \
 			  $(DSTDIR)/das_loader.c.o
 
+HDRS = include/** \
+
 ALL_TARGETS = libdas.so \
 			  dam
 
 
-all: $(ALL_TARGETS)
+all: $(ALL_TARGETS) $(HDRS)
 	$(CC) $(OBJ) -fPIC -o libdas.so
 	$(CC) $(OBJ) -o dam
 
 # Loading test section
-ldtest: $(LD_TEST_OBJ)
+ldtest: $(LD_TEST_OBJ) $(HDRS)
 	$(CC) $(LD_TEST_OBJ) -o ldtest
 
 ldtest.c.o: $(SRCDIR)/ldtest.c

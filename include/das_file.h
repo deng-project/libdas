@@ -1,7 +1,8 @@
 #ifndef __DAS_FILE_H
 #define __DAS_FILE_H
 
-#define DAS_FASSERT(val, msg, fname)        if(!(val)) fprintf(stderr, "%s\nFailed to load file %s\n", msg, fname), exit(-1)
+#define DAS_FROASSERT(val, msg, fname)          if(!(val)) fprintf(stderr, "%s\nFailed to load file %s\n", msg, fname), exit(-1)
+#define DAS_FWOASSERT(val, msg, fname)          if(!(val)) fprintf(stderr, "%s\nFailed to write file %s\n", msg, fname), exit(-1)
 
 #define DAS_FILE_HEADER_SIG                 (uint32_t) 0x44415300
 #define DAS_INFO_HEADER_SIG                 (uint64_t) 0x494e464f5f484452
@@ -25,7 +26,6 @@ typedef struct das_FILE_HDR {
 
 
 typedef struct das_INFO_HDR {
-    uint64_t magic_number;
     uint64_t hdr_sig;
     uint32_t hdr_size;
     char uuid[DAS_UUID_LEN];

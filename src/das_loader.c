@@ -1,9 +1,10 @@
-/// libdas: DENG asset handling library
+/// libdas: DENG asset handling management library
 /// licence: Apache, see LICENCE file
 /// file: das_loader.c - das file format reader implementation file
 /// author: Karl-Mihkel Ott
 
 
+#define DAS_FILE
 #define __DAS_LOADER_C
 #include <das_loader.h>
 
@@ -134,7 +135,7 @@ void das_LoadAsset (
 
 /// Open file for reading and set the buffer length
 void openFileStreamRO(const char *file_name) {
-    DAS_FASSERT(__sfile = fopen(file_name, "rb"),
+    DAS_FROASSERT(__sfile = fopen(file_name, "rb"),
                "Could not open file for reading",
                file_name);
 
@@ -148,7 +149,7 @@ void openFileStreamRO(const char *file_name) {
 
 /// Open file for writing and set the buffer length as infinite
 void openFileStreamWO(const char *file_name) {
-    DAS_FASSERT(__sfile = fopen(file_name, "wb"),
+    DAS_FROASSERT(__sfile = fopen(file_name, "wb"),
               "Could not open file for writing",
               file_name);
 
@@ -156,17 +157,23 @@ void openFileStreamWO(const char *file_name) {
 }
 
 
-/// Read generic chunks of data from the current file stream
+/// Read generic chunk of data from the current file stream
 void dataRead(void *buf, size_t s, const char *emsg, const char *file_name) {
-    DAS_FASSERT(__offset + s < __flen, emsg, file_name);
+    DAS_FROASSERT(__offset + s < __flen, emsg, file_name);
     fread(buf, s, 1, __sfile);
     __offset += s;
+}
+
+/// Write generic chunk of data into current file stream
+void dataWrite(void *buf, size_t s, const char *emsg, const char *file_name) {
+    DAS_FWOASSERT(fwrite(buf, s, 1, __sfile),
+                  emsg, file_name);
 }
 
 
 /// Skip read only file stream from current offset
 void skipStreamRO(size_t len, const char *emsg, const char *file_name) {
-    DAS_FASSERT(__offset + len >= __flen, emsg, file_name);
+    DAS_FROASSERT(__offset + len >= __flen, emsg, file_name);
     fseek(__sfile, __offset + len, SEEK_SET);
 }
 
@@ -192,7 +199,7 @@ void readFILE_HDR(das_FILE_HDR *fhdr, const char *file_name) {
     sprintf(emsg, "Could not read FILE_HDR, potentially corrupt file or stream");
     dataRead(fhdr, sizeof(das_FILE_HDR), emsg, file_name);
 
-    DAS_FASSERT(fhdr->hdr_sig == DAS_FILE_HEADER_SIG, 
+    DAS_FROASSERT(fhdr->hdr_sig == DAS_FILE_HEADER_SIG, 
                 "Could not verify file signature",
                 file_name);
 }
@@ -206,7 +213,7 @@ void readINFO_HDR(das_INFO_HDR *ihdr, const char *file_name) {
     dataRead(ihdr, sizeof(das_INFO_HDR), emsg, file_name);
 
     // Verify that the header signature is correct
-    DAS_FASSERT(ihdr->hdr_sig == DAS_INFO_HEADER_SIG,
+    DAS_FROASSERT(ihdr->hdr_sig == DAS_INFO_HEADER_SIG,
                 "Could not verify header signature for INFO_HDR",
                 file_name);
 }
@@ -229,11 +236,11 @@ void skipMetaHeaders(const char *file_name) {
         return;
     }
 
-    DAS_FASSERT(mhdr.hdr_size + rsize != mhdr.data_size,
+    DAS_FROASSERT(mhdr.hdr_size + rsize != mhdr.data_size,
                 "Could not get correct metadata header size",
                 file_name);
 
-    DAS_FASSERT(mhdr.data_size + __offset >= __flen,
+    DAS_FROASSERT(mhdr.data_size + __offset >= __flen,
                 "Corrupt metadata size",
                 file_name);
 
@@ -255,7 +262,7 @@ bool tryToReadMeta(das_META_HDR *meta, const char *file_name) {
         return false;
     }
 
-    DAS_FASSERT(meta->hdr_size + rsize != meta->data_size,
+    DAS_FROASSERT(meta->hdr_size + rsize != meta->data_size,
                 "Could not get correct metadata header size",
                 file_name);
 
@@ -278,7 +285,7 @@ void readVERT_HDR(das_VERT_HDR *vhdr, const char *file_name) {
              "Could not read VERT_HDR, potentially corrupt file",
              file_name);
 
-    DAS_FASSERT(vhdr->hdr_sig != DAS_VERT_HEADER_SIG,
+    DAS_FROASSERT(vhdr->hdr_sig != DAS_VERT_HEADER_SIG,
                 "Could not verify signature for VERT_HDR",
                 file_name);
 }
@@ -291,11 +298,11 @@ void readGenVertHdr(__das_VertTemplate *thdr, uint64_t exsig, const char *file_n
             "Could not read generic vertex attribute header, potentially corrupt file",
             file_name);
 
-    DAS_FASSERT(thdr->hdr_sig != exsig, 
+    DAS_FROASSERT(thdr->hdr_sig != exsig, 
                 "Could not verify signature for VERT_HDR attribute",
                 file_name);
 
-    DAS_FASSERT(thdr->hdr_size != thdr->vert_c * thdr->esize * sizeof(float) + tsize,
+    DAS_FROASSERT(thdr->hdr_size != thdr->vert_c * thdr->esize * sizeof(float) + tsize,
                 "Could not get correct vert attribute header size",
                 file_name);
 }
@@ -308,7 +315,7 @@ void readINDX_HDR(das_AssetMode mode, das_INDX_HDR *ihdr, const char *file_name)
              "Could not read INDX_HDR, potentially corrupt file",
              file_name);
 
-    DAS_FASSERT(ihdr->hdr_sig != DAS_INDX_HEADER_SIG,
+    DAS_FROASSERT(ihdr->hdr_sig != DAS_INDX_HEADER_SIG,
                 "Could not verify signature for INDX_HDR",
                 file_name);
 
@@ -346,12 +353,12 @@ void readINDX_HDR(das_AssetMode mode, das_INDX_HDR *ihdr, const char *file_name)
             break;
 
         case DAS_ASSET_MODE_UNDEFINED:
-            DAS_FASSERT(NULL, "Invalid asset mode specified on reading INDX_HDR",
+            DAS_FROASSERT(NULL, "Invalid asset mode specified on reading INDX_HDR",
                        file_name);
             break;
     }
 
-    DAS_FASSERT(ihdr->hdr_size == ihdr->ind_c * bfc * sizeof(uint32_t) + isize,
+    DAS_FROASSERT(ihdr->hdr_size == ihdr->ind_c * bfc * sizeof(uint32_t) + isize,
                 "Could not get correct INDX_HDR size",
                 file_name);
 

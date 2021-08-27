@@ -1,21 +1,12 @@
----
-title: DAS file format
-date: 2021-04-07
----
-
 # DENG asset file format (.das) specifications  
 DAS is a file format implementation for storing 3D models by DENG project. 
 This file format uses .das extension and can be read header by header. 
 DENG project includes a tool for translating various 3D model formats into 
 DENG asset format, but if you want to create your own implementation of the 
-format translator then read about the file structure below.  
-DAS format consists of mainly three headers INFO\_HDR, VERT\_HDR and INDX\_HDR.  
-Additional headers are specified with following tags BEG\_HDR and END\_HDR and can
-contain various meta information.  
-**NOTE: Custom headers can only be placed in das file between INFO\_HDR and VERT\_HDR!**
+format translator then you can read about the file structure below.  
 
 ### Magic number and FILE\_HDR
-FILE\_HDR is a special header that contains only the file signature and padding of 13 bytes.
+FILE\_HDR is a special header that contains only the file signature and padding of 12 bytes.
 DENG asset file signature is DAS or in uint32_t format 0x44415300, assuming that little endian 
 is used.
 
@@ -62,7 +53,7 @@ The layout of VPOS\_HDR is following:
 * 4 bytes: Header size
 * 4 bytes: Vertices count  
 * 1 byte Element count (3)
-* n * 12 bytes: Vertex coordinates (x, y, z: type f32)
+* n * 9 bytes: Vertex coordinates (x, y, z: type f32)
 
 #### VTEX\_HDR
 VTEX\_HDR is a subheader of VERT\_HDR, which contains information about texture positions. This header is not necessary if

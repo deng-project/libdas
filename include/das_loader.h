@@ -1,4 +1,4 @@
-/// DENG: dynamic engine - small but powerful 3D game engine
+/// libdas: DENG asset handling management library
 /// licence: Apache, see LICENCE file
 /// file: das_loader.h - das file format reader header file
 /// author: Karl-Mihkel Ott
@@ -54,7 +54,7 @@ extern "C" {
 #endif
 
 
-#if defined (__DAS_LOADER_C) || defined (__DAS_ASSEMBLER_C) || defined (__TEX_LOADER_C)
+#ifdef DAS_FILE
     #define EMSG_LEN        2048
     #define ZB(t) memset(&t, 0, sizeof(t))
 
@@ -62,6 +62,7 @@ extern "C" {
     void openFileStreamRO(const char *file_name); 
     void openFileStreamWO(const char *file_name);
     void dataRead(void *buf, size_t s, const char *emsg, const char *file_name);
+    void dataWrite(void *buf, size_t s, const char *emsg, const char *file_name);
     //void seekStream();
     void skipStreamRO(size_t len, const char *esmg, const char *file_name);
     void closeFileStream();

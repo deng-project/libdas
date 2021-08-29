@@ -209,11 +209,11 @@ void readFILE_HDR(das_FILE_HDR *fhdr, const char *file_name) {
     sprintf(emsg, "Could not read FILE_HDR, potentially corrupt file or stream");
     dataRead(fhdr, sizeof(das_FILE_HDR), emsg, file_name);
 
-    printf("File signature: 0x%08x\n", fhdr->hdr_sig);
-    printf("Expected signature: 0x%08x\n", DAS_FILE_HEADER_SIG);
-    DAS_FROASSERT(fhdr->hdr_sig == DAS_FILE_HEADER_SIG, 
+    printf("FILE header signature: 0x%08x\n", fhdr->hdr_sig);
+    printf("FILE header signature: 0x%08x\n", DAS_FILE_HEADER_SIG);
+    DAS_FROASSERT(fhdr->hdr_sig == DAS_FILE_HEADER_SIG,
                   "Could not verify file signature",
-                   file_name);
+                  file_name);
 }
 
 
@@ -297,9 +297,9 @@ void readVERT_HDR(das_VERT_HDR *vhdr, const char *file_name) {
              "Could not read VERT_HDR, potentially corrupt file",
              file_name);
 
-    DAS_FROASSERT(vhdr->hdr_sig != DAS_VERT_HEADER_SIG,
-                "Could not verify signature for VERT_HDR",
-                file_name);
+    DAS_FROASSERT(vhdr->hdr_sig == DAS_VERT_HEADER_SIG,
+                  "Could not verify signature for VERT_HDR",
+                  file_name);
 }
 
 
@@ -310,11 +310,11 @@ void readGenVertHdr(__das_VertTemplate *thdr, uint64_t exsig, const char *file_n
             "Could not read generic vertex attribute header, potentially corrupt file",
             file_name);
 
-    DAS_FROASSERT(thdr->hdr_sig != exsig, 
+    DAS_FROASSERT(thdr->hdr_sig == exsig, 
                 "Could not verify signature for VERT_HDR attribute",
                 file_name);
 
-    DAS_FROASSERT(thdr->hdr_size != thdr->vert_c * thdr->esize * sizeof(float) + tsize,
+    DAS_FROASSERT(thdr->hdr_size == thdr->vert_c * thdr->esize * sizeof(float) + tsize,
                 "Could not get correct vert attribute header size",
                 file_name);
 }
@@ -327,11 +327,11 @@ void readINDX_HDR(das_AssetMode mode, das_INDX_HDR *ihdr, const char *file_name)
              "Could not read INDX_HDR, potentially corrupt file",
              file_name);
 
-    DAS_FROASSERT(ihdr->hdr_sig != DAS_INDX_HEADER_SIG,
+    DAS_FROASSERT(ihdr->hdr_sig == DAS_INDX_HEADER_SIG,
                 "Could not verify signature for INDX_HDR",
                 file_name);
 
-    uint8_t bfc = 0;
+    uint32_t bfc = 0;
     bool is_tex = false;
     bool is_norm = false;
     switch(mode) {
@@ -370,6 +370,8 @@ void readINDX_HDR(das_AssetMode mode, das_INDX_HDR *ihdr, const char *file_name)
             break;
     }
 
+    printf("Header size: %u\n", ihdr->hdr_size);
+    printf("Calculated size: %lu\n", ihdr->ind_c * bfc * (uint32_t) sizeof(uint32_t) + isize);
     DAS_FROASSERT(ihdr->hdr_size == ihdr->ind_c * bfc * sizeof(uint32_t) + isize,
                 "Could not get correct INDX_HDR size",
                 file_name);

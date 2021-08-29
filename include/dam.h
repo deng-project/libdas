@@ -18,10 +18,11 @@
     #include <time.h>
     #include <string.h>
 
-    #include <data/assets.h>
-    #include <data/das_file.h>
-    #include <data/das_loader.h>
-    #include <data/das_static_assembler.h>
+    #include <uuid.h>
+    #include <assets.h>
+    #include <das_file.h>
+    #include <das_loader.h>
+    #include <das_asset_assembler.h>
     #include <data/wavefront_obj.h>
 #endif
 
@@ -60,15 +61,15 @@
      *  - Total count of unique vertices
      *  - Total count of drawn vertices
      */
-    static void __dam_ListAsset(const char *file_name);
+    static void listAssetData(const char *file_name);
 
 
     /// Assemble deng asset from specified asset assembly flags
-    static void __dam_AssembleAsset(das_Options *opt);
+    static void buildAsset(das_Options *opt);
 
     
     /// Parse all user input data
-    static das_Options __dam_ParseInput(int argc, char *argv[]);
+    static das_Options parseInput(int argc, char *argv[]);
 #endif
 
 #endif

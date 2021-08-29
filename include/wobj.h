@@ -50,8 +50,6 @@ extern "C" {
 
     #define MEM_ERR(err_msg)                            fprintf(stderr, "Memory allocation error: %s\n", err_msg), \
                                                         exit(EXIT_FAILURE)
-
-
 #endif
 
 #define DEFAULT_MEM_CAP                             128

@@ -95,13 +95,13 @@ static uint32_t selectGroup(uint32_t *nz_objs, uint32_t nz_oc, uint32_t *nz_grps
     printf("Groups\n"\
            "======\n");
     for(uint32_t i = 0; i < nz_gc; i++)
-        printf("g%u) %s\n", i + 1, ents[i].data.name);
+        printf("g%u) %s\n", i + 1, ents[nz_grps[i]].data.name);
 
     // List all objects
     printf("Objects\n"\
            "=======\n");
     for(uint32_t i = 0; i < nz_oc; i++)
-        printf("o%u) %s\n", i + 1, ents[i].data.name);
+        printf("o%u) %s\n", i + 1, ents[nz_objs[i]].data.name);
 
 
     char ibuf[BUF_LEN] = { 0 };
@@ -156,6 +156,12 @@ static void mkAssetFromWOBJ(das_Asset *asset, das_WavefrontObjEntity *ents, uint
         }
     }
 
+    /// LOGGING
+    for(uint32_t i = 0; i < nz_oc; i++)
+        printf("Object with vertices: %s\n", ents[nz_objs[i]].data.name);
+    for(uint32_t i = 0; i < nz_gc; i++)
+        printf("Object with vertices: %s\n", ents[nz_grps[i]].data.name);
+
     // In case there are no objects or groups with appropriate vertices, quit
     if(!(nz_oc + nz_gc)) {
         free(nz_objs);
@@ -173,6 +179,22 @@ static void mkAssetFromWOBJ(das_Asset *asset, das_WavefrontObjEntity *ents, uint
     // For test purposes assume that 3D vmn mode is used
     asset->asset_mode = DAS_ASSET_MODE_3D_TEXTURE_MAPPED;
     asset->uuid = uuid_Generate();
+
+    // Clean all other entities data
+    for(uint32_t i = 0; i < ent_c; i++) {
+        if(i != eind) {
+            free(ents[i].data.vert_data.v3d.mul.pos);
+            free(ents[i].data.vert_data.v3d.mul.tex);
+            free(ents[i].data.vert_data.v3d.mul.norm);
+
+            free(ents[i].data.ind_data.pos);
+            free(ents[i].data.ind_data.tex);
+            free(ents[i].data.ind_data.norm);
+        }
+    }
+
+    free(nz_objs);
+    free(nz_grps);
 }
 
 
@@ -188,14 +210,16 @@ int main(int argv, char *argc[]) {
     uint32_t ent_c = 0; 
     das_ParseWavefrontOBJ(&ents, &ent_c, argc[1]);
 
-
-    // LOGGING TO SEE VERTICES COUNT
+    // For each object check its name
     for(uint32_t i = 0; i < ent_c; i++) {
+        if(ents[i].type == DAS_ENTITY_TYPE_GROUP)
+            printf("Group: %s\n", ents[i].data.name);
+        else if(ents[i].type == DAS_ENTITY_TYPE_OBJECT)
+            printf("Object: %s\n", ents[i].data.name);
+
         printf("Position vertices count: %lu\n", ents[i].data.vert_data.v3d.mul.pn);
         printf("Texture vertices count: %lu\n", ents[i].data.vert_data.v3d.mul.tn);
-        printf("Vertex normals count: %lu\n\n", ents[i].data.vert_data.v3d.mul.nn);
-
-        printf("Indices count: %lu\n", ents[i].data.ind_data.n);
+        printf("Vertex normals count: %lu\n", ents[i].data.vert_data.v3d.mul.nn);
     }
 
     das_Asset asset = { 0 };

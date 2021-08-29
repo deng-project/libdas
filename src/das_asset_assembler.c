@@ -64,7 +64,7 @@ void das_CreateAssetFile(das_Asset *asset, const char *file_name, char *meta) {
                                     file_name);
 
             writeGenericVertAttrHDR(asset->vertices.v3d.mul.tex, asset->vertices.v3d.mul.tn,
-                                    3, DAS_VTEX_HEADER_SIG, 
+                                    2, DAS_VTEX_HEADER_SIG, 
                                     "Could not write 3D asset vertex texture attributes", 
                                     file_name);
             break;
@@ -76,7 +76,7 @@ void das_CreateAssetFile(das_Asset *asset, const char *file_name, char *meta) {
                                     file_name);
 
             writeGenericVertAttrHDR(asset->vertices.v3d.mul.tex, asset->vertices.v3d.mul.tn,
-                                    3, DAS_VTEX_HEADER_SIG, 
+                                    2, DAS_VTEX_HEADER_SIG, 
                                     "Could not write 3D asset vertex texture attributes", 
                                     file_name);
 
@@ -222,65 +222,86 @@ static void writeINDX_HDR(const das_Asset *asset, const char *file_name) {
     das_INDX_HDR ihdr = { 0 };
     ihdr.hdr_sig = DAS_INDX_HEADER_SIG;
     ihdr.ind_c = asset->indices.n;
-    ihdr.hdr_size = ndsize; 
+
+    // Check the asset mode and thus find the header size
+    switch(asset->asset_mode) {
+        case DAS_ASSET_MODE_2D_UNMAPPED:
+        case __DAS_ASSET_MODE_3D_UNMAPPED_UNOR:
+            ihdr.hdr_size = ndsize + asset->indices.n * sizeof(uint32_t);
+            break;
+
+        case DAS_ASSET_MODE_2D_TEXTURE_MAPPED:
+        case __DAS_ASSET_MODE_3D_TEXTURE_MAPPED_UNOR:
+        case DAS_ASSET_MODE_3D_UNMAPPED:
+            ihdr.hdr_size = ndsize + 2 * asset->indices.n * sizeof(uint32_t);
+            break;
+
+        case DAS_ASSET_MODE_3D_TEXTURE_MAPPED:
+            ihdr.hdr_size = ndsize + 3 * asset->indices.n * sizeof(uint32_t);
+            break;
+
+        default:
+            break;
+    }
+
 
     // Write header data without actual indices
     dataWrite(&ihdr, ndsize, "Could not write initial INDX_HDR data", file_name);
 
-    // Check the asset type and write correct indices to the file
+    // Check the asset type and write correct indices data to file
     switch(asset->asset_mode) {
         case DAS_ASSET_MODE_2D_UNMAPPED:
-            dataWrite(asset->indices.pos, ihdr.ind_c, 
+            dataWrite(asset->indices.pos, ihdr.ind_c * sizeof(uint32_t), 
                       "Could not write 2D asset position indices",
                       file_name);
             break;
 
         case DAS_ASSET_MODE_2D_TEXTURE_MAPPED:
-            dataWrite(asset->indices.pos, ihdr.ind_c,
+            dataWrite(asset->indices.pos, ihdr.ind_c * sizeof(uint32_t),
                       "Could not write 2D asset position indices",
                       file_name);
 
-            dataWrite(asset->indices.tex, ihdr.ind_c,
+            dataWrite(asset->indices.tex, ihdr.ind_c * sizeof(uint32_t),
                       "Could not write 2D asset texture indices",
                       file_name);
             break;
 
         case __DAS_ASSET_MODE_3D_UNMAPPED_UNOR:
-            dataWrite(asset->indices.pos, ihdr.ind_c, 
+            dataWrite(asset->indices.pos, ihdr.ind_c * sizeof(uint32_t), 
                       "Could not write 3D asset position indices",
                       file_name);
             break;
 
         case DAS_ASSET_MODE_3D_UNMAPPED:
-            dataWrite(asset->indices.pos, ihdr.ind_c, 
+            dataWrite(asset->indices.pos, ihdr.ind_c * sizeof(uint32_t), 
                       "Could not write 3D asset position indices",
                       file_name);
 
-            dataWrite(asset->indices.norm, ihdr.ind_c, 
+            dataWrite(asset->indices.norm, ihdr.ind_c * sizeof(uint32_t), 
                       "Could not write 3D asset vertex normal indices",
                       file_name);
             break;
 
         case __DAS_ASSET_MODE_3D_TEXTURE_MAPPED_UNOR:
-            dataWrite(asset->indices.pos, ihdr.ind_c, 
+            dataWrite(asset->indices.pos, ihdr.ind_c * sizeof(uint32_t), 
                       "Could not write 3D asset position indices",
                       file_name);
 
-            dataWrite(asset->indices.tex, ihdr.ind_c, 
+            dataWrite(asset->indices.tex, ihdr.ind_c * sizeof(uint32_t), 
                       "Could not write 3D asset texture indices",
                       file_name);
             break;
 
         case DAS_ASSET_MODE_3D_TEXTURE_MAPPED:
-            dataWrite(asset->indices.pos, ihdr.ind_c, 
+            dataWrite(asset->indices.pos, ihdr.ind_c * sizeof(uint32_t), 
                       "Could not write 3D asset position indices",
                       file_name);
 
-            dataWrite(asset->indices.tex, ihdr.ind_c, 
+            dataWrite(asset->indices.tex, ihdr.ind_c * sizeof(uint32_t), 
                       "Could not write 3D asset texture indices",
                       file_name);
 
-            dataWrite(asset->indices.norm, ihdr.ind_c, 
+            dataWrite(asset->indices.norm, ihdr.ind_c * sizeof(uint32_t), 
                       "Could not write 3D asset vertex normal indices",
                       file_name);
             break;

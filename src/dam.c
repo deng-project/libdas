@@ -3,6 +3,7 @@
 /// file: dam.h - deng asset manager header file
 /// author: Karl-Mihkel Ott
 
+#define DAS_FILE
 #define __DAM_C
 #include <dam.h>
 
@@ -216,7 +217,7 @@ void __dam_AssembleAsset(dam_AssemblyInfo *p_info) {
 
 
 /// Parse user required actions
-dam_Options __dam_ParseInput(int argc, char *argv[]) {
+dam_Options parseInput(int argc, char *argv[]) {
     dam_Options opt = { 0 };
     opt.das_file = argv[argc - 1];
 
@@ -286,10 +287,10 @@ dam_Options __dam_ParseInput(int argc, char *argv[]) {
 
 int main(int argc, char *argv[]) {
     // Parse user input into input actions
-    dam_Options opt = __dam_ParseInput(argc, argv);
+    dam_Options opt = parseInput(argc, argv);
 
     // Check if info should be listed or assembly performed
-    if(opt.show_finfo) __dam_ListAsset();
+    if(opt.show_finfo) listAsset();
     else {
         if(opt.meta) {
             static char meta[META_LEN] = { 0 };
@@ -297,7 +298,7 @@ int main(int argc, char *argv[]) {
             opt.meta = meta;
         }
 
-        __das_AssembleAsset(opt);
+        assembleAsset(opt);
     }
     return 0;
 }

@@ -9,6 +9,77 @@
 #include <wobj.h>
 
 
+/// Parse all data in Wavefront OBJ file and write all information about vertices and indices to p_asset
+void das_ParseWavefrontOBJ(das_WavefrontObjEntity **p_ents, uint32_t *p_ent_c, char *file_name) {
+    das_WavefrontObjTokenise();
+
+    // Load object into memory
+    openFileStreamRO(file_name);
+
+    // Add some extra complexity by removing all comments
+    preProcessFileData(file_name);
+
+    uint32_t entity_cap = 8;
+    *p_ent_c = 0;
+    (*p_ents) = (das_WavefrontObjEntity*) calloc(entity_cap, sizeof(das_WavefrontObjEntity));
+
+    // Set up the initial global entity
+    newEntity(p_ents, &entity_cap, p_ent_c, DAS_ENTITY_TYPE_OBJECT, "Default");
+
+    // Allocate memory for line words
+    uint32_t word_cap = 8;
+    uint32_t word_c = 0;
+
+    // Allocate memory for line words
+    char **swords = (char**) calloc(word_cap, sizeof(char*));
+    for(uint32_t i = 0; i < word_cap; i++) 
+        swords[i] = (char*) calloc(MAX_WORD_SIZE, sizeof(char));
+
+    // Read the buffer line by line
+    char *cur = __buffer;
+    char *end = NULL;
+    uint64_t lc = 1;
+    while(cur < __buffer + __buf_len) {
+        // Find the newline and if it does not exist set the end as eof
+        end = strchr(cur, 0x0a);
+        end = !end ? __buffer + __buf_len : end;
+
+        // Find all the statements in the line
+        extractBlocks(cur, end - cur, &swords, &word_c, &word_cap, MAX_WORD_SIZE);
+        
+        // If no blocks were found skip the iteration
+        if(!word_c) {
+            lc++;
+            cur = end + 1;
+            continue;
+        }
+
+        // Analyse the retrieved line
+        analyseStatement(swords, word_c, p_ents, &entity_cap, p_ent_c, lc);
+
+        cur = end + 1;
+
+        // Reset all the words that were read
+        for(uint32_t i = 0; i < word_c; i++)
+            memset(swords[i], 0, MAX_WORD_SIZE * sizeof(char));
+        
+        lc++;
+        word_c = 0;
+    }
+
+    // Clear all memory that was allocated for tokens
+    das_WavefrontObjUntokenise();
+
+    // Clean all the memory that was for line words
+    for(uint32_t i = 0; i < word_cap; i++)
+        free(swords[i]);
+    free(swords);
+
+    closeFileStream();
+    free(__buffer);
+}
+
+
 /// Check if memory reallocations need to be done
 static void reallocCheck(void **p_data, uint32_t *p_cap, uint32_t n, uint32_t size, char *err_msg) {
     // Reallocate if the capacity is smaller than the required amount of elements
@@ -177,8 +248,8 @@ static void analyseStatement(char **swords, uint32_t word_c, das_WavefrontObjEnt
     case DAS_WAVEFRONT_OBJ_SPEC_TYPE_VERT_DECL:
         // Check if vertex reallocation is needed
         reallocCheck((void**) &(*p_ent)[(*p_ent_c) - 1].data.vert_data.v3d.mul.pos, 
-            (void*) &(*p_ent)[(*p_ent_c) - 1].data.v_cap, (*p_ent)[(*p_ent_c) - 1].data.vert_data.v3d.mul.pn + 1, 
-            sizeof(das_ObjPosData), "vertices array");
+                     (void*) &(*p_ent)[(*p_ent_c) - 1].data.v_cap, (*p_ent)[(*p_ent_c) - 1].data.vert_data.v3d.mul.pn + 1, 
+                     sizeof(das_ObjPosData), "Failed to reallocate memory for position vertices");
             
         // Set the entity vertices
         (*p_ent)[(*p_ent_c) - 1].data.vert_data.v3d.mul.pos[(*p_ent)[(*p_ent_c) - 1].data.vert_data.v3d.mul.pn].vert_x = 
@@ -197,7 +268,7 @@ static void analyseStatement(char **swords, uint32_t word_c, das_WavefrontObjEnt
         // Check if vertex reallocation is needed
         reallocCheck((void**) &(*p_ent)[(*p_ent_c) - 1].data.vert_data.v3d.mul.tex, 
                      (void*) &(*p_ent)[(*p_ent_c) - 1].data.vt_cap, (*p_ent)[(*p_ent_c) - 1].data.vert_data.v3d.mul.tn + 1,
-                     sizeof(das_ObjTextureData), "texture vertices array");
+                     sizeof(das_ObjTextureData), "Failed to reallocate memory for texture vertices");
             
         // Set the entity texture vertices
         (*p_ent)[(*p_ent_c) - 1].data.vert_data.v3d.mul.tex[(*p_ent)[(*p_ent_c) - 1].data.vert_data.v3d.mul.tn].tex_x = 
@@ -213,7 +284,7 @@ static void analyseStatement(char **swords, uint32_t word_c, das_WavefrontObjEnt
         /*// Check if vertex normal reallocation is needed*/
         reallocCheck((void**) &(*p_ent)[(*p_ent_c) - 1].data.vert_data.v3d.mul.norm, 
             (void*) &(*p_ent)[(*p_ent_c) - 1].data.vn_cap, (*p_ent)[(*p_ent_c) - 1].data.vert_data.v3d.mul.nn + 1,
-            sizeof(das_ObjNormalData), "vertex normals array");
+            sizeof(das_ObjNormalData), "Failed to reallocate memory for vertex normals");
             
         // Set the entity vertex normals
         (*p_ent)[(*p_ent_c) - 1].data.vert_data.v3d.mul.norm[(*p_ent)[(*p_ent_c) - 1].data.vert_data.v3d.mul.nn].nor_x = 
@@ -295,15 +366,9 @@ void newEntity(das_WavefrontObjEntity **p_ent, uint32_t *p_ecap, uint32_t *p_ent
 
     // Allocate initial amount of memory for indices 
     (*p_ent)[(*p_ent_c) - 1].data.ind_cap = DEFAULT_MEM_CAP;
-    (*p_ent)[(*p_ent_c) - 1].data.ind_data.pos = (uint32_t*) calloc(DEFAULT_MEM_CAP, 
-        sizeof(uint32_t));
-
-    (*p_ent)[(*p_ent_c) - 1].data.ind_data.tex = (uint32_t*) calloc(DEFAULT_MEM_CAP, 
-        sizeof(uint32_t));
-
-    (*p_ent)[(*p_ent_c) - 1].data.ind_data.norm = (uint32_t*) calloc(DEFAULT_MEM_CAP, 
-        sizeof(uint32_t));
-
+    (*p_ent)[(*p_ent_c) - 1].data.ind_data.pos = (uint32_t*) calloc(DEFAULT_MEM_CAP, sizeof(uint32_t));
+    (*p_ent)[(*p_ent_c) - 1].data.ind_data.tex = (uint32_t*) calloc(DEFAULT_MEM_CAP, sizeof(uint32_t));
+    (*p_ent)[(*p_ent_c) - 1].data.ind_data.norm = (uint32_t*) calloc(DEFAULT_MEM_CAP, sizeof(uint32_t));
 
     // Allocate initial amount of memory for vertices 
     (*p_ent)[(*p_ent_c) - 1].data.v_cap = DEFAULT_MEM_CAP;
@@ -362,73 +427,4 @@ void printEntityData(das_WavefrontObjEntity *entities, uint32_t ent_c) {
                 entities[i].data.ind_data.norm[j]);
         }
     }
-}
-
-
-/// Parse all data in Wavefront OBJ file and write all information about vertices and indices to p_asset
-void das_ParseWavefrontOBJ(das_WavefrontObjEntity **p_ents, uint32_t *p_ent_c, char *file_name) {
-    das_WavefrontObjTokenise();
-
-    // Load object into memory
-    openFileStreamRO(file_name);
-    preProcessFileData(file_name);
-
-    uint32_t entity_cap = 8;
-    *p_ent_c = 0;
-    (*p_ents) = (das_WavefrontObjEntity*) calloc(entity_cap, sizeof(das_WavefrontObjEntity));
-
-    // Set up the initial global entity
-    newEntity(p_ents, &entity_cap, p_ent_c, DAS_ENTITY_TYPE_OBJECT, "Default");
-
-    // Allocate memory for line words
-    uint32_t word_cap = 8;
-    uint32_t word_c = 0;
-
-    // Allocate memory for line words
-    char **swords = (char**) calloc(word_cap, sizeof(char*));
-    for(uint32_t i = 0; i < word_cap; i++) 
-        swords[i] = (char*) calloc(MAX_WORD_SIZE, sizeof(char));
-
-    // Read the buffer line by line
-    char *cur = __buffer;
-    char *end = NULL;
-    uint64_t lc = 1;
-    while(cur < __buffer + __buf_len) {
-        // Find the newline and if it does not exist set the end as eof
-        end = strchr(cur, 0x0a);
-        end = !end ? __buffer + __buf_len : end;
-
-        // Find all the statements in the line
-        extractBlocks(cur, end - cur, &swords, &word_c, &word_cap, MAX_WORD_SIZE);
-        
-        // If no blocks were found skip the iteration
-        if(!word_c) {
-            lc++;
-            cur = end + 1;
-            continue;
-        }
-
-        // Analyse the retrieved line
-        analyseStatement(swords, word_c, p_ents, &entity_cap, p_ent_c, lc);
-
-        cur = end + 1;
-
-        // Reset all the words that were read
-        for(uint32_t i = 0; i < word_c; i++)
-            memset(swords[i], 0, MAX_WORD_SIZE * sizeof(char));
-        
-        lc++;
-        word_c = 0;
-    }
-
-    // Clear all memory that was allocated for tokens
-    das_WavefrontObjUntokenise();
-
-    // Clean all the memory that was for line words
-    for(uint32_t i = 0; i < word_cap; i++)
-        free(swords[i]);
-    free(swords);
-
-    closeFileStream();
-    free(__buffer);
 }

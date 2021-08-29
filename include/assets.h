@@ -13,9 +13,6 @@
 #define UUID_LEN        33
 
 
-typedef char* id_t;
-
-
 /// Universal asset element offset container struct 
 typedef struct das_OffsetData {
     // Merged vertex data offset
@@ -181,9 +178,8 @@ typedef enum das_AssetMode {
 /// Main asset structure for 2D and 3D assets
 typedef struct das_Asset {
     id_t uuid;
-    char pad[UUID_LEN];               // Identifier that is used to access the asset from the registry
-    id_t tex_uuid;           // Texture id that the current asset is bound to (can be set to zero, if unmapped)
-    id_t vk_id;              // Vulkan asset id, that is generated when Vulkan is used as the backend api
+    id_t *tex_uuid;           // Texture id that the current asset is bound to (can be set to zero, if unmapped)
+    id_t *vk_id;              // Vulkan asset id, that is generated when Vulkan is used as the backend api
     char src[FNAME_LEN];                 // Asset name that is displayed in editors 
     char *meta;
 

@@ -8,6 +8,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include <uuid.h>
 #include <assets.h>
 #include <das_loader.h>
 

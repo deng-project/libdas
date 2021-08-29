@@ -19,6 +19,7 @@ extern "C" {
     #include <string.h>
     #include <time.h>
 
+    #include <uuid.h>
     #include <assets.h>
     #include <das_file.h>
     #include <das_loader.h>
@@ -37,7 +38,7 @@ extern "C" {
 #endif
 
 
-void das_StaticAssemble(das_Asset *asset, const char *file_name, char *meta);
+void das_CreateAssetFile(das_Asset *asset, const char *file_name, char *meta);
 
 #ifdef __cplusplus
 }

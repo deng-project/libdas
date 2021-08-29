@@ -15,10 +15,10 @@ void das_LoadAsset (
     das_AssetMode dst_mode,
     das_ObjColorData color,
     char **meta,
-    const char *tex_uuid,
+    id_t *tex_uuid,
     const char *file_name
 ) {
-    asset->tex_uuid = (id_t) tex_uuid;
+    asset->tex_uuid = tex_uuid;
     strcpy(asset->src, file_name);
     asset->diffuse = DAS_DEFAULT_DIFFUSE_COLOR;
     asset->ambient = DAS_DEFAULT_AMBIENT_COLOR;
@@ -39,9 +39,8 @@ void das_LoadAsset (
     readFILE_HDR(&file_hdr, file_name);
     readINFO_HDR(&info_hdr, file_name);
 
-    asset->uuid = asset->pad;
     asset->asset_mode = info_hdr.asset_type;
-    strcpy(asset->uuid, info_hdr.uuid);
+    strcpy(asset->uuid.bytes, info_hdr.uuid);
 
     // Check if metadata should be read or ignored
     if(meta) {
@@ -159,7 +158,7 @@ void openFileStreamWO(const char *file_name) {
 
 /// Read generic chunk of data from the current file stream
 void dataRead(void *buf, size_t s, const char *emsg, const char *file_name) {
-    DAS_FROASSERT(__offset + s < __flen, emsg, file_name);
+    DAS_FROASSERT(__offset + s <= __flen, emsg, file_name);
     fread(buf, s, 1, __sfile);
     __offset += s;
 }
@@ -187,6 +186,17 @@ void closeFileStream() {
 }
 
 
+/// Get the length of the current FILE stream
+uint64_t getBufferLen() {
+    return __flen;
+}
+
+
+/// Get the current reading offset of the FILE stream
+uint64_t getOffset() {
+    return __offset;
+}
+
 
 /**********************************************/
 /********** Header reading functions **********/
@@ -199,9 +209,11 @@ void readFILE_HDR(das_FILE_HDR *fhdr, const char *file_name) {
     sprintf(emsg, "Could not read FILE_HDR, potentially corrupt file or stream");
     dataRead(fhdr, sizeof(das_FILE_HDR), emsg, file_name);
 
+    printf("File signature: 0x%08x\n", fhdr->hdr_sig);
+    printf("Expected signature: 0x%08x\n", DAS_FILE_HEADER_SIG);
     DAS_FROASSERT(fhdr->hdr_sig == DAS_FILE_HEADER_SIG, 
-                "Could not verify file signature",
-                file_name);
+                  "Could not verify file signature",
+                   file_name);
 }
 
 

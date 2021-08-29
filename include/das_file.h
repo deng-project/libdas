@@ -4,14 +4,14 @@
 #define DAS_FROASSERT(val, msg, fname)          if(!(val)) fprintf(stderr, "%s\nFailed to load file %s\n", msg, fname), exit(-1)
 #define DAS_FWOASSERT(val, msg, fname)          if(!(val)) fprintf(stderr, "%s\nFailed to write file %s\n", msg, fname), exit(-1)
 
-#define DAS_FILE_HEADER_SIG                 (uint32_t) 0x44415300
-#define DAS_INFO_HEADER_SIG                 (uint64_t) 0x494e464f5f484452
-#define DAS_VERT_HEADER_SIG                 (uint64_t) 0x564552545f484452
-#define DAS_VPOS_HEADER_SIG                 (uint64_t) 0x56504f535f484452
-#define DAS_VTEX_HEADER_SIG                 (uint64_t) 0x565445585f484452
-#define DAS_VNOR_HEADER_SIG                 (uint64_t) 0x564e4f525f484452
-#define DAS_INDX_HEADER_SIG                 (uint64_t) 0x494e44585f484452
-#define DAS_META_HEADER_SIG                 (uint64_t) 0x4d4554415f484452
+#define DAS_FILE_HEADER_SIG                 (uint32_t) 0x00534144
+#define DAS_INFO_HEADER_SIG                 (uint64_t) 0x5244485f4f464e49
+#define DAS_VERT_HEADER_SIG                 (uint64_t) 0x5244485f54524556
+#define DAS_VPOS_HEADER_SIG                 (uint64_t) 0x5244485f534f5056
+#define DAS_VTEX_HEADER_SIG                 (uint64_t) 0x5244485f58455456
+#define DAS_VNOR_HEADER_SIG                 (uint64_t) 0x5244485f524f4e56
+#define DAS_INDX_HEADER_SIG                 (uint64_t) 0x5244485f58444e49
+#define DAS_META_HEADER_SIG                 (uint64_t) 0x5244485f4154454d
 
 #define DAS_ASSET_MAGIC_NUMBER              (uint64_t) 0x5453544553534144
 #define DAS_ANIMATION_MAGIC_NUMBER          (uint64_t) 0x4e41544553534144

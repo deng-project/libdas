@@ -10,7 +10,7 @@
 
 
 /// Assemble an asset file from given das_Asset instance
-void das_StaticAssemble(das_Asset *asset, const char *file_name, char *meta) {
+void das_CreateAssetFile(das_Asset *asset, const char *file_name, char *meta) {
     openFileStreamWO(file_name);
     writeFILE_HDR(file_name);
     writeINFO_HDR(asset, file_name);
@@ -33,7 +33,7 @@ void das_StaticAssemble(das_Asset *asset, const char *file_name, char *meta) {
                                     file_name);
 
             writeGenericVertAttrHDR(asset->vertices.v2d.mul.tex, asset->vertices.v2d.mul.tn,
-                                    2, DAS_VPOS_HEADER_SIG, 
+                                    2, DAS_VTEX_HEADER_SIG, 
                                     "Could not write 2D asset vertex texture attributes", 
                                     file_name);
             break;
@@ -52,7 +52,7 @@ void das_StaticAssemble(das_Asset *asset, const char *file_name, char *meta) {
                                     file_name);
 
             writeGenericVertAttrHDR(asset->vertices.v3d.mul.norm, asset->vertices.v3d.mul.nn,
-                                    3, DAS_VPOS_HEADER_SIG, 
+                                    3, DAS_VNOR_HEADER_SIG, 
                                     "Could not write 3D asset vertex normal attributes", 
                                     file_name);
             break;
@@ -64,7 +64,7 @@ void das_StaticAssemble(das_Asset *asset, const char *file_name, char *meta) {
                                     file_name);
 
             writeGenericVertAttrHDR(asset->vertices.v3d.mul.tex, asset->vertices.v3d.mul.tn,
-                                    3, DAS_VPOS_HEADER_SIG, 
+                                    3, DAS_VTEX_HEADER_SIG, 
                                     "Could not write 3D asset vertex texture attributes", 
                                     file_name);
             break;
@@ -76,12 +76,12 @@ void das_StaticAssemble(das_Asset *asset, const char *file_name, char *meta) {
                                     file_name);
 
             writeGenericVertAttrHDR(asset->vertices.v3d.mul.tex, asset->vertices.v3d.mul.tn,
-                                    3, DAS_VPOS_HEADER_SIG, 
+                                    3, DAS_VTEX_HEADER_SIG, 
                                     "Could not write 3D asset vertex texture attributes", 
                                     file_name);
 
             writeGenericVertAttrHDR(asset->vertices.v3d.mul.norm, asset->vertices.v3d.mul.nn,
-                                    3, DAS_VPOS_HEADER_SIG, 
+                                    3, DAS_VNOR_HEADER_SIG, 
                                     "Could not write 3D asset vertex normal attributes", 
                                     file_name);
             break;
@@ -117,7 +117,7 @@ static void writeINFO_HDR(const das_Asset *asset, const char *file_name) {
     // reserved for future compression algorithms
     ihdr.cmpr = 0;
     ihdr.time_st = time(NULL);
-    strcpy(ihdr.uuid, asset->uuid);
+    strcpy(ihdr.uuid, asset->uuid.bytes);
 
     dataWrite(&ihdr, sizeof(das_INFO_HDR), 
               "Could not write INFO_HDR",
@@ -192,6 +192,8 @@ static void writeVERT_HDR(const das_Asset *asset, const char *file_name) {
             DAS_FWOASSERT(NULL, "Invalid asset mode specified", file_name);
             break;
     }
+
+    dataWrite(&vhdr, sizeof(das_VERT_HDR), "Could not write VERT_HDR to file", file_name);
 }
 
 

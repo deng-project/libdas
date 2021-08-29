@@ -12,7 +12,7 @@ extern "C" {
 #endif
 
 
-#if defined(__DAS_LOADER_C) || defined(__DAM_C)
+#if defined(__DAS_LOADER_C) || defined(__DAM_C) 
     #include <stdlib.h>
     #include <stdbool.h>
     #include <stddef.h>
@@ -20,6 +20,7 @@ extern "C" {
     #include <stdio.h>
     #include <string.h>
 
+    #include <uuid.h>
     #include <assets.h>
     #include <das_file.h>
 
@@ -63,21 +64,16 @@ extern "C" {
     void openFileStreamWO(const char *file_name);
     void dataRead(void *buf, size_t s, const char *emsg, const char *file_name);
     void dataWrite(void *buf, size_t s, const char *emsg, const char *file_name);
-    //void seekStream();
     void skipStreamRO(size_t len, const char *esmg, const char *file_name);
     void closeFileStream();
+    uint64_t getBufferLen();
+    uint64_t getOffset();
 #endif
 
 
 /// API bindings
-void das_LoadAsset(
-    das_Asset *asset, 
-    das_AssetMode dst_mode,
-    das_ObjColorData color,
-    char **meta,
-    const char *tex_uuid,
-    const char *file_name
-);
+void das_LoadAsset(das_Asset *asset, das_AssetMode dst_mode, das_ObjColorData color,
+                   char **meta, id_t *tex_uuid, const char *file_name);
 
 #ifdef __cplusplus
 }

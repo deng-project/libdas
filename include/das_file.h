@@ -1,3 +1,4 @@
+
 #ifndef __DAS_FILE_H
 #define __DAS_FILE_H
 
@@ -49,12 +50,12 @@ typedef struct das_VERT_HDR {
 } das_VERT_HDR;
 
 
-typedef struct __das_VertTemplate {
+typedef struct das_VertAttribute{
     uint64_t hdr_sig;
     uint32_t hdr_size;
     uint32_t vert_c;
     uint8_t esize;
-} __das_VertTemplate;
+} das_VertAttribute;
 
 
 typedef struct das_INDX_HDR {

@@ -11,7 +11,7 @@
 
 /// Parse all data in Wavefront OBJ file and write all information about vertices and indices to p_asset
 void das_ParseWavefrontOBJ(das_WavefrontObjEntity **p_ents, uint32_t *p_ent_c, char *file_name) {
-    das_WavefrontObjTokenise();
+    tokenise();
 
     // Load object into memory
     openFileStreamRO(file_name);
@@ -68,7 +68,7 @@ void das_ParseWavefrontOBJ(das_WavefrontObjEntity **p_ents, uint32_t *p_ent_c, c
     }
 
     // Clear all memory that was allocated for tokens
-    das_WavefrontObjUntokenise();
+    untokenise();
 
     // Clean all the memory that was for line words
     for(uint32_t i = 0; i < word_cap; i++)
@@ -194,7 +194,7 @@ static __das_WavefrontObjSpecType parseStatement(char **words, uint32_t word_c, 
     if(!word_c) return DAS_WAVEFRONT_OBJ_SPEC_TYPE_NONE;
 
     // Find the keyword statement specifier
-    __das_WavefrontObjStatement *statement = das_GetTokenInfo(words[0]);
+    __das_WavefrontObjStatement *statement = getTokenInfo(words[0]);
 
     // Check if statement is valid and not NULL otherwise throw syntax error
     if(!statement) {
@@ -249,7 +249,7 @@ static void analyseStatement(char **swords, uint32_t word_c, das_WavefrontObjEnt
         // Check if vertex reallocation is needed
         reallocCheck((void**) &(*p_ent)[(*p_ent_c) - 1].data.vert_data.v3d.mul.pos, 
                      (void*) &(*p_ent)[(*p_ent_c) - 1].data.v_cap, (*p_ent)[(*p_ent_c) - 1].data.vert_data.v3d.mul.pn + 1, 
-                     sizeof(das_ObjPosData), "Failed to reallocate memory for position vertices");
+                     sizeof(das_PosData), "Failed to reallocate memory for position vertices");
             
         // Set the entity vertices
         (*p_ent)[(*p_ent_c) - 1].data.vert_data.v3d.mul.pos[(*p_ent)[(*p_ent_c) - 1].data.vert_data.v3d.mul.pn].vert_x = 
@@ -268,7 +268,7 @@ static void analyseStatement(char **swords, uint32_t word_c, das_WavefrontObjEnt
         // Check if vertex reallocation is needed
         reallocCheck((void**) &(*p_ent)[(*p_ent_c) - 1].data.vert_data.v3d.mul.tex, 
                      (void*) &(*p_ent)[(*p_ent_c) - 1].data.vt_cap, (*p_ent)[(*p_ent_c) - 1].data.vert_data.v3d.mul.tn + 1,
-                     sizeof(das_ObjTextureData), "Failed to reallocate memory for texture vertices");
+                     sizeof(das_TextureData), "Failed to reallocate memory for texture vertices");
             
         // Set the entity texture vertices
         (*p_ent)[(*p_ent_c) - 1].data.vert_data.v3d.mul.tex[(*p_ent)[(*p_ent_c) - 1].data.vert_data.v3d.mul.tn].tex_x = 
@@ -284,7 +284,7 @@ static void analyseStatement(char **swords, uint32_t word_c, das_WavefrontObjEnt
         /*// Check if vertex normal reallocation is needed*/
         reallocCheck((void**) &(*p_ent)[(*p_ent_c) - 1].data.vert_data.v3d.mul.norm, 
             (void*) &(*p_ent)[(*p_ent_c) - 1].data.vn_cap, (*p_ent)[(*p_ent_c) - 1].data.vert_data.v3d.mul.nn + 1,
-            sizeof(das_ObjNormalData), "Failed to reallocate memory for vertex normals");
+            sizeof(das_NormalData), "Failed to reallocate memory for vertex normals");
             
         // Set the entity vertex normals
         (*p_ent)[(*p_ent_c) - 1].data.vert_data.v3d.mul.norm[(*p_ent)[(*p_ent_c) - 1].data.vert_data.v3d.mul.nn].nor_x = 
@@ -372,16 +372,16 @@ void newEntity(das_WavefrontObjEntity **p_ent, uint32_t *p_ecap, uint32_t *p_ent
 
     // Allocate initial amount of memory for vertices 
     (*p_ent)[(*p_ent_c) - 1].data.v_cap = DEFAULT_MEM_CAP;
-    (*p_ent)[(*p_ent_c) - 1].data.vert_data.v3d.mul.pos = (das_ObjPosData*) calloc (
-        DEFAULT_MEM_CAP, sizeof(das_ObjPosData));
+    (*p_ent)[(*p_ent_c) - 1].data.vert_data.v3d.mul.pos = (das_PosData*) calloc (
+        DEFAULT_MEM_CAP, sizeof(das_PosData));
 
     (*p_ent)[(*p_ent_c) - 1].data.vt_cap = DEFAULT_MEM_CAP;
-    (*p_ent)[(*p_ent_c) - 1].data.vert_data.v3d.mul.tex = (das_ObjTextureData*) calloc (
-        DEFAULT_MEM_CAP, sizeof(das_ObjTextureData));
+    (*p_ent)[(*p_ent_c) - 1].data.vert_data.v3d.mul.tex = (das_TextureData*) calloc (
+        DEFAULT_MEM_CAP, sizeof(das_TextureData));
 
     (*p_ent)[(*p_ent_c) - 1].data.vn_cap = DEFAULT_MEM_CAP;
-    (*p_ent)[(*p_ent_c) - 1].data.vert_data.v3d.mul.norm = (das_ObjNormalData*) calloc (
-        DEFAULT_MEM_CAP, sizeof(das_ObjNormalData));
+    (*p_ent)[(*p_ent_c) - 1].data.vert_data.v3d.mul.norm = (das_NormalData*) calloc (
+        DEFAULT_MEM_CAP, sizeof(das_NormalData));
 }
 
 
@@ -427,4 +427,29 @@ void printEntityData(das_WavefrontObjEntity *entities, uint32_t ent_c) {
                 entities[i].data.ind_data.norm[j]);
         }
     }
+}
+
+
+/// Create a hashmap out of all statements that can be accessed with keyword keys
+static void tokenise() {
+    // Create a new hashmap
+    newHashmap(&__statement_map, 4 * sizeof(__statements));
+
+    // For each statement push the entry to the hashmap keyword key
+    for(size_t i = 0; i < sizeof(__statements) / sizeof(__statements[0]); i++) {
+        pushToHashmap(&__statement_map, __statements[i].keyword, 
+            strlen(__statements[i].keyword), &__statements[i]);
+    }
+}
+
+
+/// Free all memory that was used by tokens
+static void untokenise() {
+    destroyHashmap(&__statement_map);
+}
+
+
+/// Retrieve token statement info from the hashmap using the keyword's value
+static __das_WavefrontObjStatement *getTokenInfo(char *id) {
+    return (__das_WavefrontObjStatement*) findValue(&__statement_map, id, strlen(id));
 }

@@ -25,9 +25,8 @@ extern "C" {
     #define BUFFER_CAP(N, T) N * sizeof(T) 
     #include <uuid.h>
     #include <assets.h>
-    #include <das_runtime.h>
+    #include <hashmap.h>
     #include <das_loader.h>
-    #include <wobj_tokens.h>
 
     /// Syntax error handling macros for Wavefront OBJ files
     #define WAVEFRONT_SYNTAX_ERROR(line, desc)          fprintf(stderr, "Wavefront OBJ syntax error on line %ld: %s\n", line, desc), \
@@ -50,6 +49,60 @@ extern "C" {
 
     #define MEM_ERR(err_msg)                            fprintf(stderr, "Memory allocation error: %s\n", err_msg), \
                                                         exit(EXIT_FAILURE)
+
+
+    /**************************/
+    /******* Tokenising *******/
+    /**************************/
+
+
+    typedef enum __das_WavefrontObjSpecType {
+        DAS_WAVEFRONT_OBJ_SPEC_TYPE_NONE            = -1,
+        DAS_WAVEFRONT_OBJ_SPEC_TYPE_OBJ_DECL        = 0,
+        DAS_WAVEFRONT_OBJ_SPEC_TYPE_GROUP_DECL      = 1,
+        DAS_WAVEFRONT_OBJ_SPEC_TYPE_VERT_DECL       = 2,
+        DAS_WAVEFRONT_OBJ_SPEC_TYPE_VERT_TEX_DECL   = 3,
+        DAS_WAVEFRONT_OBJ_SPEC_TYPE_VERT_NORM_DECL  = 4,
+        DAS_WAVEFRONT_OBJ_SPEC_TYPE_VERT_PARAM_DECL = 5,
+        DAS_WAVEFRONT_OBJ_SPEC_TYPE_FACE_DECL       = 6,
+        DAS_WAVEFRONT_OBJ_SPEC_TYPE_POL_LINE_DECL   = 7,
+        DAS_WAVEFRONT_OBJ_SPEC_TYPE_MTL_INCL        = 8,
+        DAS_WAVEFRONT_OBJ_SPEC_TYPE_MTL_USE         = 9,
+        DAS_WAVEFRONT_OBJ_SPEC_TYPE_SHADING_SPEC    = 10
+    } __das_WavefrontObjSpecType;
+
+
+    /// Structure for defining all statements with their keywords and valid object types that could be used
+    typedef struct __das_WavefrontObjStatement {
+        char *keyword;
+        int32_t min_obj_c;
+        int32_t max_obj_c;
+        __das_WavefrontObjSpecType spec_type;
+    } __das_WavefrontObjStatement;
+
+
+    /// Map for containing data about all possible statements
+    static Hashmap __statement_map;
+
+    /// Array with all statement specifications
+    static __das_WavefrontObjStatement __statements[] = {
+        { "o", 0, 1, DAS_WAVEFRONT_OBJ_SPEC_TYPE_OBJ_DECL },
+        { "g", 0, 1, DAS_WAVEFRONT_OBJ_SPEC_TYPE_GROUP_DECL },
+        { "v", 3, 4, DAS_WAVEFRONT_OBJ_SPEC_TYPE_VERT_DECL },
+        { "vt", 1, 3, DAS_WAVEFRONT_OBJ_SPEC_TYPE_VERT_TEX_DECL },
+        { "vn", 3, 3, DAS_WAVEFRONT_OBJ_SPEC_TYPE_VERT_NORM_DECL },
+        { "vp", 1, 3, DAS_WAVEFRONT_OBJ_SPEC_TYPE_VERT_PARAM_DECL },
+        { "f", 3, 4, DAS_WAVEFRONT_OBJ_SPEC_TYPE_FACE_DECL },
+        { "l", 1, UINT32_MAX, DAS_WAVEFRONT_OBJ_SPEC_TYPE_POL_LINE_DECL },
+        { "mtllib", 1, 1, DAS_WAVEFRONT_OBJ_SPEC_TYPE_MTL_INCL },
+        { "usemtl", 1, 1, DAS_WAVEFRONT_OBJ_SPEC_TYPE_MTL_USE },
+        { "s", 1, 1, DAS_WAVEFRONT_OBJ_SPEC_TYPE_SHADING_SPEC }
+    };
+
+
+    static void tokenise();
+    static void untokenise();
+    static __das_WavefrontObjStatement *getTokenInfo(char *kword);
 #endif
 
 #define DEFAULT_MEM_CAP                             128
@@ -119,10 +172,6 @@ typedef struct das_WavefrontObjEntity {
 
 /// Parse all data in Wavefront OBJ file and write all information about vertices and indices to p_asset
 void das_ParseWavefrontOBJ(das_WavefrontObjEntity **p_ents, uint32_t *p_ent_c, char *file_name);
-
-
-/// Perform cleanup operation for all the memory allocated for entities
-void das_WavefrontObjDestroyEntities(das_WavefrontObjEntity *entities, uint32_t ent_c);
 
 #ifdef __cplusplus
 }

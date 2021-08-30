@@ -72,7 +72,7 @@ char *__uuid_GetDevMacAddress() {
         while((c = readdir(dir))) {
             if(c->d_type == DT_LNK && strcmp(c->d_name, ".") && strcmp(c->d_name, "..") && 
                strcmp(c->d_name, "lo") && strcmp(c->d_name, "sit0")) {
-                char addr[128] = { 0 };
+                char addr[BUF_LEN] = { 0 };
                 sprintf(addr, "%s/%s/address", __LINUX_NET_DEV_DIR, c->d_name);
 
                 file = fopen(addr, "rb");

@@ -14,7 +14,7 @@ void das_CreateAssetFile(das_Asset *asset, const char *file_name, char *meta) {
     openFileStreamWO(file_name);
     writeFILE_HDR(file_name);
     writeINFO_HDR(asset, file_name);
-    if(meta) writeMETA_HDR(meta, file_name);
+    if(meta && *meta != 0) writeMETA_HDR(meta, file_name);
     writeVERT_HDR(asset, file_name);
 
     // Check the asset mode and decide which vertex attributes to write
@@ -155,37 +155,37 @@ static void writeVERT_HDR(const das_Asset *asset, const char *file_name) {
     switch(asset->asset_mode) {
         case DAS_ASSET_MODE_2D_UNMAPPED:
             vhdr.hdr_size += gnd_size;
-            vhdr.hdr_size += asset->vertices.v2d.mul.pn * sizeof(das_ObjPosData2D);
+            vhdr.hdr_size += asset->vertices.v2d.mul.pn * sizeof(das_PosData2D);
             break;
 
         case DAS_ASSET_MODE_2D_TEXTURE_MAPPED:
             vhdr.hdr_size += 2 * gnd_size;
-            vhdr.hdr_size += asset->vertices.v2d.mul.pn * sizeof(das_ObjPosData2D);
-            vhdr.hdr_size += asset->vertices.v2d.mul.tn * sizeof(das_ObjTextureData);
+            vhdr.hdr_size += asset->vertices.v2d.mul.pn * sizeof(das_PosData2D);
+            vhdr.hdr_size += asset->vertices.v2d.mul.tn * sizeof(das_TextureData);
             break;
 
         case __DAS_ASSET_MODE_3D_UNMAPPED_UNOR:
             vhdr.hdr_size += gnd_size;
-            vhdr.hdr_size += asset->vertices.v3d.mul.pn * sizeof(das_ObjPosData);
+            vhdr.hdr_size += asset->vertices.v3d.mul.pn * sizeof(das_PosData);
             break;
 
         case DAS_ASSET_MODE_3D_UNMAPPED:
             vhdr.hdr_size += 2 * gnd_size;
-            vhdr.hdr_size += asset->vertices.v3d.mul.pn * sizeof(das_ObjPosData);
-            vhdr.hdr_size += asset->vertices.v3d.mul.nn * sizeof(das_ObjNormalData);
+            vhdr.hdr_size += asset->vertices.v3d.mul.pn * sizeof(das_PosData);
+            vhdr.hdr_size += asset->vertices.v3d.mul.nn * sizeof(das_NormalData);
             break;
 
         case __DAS_ASSET_MODE_3D_TEXTURE_MAPPED_UNOR:
             vhdr.hdr_size += 2 * gnd_size;
-            vhdr.hdr_size += asset->vertices.v3d.mul.pn * sizeof(das_ObjPosData);
-            vhdr.hdr_size += asset->vertices.v3d.mul.tn * sizeof(das_ObjTextureData);
+            vhdr.hdr_size += asset->vertices.v3d.mul.pn * sizeof(das_PosData);
+            vhdr.hdr_size += asset->vertices.v3d.mul.tn * sizeof(das_TextureData);
             break;
 
         case DAS_ASSET_MODE_3D_TEXTURE_MAPPED:
             vhdr.hdr_size += 3 * gnd_size;
-            vhdr.hdr_size += asset->vertices.v3d.mul.pn * sizeof(das_ObjPosData);
-            vhdr.hdr_size += asset->vertices.v3d.mul.tn * sizeof(das_ObjTextureData);
-            vhdr.hdr_size += asset->vertices.v3d.mul.nn * sizeof(das_ObjNormalData);
+            vhdr.hdr_size += asset->vertices.v3d.mul.pn * sizeof(das_PosData);
+            vhdr.hdr_size += asset->vertices.v3d.mul.tn * sizeof(das_TextureData);
+            vhdr.hdr_size += asset->vertices.v3d.mul.nn * sizeof(das_NormalData);
             break;
 
         default:
@@ -200,7 +200,7 @@ static void writeVERT_HDR(const das_Asset *asset, const char *file_name) {
 /// Write generic vertex attribute header and its data
 static void writeGenericVertAttrHDR(void *vt, uint32_t vc, uint32_t esize, uint64_t sig,
                                     const char *emsg, const char *file_name) {
-    __das_VertTemplate vthdr = { 0 };
+    das_VertAttribute vthdr = { 0 };
     const uint32_t ndsize = 17;
     const uint64_t dsize = vc * esize * sizeof(float);
     vthdr.hdr_sig = sig;

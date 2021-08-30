@@ -4,7 +4,7 @@
 /// author: Karl-Mihkel Ott
 
 #define __TEX_LOADER_C
-#include <data/tex_loader.h>
+#include <tex_loader.h>
 
 static FILE *__file;
 
@@ -37,7 +37,7 @@ void __das_InitBMPImageHeaders (
 
 
  /// etect image format and return ImageFormat instance of it
- das_ImageFormat __das_DetectImageFormat(const char *file_name) {
+ das_ImageFormat detectImageFormat(const char *file_name) {
     char *ext = cm_ExtractFileExtName((char*) file_name);
 
     if(!strcmp(ext, "tga")) return DAS_IMAGE_FORMAT_TGA;

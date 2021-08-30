@@ -13,7 +13,7 @@
 void das_LoadAsset (
     das_Asset *asset, 
     das_AssetMode dst_mode,
-    das_ObjColorData color,
+    das_ColorData color,
     char **meta,
     id_t *tex_uuid,
     const char *file_name
@@ -52,21 +52,21 @@ void das_LoadAsset (
     // Read vertices header
     readVERT_HDR(&vert_hdr, file_name);
 
-    __das_VertTemplate tp;
-    ZB(tp);
+    das_VertAttribute attr;
+    ZB(attr);
 
     // Read vertex attributes starting from position elements, texture elements and finishing on normal elements
-    readGenVertHdr(&tp, DAS_VPOS_HEADER_SIG, file_name);
+    readVertAttr(&attr, DAS_VPOS_HEADER_SIG, file_name);
 
-    das_ObjTextureData **ptex = NULL;
+    das_TextureData **ptex = NULL;
     size_t *ptn = NULL;
 
     // Check vertex position data element count
-    switch(tp.esize) {
+    switch(attr.esize) {
         case 2:
-            asset->vertices.v2d.mul.pn = tp.vert_c;
-            asset->vertices.v2d.mul.pos = (das_ObjPosData2D*) malloc(tp.vert_c * sizeof(das_ObjPosData2D));
-            dataRead(asset->vertices.v3d.mul.pos, tp.vert_c * sizeof(das_ObjPosData2D),
+            asset->vertices.v2d.mul.pn = attr.vert_c;
+            asset->vertices.v2d.mul.pos = (das_PosData2D*) malloc(attr.vert_c * sizeof(das_PosData2D));
+            dataRead(asset->vertices.v3d.mul.pos, attr.vert_c * sizeof(das_PosData2D),
                      "Could not read vertex position attributes, possibly corrupted file",
                      file_name);
             ptex = &asset->vertices.v2d.mul.tex;
@@ -74,9 +74,9 @@ void das_LoadAsset (
             break;
 
         case 3:
-            asset->vertices.v3d.mul.pn = tp.vert_c;
-            asset->vertices.v3d.mul.pos = (das_ObjPosData*) malloc(tp.vert_c * sizeof(das_ObjPosData));
-            dataRead(asset->vertices.v3d.mul.pos, tp.vert_c * sizeof(das_ObjPosData),
+            asset->vertices.v3d.mul.pn = attr.vert_c;
+            asset->vertices.v3d.mul.pos = (das_PosData*) malloc(attr.vert_c * sizeof(das_PosData));
+            dataRead(asset->vertices.v3d.mul.pos, attr.vert_c * sizeof(das_PosData),
                      "Could not read vertex 3D position attributes, possibly corrupted file",
                      file_name);
             ptex = &asset->vertices.v3d.mul.tex;
@@ -93,12 +93,12 @@ void das_LoadAsset (
     if(asset->asset_mode == DAS_ASSET_MODE_3D_TEXTURE_MAPPED ||
        asset->asset_mode == __DAS_ASSET_MODE_3D_TEXTURE_MAPPED_UNOR ||
        asset->asset_mode == DAS_ASSET_MODE_2D_TEXTURE_MAPPED) {
-        ZB(tp);
-        readGenVertHdr(&tp, DAS_VTEX_HEADER_SIG, file_name);
+        ZB(attr);
+        readVertAttr(&attr, DAS_VTEX_HEADER_SIG, file_name);
 
-        *ptn = tp.vert_c;
-        *ptex = (das_ObjTextureData*) malloc((*ptn) * sizeof(das_ObjTextureData));
-        dataRead(*ptex, (*ptn) * sizeof(das_ObjTextureData), 
+        *ptn = attr.vert_c;
+        *ptex = (das_TextureData*) malloc((*ptn) * sizeof(das_TextureData));
+        dataRead(*ptex, (*ptn) * sizeof(das_TextureData), 
                  "Could not read vertex texture position attributes, possibly corrupted file",
                  file_name);
     }
@@ -106,12 +106,12 @@ void das_LoadAsset (
     // Read vertex normals if needed
     if(asset->asset_mode == DAS_ASSET_MODE_3D_TEXTURE_MAPPED ||
        asset->asset_mode == DAS_ASSET_MODE_3D_UNMAPPED) {
-        ZB(tp);
-        readGenVertHdr(&tp, DAS_VNOR_HEADER_SIG, file_name);   
+        ZB(attr);
+        readVertAttr(&attr, DAS_VNOR_HEADER_SIG, file_name);   
 
-        asset->vertices.v3d.mul.nn = tp.vert_c;
-        asset->vertices.v3d.mul.norm = (das_ObjNormalData*) malloc(tp.vert_c * sizeof(das_ObjNormalData));
-        dataRead(asset->vertices.v3d.mul.norm, asset->vertices.v3d.mul.nn * sizeof(das_ObjNormalData),
+        asset->vertices.v3d.mul.nn = attr.vert_c;
+        asset->vertices.v3d.mul.norm = (das_NormalData*) malloc(attr.vert_c * sizeof(das_NormalData));
+        dataRead(asset->vertices.v3d.mul.norm, asset->vertices.v3d.mul.nn * sizeof(das_NormalData),
                  "Could not read vertex normal attributes, possibly corrupted file",
                  file_name);
     }
@@ -172,8 +172,9 @@ void dataWrite(void *buf, size_t s, const char *emsg, const char *file_name) {
 
 /// Skip read only file stream from current offset
 void skipStreamRO(size_t len, const char *emsg, const char *file_name) {
-    DAS_FROASSERT(__offset + len >= __flen, emsg, file_name);
-    fseek(__sfile, __offset + len, SEEK_SET);
+    DAS_FROASSERT(__offset + len <= __flen, emsg, file_name);
+    __offset += len;
+    fseek(__sfile, __offset, SEEK_SET);
 }
 
 
@@ -209,8 +210,6 @@ void readFILE_HDR(das_FILE_HDR *fhdr, const char *file_name) {
     sprintf(emsg, "Could not read FILE_HDR, potentially corrupt file or stream");
     dataRead(fhdr, sizeof(das_FILE_HDR), emsg, file_name);
 
-    printf("FILE header signature: 0x%08x\n", fhdr->hdr_sig);
-    printf("FILE header signature: 0x%08x\n", DAS_FILE_HEADER_SIG);
     DAS_FROASSERT(fhdr->hdr_sig == DAS_FILE_HEADER_SIG,
                   "Could not verify file signature",
                   file_name);
@@ -264,7 +263,7 @@ void skipMetaHeaders(const char *file_name) {
 /// Attempt to read metadata and return true if possible, if not return false
 bool tryToReadMeta(das_META_HDR *meta, const char *file_name) {
     const size_t rsize = 16;
-    dataRead(&meta, rsize, 
+    dataRead(meta, rsize, 
              "Could not read META_HDR, potentially corrupt file", 
              file_name);
     
@@ -304,17 +303,17 @@ void readVERT_HDR(das_VERT_HDR *vhdr, const char *file_name) {
 
 
 /// Read information about one vertex element header type
-void readGenVertHdr(__das_VertTemplate *thdr, uint64_t exsig, const char *file_name) {
+void readVertAttr(das_VertAttribute *ahdr, uint64_t exsig, const char *file_name) {
     const size_t tsize = 17;
-    dataRead(thdr, tsize, 
+    dataRead(ahdr, tsize, 
             "Could not read generic vertex attribute header, potentially corrupt file",
             file_name);
 
-    DAS_FROASSERT(thdr->hdr_sig == exsig, 
+    DAS_FROASSERT(ahdr->hdr_sig == exsig, 
                 "Could not verify signature for VERT_HDR attribute",
                 file_name);
 
-    DAS_FROASSERT(thdr->hdr_size == thdr->vert_c * thdr->esize * sizeof(float) + tsize,
+    DAS_FROASSERT(ahdr->hdr_size == ahdr->vert_c * ahdr->esize * sizeof(float) + tsize,
                 "Could not get correct vert attribute header size",
                 file_name);
 }
@@ -370,8 +369,6 @@ void readINDX_HDR(das_AssetMode mode, das_INDX_HDR *ihdr, const char *file_name)
             break;
     }
 
-    printf("Header size: %u\n", ihdr->hdr_size);
-    printf("Calculated size: %lu\n", ihdr->ind_c * bfc * (uint32_t) sizeof(uint32_t) + isize);
     DAS_FROASSERT(ihdr->hdr_size == ihdr->ind_c * bfc * sizeof(uint32_t) + isize,
                 "Could not get correct INDX_HDR size",
                 file_name);

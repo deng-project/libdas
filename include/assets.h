@@ -6,9 +6,9 @@
 #ifndef ASSETS_H
 #define ASSETS_H
 
-#define DAS_DEFAULT_DIFFUSE_COLOR       (das_ObjColorData) {0.6f, 0.6f, 0.6f, 1.0f}   
-#define DAS_DEFAULT_AMBIENT_COLOR       (das_ObjColorData) {0.4f, 0.4f, 0.4f, 1.0f}   
-#define DAS_DEFAULT_SPECULAR_COLOR       (das_ObjColorData) {0.0f, 0.0f, 0.0f, 1.0f}   
+#define DAS_DEFAULT_DIFFUSE_COLOR       (das_ColorData) {0.6f, 0.6f, 0.6f, 1.0f}   
+#define DAS_DEFAULT_AMBIENT_COLOR       (das_ColorData) {0.4f, 0.4f, 0.4f, 1.0f}   
+#define DAS_DEFAULT_SPECULAR_COLOR       (das_ColorData) {0.0f, 0.0f, 0.0f, 1.0f}   
 #define FNAME_LEN       255
 #define UUID_LEN        33
 
@@ -32,76 +32,76 @@ typedef struct das_OffsetData {
 
 
 /// Base structures for storing model vertices data 
-typedef struct das_ObjPosData {
+typedef struct das_PosData {
     float vert_x;
     float vert_y;
     float vert_z;
-} das_ObjPosData;
+} das_PosData;
 
 
-typedef struct das_ObjPosData2D {
+typedef struct das_PosData2D {
     float vert_x;
     float vert_y;
-} das_ObjPosData2D;
+} das_PosData2D;
 
 
 /// Base struct for storing information about model's 
 /// texture mapping vertices
-typedef struct das_ObjTextureData {
+typedef struct das_TextureData {
     float tex_x;
     float tex_y;
-} das_ObjTextureData;
+} das_TextureData;
 
 
 /// Base struct for storing information about model's
 /// vertex normals vertices
-typedef struct das_ObjNormalData {
+typedef struct das_NormalData {
     float nor_x;
     float nor_y;
     float nor_z;
-} das_ObjNormalData;
+} das_NormalData;
 
 
 /// Base struct for asset vertices RGB color specification
-typedef struct das_ObjColorData {
+typedef struct das_ColorData {
     float col_r;
     float col_g;
     float col_b;
     float col_a;
-} das_ObjColorData;
+} das_ColorData;
 
 
 /// Vertex data types for OpenGL
 typedef struct das_GL3DVertex {
-    das_ObjPosData pos;
-    das_ObjTextureData tex;
-    das_ObjNormalData norm;
+    das_PosData pos;
+    das_TextureData tex;
+    das_NormalData norm;
 } das_GL3DVertex;
 
 
 typedef struct das_GL3DVertexUnmapped {
-    das_ObjPosData pos;
-    das_ObjNormalData norm;
+    das_PosData pos;
+    das_NormalData norm;
 } das_GL3DVertexUnmapped;
 
 
 typedef struct das_GL2DVertex {
-    das_ObjPosData2D pos;
-    das_ObjTextureData tex;
+    das_PosData2D pos;
+    das_TextureData tex;
 } das_GL2DVertex;
 
 
-typedef das_ObjPosData2D das_GL2DVertexUnmapped;
+typedef das_PosData2D das_GL2DVertexUnmapped;
 
 
 /// Dynamic vertices structures
 typedef struct __das_VertDynamic3D {
     struct {
-        das_ObjPosData *pos;
+        das_PosData *pos;
         uint64_t pn;
-        das_ObjTextureData *tex;
+        das_TextureData *tex;
         uint64_t tn;
-        das_ObjNormalData *norm;
+        das_NormalData *norm;
         uint64_t nn;
     } mul;
 
@@ -115,9 +115,9 @@ typedef struct __das_VertDynamic3D {
 
 typedef union __das_VertDynamic2D {
     struct {
-        das_ObjPosData2D *pos;
+        das_PosData2D *pos;
         uint64_t pn;
-        das_ObjTextureData *tex;
+        das_TextureData *tex;
         uint64_t tn;
         uint32_t hier;
     } mul;
@@ -184,9 +184,9 @@ typedef struct das_Asset {
     char *meta;
 
     // Temporary variables, since no material system is present
-    das_ObjColorData diffuse;   // Asset diffuse color property
-    das_ObjColorData ambient;   // Asset ambient light intensity
-    das_ObjColorData specular;  // Specular light intensity
+    das_ColorData diffuse;   // Asset diffuse color property
+    das_ColorData ambient;   // Asset ambient light intensity
+    das_ColorData specular;  // Specular light intensity
     float phong_exp;       // Phong exponent that is used, with Blinn-Phong shading
     
 

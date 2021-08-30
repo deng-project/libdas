@@ -1,78 +1,64 @@
-# For now build only dam, not the library around it
+# libdas: DENG asset handling management library $(HDRS)
+# licence: Apache, see LICENCE file $(HDRS)
+# file: Makefile - makefile written for GNU make to specify all targets and their rules $(HDRS)
+# author: Karl-Mihkel Ott $(HDRS)
 
-CC = gcc
-INCL_FLAGS = -I include
-CFLAGS = -Og -std=c99 -march=native -Wall -g
-SRCDIR = src
-DSTDIR = .
-OBJ = $(DSTDIR)/ldtest.c.o \
-	  $(DSTDIR)/das_loader.c.o \
-	  $(DSTDIR)/das_asset_assembler.c.o \
-	  $(DSTDIR)/wobj_tokens.c.o \
-	  $(DSTDIR)/wobj.c.o
 
-LD_TEST_OBJ = $(DSTDIR)/ldtest.c.o \
-			  $(DSTDIR)/das_loader.c.o
-
-ASM_TEST_OBJ = $(DSTDIR)/asmtest.c.o \
-			   $(DSTDIR)/das_asset_assembler.c.o \
-			   $(DSTDIR)/das_loader.c.o \
-			   $(DSTDIR)/uuid.c.o \
-			   $(DSTDIR)/hashmap.c.o \
-			   $(DSTDIR)/wobj_tokens.c.o \
-			   $(DSTDIR)/wobj.c.o
-
-HDRS = include/** \
-
-ALL_TARGETS = libdas.so \
-			  dam
-
+include config.mk
 
 all: $(ALL_TARGETS) $(HDRS)
-	$(CC) $(OBJ) -fPIC -o libdas.so
-	$(CC) $(OBJ) -o dam
+	ar rcs libdas.a $(LIBDAS_OBJ) 
+	$(CC) $(DAM_OBJ) -o dam -L . -ldas
+
+
+#############################################
+###### Test targets (built explicitly) ######
+#############################################
 
 
 # Loading test section
 ldtest: $(LD_TEST_OBJ) $(HDRS)
 	$(CC) $(LD_TEST_OBJ) -o ldtest
 
-ldtest.c.o: $(SRCDIR)/ldtest.c
+ldtest.c.o: $(SRCDIR)/ldtest.c $(HDRS)
 	$(CC) -c $(SRCDIR)/ldtest.c $(CFLAGS) $(INCL_FLAGS) -o ldtest.c.o
 
 
 # Assembly test section
-asmtest: $(ASM_TEST_OBJ)
+asmtest: $(ASM_TEST_OBJ) $(HDRS)
 	$(CC) $(ASM_TEST_OBJ) -o asmtest
 
-asmtest.c.o: $(SRCDIR)/asmtest.c
+asmtest.c.o: $(SRCDIR)/asmtest.c $(HDRS)
 	$(CC) -c $(SRCDIR)/asmtest.c $(CFLAGS) $(INCL_FLAGS) -o asmtest.c.o
 
 
+#########################################
+###### General object file targets ######
+#########################################
 
-# General libarary source to object compilation targets
-dam.c.o: $(SRCDIR)/dam.c
+dam.c.o: $(SRCDIR)/dam.c $(HDRS)
 	$(CC) -c $(SRCDIR)/dam.c $(CFLAGS) $(INCL_FLAGS) -o dam.c.o
 
-hashmap.c.o: $(SRCDIR)/hashmap.c
-	$(CC) -c $(SRCDIR)/hashmap.c $(CFLAGS) $(INCL_FLAGS) -o hashmap.c.o
-
-uuid.c.o: $(SRCDIR)/uuid.c
-	$(CC) -c $(SRCDIR)/uuid.c $(CFLAGS) $(INCL_FLAGS) -o uuid.c.o
-
-das_loader.c.o: $(SRCDIR)/das_loader.c
-	$(CC) -c $(SRCDIR)/das_loader.c $(CFLAGS) $(INCL_FLAGS) -o das_loader.c.o
-
-das_asset_assembler.c.o: $(SRCDIR)/das_asset_assembler.c
+das_asset_assembler.c.o: $(SRCDIR)/das_asset_assembler.c $(HDRS)
 	$(CC) -c $(SRCDIR)/das_asset_assembler.c $(CFLAGS) $(INCL_FLAGS) -o das_asset_assembler.c.o
 
-wobj_tokens.c.o: $(SRCDIR)/wobj_tokens.c
-	$(CC) -c $(SRCDIR)/wobj_tokens.c $(CFLAGS) $(INCL_FLAGS) -o wobj_tokens.c.o
+das_loader.c.o: $(SRCDIR)/das_loader.c $(HDRS)
+	$(CC) -c $(SRCDIR)/das_loader.c $(CFLAGS) $(INCL_FLAGS) -o das_loader.c.o
 
-wobj.c.o: $(SRCDIR)/wobj.c
+hashmap.c.o: $(SRCDIR)/hashmap.c $(HDRS)
+	$(CC) -c $(SRCDIR)/hashmap.c $(CFLAGS) $(INCL_FLAGS) -o hashmap.c.o
+
+tex_loader.c.o: $(SRCDIR)/tex_loader.c $(HDRS)
+	$(CC) -c $(SRCDIR)/tex_loader.c $(CFLAGS) $(INCL_FLAGS) -o tex_loader.c.o
+
+uuid.c.o: $(SRCDIR)/uuid.c $(HDRS)
+	$(CC) -c $(SRCDIR)/uuid.c $(CFLAGS) $(INCL_FLAGS) -o uuid.c.o
+
+wobj.c.o: $(SRCDIR)/wobj.c $(HDRS)
 	$(CC) -c $(SRCDIR)/wobj.c $(CFLAGS) $(INCL_FLAGS) -o wobj.c.o
 
 
-.PHONY: clean
+
+.PHONY: clean $(HDRS)
 clean:
-	rm -rf *.o $(ALL_TARGETS) ldtest asmtest
+	rm -rf *.o $(CLEAN_TARGETS)

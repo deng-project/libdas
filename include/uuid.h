@@ -15,6 +15,7 @@ extern "C" {
 #define __UUID_VARIANT 0x40
 
 #ifdef __UUID_C
+    #define BUF_LEN     512
     #include <stdlib.h>
     #include <stdint.h>
     #include <stdio.h>

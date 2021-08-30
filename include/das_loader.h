@@ -30,9 +30,8 @@ extern "C" {
     bool tryToReadMeta(das_META_HDR *meta, const char *file_name);
     void skipMetaHeaders(const char *file_name);
     void readVERT_HDR(das_VERT_HDR *vhdr, const char *file_name);
-    void readGenVertHdr(__das_VertTemplate *thdr, uint64_t exsig, const char *file_name);
+    void readVertAttr(das_VertAttribute *ahdr, uint64_t exsig, const char *file_name);
     void readINDX_HDR(das_AssetMode amode, das_INDX_HDR *ihdr, const char *file_name);
-
 
     /// Data manipulation algoritms
     void vertNormalise(das_Asset *asset);
@@ -48,10 +47,12 @@ extern "C" {
 	#endif
 
 
+#ifndef __DAM_C
     // Global static variables for DAS reader
     static FILE *__sfile = NULL;
     static uint64_t __flen = 0;
     static uint64_t __offset = 0;
+#endif
 #endif
 
 
@@ -72,7 +73,7 @@ extern "C" {
 
 
 /// API bindings
-void das_LoadAsset(das_Asset *asset, das_AssetMode dst_mode, das_ObjColorData color,
+void das_LoadAsset(das_Asset *asset, das_AssetMode dst_mode, das_ColorData color,
                    char **meta, id_t *tex_uuid, const char *file_name);
 
 #ifdef __cplusplus

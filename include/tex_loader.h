@@ -11,7 +11,7 @@
 extern "C" {
 #endif
 
-#define DEFAULT_ASSET_COLOR (das_ObjColorData) {0.7f, 0.7f, 0.7f, 1.0f}
+#define DEFAULT_ASSET_COLOR (das_ColorData) {0.7f, 0.7f, 0.7f, 1.0f}
 
 
 /// This enum specifies the image file format 
@@ -27,35 +27,20 @@ typedef enum das_ImageFormat {
 #ifdef __TEX_LOADER_C
     #include <stdlib.h>
     #include <stdio.h>
+    #include <stdint.h>
+    #include <stdbool.h>
     #include <string.h>
 
-    #include <common/base_types.h>
-    #include <common/common.h>
-    #include <common/hashmap.h>
-    #include <common/uuid.h>
-    #include <common/cerr_def.h>
+    #include <uuid.h>
+    #include <hashmap.h>
+    #include <assets.h>
 
-    #include <data/image_headers.h>
-    #include <data/assets.h>
-	#define __TEXTURE_LOG_FILE  "textures.log"
     
-    das_ImageFormat __das_DetectImageFormat(const char *file_name);
-
-    /// Read raw bitmap data from file stream
-    /// This function expects the file to be uncompressed
-    void __das_ReadBitmap(FILE *file, char *file_name, deng_ui8_t bit_c, deng_bool_t vert_re, das_Texture* tex);
-
-
-    /// Load JPEG image into das_Texture instance
-    void __das_LoadJPGImage(das_Texture *tex, const char *file_name);
-
-
-    /// Load BMP image data into das_Texture
-    void __das_LoadBMPImage(das_Texture *tex, const char *file_name);
-    
-
-    /// Load TGA image into das_Texture instance
-    void __das_LoadTGAImage(das_Texture *tex, const char *file_name);
+    das_ImageFormat detectImageFormat(const char *file_name);
+    void readBitmap(FILE *file, char *file_name, uint8_t bit_c, bool vert_re, das_Texture* tex);
+    void loadJPGImage(das_Texture *tex, const char *file_name);
+    void loadBMPImage(das_Texture *tex, const char *file_name);
+    void loadTGAImage(das_Texture *tex, const char *file_name);
 
 
 	#ifdef __DEBUG
@@ -65,7 +50,78 @@ typedef enum das_ImageFormat {
 		/// ...
 		void _db_RawTexture(das_Texture *tex, const char *file_name);
 	#endif
-#endif
+
+
+    /*******************************************/
+    /********** BMP Image Info Headers *********/
+    /*******************************************/
+    #define __BMPFileHeader_Size 14
+    typedef struct __BMPFileHeader {
+        uint16_t file_type;
+        uint32_t file_size;
+        uint16_t reserved1;
+        uint16_t reserved2;
+        uint32_t offset_data;
+    } __BMPFileHeader;
+
+
+    #define __BMPInfoHeader_Size    40
+    typedef struct __BMPInfoHeader {
+        uint32_t size;
+        int32_t width;
+        int32_t height;
+
+        uint16_t planes;
+        uint16_t bit_count;
+        uint32_t compression;
+        uint32_t size_image;
+        int32_t x_pixels_per_meter;
+        int32_t y_pixels_per_meter; 
+        uint32_t colors_used;
+        uint32_t colors_important;
+    } __BMPInfoHeader;
+
+
+    #define __BMPColorHeader_Size   24
+    typedef struct __BMPColorHeader {
+        uint32_t red_mask;
+        uint32_t green_mask;
+        uint32_t blue_mask;
+        uint32_t alpha_mask;
+        uint32_t color_space_type;
+        uint32_t unused[16];
+    } __BMPColorHeader;
+
+
+    /*******************************************/
+    /********** BMP Image Info Headers *********/
+    /*******************************************/
+    #define __TGATypeHeader_Size    3
+    typedef struct __TGATypeHeader {
+        uint8_t id_length;
+        uint8_t colormap_type;
+        uint8_t image_type;
+    } __TGATypeHeader;
+
+
+    #define __TGAColorMapHeader_Size    5
+    typedef struct __TGAColorMapHeader {
+        uint16_t first_colormap_index;
+        uint16_t colormap_length;
+        uint8_t entity_size;
+    } __TGAColorMapHeader;
+
+
+    #define __TGAInfoHeader_Size    10
+    typedef struct __TGAInfoHeader {
+        uint16_t x_origin;
+        uint16_t y_origin;
+        uint16_t width;
+        uint16_t height;
+        uint8_t bit_count;
+        uint8_t image_descriptor;
+    } __TGAInfoHeader;
+    #endif
 
 
 #ifdef __DEBUG

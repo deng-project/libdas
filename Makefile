@@ -32,6 +32,14 @@ asmtest.c.o: $(SRCDIR)/asmtest.c $(HDRS)
 	$(CC) -c $(SRCDIR)/asmtest.c $(CFLAGS) $(INCL_FLAGS) -o asmtest.c.o
 
 
+# Image loader 
+imgtest: $(IMG_TEST_OBJ) $(HDRS)
+	$(CC) $(IMG_TEST_OBJ) -o imgtest -lm
+
+imgtest.c.o: $(SRCDIR)/imgtest.c $(HDRS)
+	$(CC) -c $(SRCDIR)/imgtest.c $(CFLAGS) $(INCL_FLAGS) -o imgtest.c.o
+
+
 #########################################
 ###### General object file targets ######
 #########################################

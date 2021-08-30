@@ -1,6 +1,6 @@
 /// DENG: dynamic engine - small but powerful 3D game engine
 /// licence: Apache, see LICENCE file
-/// file: dam.h - deng asset manager header file
+/// file: dam.c - deng asset manager header file
 /// author: Karl-Mihkel Ott
 
 #define DAS_FILE

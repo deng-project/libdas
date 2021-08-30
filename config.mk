@@ -13,6 +13,7 @@ DSTDIR = .
 # All object files that are used to compile libdas library
 LIBDAS_OBJ = $(DSTDIR)/das_asset_assembler.c.o \
 	  		 $(DSTDIR)/das_loader.c.o \
+			 $(DSTDIR)/tex_loader.c.o \
 	  		 $(DSTDIR)/hashmap.c.o \
 	  		 $(DSTDIR)/uuid.c.o \
 	  		 $(DSTDIR)/wobj.c.o
@@ -29,6 +30,11 @@ ASM_TEST_OBJ = $(DSTDIR)/asmtest.c.o \
 			   $(DSTDIR)/hashmap.c.o \
 			   $(DSTDIR)/uuid.c.o \
 			   $(DSTDIR)/wobj.c.o
+
+IMG_TEST_OBJ = $(DSTDIR)/imgtest.c.o \
+			   $(DSTDIR)/tex_loader.c.o \
+			   $(DSTDIR)/uuid.c.o
+
 
 HDRS = include/** \
 

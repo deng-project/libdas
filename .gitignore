@@ -1,6 +1,12 @@
 tags
 compile_commands.json
 *.o
+*.jpeg
+*.jpg
+*.png
+*.tga
+*.bmp
+*.gif
 ldtest
 asmtest
 testobj/

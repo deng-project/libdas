@@ -40,6 +40,15 @@ imgtest.c.o: $(SRCDIR)/imgtest.c $(HDRS)
 	$(CC) -c $(SRCDIR)/imgtest.c $(CFLAGS) $(INCL_FLAGS) -o imgtest.c.o
 
 
+# Mesh info query test
+mesh_query: $(MESH_QUERY_OBJ) $(HDRS)
+	$(CC) $(MESH_QUERY_OBJ) -o mesh_query
+
+mesh_query.c.o: $(SRCDIR)/mesh_query.c
+	$(CC) -c $(SRCDIR)/mesh_query.c $(CFLAGS) $(INCL_FLAGS) -o mesh_query.c.o
+
+
+
 #########################################
 ###### General object file targets ######
 #########################################

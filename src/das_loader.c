@@ -56,7 +56,7 @@ void das_LoadAsset (
     ZB(attr);
 
     // Read vertex attributes starting from position elements, texture elements and finishing on normal elements
-    readVertAttr(&attr, DAS_VPOS_HEADER_SIG, file_name);
+    readVertAttr(&attr, DAS_VPOS_HEADER_SIG, file_name, sizeof(das_PosData));
 
     das_TextureData **ptex = NULL;
     size_t *ptn = NULL;
@@ -94,7 +94,7 @@ void das_LoadAsset (
        asset->asset_mode == __DAS_ASSET_MODE_3D_TEXTURE_MAPPED_UNOR ||
        asset->asset_mode == DAS_ASSET_MODE_2D_TEXTURE_MAPPED) {
         ZB(attr);
-        readVertAttr(&attr, DAS_VTEX_HEADER_SIG, file_name);
+        readVertAttr(&attr, DAS_VTEX_HEADER_SIG, file_name, 0);
 
         *ptn = attr.vert_c;
         *ptex = (das_TextureData*) malloc((*ptn) * sizeof(das_TextureData));
@@ -107,7 +107,7 @@ void das_LoadAsset (
     if(asset->asset_mode == DAS_ASSET_MODE_3D_TEXTURE_MAPPED ||
        asset->asset_mode == DAS_ASSET_MODE_3D_UNMAPPED) {
         ZB(attr);
-        readVertAttr(&attr, DAS_VNOR_HEADER_SIG, file_name);   
+        readVertAttr(&attr, DAS_VNOR_HEADER_SIG, file_name, 0);
 
         asset->vertices.v3d.mul.nn = attr.vert_c;
         asset->vertices.v3d.mul.norm = (das_NormalData*) malloc(attr.vert_c * sizeof(das_NormalData));
@@ -118,7 +118,7 @@ void das_LoadAsset (
 
 
     // Read and copy index data
-    readINDX_HDR(asset->asset_mode, &indx_hdr, file_name);
+    readINDX_HDR(asset->asset_mode, &indx_hdr, file_name, true);
     asset->indices.n = indx_hdr.ind_c;
     asset->indices.pos = indx_hdr.pinds;
     asset->indices.tex = indx_hdr.tinds;
@@ -303,7 +303,7 @@ void readVERT_HDR(das_VERT_HDR *vhdr, const char *file_name) {
 
 
 /// Read information about one vertex element header type
-void readVertAttr(das_VertAttribute *ahdr, uint64_t exsig, const char *file_name) {
+void readVertAttr(das_VertAttribute *ahdr, uint64_t exsig, const char *file_name, uint64_t pos_size) {
     const size_t tsize = 17;
     dataRead(ahdr, tsize, 
             "Could not read generic vertex attribute header, potentially corrupt file",
@@ -313,14 +313,20 @@ void readVertAttr(das_VertAttribute *ahdr, uint64_t exsig, const char *file_name
                 "Could not verify signature for VERT_HDR attribute",
                 file_name);
 
-    DAS_FROASSERT(ahdr->hdr_size == ahdr->vert_c * ahdr->esize * sizeof(float) + tsize,
-                "Could not get correct vert attribute header size",
-                file_name);
+    if(!pos_size) {
+        DAS_FROASSERT(ahdr->hdr_size == ahdr->vert_c * ahdr->esize * sizeof(float) + tsize,
+                    "Could not get correct vert attribute header size",
+                    file_name);
+    } else {
+        DAS_FROASSERT(ahdr->hdr_size == ahdr->vert_c * pos_size + tsize,
+                    "Could not get correct vert attribute header size",
+                    file_name);
+    }
 }
 
 
 /// Read asset information from INDX_HDR
-void readINDX_HDR(das_AssetMode mode, das_INDX_HDR *ihdr, const char *file_name) {
+void readINDX_HDR(das_AssetMode mode, das_INDX_HDR *ihdr, const char *file_name, bool read_indices) {
     const size_t isize = 16;
     dataRead(ihdr, isize,
              "Could not read INDX_HDR, potentially corrupt file",
@@ -330,70 +336,72 @@ void readINDX_HDR(das_AssetMode mode, das_INDX_HDR *ihdr, const char *file_name)
                 "Could not verify signature for INDX_HDR",
                 file_name);
 
-    uint32_t bfc = 0;
-    bool is_tex = false;
-    bool is_norm = false;
-    switch(mode) {
-        case DAS_ASSET_MODE_2D_UNMAPPED:
-            bfc = 1;
-            break;
+    if(read_indices) {
+        uint32_t bfc = 0;
+        bool is_tex = false;
+        bool is_norm = false;
+        switch(mode) {
+            case DAS_ASSET_MODE_2D_UNMAPPED:
+                bfc = 1;
+                break;
 
-        case DAS_ASSET_MODE_2D_TEXTURE_MAPPED:
-            bfc = 2;
-            is_tex = true;
-            break;
+            case DAS_ASSET_MODE_2D_TEXTURE_MAPPED:
+                bfc = 2;
+                is_tex = true;
+                break;
 
-        case __DAS_ASSET_MODE_3D_UNMAPPED_UNOR:
-            bfc = 1;
-            break;
+            case __DAS_ASSET_MODE_3D_UNMAPPED_UNOR:
+                bfc = 1;
+                break;
 
-        case DAS_ASSET_MODE_3D_UNMAPPED:
-            bfc = 2;
-            is_norm = true;
-            break;
+            case DAS_ASSET_MODE_3D_UNMAPPED:
+                bfc = 2;
+                is_norm = true;
+                break;
 
-        case __DAS_ASSET_MODE_3D_TEXTURE_MAPPED_UNOR:
-            bfc = 2;
-            is_tex = true;
-            break;
+            case __DAS_ASSET_MODE_3D_TEXTURE_MAPPED_UNOR:
+                bfc = 2;
+                is_tex = true;
+                break;
 
-        case DAS_ASSET_MODE_3D_TEXTURE_MAPPED:
-            bfc = 3;
-            is_tex = true;
-            is_norm = true;
-            break;
+            case DAS_ASSET_MODE_3D_TEXTURE_MAPPED:
+                bfc = 3;
+                is_tex = true;
+                is_norm = true;
+                break;
 
-        case DAS_ASSET_MODE_UNDEFINED:
-            DAS_FROASSERT(NULL, "Invalid asset mode specified on reading INDX_HDR",
-                       file_name);
-            break;
-    }
+            case DAS_ASSET_MODE_UNDEFINED:
+                DAS_FROASSERT(NULL, "Invalid asset mode specified on reading INDX_HDR",
+                           file_name);
+                break;
+        }
 
-    DAS_FROASSERT(ihdr->hdr_size == ihdr->ind_c * bfc * sizeof(uint32_t) + isize,
-                "Could not get correct INDX_HDR size",
-                file_name);
+        DAS_FROASSERT(ihdr->hdr_size == ihdr->ind_c * bfc * sizeof(uint32_t) + isize,
+                    "Could not get correct INDX_HDR size",
+                    file_name);
 
-    const size_t dsize = ihdr->ind_c * sizeof(uint32_t);
+        const size_t dsize = ihdr->ind_c * sizeof(uint32_t);
 
-    // Allocate memory and read position indices
-    ihdr->pinds = (uint32_t*) malloc(dsize);
-    dataRead(ihdr->pinds, dsize,
-             "Could not read position indices, possibly corrupt file",
-             file_name);
-
-    // If needed read texture indices
-    if(is_tex) {
-        ihdr->tinds = (uint32_t*) malloc(dsize);
-        dataRead(ihdr->tinds, dsize,
-                 "Could not read texture indices, possibly corrupt file",
+        // Allocate memory and read position indices
+        ihdr->pinds = (uint32_t*) malloc(dsize);
+        dataRead(ihdr->pinds, dsize,
+                 "Could not read position indices, possibly corrupt file",
                  file_name);
-    }
 
-    // If needed read vertex normal indices
-    if(is_norm) {
-        ihdr->ninds = (uint32_t*) malloc(dsize);
-        dataRead(ihdr->ninds, dsize,
-                 "Could not read vertex normal indices, possibly corrupt file",
-                 file_name);
+        // If needed read texture indices
+        if(is_tex) {
+            ihdr->tinds = (uint32_t*) malloc(dsize);
+            dataRead(ihdr->tinds, dsize,
+                     "Could not read texture indices, possibly corrupt file",
+                     file_name);
+        }
+
+        // If needed read vertex normal indices
+        if(is_norm) {
+            ihdr->ninds = (uint32_t*) malloc(dsize);
+            dataRead(ihdr->ninds, dsize,
+                     "Could not read vertex normal indices, possibly corrupt file",
+                     file_name);
+        }
     }
 }

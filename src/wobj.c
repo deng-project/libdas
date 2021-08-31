@@ -56,7 +56,6 @@ void das_ParseWavefrontOBJ(das_WavefrontObjEntity **p_ents, uint32_t *p_ent_c, c
 
         // Analyse the retrieved line
         analyseStatement(swords, word_c, p_ents, &entity_cap, p_ent_c, lc);
-
         cur = end + 1;
 
         // Reset all the words that were read

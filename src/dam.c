@@ -263,33 +263,36 @@ static void listAssetData(const char *file_name) {
     readVERT_HDR(&vert_hdr, file_name);
 
     // Read position vertex header and skip its vertices
-    readVertAttr(&vpos_hdr, DAS_VPOS_HEADER_SIG, file_name);
+    readVertAttr(&vpos_hdr, DAS_VPOS_HEADER_SIG, file_name, sizeof(das_PosData));
     skipStreamRO(vpos_hdr.vert_c * sizeof(das_PosData),
                  "Could not skip position vertices", file_name);
 
     // Increment reading offset for file buffer
     switch(inf_hdr.asset_type) {
     case DAS_ASSET_MODE_2D_TEXTURE_MAPPED:
+        readVertAttr(&vtex_hdr, DAS_VTEX_HEADER_SIG, file_name, 0);
+        skipStreamRO(vtex_hdr.vert_c * sizeof(das_TextureData),
+                     "Could not skip texture vertices", file_name);
         break;
 
     case DAS_ASSET_MODE_3D_UNMAPPED:
-        readVertAttr(&vnor_hdr, DAS_VNOR_HEADER_SIG, file_name);
+        readVertAttr(&vnor_hdr, DAS_VNOR_HEADER_SIG, file_name, 0);
         skipStreamRO(vnor_hdr.vert_c * sizeof(das_NormalData), 
                      "Could not skip vertex normals", file_name);
         break;
 
     case DAS_ASSET_MODE_3D_TEXTURE_MAPPED:
-        readVertAttr(&vtex_hdr, DAS_VTEX_HEADER_SIG, file_name);
+        readVertAttr(&vtex_hdr, DAS_VTEX_HEADER_SIG, file_name, 0);
         skipStreamRO(vtex_hdr.vert_c * sizeof(das_TextureData),
                      "Could not skip texture vertices", file_name);
         
-        readVertAttr(&vnor_hdr, DAS_VNOR_HEADER_SIG, file_name);
+        readVertAttr(&vnor_hdr, DAS_VNOR_HEADER_SIG, file_name, 0);
         skipStreamRO(vnor_hdr.vert_c * sizeof(das_NormalData), 
                      "Could not skip vertex normals", file_name);
         break;
 
     case __DAS_ASSET_MODE_3D_TEXTURE_MAPPED_UNOR:
-        readVertAttr(&vtex_hdr, DAS_VTEX_HEADER_SIG, file_name);
+        readVertAttr(&vtex_hdr, DAS_VTEX_HEADER_SIG, file_name, 0);
         skipStreamRO(vtex_hdr.vert_c * sizeof(das_TextureData),
                      "Could not skip texture vertices", file_name);
         break;
@@ -297,6 +300,8 @@ static void listAssetData(const char *file_name) {
     default:
         break;
     }
+
+    readINDX_HDR(inf_hdr.asset_type, &indx_hdr, file_name, false);
 
     printf("File: %s\n", file_name);
     printf("UUID: %s\n", inf_hdr.uuid);

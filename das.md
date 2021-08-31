@@ -53,7 +53,7 @@ The layout of VPOS\_HDR is following:
 * 4 bytes: Header size
 * 4 bytes: Vertices count  
 * 1 byte Element count (3)
-* n * 9 bytes: Vertex coordinates (x, y, z: type f32)
+* n * 24 bytes: Vertex coordinates (x, y, z: type f32 + pointer offset + padding 4 bytes)
 
 #### VTEX\_HDR
 VTEX\_HDR is a subheader of VERT\_HDR, which contains information about texture positions. This header is not necessary if

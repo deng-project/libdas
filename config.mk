@@ -35,6 +35,12 @@ IMG_TEST_OBJ = $(DSTDIR)/imgtest.c.o \
 			   $(DSTDIR)/tex_loader.c.o \
 			   $(DSTDIR)/uuid.c.o
 
+MESH_QUERY_OBJ = $(DSTDIR)/das_loader.c.o \
+				 $(DSTDIR)/mesh_query.c.o \
+				 $(DSTDIR)/uuid.c.o \
+				 $(DSTDIR)/hashmap.c.o
+
+
 
 HDRS = include/** \
 

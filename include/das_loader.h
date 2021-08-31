@@ -30,8 +30,8 @@ extern "C" {
     bool tryToReadMeta(das_META_HDR *meta, const char *file_name);
     void skipMetaHeaders(const char *file_name);
     void readVERT_HDR(das_VERT_HDR *vhdr, const char *file_name);
-    void readVertAttr(das_VertAttribute *ahdr, uint64_t exsig, const char *file_name);
-    void readINDX_HDR(das_AssetMode amode, das_INDX_HDR *ihdr, const char *file_name);
+    void readVertAttr(das_VertAttribute *ahdr, uint64_t exsig, const char *file_name, uint64_t pos_size);
+    void readINDX_HDR(das_AssetMode amode, das_INDX_HDR *ihdr, const char *file_name, bool read_indices);
 
     /// Data manipulation algoritms
     void vertNormalise(das_Asset *asset);

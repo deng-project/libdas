@@ -9,6 +9,7 @@ compile_commands.json
 *.gif
 ldtest
 asmtest
+mesh_query
 testobj/
 dam
 .cache

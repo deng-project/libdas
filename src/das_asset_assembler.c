@@ -23,67 +23,67 @@ void das_CreateAssetFile(das_Asset *asset, const char *file_name, char *meta) {
             writeGenericVertAttrHDR(asset->vertices.v2d.mul.pos, asset->vertices.v2d.mul.pn,
                                     2, DAS_VPOS_HEADER_SIG, 
                                     "Could not write 2D asset vertex position attributes", 
-                                    file_name);
+                                    file_name, sizeof(das_PosData2D));
             break;
 
         case DAS_ASSET_MODE_2D_TEXTURE_MAPPED:
             writeGenericVertAttrHDR(asset->vertices.v2d.mul.pos, asset->vertices.v2d.mul.pn,
                                     2, DAS_VPOS_HEADER_SIG, 
                                     "Could not write 2D asset vertex position attributes", 
-                                    file_name);
+                                    file_name, sizeof(das_PosData2D));
 
             writeGenericVertAttrHDR(asset->vertices.v2d.mul.tex, asset->vertices.v2d.mul.tn,
                                     2, DAS_VTEX_HEADER_SIG, 
                                     "Could not write 2D asset vertex texture attributes", 
-                                    file_name);
+                                    file_name, 0);
             break;
         
         case __DAS_ASSET_MODE_3D_UNMAPPED_UNOR:
             writeGenericVertAttrHDR(asset->vertices.v3d.mul.pos, asset->vertices.v3d.mul.pn,
                                     3, DAS_VPOS_HEADER_SIG, 
                                     "Could not write 3D asset vertex position attributes", 
-                                    file_name);
+                                    file_name, sizeof(das_PosData));
             break;
 
         case DAS_ASSET_MODE_3D_UNMAPPED:
             writeGenericVertAttrHDR(asset->vertices.v3d.mul.pos, asset->vertices.v3d.mul.pn,
                                     3, DAS_VPOS_HEADER_SIG, 
                                     "Could not write 3D asset vertex position attributes", 
-                                    file_name);
+                                    file_name, sizeof(das_PosData));
 
             writeGenericVertAttrHDR(asset->vertices.v3d.mul.norm, asset->vertices.v3d.mul.nn,
                                     3, DAS_VNOR_HEADER_SIG, 
                                     "Could not write 3D asset vertex normal attributes", 
-                                    file_name);
+                                    file_name, 0);
             break;
 
         case __DAS_ASSET_MODE_3D_TEXTURE_MAPPED_UNOR:
             writeGenericVertAttrHDR(asset->vertices.v3d.mul.pos, asset->vertices.v3d.mul.pn,
                                     3, DAS_VPOS_HEADER_SIG, 
                                     "Could not write 3D asset vertex position attributes", 
-                                    file_name);
+                                    file_name, sizeof(das_PosData));
 
             writeGenericVertAttrHDR(asset->vertices.v3d.mul.tex, asset->vertices.v3d.mul.tn,
                                     2, DAS_VTEX_HEADER_SIG, 
                                     "Could not write 3D asset vertex texture attributes", 
-                                    file_name);
+                                    file_name, 0);
             break;
         
         case DAS_ASSET_MODE_3D_TEXTURE_MAPPED:
             writeGenericVertAttrHDR(asset->vertices.v3d.mul.pos, asset->vertices.v3d.mul.pn,
                                     3, DAS_VPOS_HEADER_SIG, 
                                     "Could not write 3D asset vertex position attributes", 
-                                    file_name);
+                                    file_name, sizeof(das_PosData));
 
             writeGenericVertAttrHDR(asset->vertices.v3d.mul.tex, asset->vertices.v3d.mul.tn,
                                     2, DAS_VTEX_HEADER_SIG, 
                                     "Could not write 3D asset vertex texture attributes", 
-                                    file_name);
+                                    file_name, 0);
 
             writeGenericVertAttrHDR(asset->vertices.v3d.mul.norm, asset->vertices.v3d.mul.nn,
                                     3, DAS_VNOR_HEADER_SIG, 
                                     "Could not write 3D asset vertex normal attributes", 
-                                    file_name);
+                                    file_name, 0);
             break;
 
         default: break;
@@ -199,10 +199,13 @@ static void writeVERT_HDR(const das_Asset *asset, const char *file_name) {
 
 /// Write generic vertex attribute header and its data
 static void writeGenericVertAttrHDR(void *vt, uint32_t vc, uint32_t esize, uint64_t sig,
-                                    const char *emsg, const char *file_name) {
+                                    const char *emsg, const char *file_name, uint64_t pos_size) {
     das_VertAttribute vthdr = { 0 };
     const uint32_t ndsize = 17;
-    const uint64_t dsize = vc * esize * sizeof(float);
+
+    uint64_t dsize = 0;
+    if(!pos_size) dsize = vc * esize * sizeof(float);
+    else dsize = vc * pos_size;
     vthdr.hdr_sig = sig;
     vthdr.esize = esize;
     vthdr.vert_c = vc;

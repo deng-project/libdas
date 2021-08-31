@@ -33,7 +33,7 @@ extern "C" {
     static void writeMETA_HDR(char *meta, const char *file_name);
     static void writeVERT_HDR(const das_Asset *asset, const char *file_name);
     static void writeGenericVertAttrHDR(void *vd, uint32_t vc, uint32_t esize, uint64_t sig,
-                                        const char *emsg, const char *file_name);
+                                        const char *emsg, const char *file_name, uint64_t pos_size);
     static void writeINDX_HDR(const das_Asset *asset, const char *file_name);
 #endif
 

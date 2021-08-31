@@ -36,12 +36,15 @@ typedef struct das_PosData {
     float vert_x;
     float vert_y;
     float vert_z;
+    void *tri;        // Pointer to any adjacent triangle
+    char pad[4];
 } das_PosData;
 
 
 typedef struct das_PosData2D {
     float vert_x;
     float vert_y;
+    void *tri;        // Pointer to any adjacent triangle
 } das_PosData2D;
 
 
@@ -69,6 +72,14 @@ typedef struct das_ColorData {
     float col_b;
     float col_a;
 } das_ColorData;
+
+
+/// Vertex data types for OpenGL
+typedef struct das_MergedVertex3D {
+    das_PosData pos;
+
+    void *t; // any adjacent triangle 
+} das_MergedVertex3D;
 
 
 /// Vertex data types for OpenGL
@@ -155,6 +166,34 @@ typedef struct das_PixelDataDynamic {
     uint16_t height;
     uint64_t memory_offset;
 } das_PixelDataDynamic;
+
+
+/// Data structure for containing information about mesh triangle
+typedef struct das_MeshTriangle {
+    das_PosData *pos[3];
+    das_TextureData *tex[3];
+    das_NormalData *nor[3];
+    struct das_MeshTriangle *nbr[3];
+    uint16_t nnbr; // Next neighbour to set
+} das_MeshTriangle;
+
+
+/// Data structure for keeping information about edges
+typedef struct das_Edge {
+    das_PosData *pos[2];
+    das_MeshTriangle *adj_tri[2];
+} das_Edge;
+
+
+/// Data structure for containing information about mesh
+typedef struct das_Mesh {
+    das_PosData *pos;
+    uint64_t pn;
+
+    uint32_t *verti[3]; // vertex indicies
+    uint32_t *nbri[3]; // neighbouring triangle indices
+    uint32_t *vert_trii[3]; // index of any adjacent triangle
+} das_Mesh;
 
 
 /// Specify the type of the asset 

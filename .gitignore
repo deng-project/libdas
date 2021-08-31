@@ -9,6 +9,8 @@ compile_commands.json
 *.gif
 ldtest
 asmtest
+*.a
+*.so
 mesh_query
 testobj/
 dam

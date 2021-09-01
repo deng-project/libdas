@@ -82,7 +82,7 @@ void das_ParseWavefrontOBJ(das_WavefrontObjEntity **p_ents, uint32_t *p_ent_c, c
 /// Check if memory reallocations need to be done
 static void reallocCheck(void **p_data, uint32_t *p_cap, uint32_t n, uint32_t size, char *err_msg) {
     // Reallocate if the capacity is smaller than the required amount of elements
-    if(n >= (*p_cap)) {
+    if(n * size >= (*p_cap)) {
         uint32_t old_cap = (*p_cap);
         (*p_cap) = n * 2;
         (*p_cap) = (*p_cap) < (old_cap << 1) ? old_cap << 1 : (*p_cap);
@@ -159,6 +159,11 @@ static __das_IndexBlock parseFace(char *face) {
         
 /// Copy all face indices to entity structure
 static void copyFaceIndices(das_WavefrontObjEntity *p_ent, char **words, uint32_t word_c) {
+    p_ent->data.fv = word_c - 1;
+    if(p_ent->data.fv == 0) {
+        printf("zero\n");
+    }
+
     // Check if indices need reallocation
     uint32_t cap = p_ent->data.ind_cap;
     reallocCheck((void**) &p_ent->data.ind_data.pos, &cap, p_ent->data.ind_data.n + 1, sizeof(uint32_t), 

@@ -15,7 +15,7 @@ void das_LoadAsset (
     das_AssetMode dst_mode,
     das_ColorData color,
     char **meta,
-    id_t *tex_uuid,
+    uuid_t *tex_uuid,
     const char *file_name
 ) {
     asset->tex_uuid = tex_uuid;

@@ -403,6 +403,8 @@ static void mkAssetFromWObj(das_Asset *asset, das_WavefrontObjEntity *ents, uint
     asset->asset_mode = DAS_ASSET_MODE_3D_TEXTURE_MAPPED;
     asset->uuid = uuid_Generate();
 
+    if(ents[eind].data.fv == 4) quadTriangulate(asset);
+
     // Clean all other entities data
     for(uint32_t i = 0; i < ent_c; i++) {
         if(i != eind) {
@@ -418,6 +420,38 @@ static void mkAssetFromWObj(das_Asset *asset, das_WavefrontObjEntity *ents, uint
 
     free(nz_objs);
     free(nz_grps);
+}
+
+
+static void quadTriangulate(das_Asset *asset) {
+    printf("Triangulating quad faces\n");
+    das_IndicesDynamic inds = { 0 };
+    inds.n = asset->indices.n / 2 * 3;
+    inds.pos = (uint32_t*) malloc(inds.n * sizeof(uint32_t));
+    inds.tex = (uint32_t*) malloc(inds.n * sizeof(uint32_t));
+    inds.norm = (uint32_t*) malloc(inds.n * sizeof(uint32_t));
+
+    // For each quad in array, create triangle out of it
+    for(uint64_t i = 0; i < asset->indices.n / 4; i++) {
+        uint32_t *q_pos = asset->indices.pos + i * 4;
+        uint32_t *q_tex = asset->indices.tex + i * 4;
+        uint32_t *q_norm = asset->indices.norm + i * 4;
+
+        uint32_t *t_pos = inds.pos + i * 6;
+        uint32_t *t_tex = inds.tex + i * 6;
+        uint32_t *t_norm = inds.norm + i * 6;
+
+        t_pos[0] = q_pos[0], t_pos[1] = q_pos[1], t_pos[2] = q_pos[2], t_pos[3] = q_pos[2], t_pos[4] = q_pos[3], t_pos[5] = q_pos[0];
+        t_tex[0] = q_tex[0], t_tex[1] = q_tex[1], t_tex[2] = q_tex[2], t_tex[3] = q_tex[2], t_tex[4] = q_tex[3], t_tex[5] = q_tex[0];
+        t_norm[0] = q_norm[0], t_norm[1] = q_norm[1], t_norm[2] = q_norm[2], t_norm[3] = q_norm[2], t_norm[4] = q_norm[3], t_norm[5] = q_norm[0];
+    }
+
+    // Free initial quad memory areas
+    free(asset->indices.pos);
+    free(asset->indices.tex);
+    free(asset->indices.norm);
+
+    asset->indices = inds;
 }
 
 

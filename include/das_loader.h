@@ -74,7 +74,7 @@ extern "C" {
 
 /// API bindings
 void das_LoadAsset(das_Asset *asset, das_AssetMode dst_mode, das_ColorData color,
-                   char **meta, id_t *tex_uuid, const char *file_name);
+                   char **meta, uuid_t *tex_uuid, const char *file_name);
 
 #ifdef __cplusplus
 }

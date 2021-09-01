@@ -92,7 +92,7 @@ extern "C" {
         { "vt", 1, 3, DAS_WAVEFRONT_OBJ_SPEC_TYPE_VERT_TEX_DECL },
         { "vn", 3, 3, DAS_WAVEFRONT_OBJ_SPEC_TYPE_VERT_NORM_DECL },
         { "vp", 1, 3, DAS_WAVEFRONT_OBJ_SPEC_TYPE_VERT_PARAM_DECL },
-        { "f", 3, 3, DAS_WAVEFRONT_OBJ_SPEC_TYPE_FACE_DECL },
+        { "f", 3, 4, DAS_WAVEFRONT_OBJ_SPEC_TYPE_FACE_DECL },
         { "l", 1, UINT32_MAX, DAS_WAVEFRONT_OBJ_SPEC_TYPE_POL_LINE_DECL },
         { "mtllib", 1, 1, DAS_WAVEFRONT_OBJ_SPEC_TYPE_MTL_INCL },
         { "usemtl", 1, 1, DAS_WAVEFRONT_OBJ_SPEC_TYPE_MTL_USE },
@@ -125,6 +125,7 @@ typedef struct das_WavefrontObjEntityData {
     uint32_t ind_cap;
 
     das_VertDynamic vert_data;
+    uint16_t fv;                // The number of vertices contained in one face
     uint32_t v_cap;
     uint32_t vt_cap;
     uint32_t vn_cap;

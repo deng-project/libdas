@@ -78,6 +78,7 @@ static uint32_t selectWObjGroup(uint32_t *nz_objs, uint32_t nz_oc, uint32_t *nz_
 static void clearAssetData(das_Asset *asset);
 static void listAssetData(const char *file_name);
 static void mkAssetFromWObj(das_Asset *asset, das_WavefrontObjEntity *ents, uint32_t ent_c);
+static void quadTriangulate(das_Asset *asset);
 #endif
 
 #endif

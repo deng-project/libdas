@@ -40,7 +40,11 @@ MESH_QUERY_OBJ = $(DSTDIR)/das_loader.c.o \
 				 $(DSTDIR)/uuid.c.o \
 				 $(DSTDIR)/hashmap.c.o
 
-
+TRIANGULATE_OBJ = $(DSTDIR)/das_loader.c.o \
+				  $(DSTDIR)/hashmap.c.o \
+				  $(DSTDIR)/triangulate.c.o \
+				  $(DSTDIR)/uuid.c.o \
+				  $(DSTDIR)/wobj.c.o
 
 HDRS = include/** \
 

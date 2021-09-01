@@ -9,6 +9,7 @@ compile_commands.json
 *.gif
 ldtest
 asmtest
+triangulate
 *.a
 *.so
 mesh_query

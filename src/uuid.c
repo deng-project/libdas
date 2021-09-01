@@ -156,7 +156,7 @@ char *__uuid_GetDevMacAddress() {
 
 
 /// Init new uuid instance
-id_t uuid_Generate() {
+uuid_t uuid_Generate() {
     time_t time_val = time(NULL);
     srand(time_val);
 
@@ -196,7 +196,7 @@ id_t uuid_Generate() {
     uint32_t mac_hex = strtol(mac, NULL, 16);
     mac_hex ^= mac_randomizer;
 
-    id_t id = { 0 };
+    uuid_t id = { 0 };
 
     sprintf (
         id.bytes,

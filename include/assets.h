@@ -106,7 +106,7 @@ typedef das_PosData2D das_GL2DVertexUnmapped;
 
 
 /// Dynamic vertices structures
-typedef struct __das_VertDynamic3D {
+typedef struct das_VertDynamic3D {
     struct {
         das_PosData *pos;
         uint64_t pn;
@@ -121,10 +121,10 @@ typedef struct __das_VertDynamic3D {
         das_GL3DVertexUnmapped *uvert;
         uint64_t n;
     } mer;
-} __das_VertDynamic3D;
+} das_VertDynamic3D;
 
 
-typedef union __das_VertDynamic2D {
+typedef union das_VertDynamic2D {
     struct {
         das_PosData2D *pos;
         uint64_t pn;
@@ -138,13 +138,13 @@ typedef union __das_VertDynamic2D {
         das_GL2DVertexUnmapped *uvert;
         uint64_t n;
     } mer;
-} __das_VertDynamic2D;
+} das_VertDynamic2D;
 
 
 /// Universal dynamic vertices container union for both 3D and 2D assets
 typedef union das_VertDynamic {
-    __das_VertDynamic2D v2d;
-    __das_VertDynamic3D v3d;
+    das_VertDynamic2D v2d;
+    das_VertDynamic3D v3d;
 } das_VertDynamic;
 
 
@@ -216,9 +216,9 @@ typedef enum das_AssetMode {
 
 /// Main asset structure for 2D and 3D assets
 typedef struct das_Asset {
-    id_t uuid;
-    id_t *tex_uuid;           // Texture id that the current asset is bound to (can be set to zero, if unmapped)
-    id_t *vk_id;              // Vulkan asset id, that is generated when Vulkan is used as the backend api
+    uuid_t uuid;
+    uuid_t *tex_uuid;           // Texture id that the current asset is bound to (can be set to zero, if unmapped)
+    uuid_t *vk_id;              // Vulkan asset id, that is generated when Vulkan is used as the backend api
     char src[FNAME_LEN];                 // Asset name that is displayed in editors 
     char *meta;
 
@@ -242,10 +242,10 @@ typedef struct das_Asset {
 
 /// DENG texture struct 
 typedef struct das_Texture {
-    id_t uuid;
+    uuid_t uuid;
     char pad[UUID_LEN];
-    id_t vk_id;
-    id_t gl_id;
+    uuid_t vk_id;
+    uuid_t gl_id;
     char src[FNAME_LEN];
     bool no_reg_cleanup;         // Set this as true if no automatic cleanup is wanted in registry destruction
     das_PixelDataDynamic pixel_data;

@@ -50,7 +50,7 @@ extern "C" {
 
 typedef struct {
     char bytes[33];
-} id_t;
+} uuid_t;
 
 
 /// Random number generators
@@ -60,7 +60,7 @@ uint16_t randUI16();
 uint8_t randUI8();
 
 /// Generate and allocate memory for new uuid instance
-id_t uuid_Generate();
+uuid_t uuid_Generate();
 
 
 #ifdef __cplusplus

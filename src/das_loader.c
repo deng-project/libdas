@@ -18,6 +18,7 @@ void das_LoadAsset (
     uuid_t *tex_uuid,
     const char *file_name
 ) {
+    memset(asset, 0, sizeof(das_Asset));
     asset->tex_uuid = tex_uuid;
     strcpy(asset->src, file_name);
     asset->diffuse = DAS_DEFAULT_DIFFUSE_COLOR;

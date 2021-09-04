@@ -1,14 +1,24 @@
-# libdas: DENG asset handling management library $(HDRS)
-# licence: Apache, see LICENCE file $(HDRS)
-# file: Makefile - makefile written for GNU make to specify all targets and their rules $(HDRS)
-# author: Karl-Mihkel Ott $(HDRS)
+# libdas: DENG asset handling management library
+# licence: Apache, see LICENCE file
+# file: Makefile - makefile written for GNU make to specify all targets and their rules
+# author: Karl-Mihkel Ott
 
 
 include config.mk
 
+# All main targets to make
 all: $(ALL_TARGETS) $(HDRS)
 	ar rcs libdas.a $(LIBDAS_OBJ) 
 	$(CC) $(DAM_OBJ) -o dam -L . -ldas
+
+libdas.a: $(LIBDAS_OBJ) $(HDRS)
+	ar rcs libdas.a $(LIBDAS_OBJ)
+
+dam: $(DAM_OBJ) $(HDRS)
+	$(CC) $(DAM_OBJ) -o dam -L . -ldas
+
+objdump: $(OBJDUMP_OBJ) $(HDRS)
+	$(CC) $(OBJDUMP_OBJ) -o objdump -L . -ldas
 
 
 #############################################
@@ -47,6 +57,13 @@ tri_nbral: $(MESH_QUERY_OBJ) $(HDRS)
 $(DSTDIR)/tri_nbral.c.o: $(SRCDIR)/tests/mesh_query.c
 	$(CC) -c $(SRCDIR)/tests/tri_nbral.c $(CFLAGS) $(INCL_FLAGS) -o $(DSTDIR)/tri_nbral.c.o
 
+# Huffman encoding test
+huf_encode: $(CXX_HM_TEST_OBJ)
+	$(CXX) $(CXX_HM_TEST_OBJ) -o huf_encode
+
+huf_encode.cpp.o: $(SRCDIR)/tests/huf_encode.cpp 
+	$(CXX) -c $(SRCDIR)/tests/huf_encode.cpp $(CXXFLAGS) $(INCL_FLAGS) -o $(DSTDIR)/huf_encode.cpp.o
+
 
 # Non-triangle faced mesh triangulation implementation
 triangulate: $(TRIANGULATE_OBJ) $(HDRS)
@@ -73,6 +90,9 @@ $(DSTDIR)/das_loader.c.o: $(SRCDIR)/das_loader.c $(HDRS)
 $(DSTDIR)/hashmap.c.o: $(SRCDIR)/hashmap.c $(HDRS)
 	$(CC) -c $(SRCDIR)/hashmap.c $(CFLAGS) $(INCL_FLAGS) -o $(DSTDIR)/hashmap.c.o
 
+$(DSTDIR)/objdump.c.o: $(SRCDIR)/objdump.c $(HDRS)
+	$(CC) -c $(SRCDIR)/objdump.c $(CFLAGS) $(INCL_FLAGS) -o $(DSTDIR)/objdump.c.o
+
 $(DSTDIR)/tex_loader.c.o: $(SRCDIR)/tex_loader.c $(HDRS)
 	$(CC) -c $(SRCDIR)/tex_loader.c $(CFLAGS) $(INCL_FLAGS) -o $(DSTDIR)/tex_loader.c.o
 
@@ -81,6 +101,7 @@ $(DSTDIR)/uuid.c.o: $(SRCDIR)/uuid.c $(HDRS)
 
 $(DSTDIR)/wobj.c.o: $(SRCDIR)/wobj.c $(HDRS)
 	$(CC) -c $(SRCDIR)/wobj.c $(CFLAGS) $(INCL_FLAGS) -o $(DSTDIR)/wobj.c.o
+
 
 
 

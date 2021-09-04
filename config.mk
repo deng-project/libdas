@@ -5,8 +5,10 @@
 # author: Karl-Mihkel Ott
 
 CC = gcc
+CXX = g++
 INCL_FLAGS = -I include
 CFLAGS = -std=c99 -march=native -Wall -g
+CXXFLAGS = -g -march=native -Wall -std=gnu++11
 SRCDIR = src
 DSTDIR = .
 
@@ -20,6 +22,7 @@ LIBDAS_OBJ = $(DSTDIR)/das_asset_assembler.c.o \
 
 # All object files that are used to compile dam executable
 DAM_OBJ = $(DSTDIR)/dam.c.o
+OBJDUMP_OBJ = $(DSTDIR)/objdump.c.o
 
 LD_TEST_OBJ = $(DSTDIR)/das_loader.c.o \
 			  $(DSTDIR)/ldtest.c.o
@@ -46,11 +49,11 @@ TRIANGULATE_OBJ = $(DSTDIR)/das_loader.c.o \
 				  $(DSTDIR)/uuid.c.o \
 				  $(DSTDIR)/wobj.c.o
 
-HDRS = include/** \
+CXX_HM_TEST_OBJ = $(DSTDIR)/huf_encode.cpp.o
 
-ALL_TARGETS = $(LIBDAS_OBJ) \
-			  $(DAM_OBJ)
+HDRS = include/*.h \
 
+ALL_TARGETS = libdas.a dam objdump
 CLEAR_TARGETS = libdas.so \
 				libdas.a \
 				dam \

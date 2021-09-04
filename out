@@ -1,0 +1,16 @@
+char A, offset 7
+00000000
+char D, offset 5
+00000100
+char B, offset 5
+00000101
+char !, offset 4
+00001100
+char C, offset 4
+00001101
+char R, offset 5
+00000111
+
+5e d45e
+
+0101 1110 1101 0100 0101 1110

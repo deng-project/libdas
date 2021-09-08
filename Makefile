@@ -8,17 +8,18 @@ include config.mk
 
 # All main targets to make
 all: $(ALL_TARGETS) $(HDRS)
-	ar rcs libdas.a $(LIBDAS_OBJ) 
-	$(CC) $(DAM_OBJ) -o dam -L . -ldas
+
+dam: $(DAM_OBJ) $(HDRS)
+	$(CXX) $(DAM_OBJ) -o dam -L . -ldas
+
+hf_comp: $(HF_COMP_OBJ) $(HDRS)
+	$(CXX) $(HF_COMP_OBJ) -o hf_comp
 
 libdas.a: $(LIBDAS_OBJ) $(HDRS)
 	ar rcs libdas.a $(LIBDAS_OBJ)
 
-dam: $(DAM_OBJ) $(HDRS)
-	$(CC) $(DAM_OBJ) -o dam -L . -ldas
-
 objdump: $(OBJDUMP_OBJ) $(HDRS)
-	$(CC) $(OBJDUMP_OBJ) -o objdump -L . -ldas
+	$(CXX) $(OBJDUMP_OBJ) -o objdump -L . -ldas
 
 
 #############################################
@@ -28,49 +29,42 @@ objdump: $(OBJDUMP_OBJ) $(HDRS)
 
 # das loader test 
 ldtest: $(LD_TEST_OBJ) $(HDRS)
-	$(CC) $(LD_TEST_OBJ) -o ldtest
+	$(CXX) $(LD_TEST_OBJ) -o ldtest
 
-$(DSTDIR)/ldtest.c.o: $(SRCDIR)/ldtest.c $(HDRS)
-	$(CC) -c $(SRCDIR)/ldtest.c $(CFLAGS) $(INCL_FLAGS) -o $(DSTDIR)/ldtest.c.o
+$(DSTDIR)/ldtest.cpp.o: $(SRCDIR)/tests/ldtest.cpp $(HDRS)
+	$(CXX) -c $(SRCDIR)/tests/ldtest.cpp $(FLAGS) $(INCL_FLAGS) -o $(DSTDIR)/ldtest.cpp.o
 
 
 # das assembly test 
 asmtest: $(ASM_TEST_OBJ) $(HDRS)
-	$(CC) $(ASM_TEST_OBJ) -o asmtest
+	$(CXX) $(ASM_TEST_OBJ) -o asmtest
 
-$(DSTDIR)/asmtest.c.o: $(SRCDIR)/asmtest.c $(HDRS)
-	$(CC) -c $(SRCDIR)/asmtest.c $(CFLAGS) $(INCL_FLAGS) -o $(DSTDIR)/asmtest.c.o
+$(DSTDIR)/asmtest.cpp.o: $(SRCDIR)/tests/asmtest.cpp $(HDRS)
+	$(CXX) -c $(SRCDIR)/tests/asmtest.cpp $(FLAGS) $(INCL_FLAGS) -o $(DSTDIR)/asmtest.cpp.o
 
 
 # Image loader test
 imgtest: $(IMG_TEST_OBJ) $(HDRS)
-	$(CC) $(IMG_TEST_OBJ) -o imgtest -lm
+	$(CXX) $(IMG_TEST_OBJ) -o imgtest -lm
 
-$(DSTDIR)/imgtest.c.o: $(SRCDIR)/imgtest.c $(HDRS)
-	$(CC) -c $(SRCDIR)/imgtest.c $(CFLAGS) $(INCL_FLAGS) -o $(DSTDIR)/imgtest.c.o
+$(DSTDIR)/imgtest.cpp.o: $(SRCDIR)/imgtest.cpp $(HDRS)
+	$(CXX) -c $(SRCDIR)/imgtest.cpp $(FLAGS) $(INCL_FLAGS) -o $(DSTDIR)/imgtest.cpp.o
 
 
 # Manifold mesh triangle neighbour finder algorithm implementation / test
 tri_nbral: $(MESH_QUERY_OBJ) $(HDRS)
-	$(CC) $(MESH_QUERY_OBJ) -o mesh_query
+	$(CXX) $(MESH_QUERY_OBJ) -o mesh_query
 
-$(DSTDIR)/tri_nbral.c.o: $(SRCDIR)/tests/mesh_query.c
-	$(CC) -c $(SRCDIR)/tests/tri_nbral.c $(CFLAGS) $(INCL_FLAGS) -o $(DSTDIR)/tri_nbral.c.o
-
-# Huffman encoding test
-huf_encode: $(CXX_HM_TEST_OBJ)
-	$(CXX) $(CXX_HM_TEST_OBJ) -o huf_encode
-
-huf_encode.cpp.o: $(SRCDIR)/tests/huf_encode.cpp 
-	$(CXX) -c $(SRCDIR)/tests/huf_encode.cpp $(CXXFLAGS) $(INCL_FLAGS) -o $(DSTDIR)/huf_encode.cpp.o
+$(DSTDIR)/tri_nbral.cpp.o: $(SRCDIR)/tests/mesh_query.cpp
+	$(CXX) -c $(SRCDIR)/tests/tri_nbral.cpp $(FLAGS) $(INCL_FLAGS) -o $(DSTDIR)/tri_nbral.cpp.o
 
 
 # Non-triangle faced mesh triangulation implementation
 triangulate: $(TRIANGULATE_OBJ) $(HDRS)
-	$(CC) $(TRIANGULATE_OBJ) -o triangulate
+	$(CXX) $(TRIANGULATE_OBJ) -o triangulate
 
-$(DSTDIR)/triangulate.c.o: $(SRCDIR)/tests/triangulate.c
-	$(CC) -c $(SRCDIR)/tests/triangulate.c $(CFLAGS) $(INCL_FLAGS) -o $(DSTDIR)/triangulate.c.o
+$(DSTDIR)/triangulate.cpp.o: $(SRCDIR)/tests/triangulate.cpp
+	$(CXX) -c $(SRCDIR)/tests/triangulate.cpp $(FLAGS) $(INCL_FLAGS) -o $(DSTDIR)/triangulate.cpp.o
 
 
 
@@ -78,33 +72,35 @@ $(DSTDIR)/triangulate.c.o: $(SRCDIR)/tests/triangulate.c
 ###### General object file targets ######
 #########################################
 
-$(DSTDIR)/dam.c.o: $(SRCDIR)/dam.c $(HDRS)
-	$(CC) -c $(SRCDIR)/dam.c $(CFLAGS) $(INCL_FLAGS) -o $(DSTDIR)/dam.c.o
+$(DSTDIR)/dam.cpp.o: $(SRCDIR)/dam.cpp $(HDRS)
+	$(CXX) -c $(SRCDIR)/dam.cpp $(FLAGS) $(INCL_FLAGS) -o $(DSTDIR)/dam.cpp.o
 
-$(DSTDIR)/das_asset_assembler.c.o: $(SRCDIR)/das_asset_assembler.c $(HDRS)
-	$(CC) -c $(SRCDIR)/das_asset_assembler.c $(CFLAGS) $(INCL_FLAGS) -o $(DSTDIR)/das_asset_assembler.c.o
+$(DSTDIR)/das_asset_writer.cpp.o: $(SRCDIR)/das_asset_writer.cpp $(HDRS)
+	$(CXX) -c $(SRCDIR)/das_asset_writer.cpp $(FLAGS) $(INCL_FLAGS) -o $(DSTDIR)/das_asset_writer.cpp.o
 
-$(DSTDIR)/das_loader.c.o: $(SRCDIR)/das_loader.c $(HDRS)
-	$(CC) -c $(SRCDIR)/das_loader.c $(CFLAGS) $(INCL_FLAGS) -o $(DSTDIR)/das_loader.c.o
+$(DSTDIR)/das_loader.cpp.o: $(SRCDIR)/das_loader.cpp $(HDRS)
+	$(CXX) -c $(SRCDIR)/das_loader.cpp $(FLAGS) $(INCL_FLAGS) -o $(DSTDIR)/das_loader.cpp.o
 
-$(DSTDIR)/hashmap.c.o: $(SRCDIR)/hashmap.c $(HDRS)
-	$(CC) -c $(SRCDIR)/hashmap.c $(CFLAGS) $(INCL_FLAGS) -o $(DSTDIR)/hashmap.c.o
+$(DSTDIR)/hf_comp.cpp.o: $(SRCDIR)/hf_comp.cpp $(HDRS)
+	$(CXX) -c $(SRCDIR)/hf_comp.cpp $(FLAGS) $(INCL_FLAGS) -o $(DSTDIR)/hf_comp.cpp.o
 
-$(DSTDIR)/objdump.c.o: $(SRCDIR)/objdump.c $(HDRS)
-	$(CC) -c $(SRCDIR)/objdump.c $(CFLAGS) $(INCL_FLAGS) -o $(DSTDIR)/objdump.c.o
+$(DSTDIR)/huf.cpp.o: $(SRCDIR)/huf.cpp $(HDRS)
+	$(CXX) -c $(SRCDIR)/huf.cpp $(FLAGS) $(INCL_FLAGS) -o $(DSTDIR)/huf.cpp.o
 
-$(DSTDIR)/tex_loader.c.o: $(SRCDIR)/tex_loader.c $(HDRS)
-	$(CC) -c $(SRCDIR)/tex_loader.c $(CFLAGS) $(INCL_FLAGS) -o $(DSTDIR)/tex_loader.c.o
+$(DSTDIR)/objdump.cpp.o: $(SRCDIR)/objdump.cpp $(HDRS)
+	$(CXX) -c $(SRCDIR)/objdump.cpp $(FLAGS) $(INCL_FLAGS) -o $(DSTDIR)/objdump.cpp.o
 
-$(DSTDIR)/uuid.c.o: $(SRCDIR)/uuid.c $(HDRS)
-	$(CC) -c $(SRCDIR)/uuid.c $(CFLAGS) $(INCL_FLAGS) -o $(DSTDIR)/uuid.c.o
+$(DSTDIR)/tex_loader.cpp.o: $(SRCDIR)/tex_loader.cpp $(HDRS)
+	$(CXX) -c $(SRCDIR)/tex_loader.cpp $(FLAGS) $(INCL_FLAGS) -o $(DSTDIR)/tex_loader.cpp.o
 
-$(DSTDIR)/wobj.c.o: $(SRCDIR)/wobj.c $(HDRS)
-	$(CC) -c $(SRCDIR)/wobj.c $(CFLAGS) $(INCL_FLAGS) -o $(DSTDIR)/wobj.c.o
+$(DSTDIR)/uuid.cpp.o: $(SRCDIR)/uuid.cpp $(HDRS)
+	$(CXX) -c $(SRCDIR)/uuid.cpp $(FLAGS) $(INCL_FLAGS) -o $(DSTDIR)/uuid.cpp.o
+
+$(DSTDIR)/wobj.cpp.o: $(SRCDIR)/wobj.cpp $(HDRS)
+	$(CXX) -c $(SRCDIR)/wobj.cpp $(FLAGS) $(INCL_FLAGS) -o $(DSTDIR)/wobj.cpp.o
 
 
-
-
+# Clean up task
 .PHONY: clean $(HDRS)
 clean:
-	rm -rf *.o $(CLEAN_TARGETS)
+	rm -rf $(DSTDIR)/*.o $(ALL_TARGETS)

@@ -27,7 +27,7 @@ typedef struct __HashData {
 
 typedef struct __Hashmap {
     __HashData *map_data;
-    size_t *indices;
+    int64_t *indices;
     size_t map_size;
     size_t used_size;
 } Hashmap;

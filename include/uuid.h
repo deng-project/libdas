@@ -7,24 +7,17 @@
 #ifndef __UUID_H
 #define __UUID_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #define __UUID_VERSION 0x10
 #define __UUID_VARIANT 0x40
 
-#ifdef __UUID_C
+#ifdef __UUID_CPP
     #define BUF_LEN     512
-    #include <stdlib.h>
-    #include <stdint.h>
-    #include <stdio.h>
-    #include <time.h>
-    #include <string.h>
-    #include <limits.h>
+    #include <cstring>
+    #include <cstdlib>
+    #include <cstdio>
+    #include <chrono>
 
     #ifdef __linux__
-        #define __USE_MISC
         #include <dirent.h>
         #include <linux/random.h>
         #define __LINUX_NET_DEV_DIR     "/sys/class/net"
@@ -45,7 +38,7 @@ extern "C" {
 
 
     /// Find first non lo network device's mac address
-    char *__uuid_GetDevMacAddress();
+    //char *__uuid_GetDevMacAddress();
 #endif
 
 typedef struct {
@@ -54,17 +47,34 @@ typedef struct {
 
 
 /// Random number generators
-uint64_t randUI64();
-uint32_t randUI32();
-uint16_t randUI16();
-uint8_t randUI8();
+//uint64_t randUI64();
+//uint32_t randUI32();
+//uint16_t randUI16();
+//uint8_t randUI8();
 
 /// Generate and allocate memory for new uuid instance
-uuid_t uuid_Generate();
+//uuid_t uuid_Generate();
 
+namespace libdas {
 
-#ifdef __cplusplus
+    class id_generator {
+        private:
+            uuid_t m_id = {};
+
+        private:
+            uint64_t randUI64();
+            uint32_t randUI32();
+            uint16_t randUI16();
+            uint8_t randUI8();
+            const char *getDeviceMacAddress();
+
+        public:
+            id_generator();
+            void newID();
+            uuid_t &getUUID();
+    };
+
 }
-#endif
+
 
 #endif

@@ -7,76 +7,54 @@
 #ifndef __DAS_LOADER_H
 #define __DAS_LOADER_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-
-#if defined(__DAS_LOADER_C) || defined(__DAM_C) 
-    #include <stdlib.h>
-    #include <stdbool.h>
-    #include <stddef.h>
-    #include <stdint.h>
-    #include <stdio.h>
-    #include <string.h>
+#ifdef __DAS_LOADER_CPP
+    #include <iostream>
+    #include <fstream>
+    #include <cstring>
+    #include <cassert>
 
     #include <uuid.h>
     #include <assets.h>
     #include <das_file.h>
-
-    // Reading functions
-    void readFILE_HDR(das_FILE_HDR *fhdr, const char *file_name);
-    void readINFO_HDR(das_INFO_HDR *ifhdr, const char *file_name);
-    bool tryToReadMeta(das_META_HDR *meta, const char *file_name);
-    void skipMetaHeaders(const char *file_name);
-    void readVERT_HDR(das_VERT_HDR *vhdr, const char *file_name);
-    void readVertAttr(das_VertAttribute *ahdr, uint64_t exsig, const char *file_name, uint64_t pos_size);
-    void readINDX_HDR(das_AssetMode amode, das_INDX_HDR *ihdr, const char *file_name, bool read_indices);
-
-    /// Data manipulation algoritms
-    void vertNormalise(das_Asset *asset);
-    void convertAssetMode(das_Asset *asset);
-
-
-    /// Debugging
-	#ifdef __DEBUG
-		#define __ASSET_LOG_FILE        "assets.log"
-		static void _db_Asset(das_Asset *asset, const char *file_name);
-	#else
-        #define __ASSET_LOG_FILE
-	#endif
-
-
-#ifndef __DAM_C
-    // Global static variables for DAS reader
-    static FILE *__sfile = NULL;
-    static uint64_t __flen = 0;
-    static uint64_t __offset = 0;
-#endif
-#endif
-
-
-#ifdef DAS_FILE
-    #define EMSG_LEN        2048
-    #define ZB(t) memset(&t, 0, sizeof(t))
-
-    // File reading headers
-    void openFileStreamRO(const char *file_name); 
-    void openFileStreamWO(const char *file_name);
-    void dataRead(void *buf, size_t s, const char *emsg, const char *file_name);
-    void dataWrite(void *buf, size_t s, const char *emsg, const char *file_name);
-    void skipStreamRO(size_t len, const char *esmg, const char *file_name);
-    void closeFileStream();
-    uint64_t getBufferLen();
-    uint64_t getOffset();
+    #include <msg_assert.h>
 #endif
 
 
 /// API bindings
-void das_LoadAsset(das_Asset *asset, das_AssetMode dst_mode, das_ColorData color,
-                   char **meta, uuid_t *tex_uuid, const char *file_name);
+//void das_LoadAsset(das_Asset *asset, das_AssetMode dst_mode, das_ColorData color,
+                   //char **meta, uuid_t *tex_uuid, const char *file_name);
 
-#ifdef __cplusplus
+namespace libdas {
+
+    class das_loader {
+        private:
+            Asset m_asset;
+
+        protected:
+            std::fstream m_file;
+            uint64_t m_file_size;
+            uint64_t m_offset;
+
+        protected:
+            void readFILE_HDR(FILE_HDR *fhdr, const std::string &file_name);
+            void readINFO_HDR(INFO_HDR *ifhdr, const std::string &file_name);
+            bool tryToReadMeta(META_HDR *meta, const std::string &file_name);
+            void skipMetaHeaders(const std::string &file_name);
+            void readVERT_HDR(VERT_HDR *vhdr, const std::string &file_name);
+            void readVertAttr(VertAttribute *ahdr, uint64_t exsig, const std::string &file_name, uint64_t pos_size);
+            void readINDX_HDR(AssetMode amode, INDX_HDR *ihdr, const std::string &file_name, bool read_indices);
+
+            /// Data manipulation algoritms
+            void vertNormalise(Asset *asset);
+            void convertAssetMode(Asset *asset);
+
+        public:
+            das_loader();
+            das_loader(AssetMode dst_mode, const ColorData &color, char **meta, uuid_t *tex_uuid, const std::string &file_name);
+
+            void loadAsset(AssetMode dst_mode, const ColorData &color, char **meta, uuid_t *tex_uuid, const std::string &file_name);
+            static void cleanupAsset(const Asset &asset);
+            Asset &getAsset();
+    };
 }
-#endif
 #endif

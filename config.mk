@@ -4,60 +4,63 @@
 # 					object targets, final targets and compiler flags
 # author: Karl-Mihkel Ott
 
-CC = gcc
 CXX = g++
 INCL_FLAGS = -I include
-CFLAGS = -std=c99 -march=native -Wall -g
-CXXFLAGS = -g -march=native -Wall -std=gnu++11
+FLAGS = -std=c++11 -march=native -Wall -g
 SRCDIR = src
 DSTDIR = .
 
 # All object files that are used to compile libdas library
-LIBDAS_OBJ = $(DSTDIR)/das_asset_assembler.c.o \
-	  		 $(DSTDIR)/das_loader.c.o \
-			 $(DSTDIR)/tex_loader.c.o \
-	  		 $(DSTDIR)/hashmap.c.o \
-	  		 $(DSTDIR)/uuid.c.o \
-	  		 $(DSTDIR)/wobj.c.o
+LIBDAS_OBJ = $(DSTDIR)/das_asset_writer.cpp.o \
+			 $(DSTDIR)/huf.cpp.o \
+			 $(DSTDIR)/tex_loader.cpp.o \
+	  		 $(DSTDIR)/das_loader.cpp.o \
+	  		 $(DSTDIR)/uuid.cpp.o \
+	  		 $(DSTDIR)/wobj.cpp.o \
 
 # All object files that are used to compile dam executable
-DAM_OBJ = $(DSTDIR)/dam.c.o
-OBJDUMP_OBJ = $(DSTDIR)/objdump.c.o
+DAM_OBJ = $(DSTDIR)/dam.cpp.o
 
-LD_TEST_OBJ = $(DSTDIR)/das_loader.c.o \
-			  $(DSTDIR)/ldtest.c.o
+# All object files that are used to compile objdump binary
+OBJDUMP_OBJ = $(DSTDIR)/objdump.cpp.o
 
-ASM_TEST_OBJ = $(DSTDIR)/asmtest.c.o \
-			   $(DSTDIR)/das_asset_assembler.c.o \
-			   $(DSTDIR)/das_loader.c.o \
-			   $(DSTDIR)/hashmap.c.o \
-			   $(DSTDIR)/uuid.c.o \
-			   $(DSTDIR)/wobj.c.o
+# All object files that are used to compile huffman compressor executable 
+HF_COMP_OBJ = $(DSTDIR)/hf_comp.cpp.o \
+		  	  $(DSTDIR)/huf.cpp.o
 
-IMG_TEST_OBJ = $(DSTDIR)/imgtest.c.o \
-			   $(DSTDIR)/tex_loader.c.o \
-			   $(DSTDIR)/uuid.c.o
 
-MESH_QUERY_OBJ = $(DSTDIR)/das_loader.c.o \
-				 $(DSTDIR)/mesh_query.c.o \
-				 $(DSTDIR)/uuid.c.o \
-				 $(DSTDIR)/hashmap.c.o
+###################################################
+######## Test program object files targets ########
+###################################################
 
-TRIANGULATE_OBJ = $(DSTDIR)/das_loader.c.o \
-				  $(DSTDIR)/hashmap.c.o \
-				  $(DSTDIR)/triangulate.c.o \
-				  $(DSTDIR)/uuid.c.o \
-				  $(DSTDIR)/wobj.c.o
+LD_TEST_OBJ = $(DSTDIR)/das_loader.cpp.o \
+			  $(DSTDIR)/ldtest.cpp.o
+
+ASM_TEST_OBJ = $(DSTDIR)/asmtest.cpp.o \
+			   $(DSTDIR)/das_asset_writer.cpp.o \
+			   $(DSTDIR)/uuid.cpp.o \
+			   $(DSTDIR)/wobj.cpp.o
+
+IMG_TEST_OBJ = $(DSTDIR)/imgtest.cpp.o \
+			   $(DSTDIR)/tex_loader.cpp.o \
+			   $(DSTDIR)/uuid.cpp.o
+
+MESH_QUERY_OBJ = $(DSTDIR)/das_loader.cpp.o \
+				 $(DSTDIR)/mesh_query.cpp.o \
+				 $(DSTDIR)/uuid.cpp.o \
+				 $(DSTDIR)/hashmap.cpp.o
+
+TRIANGULATE_OBJ = $(DSTDIR)/das_loader.cpp.o \
+				  $(DSTDIR)/hashmap.cpp.o \
+				  $(DSTDIR)/triangulate.cpp.o \
+				  $(DSTDIR)/uuid.cpp.o \
+				  $(DSTDIR)/wobj.cpp.o
 
 CXX_HM_TEST_OBJ = $(DSTDIR)/huf_encode.cpp.o
 
 HDRS = include/*.h \
 
-ALL_TARGETS = libdas.a dam objdump
-CLEAR_TARGETS = libdas.so \
-				libdas.a \
-				dam \
-				$(LIBDAS_OBJ) \
-				$(DAM_OBJ) \
-				ldtest \
-				asmtest \
+ALL_TARGETS = hf_comp \
+			  libdas.a \
+			  dam \
+			  objdump \

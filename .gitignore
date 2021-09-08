@@ -17,3 +17,7 @@ testobj/
 dam
 .cache
 gcc.gz
+hf_comp
+objdump
+out
+panzer3.das

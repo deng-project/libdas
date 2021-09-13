@@ -67,6 +67,14 @@ $(DSTDIR)/triangulate.cpp.o: $(SRCDIR)/tests/triangulate.cpp
 	$(CXX) -c $(SRCDIR)/tests/triangulate.cpp $(FLAGS) $(INCL_FLAGS) -o $(DSTDIR)/triangulate.cpp.o
 
 
+huf_test: $(HUF_TEST_OBJ) $(HDRS)
+	$(CXX) $(HUF_TEST_OBJ) -o huf_test
+
+
+$(DSTDIR)/huf_test.cpp.o: $(SRCDIR)/tests/huf_test.cpp $(HDRS)
+	$(CXX) -c $(SRCDIR)/tests/huf_test.cpp $(FLAGS) $(INCL_FLAGS) -o $(DSTDIR)/huf_test.cpp.o
+
+
 
 #########################################
 ###### General object file targets ######

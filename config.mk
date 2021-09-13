@@ -56,6 +56,10 @@ TRIANGULATE_OBJ = $(DSTDIR)/das_loader.cpp.o \
 				  $(DSTDIR)/uuid.cpp.o \
 				  $(DSTDIR)/wobj.cpp.o
 
+HUF_TEST_OBJ = $(DSTDIR)/huf.cpp.o \
+			   $(DSTDIR)/huf_test.cpp.o
+
+
 CXX_HM_TEST_OBJ = $(DSTDIR)/huf_encode.cpp.o
 
 HDRS = include/*.h \

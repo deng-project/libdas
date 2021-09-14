@@ -24,10 +24,6 @@ DAM_OBJ = $(DSTDIR)/dam.cpp.o
 # All object files that are used to compile objdump binary
 OBJDUMP_OBJ = $(DSTDIR)/objdump.cpp.o
 
-# All object files that are used to compile huffman compressor executable 
-HF_COMP_OBJ = $(DSTDIR)/hf_comp.cpp.o \
-		  	  $(DSTDIR)/huf.cpp.o
-
 
 ###################################################
 ######## Test program object files targets ########
@@ -64,7 +60,6 @@ CXX_HM_TEST_OBJ = $(DSTDIR)/huf_encode.cpp.o
 
 HDRS = include/*.h \
 
-ALL_TARGETS = hf_comp \
-			  libdas.a \
+ALL_TARGETS = libdas.a \
 			  dam \
-			  objdump \
+			  objdump

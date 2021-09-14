@@ -24,7 +24,7 @@ namespace libdas {
             }
         }
 
-        if(!per || per - file_name.c_str() + 1 > flen - 1) {
+        if(!per || static_cast<size_t>(per - file_name.c_str() + 1) > flen - 1) {
             fprintf(stderr, "Unknown file format for file %s\n", file_name.c_str());
             exit(1);
         }
@@ -56,7 +56,8 @@ namespace libdas {
             std::cout << m_to_help;
             exit(0);
         }
-        dam_Options opt = { 0 };
+
+        dam_Options opt;
         opt.out_file = argv[argc - 1];
         opt.meta = NULL;
 
@@ -69,54 +70,71 @@ namespace libdas {
             opt.show_finfo = true;
             return opt;
         }
-
         // When those two cases are avoided, dam assumes that a new asset needs to be assembled
-        // Start iterating through options
-        bool wait_input = false;
-        bool wait_mode = false;
+
+        char **wait_ptr = nullptr;
+        char *cmp = nullptr, *vert_mode = nullptr;
+
+        bool wait = false;
         uint32_t mflag_c = 0;
+
+        // Start iterating through all given options
         for(int i = 1; i < argc - 1; i++) {
-            if(wait_input) {
-                opt.input = argv[i];
-                wait_input = false;
+            if(wait) {
+                *wait_ptr = argv[i];
+                wait = false;
+                wait_ptr = nullptr;
             }
 
-            else if(wait_mode) {
-                // Check if vertices mode is invalid
-                if(strcmp(argv[i], "vuu") && strcmp(argv[i], "vun") && 
-                   strcmp(argv[i], "vmu") && strcmp(argv[i], "vmn")) {
-                    std::cout << "Invalid vertices mode specified" << std::endl;
-                    std::cout << "Vertices mode must be any of the following: vuu (vertex unmapped unnormalised), vun (vertex unmapped normalised),"\
-                                 "vmu (vertex texture mapped unnormalised) or vmn (vertex texture mapped normalised)" << std::endl;
-                    exit(0);
-                }
-
-                opt.vmode = *((uint32_t*) argv[i]);
-                wait_mode = false;
-            }
-
-            // Parse command arguments normally
+            // Parse command arguments normally (see m_help_text definition)
             else {
-                if(!strcmp(argv[i], "-i") || !strcmp(argv[i], "--input"))
-                    wait_input = true;
-                else if(!strcmp(argv[i], "-v") || !strcmp(argv[i], "--vert"))
-                    wait_mode = true;
+                if(!strcmp(argv[i], "-i") || !strcmp(argv[i], "--input")) {
+                    wait = true;
+                    wait_ptr = &opt.input;
+                }
+                else if(!strcmp(argv[i], "-v") || !strcmp(argv[i], "--vert")) {
+                    wait = true;
+                    wait_ptr = &vert_mode;
+                }
                 else if(!strcmp(argv[i], "-nm") || !strcmp(argv[i], "--no-meta")) {
                     opt.meta = NULL;
                     mflag_c++;
                 }
-                else if(!strcmp(argv[i], "-m") || !strcmp(argv[i], "--meta"))
+                else if(!strcmp(argv[i], "-m") || !strcmp(argv[i], "--meta")) {
                     opt.meta = (char*) 1;
+                    mflag_c++;
+                }
+                else if(!strcmp(argv[i], "-c") || !strcmp(argv[i], "--compression")) {
+                    wait = true;
+                    wait_ptr = &cmp;
+                }
 
                 // Check if meta flag has been called more than once
                 if(mflag_c > 1) {
                     std::cerr << "Too many meta flags, there must be only one!" << std::endl;
-                    exit(0);
+                    std::exit(1);
                 }
             }
         }
 
+        
+        // Check if vert_mode or cmp were given
+        if(vert_mode && (!strcasecmp(vert_mode, "vuu") || !strcasecmp(vert_mode, "vun") || !strcasecmp(vert_mode, "vmu") || !strcasecmp(vert_mode, "vmn")))
+            opt.vmode = *reinterpret_cast<uint32_t*>(vert_mode);
+        else if(vert_mode) {
+            std::cerr << "Invalid vertex mode " << vert_mode << std::endl;
+            std::exit(1);
+        }
 
+        if(cmp) {
+            opt.cmp = static_cast<uint32_t>(std::atoi(cmp));
+
+            // Check if the maximum compression level is exceeded in argument
+            if(opt.cmp > 1) {
+                std::cerr << "Compression level of " << opt.cmp << " is exceeding the compression level limit of 1" << std::endl; 
+                std::exit(1);
+            }
+        } 
         return opt;
     }
 

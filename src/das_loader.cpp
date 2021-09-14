@@ -99,7 +99,6 @@ namespace libdas {
     /// Read information about one vertex element header type
     void das_loader::readVertAttr(VertAttribute *ahdr, uint64_t exsig, const std::string &file_name, uint64_t data_size) {
         const size_t hsize = 17;
-        std::cout << "File ptr: " << m_file.tellg() << std::endl;
         m_file.read(reinterpret_cast<char*>(ahdr), hsize);
         m_offset += hsize;
         msgassert(ahdr->hdr_sig == exsig, "Could not verify signature for VERT_HDR attribute in file " + file_name);

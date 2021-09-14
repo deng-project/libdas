@@ -116,7 +116,7 @@ namespace libdas {
                     std::cout << "used_bits for " << static_cast<char>(i) << " is " << entable[i].used_bits << " ";
 
                     size_t bsize = entable[i].used_bits / 8 + (entable[i].used_bits % 8 ? 1 : 0);
-                    for(size_t j = MAX_TREE_DEPTH - bsize; j < MAX_TREE_DEPTH; j++) {
+                    for(size_t j = MAX_KEY_BYTES - bsize; j < MAX_KEY_BYTES; j++) {
                         int shift = 7;
                         if(!j && entable[i].used_bits % 8) shift = entable[i].used_bits % 8;
 
@@ -132,25 +132,15 @@ namespace libdas {
             std::cout << "entable size: " << size << std::endl;
             return;
         }
-
-
-        void logDetable(std::vector<decode_key> &detable) {
-            for(decode_key key : detable)
-                std::cout << "used_bits for " << key.ch << " is " << key.used_bits << std::endl;
-
-            std::cout << "detable size: " << detable.size() << std::endl; 
-            return;
-        }
-
     }
 
 
     /// Create a forest of nodes and make a tree out of them
     void huf_tree::mkTree() {
         // start by creating a forest out of nodes
-        for(uint32_t i = 0; i < ALPHABET_SIZE; i++) {
+        for(uint16_t i = 0; i < ALPHABET_SIZE; i++) {
             if(m_freq[i] > 0) {
-                huf_data::Node *nnode = new huf_data::Node((unsigned char) i, nullptr, nullptr, m_freq[i]);
+                huf_data::Node *nnode = new huf_data::Node(i, nullptr, nullptr, m_freq[i]);
                 m_forest.push(nnode);
             }
         }
@@ -235,12 +225,12 @@ namespace libdas {
         
         
         //unsigned char size = bkey.used_bits / 8 + (bkey.used_bits % 8 ? 1 : 0);
-        //huf_data::shiftBytesLeft(std::make_pair(reinterpret_cast<char*>(bkey.bytes), MAX_TREE_DEPTH), static_cast<int>(size), 1);
-        huf_data::shiftToMSB(bkey.bytes, MAX_TREE_DEPTH, 1);
+        //huf_data::shiftBytesLeft(std::make_pair(reinterpret_cast<char*>(bkey.bytes), MAX_KEY_BYTES), static_cast<int>(size), 1);
+        huf_data::shiftToMSB(bkey.bytes, MAX_KEY_BYTES, 1);
         bkey.used_bits++;
         buildHuffmanTables(root->left, bkey);
 
-        bkey.bytes[MAX_TREE_DEPTH - 1] |= 1;
+        bkey.bytes[MAX_KEY_BYTES - 1] |= 1;
         buildHuffmanTables(root->right, bkey);
     }
 
@@ -276,11 +266,11 @@ namespace libdas {
             
             // for each byte in bits, check its value
             unsigned char bc = key.used_bits / 8 + (key.used_bits % 8 ? 1 : 0);
-            for(int i = MAX_TREE_DEPTH - bc; i < MAX_TREE_DEPTH; i++) {
+            for(int i = MAX_KEY_BYTES - bc; i < MAX_KEY_BYTES; i++) {
 
                 // if the first MSB is the current byte, check the key remainer and previous LSB remainer and 
                 // augment the written byte accordingly
-                if(i == MAX_TREE_DEPTH - bc && key.used_bits % 8) {
+                if(i == MAX_KEY_BYTES - bc && key.used_bits % 8) {
                     // if the key remainer is larger than previous key LSB remainer
                     if(key.used_bits % 8 == r1) {
                         b1 |= key.bytes[i];
@@ -428,7 +418,6 @@ namespace libdas {
                 }
                 else if(root->isLeaf() && root->ch >= ALPHABET_SIZE) 
                     msgassert(nullptr, "Corrupt decode table");
-
             }
         }
     }

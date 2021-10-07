@@ -9,6 +9,8 @@ compile_commands.json
 *.gif
 ldtest
 asmtest
+lagrange
+newton
 triangulate
 *.a
 *.so

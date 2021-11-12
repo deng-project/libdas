@@ -267,7 +267,7 @@ namespace Libdas {
     void WavefrontObjParser::_SkipSkippableCharacters(char *_end) {
         // skip all whitespaces till keyword is found
         for(; m_rd_ptr < m_line_end; m_rd_ptr++) {
-            if(*m_rd_ptr != ' ' && *m_rd_ptr != 0x00 && *m_rd_ptr != '\t')
+            if(*m_rd_ptr != ' ' && *m_rd_ptr != 0x00 && *m_rd_ptr != '\t' && *m_rd_ptr != '\r')
                 break;
         }
     }
@@ -293,7 +293,7 @@ namespace Libdas {
         // verify that the key is valid
         auto res = m_statement_map.find(key);
         if(res == m_statement_map.end()) {
-            m_error.SyntaxError(LIBDAS_ERROR_INVALID_KEYWORD, m_parse_pos, TERMINATE);
+            m_error.SyntaxError(LIBDAS_ERROR_INVALID_KEYWORD, m_parse_pos, key, "", TERMINATE);
         }
 
         return m_statement_map[key];

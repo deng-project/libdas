@@ -42,7 +42,6 @@ namespace Libdas {
     void AsciiFormatErrorHandler::SyntaxError(ErrorType _type, int _line, const std::string &_keyword, 
                                               const std::string &_arg, TerminationType _terminate) {
         std::string err_beg = _GetFormatErrorMsg();
-        LIBDAS_ASSERT(_keyword != "");
 
         switch(_type) {
             case LIBDAS_ERROR_INVALID_KEYWORD:
@@ -50,7 +49,6 @@ namespace Libdas {
                 break;
 
             case LIBDAS_ERROR_INVALID_ARGUMENT:
-                LIBDAS_ASSERT(_arg != "");
                 std::cerr << err_beg << "Invalid argument '" << _arg << "' for keyword '" << _keyword << "' at line " << _line << std::endl;
                 break;
 

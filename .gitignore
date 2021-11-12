@@ -23,5 +23,7 @@ hf_comp
 objdump
 out
 panzer3.das
+build
+obj
 *.make
 Makefile

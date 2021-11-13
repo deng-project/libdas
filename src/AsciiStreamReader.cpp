@@ -10,7 +10,7 @@
 namespace Libdas {
 
 
-    AsciiStreamReader::AsciiStreamReader(size_t _chunk_size, char _end, const std::string &_file_name) : 
+    AsciiStreamReader::AsciiStreamReader(size_t _chunk_size, const std::string &_end, const std::string &_file_name) : 
         m_end(_end), m_buffer_size(_chunk_size) 
     {
         LIBDAS_ASSERT(_chunk_size > 0);
@@ -57,12 +57,13 @@ namespace Libdas {
         if(m_last_read == 0) return false;
 
         // find the first instance of end character
-        for(int32_t i = static_cast<int32_t>(m_last_read) - 1; i >= 0; i--) {
+        for(int32_t i = static_cast<int32_t>(m_last_read) - m_end.size() - 1; i >= 0; i--) {
             m_stream.seekg(i + read_bytes, std::ios::beg);
-            char ch;
-            m_stream.get(ch);
+            char substr[m_end.size() + 1];
+            substr[m_end.size()] = 0;
+            m_stream.read(substr, m_end.size());
 
-            if(ch == m_end) {
+            if(substr == m_end) {
                 m_last_read = static_cast<size_t>(i) + 1;
                 break;
             }

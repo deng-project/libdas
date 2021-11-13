@@ -10,7 +10,7 @@
 namespace Libdas {
 
     WavefrontObjParser::WavefrontObjParser(size_t _chunk_size, const std::string &_file_name) : 
-        AsciiLineReader(_chunk_size, '\n', _file_name), m_file_name(_file_name), m_error(MODEL_FORMAT_WOBJ) {
+        AsciiLineReader(_chunk_size, "\n", _file_name), m_file_name(_file_name), m_error(MODEL_FORMAT_WOBJ) {
         std::vector<std::string> names = {"main"};
         m_groups.push(WavefrontObjGroup(names));
         _Tokenize();
@@ -21,109 +21,109 @@ namespace Libdas {
     void WavefrontObjParser::_Tokenize() {
         m_statement_map["v"] = {
             WAVEFRONT_OBJ_STATEMENT_VERTEX,
-            WavefrontObjFunctions::ParseVertexKeywordArgs
+            WavefrontObjFunctions::VertexKeywordArgsCallback
         };
 
         m_statement_map["vp"] = {
             WAVEFRONT_OBJ_STATEMENT_POINT,
-            WavefrontObjFunctions::ParsePointKeywordArgs
+            WavefrontObjFunctions::PointKeywordArgsCallback
         };
 
         m_statement_map["vn"] = {
             WAVEFRONT_OBJ_STATEMENT_VERTEX_NORMAL,
-            WavefrontObjFunctions::ParseVertexNormalKeywordArgs
+            WavefrontObjFunctions::VertexNormalKeywordArgsCallback
         };
 
         m_statement_map["vt"] = {
             WAVEFRONT_OBJ_STATEMENT_VERTEX_TEXTURE,
-            WavefrontObjFunctions::ParseTextureVertexKeywordArgs
+            WavefrontObjFunctions::TextureVertexKeywordArgsCallback
         };
         
         m_statement_map["cstype"] = {
             WAVEFRONT_OBJ_STATEMENT_CSTYPE,
-            //WavefrontObjFunctions::ParseCSTypeArgs
+            //WavefrontObjFunctions::CSTypeArgsCallback
             nullptr
         };
 
         m_statement_map["deg"] = {
             WAVEFRONT_OBJ_STATEMENT_POLYNOMIAL_DEGREE,
-            //WavefrontObjFunctions::ParsePolynomialDegreeArgs
+            //WavefrontObjFunctions::PolynomialDegreeArgsCallback
             nullptr
         };
 
         m_statement_map["bmat"] = {
             WAVEFRONT_OBJ_STATEMENT_BASIS_MATRIX,
-            //WavefrontObjFunctions::ParseBasisMatrixArgs
+            //WavefrontObjFunctions::BasisMatrixArgsCallback
             nullptr
         };
 
         m_statement_map["step"] = {
             WAVEFRONT_OBJ_STATEMENT_STEP,
-            //WavefrontObjFunctions::ParseCSStepArgs
+            //WavefrontObjFunctions::CSStepArgsCallback
             nullptr
         };
 
         m_statement_map["p"] = {
             WAVEFRONT_OBJ_STATEMENT_POINTS,
-            WavefrontObjFunctions::ParsePointsArgs
+            WavefrontObjFunctions::PointsArgsCallback
         };
 
         m_statement_map["l"] = {
             WAVEFRONT_OBJ_STATEMENT_LINE,
-            //WavefrontObjFunctions::ParseLineArgs
+            //WavefrontObjFunctions::LineArgsCallback
             nullptr
         };
 
         m_statement_map["f"] = {
             WAVEFRONT_OBJ_STATEMENT_FACE,
-            WavefrontObjFunctions::ParseFaceArgs
+            WavefrontObjFunctions::FaceArgsCallback
         };
 
         m_statement_map["curv"] = {
             WAVEFRONT_OBJ_STATEMENT_CURV,
-            //WavefrontObjFunctions::ParseCurveArgs
+            //WavefrontObjFunctions::CurveArgsCallback
             nullptr
         };
 
         m_statement_map["curv2d"] = {
             WAVEFRONT_OBJ_STATEMENT_CURV2D,
-            //WavefrontObjFunctions::Parse2DCurveArgs
+            //WavefrontObjFunctions::2DCurveArgsCallback
             nullptr
         };
 
         m_statement_map["surf"] = {
             WAVEFRONT_OBJ_STATEMENT_SURFACE,
-            //WavefrontObjFunctions::ParseSurfaceArgs
+            //WavefrontObjFunctions::SurfaceArgsCallback
             nullptr
         };
 
         m_statement_map["parm"] = {
             WAVEFRONT_OBJ_STATEMENT_PARAMETER,
-            //WavefrontObjFunctions::ParseParameterArgs
+            //WavefrontObjFunctions::ParameterArgsCallback
             nullptr
         };
 
         m_statement_map["trim"] = {
             WAVEFRONT_OBJ_STATEMENT_TRIMMING_CURV,
-            //WavefrontObjFunctions::ParseTrimmingCurveArgs
+            //WavefrontObjFunctions::TrimmingCurveArgsCallback
             nullptr
         };
 
         m_statement_map["hole"] = {
             WAVEFRONT_OBJ_STATEMENT_HOLE_CURV,
-            //WavefrontObjFunctions::ParseHoleCurveArgs
+            //WavefrontObjFunctions::HoleCurveArgsCallback
             nullptr
         };
 
         m_statement_map["scrv"] = {
             WAVEFRONT_OBJ_STATEMENT_SPECIAL_CURV,
-            //WavefrontObjFunctions::ParseSpecialCurveArgs
+            //WavefrontObjFunctions::SpecialCurveArgsCallback
             nullptr
         };
 
         m_statement_map["sp"] = {
             WAVEFRONT_OBJ_STATEMENT_SPECIAL_POINT,
-            //WavefrontObjFunctions::ParseSpecialPointArgs
+            //WavefrontObjFunctions::SpecialPointArgsCallback
             nullptr
         };
 
@@ -134,94 +134,94 @@ namespace Libdas {
 
         m_statement_map["g"] = {
             WAVEFRONT_OBJ_STATEMENT_GROUP,
-            WavefrontObjFunctions::ParseGroupArgs
+            WavefrontObjFunctions::GroupArgsCallback
         };
 
         m_statement_map["s"] = {
             WAVEFRONT_OBJ_STATEMENT_SHADING_GROUP,
-            //WavefrontObjFunctions::ParseShadingGroup
+            //WavefrontObjFunctions::ShadingGroupCallback
             nullptr
         };
 
         m_statement_map["mg"] = {
             WAVEFRONT_OBJ_STATEMENT_MERGE_GROUP,
-            //WavefrontObjFunctions::ParseMergeGroup
+            //WavefrontObjFunctions::MergeGroupCallback
             nullptr
         };
 
         m_statement_map["o"] = {
             WAVEFRONT_OBJ_STATEMENT_OBJECT,
-            WavefrontObjFunctions::ParseObjectName
+            WavefrontObjFunctions::ObjectNameCallback
         };
 
         m_statement_map["bevel"] = {
             WAVEFRONT_OBJ_STATEMENT_BEVEL_INTERPOLATION,
-            WavefrontObjFunctions::ParseObjectName
+            WavefrontObjFunctions::ObjectNameCallback
         };
 
         m_statement_map["c_interp"] = {
             WAVEFRONT_OBJ_STATEMENT_COLOR_INTERPOLATION,
-            //WavefrontObjFunctions::ParseColorInterpolationArgs
+            //WavefrontObjFunctions::ColorInterpolationArgsCallback
             nullptr
         };
 
         m_statement_map["d_interp"] = {
             WAVEFRONT_OBJ_STATEMENT_DIFFUSE_INTERPOLATION,
-            //WavefrontObjFunctions::ParseDiffuseInterpolationArgs
+            //WavefrontObjFunctions::DiffuseInterpolationArgsCallback
             nullptr
         };
 
         m_statement_map["lod"] = {
             WAVEFRONT_OBJ_STATEMENT_LEVEL_OF_DETAIL,
-            //WavefrontObjFunctions::ParseLevelOfDetailArgs
+            //WavefrontObjFunctions::LevelOfDetailArgsCallback
             nullptr
         };
 
         m_statement_map["usemap"] = {
             WAVEFRONT_OBJ_STATEMENT_USE_MAP,
-            //WavefrontObjFunctions::ParseUseMapArgs
+            //WavefrontObjFunctions::UseMapArgsCallback
             nullptr
         };
 
         m_statement_map["maplib"] = {
             WAVEFRONT_OBJ_STATEMENT_MAP_LIBRARY,
-            //WavefrontObjFunctions::ParseMapLibraryArgs
+            //WavefrontObjFunctions::MapLibraryArgsCallback
             nullptr
         };
 
         m_statement_map["usemtl"] = {
             WAVEFRONT_OBJ_STATEMENT_USE_MAP,
-            //WavefrontObjFunctions::ParseUseMapArgs
+            //WavefrontObjFunctions::UseMapArgsCallback
             nullptr
         };
 
         m_statement_map["mtllib"] = {
             WAVEFRONT_OBJ_STATEMENT_MATERIAL_LIBRARY,
-            //WavefrontObjFunctions::ParseMaterialLibraryArgs
+            //WavefrontObjFunctions::MaterialLibraryArgsCallback
             nullptr
         };
 
         m_statement_map["shadow_obj"] = {
             WAVEFRONT_OBJ_STATEMENT_SHADOW_OBJECT,
-            //WavefrontObjFunctions::ParseShadowObjectArgs
+            //WavefrontObjFunctions::ShadowObjectArgsCallback
             nullptr
         };
 
         m_statement_map["trace_obj"] = {
             WAVEFRONT_OBJ_STATEMENT_RAY_TRACING_OBJECT,
-            //WavefrontObjFunctions::ParseRayTracingObjectArgs
+            //WavefrontObjFunctions::RayTracingObjectArgsCallback
             nullptr
         };
 
         m_statement_map["ctech"] = {
             WAVEFRONT_OBJ_STATEMENT_CURV_TECHNIQUE,
-            //WavefrontObjFunctions::ParseCurveTechniqueArgs
+            //WavefrontObjFunctions::CurveTechniqueArgsCallback
             nullptr
         };
 
         m_statement_map["stech"] = {
             WAVEFRONT_OBJ_STATEMENT_SURFACE_TECHNIQUE,
-            //WavefrontObjFunctions::ParseSurfaceTechniqueArgs
+            //WavefrontObjFunctions::SurfaceTechniqueArgsCallback
             nullptr
         };
 
@@ -233,24 +233,24 @@ namespace Libdas {
     }
 
 
-    WavefrontObjStatementReader WavefrontObjParser::_AnalyseKeyword(char *_end) {
+    WavefrontObjStatementCallback WavefrontObjParser::_AnalyseKeyword(char *_end) {
         std::string key = std::string(m_rd_ptr, _end - m_rd_ptr);
-        if(key == "") return WavefrontObjStatementReader();
+        if(key == "") return WavefrontObjStatementCallback();
 
         // verify that the key is valid
         auto res = m_statement_map.find(key);
         if(res == m_statement_map.end()) {
-            m_error.SyntaxError(LIBDAS_ERROR_INVALID_KEYWORD, m_parse_pos, key, "", TERMINATE);
+            m_error.Error(LIBDAS_ERROR_INVALID_KEYWORD, m_parse_pos, key, "", TERMINATE);
         }
 
         return m_statement_map[key];
     }
 
 
-    void WavefrontObjParser::_AnalyseArgs(WavefrontObjStatementReader _reader, std::vector<std::string> &_args) {
-        if(_reader.keyword_parser != nullptr) {
+    void WavefrontObjParser::_AnalyseArgs(WavefrontObjStatementCallback _callback, std::vector<std::string> &_args) {
+        if(_callback.keyword_callback != nullptr) {
             auto arg_pair = std::make_pair(m_parse_pos, _args);
-            _reader.keyword_parser(m_groups, m_error, arg_pair);
+            _callback.keyword_callback(m_groups, m_error, arg_pair);
         }
         // tmp for testing purposes
         m_rd_ptr = m_line_end;
@@ -276,12 +276,12 @@ namespace Libdas {
             while(_NextLine()) {
                 m_rd_ptr = m_line_beg;
                 // start by searching the first keyword
-                _SkipSkippableCharacters(m_line_end);
+                _SkipSkippableCharacters();
 
                 // line is empty skip iteration
                 if(m_rd_ptr != m_line_end && m_rd_ptr != m_buffer + m_last_read) {
                     char *w_end = _ExtractWord();
-                    WavefrontObjStatementReader statement_reader = _AnalyseKeyword(w_end);
+                    WavefrontObjStatementCallback statement_reader = _AnalyseKeyword(w_end);
                     m_rd_ptr = w_end + 1;
 
                     // Check if valid statement was extracted

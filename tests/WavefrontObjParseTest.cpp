@@ -1,3 +1,9 @@
+/// libdas: DENG asset handling management library
+/// licence: Apache, see LICENCE file
+/// file: WavefrontObjParseTest.h - WavefrontObjParser class testing application
+/// test purpose: Read Wavefront Obj file and display its read groups to stdout
+/// author: Karl-Mihkel Ott
+
 #include <cstdlib>
 #include <string>
 #include <fstream>

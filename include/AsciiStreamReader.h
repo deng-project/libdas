@@ -26,7 +26,7 @@ namespace Libdas {
 
     class AsciiStreamReader {
         private:
-            const char m_end;
+            std::string m_end;
             std::ifstream m_stream;
             size_t m_stream_size = 0;
 
@@ -36,7 +36,7 @@ namespace Libdas {
             size_t m_last_read = 0;
 
         public:
-            AsciiStreamReader(size_t _chunk_size, char _end, const std::string &_file_name = "");
+            AsciiStreamReader(size_t _chunk_size, const std::string &_end = "\n", const std::string &_file_name = "");
             ~AsciiStreamReader();
 
             void OpenStream(const std::string &_file_name);

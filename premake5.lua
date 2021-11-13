@@ -39,8 +39,9 @@ newoption {
     description = "Specify the test application building",
     allowed = {
         { "none", "Do not build any unit tests (default)" },
-        { "AsciiStreamReader", "Build all AsciiStreamReader class tests" },
-        { "WavefrontObjParser", "Build all WavefrontObjParser class tests" },
+        { "AsciiStreamReader", "Build AsciiStreamReader class test" },
+        { "WavefrontObjParser", "Build WavefrontObjParser class test" },
+        { "AsciiSTLParser", "Build AsciiSTLParser class test" },
         { "all", "Build all available unit tests" }
     }
 }
@@ -71,14 +72,8 @@ function OsCheck()
 end
 
 
--- Load all required build configs --
-function LoadBuildConfigs()
-    if not _OPTIONS["no-lib"] then
-        print("Including libdas configurations")
-        --local libdas = require("premake/libdas")
-        --libdas.build()
-    end
-
+-- Check which test configs to include --
+function LoadTests() 
     -- Test options checking
     if _OPTIONS["tests"] == "all" or _OPTIONS["tests"] == "AsciiStreamReader" then
         print("Including AsciiStreamReader test config")
@@ -91,6 +86,24 @@ function LoadBuildConfigs()
         local parser = require("premake/tests/WavefrontObjParser")
         parser.build()
     end
+
+    if _OPTIONS["tests"] == "all" or _OPTIONS["tests"] == "AsciiSTLParser" then
+        print("Including AsciiSTLParser test config")
+        local parser = require("premake/tests/AsciiSTLParser")
+        parser.build()
+    end
+end
+
+
+-- Load all required build configs --
+function LoadBuildConfigs()
+    if not _OPTIONS["no-lib"] then
+        print("Including libdas configurations")
+        --local libdas = require("premake/libdas")
+        --libdas.build()
+    end
+
+    LoadTests()
 end
 
 

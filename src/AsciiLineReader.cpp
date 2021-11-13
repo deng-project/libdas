@@ -3,8 +3,8 @@
 
 namespace Libdas {
 
-    AsciiLineReader::AsciiLineReader(size_t _chunk_size, const char _end, const std::string &_file_name) :
-        AsciiStreamReader(_chunk_size, '\n', _file_name), m_rd_ptr(m_buffer), m_end(_end) {}
+    AsciiLineReader::AsciiLineReader(size_t _chunk_size, const std::string &_end, const std::string &_file_name) :
+        AsciiStreamReader(_chunk_size, _end, _file_name), m_end(_end), m_rd_ptr(m_buffer) {}
 
 
     bool AsciiLineReader::_NextLine() {
@@ -12,7 +12,7 @@ namespace Libdas {
 
         // line ending is saved
         if(m_line_end != 0 && m_line_end + 1 < m_buffer + m_last_read) {
-            new_end = std::strchr(m_line_end + 1, static_cast<int>(m_end));
+            new_end = std::strchr(m_line_end + 1, static_cast<int>(NEWLINE));
             if(!new_end) new_end = m_buffer + m_last_read;
             m_line_beg = m_line_end + 1;
             m_line_end = new_end;
@@ -24,13 +24,13 @@ namespace Libdas {
         else {
             // no line ending is saved
             m_line_beg = m_buffer;
-            m_line_end = std::strchr(m_line_beg, static_cast<int>(m_end));
+            m_line_end = std::strchr(m_line_beg, static_cast<int>(NEWLINE));
         }
         return true;
     }
 
 
-    void AsciiLineReader::_SkipSkippableCharacters(char *_end) {
+    void AsciiLineReader::_SkipSkippableCharacters() {
         // skip all whitespaces till keyword is found
         for(; m_rd_ptr < m_line_end; m_rd_ptr++) {
             if(*m_rd_ptr != ' ' && *m_rd_ptr != 0x00 && *m_rd_ptr != '\t' && *m_rd_ptr != '\r')
@@ -56,7 +56,7 @@ namespace Libdas {
         std::vector<std::string> args;
         while(true) {
             char *end = nullptr;
-            _SkipSkippableCharacters(m_line_end);
+            _SkipSkippableCharacters();
             if(m_rd_ptr >= m_line_end) break;
             
             end = _ExtractWord();

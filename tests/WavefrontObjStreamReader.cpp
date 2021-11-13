@@ -1,6 +1,6 @@
 /// libdas: DENG asset handling management library
 /// licence: Apache, see LICENCE file
-/// file: StreamReader.h - File stream reader header file that reads chunk by chunk 
+/// file: WavefrontObjStreamReader.cpp - AsciiStreamReader class test with Wavefront Obj files
 /// test purpose: Read Wavefront Obj file and output all chunks to output file
 /// author: Karl-Mihkel Ott
 
@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
 
 
     std::string in_file = std::string(argv[1]);
-    Libdas::AsciiStreamReader sr(CHUNK, '\n', std::string(argv[1]));
+    Libdas::AsciiStreamReader sr(CHUNK, "\n", std::string(argv[1]));
     std::string out_file = in_file.substr(0, in_file.find('.')) + ".out";
     std::ofstream out_stream = std::ofstream(out_file, std::ios::binary);
 

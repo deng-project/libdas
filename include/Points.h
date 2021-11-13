@@ -37,6 +37,16 @@ namespace Libdas {
             return Point2D<T>{x + _pt.x, y + _pt.y};
         }
 
+        void operator=(const Point2D<T> &_pt) {
+            x = _pt.x;
+            y = _pt.y;
+        }
+
+        void operator=(Point2D<T> &&_pt) {
+            x = std::move(_pt.x);
+            y = std::move(_pt.y);
+        }
+
         void operator+=(const Point2D<T> &_pt) {
             x += _pt.x;
             y += _pt.y;
@@ -77,6 +87,18 @@ namespace Libdas {
 
         Point3D<T> operator+(const Point3D<T> &_pt) const {
             return Point3D<T>{_pt.x + x, y + _pt.y, z + _pt.z};
+        }
+
+        void operator=(const Point3D<T> &_pt) {
+            x = _pt.x;
+            y = _pt.y;
+            z = _pt.z;
+        }
+
+        void operator=(Point3D<T> &&_pt) {
+            x = std::move(_pt.x);
+            y = std::move(_pt.y);
+            z = std::move(_pt.z);
         }
 
         void operator+=(const Point3D<T> &_pt) {
@@ -138,6 +160,20 @@ namespace Libdas {
 
         Point4D<T> operator+(const Point4D<T> &_pt) const {
             return Point4D<T>{x + _pt.x, y + _pt.y, z + _pt.z, w + _pt.w};
+        }
+
+        void operator=(const Point4D<T> &_pt) {
+            x = _pt.x;
+            y = _pt.y;
+            z = _pt.z;
+            w = _pt.w;
+        }
+
+        void operator=(Point4D<T> &&_pt) {
+            x = std::move(_pt.x);
+            y = std::move(_pt.y);
+            z = std::move(_pt.z);
+            w = std::move(_pt.w);
         }
 
         void operator+=(const Point4D<T> &_pt) {

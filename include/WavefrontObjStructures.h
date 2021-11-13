@@ -1,3 +1,8 @@
+/// libdas: DENG asset handling management library
+/// licence: Apache, see LICENCE file
+/// file: WavefrontObjStructures.h - Wavefront Obj parsing functions and structures header
+/// author: Karl-Mihkel Ott
+
 #ifndef WAVEFRONT_OBJ_STRUCTURES_H
 #define WAVEFRONT_OBJ_STRUCTURES_H
 
@@ -149,99 +154,72 @@ namespace Libdas {
     /// Namespace for containing all Wavefront OBJ keyword parsing functions
     namespace WavefrontObjFunctions {
         typedef std::queue<WavefrontObjGroup> Groups;
-
-        // line and args
-        typedef std::pair<uint32_t, std::vector<std::string>> ArgsType;
-
-        /**********************************************/
-        /*************** Error Checkers ***************/
-        /**********************************************/
-
         /**
-         * Check if correct amount of arguments are supplied
+         * Universal function pointer for keyword action callback
          */
-        void _ArgCountCheck(AsciiFormatErrorHandler &_error, const std::string &_keyword, int _line, uint32_t _arg_c, 
-                            uint32_t _min_args, uint32_t _max_args);
+        typedef void (*PTR_KeywordCallback)(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
 
-        /**
-         * Check if arguments correspond to float data type, assuming that they are tightly packed together
-         * @param _error is an instance to AsciiFormatErrorHandler
-         * @param _beg is the beginning pointer of the float array
-         * @param _end is the ending pointer of the float array
-         * @param _keyword is the statement keyword that is used for float arguments
-         * @param _arg_offset is the offset of arguments that are read from array
-         */
-        void _CheckFloatArgs(AsciiFormatErrorHandler &_error, float *_beg, float *_end, size_t _arg_offset, 
-                             const std::string &_keyword, ArgsType &_args);
-
-
-        /**
-         * Check if arguments correspond to integer data type, assuming that they are tightly packed together
-         * @param _error is an instance to AsciiFormatErrorHandler
-         * @param _beg is the beginning pointer of the integer array
-         * @param _end is the ending pointer of the integer array
-         * @param _arg is a string argument used in parsing
-         * @param _keyword is keyword that is used for integer element arguments
-         * @param _line is the current line that is parsed
-         */
-        void _CheckElementIntArgs(AsciiFormatErrorHandler &_error, uint32_t *_beg, uint32_t *_end, const std::string &_arg,
-                                  const std::string &_keyword, uint32_t _line);
-
-
-        Point2D<uint32_t> _ParseDoubleIndexBlock(AsciiFormatErrorHandler &_error, const std::string &_block, 
-                                                 const std::string &_keyword, const uint32_t _line);
-
-
-        /** 
-         * Parse index block that contains maximum 3 indices
-         * @param _block is a string block that is going to be parsed
-         * @param _keyword is the keyword that is associated with the index block
-         */
-        Point3D<uint32_t> _ParseTripleIndexBlock(AsciiFormatErrorHandler &_error, const std::string &_block, 
-                                                 const std::string &_keyword, const uint32_t _line);
-
+        /***************************************************/
+        /*************** Index block parsing ***************/
+        /***************************************************/
     
         /**
-         * Universal function pointer for keyword arg reading
+         * Parse index block that contains maximum 2 indices
+         * @param _error is a reference to AsciiFormatErrorHandler
+         * @param _block is a string block that is going to be parsed
+         * @param _keyword is a keyword that is used for the statement
+         * @param _line is the current statement line
+         * @return Point2D instance, which contains parsed double indicies
          */
-        typedef void (*PTR_KeywordArgParser)(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        Point2D<uint32_t> _DoubleIndexBlockCallback(AsciiFormatErrorHandler &_error, const std::string &_block, 
+                                                 const std::string &_keyword, const uint32_t _line);
+        /** 
+         * Parse index block that contains maximum 3 indices
+         * @param _error is a reference to AsciiFormatErrorHandler
+         * @param _block is a string block that is going to be parsed
+         * @param _keyword is the keyword that is associated with the index block
+         * @param _line is the current statement line
+         * @return Point3D instance, which contains parsed triple indicies
+         */
+        Point3D<uint32_t> _TripleIndexBlockCallback(AsciiFormatErrorHandler &_error, const std::string &_block, 
+                                                 const std::string &_keyword, const uint32_t _line);
 
         /// Functions to use as parsing function pointer
-        void ParseVertexKeywordArgs(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        void ParsePointKeywordArgs(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        void ParseVertexNormalKeywordArgs(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        void ParseTextureVertexKeywordArgs(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        void ParseCSTypeArgs(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        void ParsePolynomialDegreeArgs(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        void ParseBasisMatrixArgs(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        void ParseCSStepArgs(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        void ParsePointsArgs(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        //void ParseLineArgs(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        void ParseFaceArgs(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        //void ParseCurveArgs(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        //void Parse2DCurveArgs(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        //void ParseSurfaceArgs(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        //void ParseParameterArgs(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        //void ParseTrimmingCurveArgs(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        //void ParseHoleCurveArgs(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        //void ParseSpecialCurveArgs(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        //void ParseSpecialPointArgs(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        void ParseGroupArgs(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        //void ParseShadingGroup(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        //void ParseMergeGroup(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        void ParseObjectName(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        //void ParseBevelInterpolationArgs(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        //void ParseColorInterpolationArgs(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        //void ParseDiffuseInterpolationArgs(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        //void ParseLevelOfDetailArgs(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        //void ParseUseMapArgs(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        //void ParseMapLibraryArgs(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        //void ParseUseMaterialArgs(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        //void ParseMaterialLibraryArgs(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        //void ParseShadowObjectArgs(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        //void ParseRayTracingObjectArgs(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        //void ParseCurveTechniqueArgs(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        //void ParseSurfaceTechniqueArgs(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        void VertexKeywordArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        void PointKeywordArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        void VertexNormalKeywordArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        void TextureVertexKeywordArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        void CSTypeArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        void PolynomialDegreeArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        void BasisMatrixArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        void CSStepArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        void PointsArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        //void LineArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        void FaceArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        //void CurveArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        //void 2DCurveArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        //void SurfaceArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        //void ParameterArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        //void TrimmingCurveArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        //void HoleCurveArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        //void SpecialCurveArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        //void SpecialPointArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        void GroupArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        //void ShadingGroupCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        //void MergeGroupCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        void ObjectNameCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        //void BevelInterpolationArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        //void ColorInterpolationArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        //void DiffuseInterpolationArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        //void LevelOfDetailArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        //void UseMapArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        //void MapLibraryArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        //void UseMaterialArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        //void MaterialLibraryArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        //void ShadowObjectArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        //void RayTracingObjectArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        //void CurveTechniqueArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        //void SurfaceTechniqueArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
     }
 }
 

@@ -77,9 +77,9 @@ namespace Libdas {
             else x = T(), y = T(), z = T();
         }
 
-        Point3D<T>(const Point3D<T> &_val) : x(_val.x), y(_val.y) {}
+        Point3D<T>(const Point3D<T> &_val) : x(_val.x), y(_val.y), z(_val.z) {}
 
-        Point3D<T>(Point3D<T> &&_val) : x(std::move(_val.x)), y(std::move(_val.y)) {}
+        Point3D<T>(Point3D<T> &&_val) : x(std::move(_val.x)), y(std::move(_val.y)), z(std::move(_val.z)) {}
 
         Point3D<T>(T &&_x, T &&_y = T(), T &&_z = T()) : x(std::move(_x)), y(std::move(_y)), z(std::move(_z)) {}
 

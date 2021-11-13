@@ -13,9 +13,9 @@ namespace Libdas {
     std::string AsciiFormatErrorHandler::_GetFormatErrorMsg() {
         switch(m_format) {
             case MODEL_FORMAT_WOBJ: return "Wavefront Obj error: ";
-            case MODEL_FORMAT_STL: return "STL error:";
-            case MODEL_FORMAT_FBX: return "ASCII FBX error:";
-            case MODEL_FORMAT_GLTF: return "GLTF error:";
+            case MODEL_FORMAT_STL: return "STL error: ";
+            case MODEL_FORMAT_FBX: return "ASCII FBX error: ";
+            case MODEL_FORMAT_GLTF: return "GLTF error: ";
             default: LIBDAS_ASSERT(false);
         }
 
@@ -26,9 +26,11 @@ namespace Libdas {
     /*** Syntax error handler definitions ***/
 
     void AsciiFormatErrorHandler::Error(ErrorType _type, int _line, TerminationType _terminate) {
+        std::string err_beg = _GetFormatErrorMsg();
+
         switch(_type) {
             case LIBDAS_ERROR_INCOMPLETE_NEWLINE:
-                std::cerr << "Incomplete newline after line " << _line << std::endl;
+                std::cerr << err_beg << " Incomplete newline after line " << _line << std::endl;
                 break;
 
             default:
@@ -49,7 +51,7 @@ namespace Libdas {
                 break;
 
             case LIBDAS_ERROR_INVALID_ARGUMENT:
-                std::cerr << err_beg << "Invalid argument '" << _arg << "' for keyword '" << _keyword << "' at line " << _line << std::endl;
+                std::cerr << err_beg << " Invalid argument '" << _arg << "' for keyword '" << _keyword << "' at line " << _line << std::endl;
                 break;
 
             case LIBDAS_ERROR_TOO_MANY_ATTRIBUTES:
@@ -69,15 +71,15 @@ namespace Libdas {
                 break;
 
             case LIBDAS_ERROR_INVALID_FILE:
-                std::cerr << err_beg << "Invalid file '" << _keyword << "'" << _line << std::endl;
+                std::cerr << err_beg << " Invalid file '" << _keyword << "'" << _line << std::endl;
                 break;
 
             case LIBDAS_ERROR_UNEXPECTED_END_STATEMENT:
-                std::cerr << err_beg << "Unexpected ending statement '" << _keyword << "' at line " << _line << std::endl;
+                std::cerr << err_beg << " Unexpected ending statement '" << _keyword << "' at line " << _line << std::endl;
                 break;
 
             case LIBDAS_ERROR_INCOMPLETE_SCOPE:
-                std::cerr << err_beg << "Cannot start new '" << _keyword << "' scope at line" << _line << ", previous one is still unfinished" << std::endl;
+                std::cerr << err_beg << " Cannot start new '" << _keyword << "' scope at line " << _line << ", previous one is still unfinished" << std::endl;
                 break;
 
             default:

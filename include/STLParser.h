@@ -9,6 +9,7 @@
 
 #ifdef STL_PARSER_CPP
     #include <string>
+    #include <iostream>
     #include <queue>
     #include <fstream>
     #include <unordered_map>

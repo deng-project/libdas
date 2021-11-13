@@ -112,6 +112,7 @@ namespace Libdas {
         do {
             // line can be read
             while(_NextLine()) {
+                std::cout << "Parsing line: " << m_parse_pos << std::endl;
                 m_rd_ptr = m_line_beg;
                 // search the first keyword
                 _SkipSkippableCharacters();
@@ -131,6 +132,9 @@ namespace Libdas {
 
                 m_parse_pos++;
             }
+
+            m_line_beg = nullptr;
+            m_line_end = nullptr;
         } while(ReadNewChunk());
     }
 

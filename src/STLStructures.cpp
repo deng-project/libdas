@@ -27,6 +27,13 @@ namespace Libdas {
             const std::string keyword = "solid";
             _error.ArgCountCheck(keyword, _args.first, static_cast<uint32_t>(_args.second.size()), 1, UINT32_MAX, TERMINATE);
 
+
+            bool *p_is_solid = reinterpret_cast<bool*>(custom);
+            if(*p_is_solid)
+                _error.Error(LIBDAS_ERROR_INCOMPLETE_SCOPE, _args.first, keyword);
+
+            *p_is_solid = true;
+
             // concatenate arguments into one name
             std::string name = _ConcatenateArgs(_args);
             _groups.push(STLObject(std::move(name)));
@@ -126,6 +133,8 @@ namespace Libdas {
             // check if the solid statement was previously declared
             if(!(*p_is_solid))
                 _error.Error(LIBDAS_ERROR_UNEXPECTED_END_STATEMENT, _args.first, keyword);
+
+            *p_is_solid = false;
 
             // check if the concatenated name is valid for the solid group
             if(con_name != _groups.back().name)

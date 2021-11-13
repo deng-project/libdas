@@ -1,37 +1,37 @@
 /// libdas: DENG asset handling management library
 /// licence: Apache, see LICENCE file
-/// file: StreamReader.cpp - File stream reader implementation file that reads chunk by chunk 
+/// file: AsciiStreamReader.cpp - File stream reader implementation file that reads chunk by chunk 
 /// author: Karl-Mihkel Ott
 
 #define STREAM_READER_CPP
-#include <StreamReader.h>
+#include <AsciiStreamReader.h>
 
 
 namespace Libdas {
 
-    StreamReader::StreamReader(size_t _chunk_size, char _end) : m_end(_end), m_buffer_size(_chunk_size) {
-        m_buffer = (char*) std::malloc(m_buffer_size);
-        std::memset(m_buffer, 0, m_buffer_size);
-    }
 
-
-    StreamReader::StreamReader(size_t _chunk_size, const std::string &_file_name, char _end) : m_end(_end), m_buffer_size(_chunk_size) {
+    AsciiStreamReader::AsciiStreamReader(size_t _chunk_size, char _end, const std::string &_file_name) : 
+        m_end(_end), m_buffer_size(_chunk_size) 
+    {
+        LIBDAS_ASSERT(_chunk_size > 0);
         m_buffer= (char*) std::malloc(m_buffer_size);
         std::memset(m_buffer, 0, m_buffer_size);
 
-        OpenStream(_file_name);
-        ReadNewChunk();
+        if(_file_name != "") {
+            OpenStream(_file_name);
+            ReadNewChunk();
+        }
     }
 
 
-    StreamReader::~StreamReader() {
+    AsciiStreamReader::~AsciiStreamReader() {
         std::free(m_buffer);
         if(m_stream.is_open())
             m_stream.close();
     }
 
 
-    void StreamReader::OpenStream(const std::string &_file_name) {
+    void AsciiStreamReader::OpenStream(const std::string &_file_name) {
         m_stream.open(_file_name.c_str(), std::ios::binary);
 
         if(m_stream.bad()) {
@@ -47,7 +47,7 @@ namespace Libdas {
     }
 
 
-    bool StreamReader::ReadNewChunk() {
+    bool AsciiStreamReader::ReadNewChunk() {
         // verify that stream is open
         LIBDAS_ASSERT(m_stream.is_open());
             
@@ -56,7 +56,7 @@ namespace Libdas {
 
         if(m_last_read == 0) return false;
 
-        // find the first instance of f
+        // find the first instance of end character
         for(int32_t i = static_cast<int32_t>(m_last_read) - 1; i >= 0; i--) {
             m_stream.seekg(i + read_bytes, std::ios::beg);
             char ch;
@@ -78,17 +78,17 @@ namespace Libdas {
     }
 
 
-    void StreamReader::CloseStream() {
+    void AsciiStreamReader::CloseStream() {
         m_stream.close();
     }
 
 
-    char *StreamReader::GetBufferAddress() {
+    char *AsciiStreamReader::GetBufferAddress() {
         return m_buffer;
     }
 
 
-    const size_t StreamReader::GetLastRead() {
+    const size_t AsciiStreamReader::GetLastRead() {
         return m_last_read;
     }
 }

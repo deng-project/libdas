@@ -15,7 +15,8 @@ function WavefrontObjParser.build()
             "include/*",
             "src/WavefrontObjParser.cpp",
             "src/WavefrontObjStructures.cpp",
-            "src/StreamReader.cpp",
+            "src/AsciiStreamReader.cpp",
+            "src/AsciiLineReader.cpp",
             "src/ParserErrorHandler.cpp",
             "tests/WavefrontObjParseTest.cpp"
         }

@@ -59,6 +59,9 @@ namespace Libdas {
     };
 
 
+    /**
+     * Reserved for future use
+     */
     enum WavefrontObjFaceType {
         WAVEFRONT_OBJ_FACE_TYPE_TRIANGLE,
         WAVEFRONT_OBJ_FACE_TYPE_QUAD,
@@ -68,6 +71,9 @@ namespace Libdas {
     };
 
 
+    /**
+     * Reserved for future use
+     */
     enum WavefrontObjCSType {
         WAVEFRONT_OBJ_CS_TYPE_BMATRIX,
         WAVEFRONT_OBJ_CS_TYPE_BEZIER,

@@ -9,22 +9,14 @@
 
 namespace Libdas {
 
-    WavefrontObjParser::WavefrontObjParser(size_t _chunk_size) : 
-        StreamReader(_chunk_size, '\n'), m_error(MODEL_FORMAT_WOBJ) {
+    WavefrontObjParser::WavefrontObjParser(size_t _chunk_size, const std::string &_file_name) : 
+        AsciiLineReader(_chunk_size, '\n', _file_name), m_file_name(_file_name), m_error(MODEL_FORMAT_WOBJ) {
         std::vector<std::string> names = {"main"};
         m_groups.push(WavefrontObjGroup(names));
         _Tokenize();
 
     }
     
-    WavefrontObjParser::WavefrontObjParser(const std::string &_file_name, size_t _chunk_size) 
-        : StreamReader(_chunk_size, _file_name, '\n'), m_file_name(_file_name), m_error(MODEL_FORMAT_WOBJ) {
-        std::vector<std::string> names = {"main"};
-        m_groups.push(WavefrontObjGroup(names));
-        _Tokenize();
-        Parse();
-    }
-
 
     void WavefrontObjParser::_Tokenize() {
         m_statement_map["v"] = {
@@ -241,51 +233,6 @@ namespace Libdas {
     }
 
 
-    bool WavefrontObjParser::_NextLine() {
-        char *new_end = nullptr;
-
-        // line ending is saved
-        if(m_line_end != 0 && m_line_end + 1 < m_buffer + m_last_read) {
-            new_end = std::strchr(m_line_end + 1, static_cast<int>('\n'));
-            if(!new_end) new_end = m_buffer + m_last_read;
-            m_line_beg = m_line_end + 1;
-            m_line_end = new_end;
-        }
-
-        else if(m_line_end + 1 >= m_buffer + m_last_read)
-            return false;
-
-        else {
-            // no line ending is saved
-            m_line_beg = m_buffer;
-            m_line_end = std::strchr(m_line_beg, static_cast<int>('\n'));
-        }
-        return true;
-    }
-
-
-    void WavefrontObjParser::_SkipSkippableCharacters(char *_end) {
-        // skip all whitespaces till keyword is found
-        for(; m_rd_ptr < m_line_end; m_rd_ptr++) {
-            if(*m_rd_ptr != ' ' && *m_rd_ptr != 0x00 && *m_rd_ptr != '\t' && *m_rd_ptr != '\r')
-                break;
-        }
-    }
-
-
-    char *WavefrontObjParser::_ExtractWord() {
-        char *end = m_rd_ptr;
-        while(true) {
-            if(*end == ' ' || *end == 0x00 || *end == '\t' || *end == '\n' || *end == '\r')
-                break;
-
-            end++;
-        }
-
-        return end;
-    }
-
-
     WavefrontObjStatementReader WavefrontObjParser::_AnalyseKeyword(char *_end) {
         std::string key = std::string(m_rd_ptr, _end - m_rd_ptr);
         if(key == "") return WavefrontObjStatementReader();
@@ -297,29 +244,6 @@ namespace Libdas {
         }
 
         return m_statement_map[key];
-    }
-
-
-    std::vector<std::string> WavefrontObjParser::_ReadStatementArgs() {
-        std::vector<std::string> args;
-        while(true) {
-            char *end = nullptr;
-            _SkipSkippableCharacters(m_line_end);
-            if(m_rd_ptr >= m_line_end) break;
-            
-            end = _ExtractWord();
-            std::string arg = std::string(m_rd_ptr, end - m_rd_ptr);
-            m_rd_ptr = end;
-            if(arg == "\\\\") {
-                _NextLine();
-                m_rd_ptr = m_line_beg;
-                continue;
-            }
-
-            args.push_back(arg);
-        }
-
-        return args;
     }
 
 

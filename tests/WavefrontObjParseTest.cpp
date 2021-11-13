@@ -10,7 +10,8 @@
 
 #include <Points.h>
 #include <ParserErrorHandler.h>
-#include <StreamReader.h>
+#include <AsciiStreamReader.h>
+#include <AsciiLineReader.h>
 #include <WavefrontObjStructures.h>
 #include <WavefrontObjParser.h>
 

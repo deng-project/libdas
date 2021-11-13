@@ -3,20 +3,20 @@
 --- file: StreamReader.lua - StreamReader class test build configuration
 --- author: Karl-Mihkel Ott
 
-local StreamReader = {}
+local AsciiStreamReader = {}
 
-function StreamReader.build() 
-    project "StreamReaderTest"
+function AsciiStreamReader.build() 
+    project "AsciiStreamReaderTest"
         kind "ConsoleApp"
         language "C++"
         cppdialect "C++14"
 
         files { 
-            "include/*"
-            "src/StreamReader.cpp",
+            "include/*",
+            "src/AsciiStreamReader.cpp",
             "tests/WavefrontObjStreamReader.cpp" 
         }
 end
 
 
-return StreamReader
+return AsciiStreamReader

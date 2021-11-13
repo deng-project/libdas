@@ -10,7 +10,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
-#include <StreamReader.h>
+#include <AsciiStreamReader.h>
 
 #define CHUNK   4096
 
@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
 
 
     std::string in_file = std::string(argv[1]);
-    Libdas::StreamReader sr(CHUNK, std::string(argv[1]), '\n');
+    Libdas::AsciiStreamReader sr(CHUNK, '\n', std::string(argv[1]));
     std::string out_file = in_file.substr(0, in_file.find('.')) + ".out";
     std::ofstream out_stream = std::ofstream(out_file, std::ios::binary);
 

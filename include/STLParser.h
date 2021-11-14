@@ -8,6 +8,7 @@
 
 
 #ifdef STL_PARSER_CPP
+    #include <cstring>
     #include <string>
     #include <iostream>
     #include <queue>
@@ -21,6 +22,9 @@
     #include <AsciiLineReader.h>
     #include <STLStructures.h>
 #endif
+
+
+#define STL_BINARY_SIGNATURE_SIZE       80
 
 namespace Libdas {
 
@@ -102,6 +106,54 @@ namespace Libdas {
              * @return true if the queue is empty, false otherwise
              */
             bool IsObjectQueueEmpty();
+    };
+
+
+    /**
+     * Binary STL file header data structure
+     */
+#pragma pack(push, 1)
+    struct BinarySTLHeader {
+        char signature[80];
+        uint32_t facet_c;
+
+        BinarySTLHeader() : facet_c(0) {
+            std::memset(signature, 0, 80 * sizeof(char));
+        }
+    };
+#pragma pack(pop)
+
+
+    class BinarySTLParser {
+        private:
+            BinarySTLHeader m_header;
+            BinaryFormatErrorHandler m_error;
+            AsciiLineReader m_line_reader;
+            STLObject m_object;
+            std::ifstream m_stream;
+            std::string m_file_name;
+        
+        private:
+            /**
+             * Open file for reading and check if any errors occured during that
+             */
+            void _OpenFileStream();
+            /**
+             * Load the header signature contents
+             */
+            void _LoadHeader();
+
+        public:
+            BinarySTLParser(const std::string &_file_name = "");
+            ~BinarySTLParser();
+            /**
+             * Parse either completely new file or existing file
+             */
+            void Parse(const std::string &_file_name = "");
+            /**
+             * Get the parsed STL Object
+             */
+            STLObject GetObject();
     };
 }
 

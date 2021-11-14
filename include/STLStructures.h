@@ -30,7 +30,7 @@ namespace Libdas {
         std::string name;
         std::vector<STLFacet> facets;
 
-        STLObject(std::string &&_name) : name(std::move(_name)) {}
+        STLObject(std::string &&_name = "Binary") : name(std::move(_name)) {}
     };
 
     namespace STLFunctions {

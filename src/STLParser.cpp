@@ -1,6 +1,6 @@
 /// libdas: DENG asset handling management library
 /// licence: Apache, see LICENCE file
-/// file: STLParser.cpp - STL parser class implementation
+/// file: STLParser.cpp - STL parser class implementations
 /// author: Karl-Mihkel Ott
 
 #define STL_PARSER_CPP
@@ -9,8 +9,13 @@
 
 namespace Libdas {
 
+
+    /***********************************************/
+    /***** AsciiSTLParser class implementation *****/
+    /***********************************************/
+
     AsciiSTLParser::AsciiSTLParser(const std::string &_file_name, size_t _chunk_size) : 
-        AsciiLineReader(_chunk_size, "\n", _file_name), m_error(MODEL_FORMAT_STL)
+        AsciiLineReader(_chunk_size, "\n", _file_name), m_error(MODEL_FORMAT_STLA)
     {
         _Tokenise();
     }
@@ -112,13 +117,12 @@ namespace Libdas {
         do {
             // line can be read
             while(_NextLine()) {
-                std::cout << "Parsing line: " << m_parse_pos << std::endl;
                 m_rd_ptr = m_line_beg;
                 // search the first keyword
-                _SkipSkippableCharacters();
+                SkipSkippableCharacters();
 
                 // extract keyword
-                char *end = _ExtractWord();
+                char *end = ExtractWord();
                 std::string key = std::string(m_rd_ptr, end - m_rd_ptr);
                 m_rd_ptr = end;
                 AsciiSTLStatementCallback callback = _AnalyseKeyword(key);
@@ -149,5 +153,91 @@ namespace Libdas {
 
     bool AsciiSTLParser::IsObjectQueueEmpty() {
         return m_objects.empty();
+    }
+
+
+    /************************************************/
+    /***** BinarySTLParser class implementation *****/
+    /************************************************/
+
+    BinarySTLParser::BinarySTLParser(const std::string &_file_name) :
+        m_error(MODEL_FORMAT_STLB)
+    {
+        // check if appropriate file name was provided
+        if(_file_name != "") {
+            m_file_name = _file_name;
+            _OpenFileStream();
+        }
+    }
+
+
+    BinarySTLParser::~BinarySTLParser() {
+        // close the file stream if it is open
+        if(m_stream.is_open())
+            m_stream.close();
+    }
+
+
+    void BinarySTLParser::_OpenFileStream() {
+        // close the stream if previously opened
+        if(m_stream.is_open())
+            m_stream.close();
+
+        m_stream.open(m_file_name, std::ios_base::binary);
+        if(m_stream.fail())
+            m_error.Error(LIBDAS_ERROR_INVALID_FILE);
+    }
+
+
+    void BinarySTLParser::_LoadHeader() {
+        m_stream.read(reinterpret_cast<char*>(&m_header), sizeof(BinarySTLHeader));
+
+        m_line_reader.SetLineBounds(std::make_pair(m_header.signature, m_header.signature + STL_BINARY_SIGNATURE_SIZE));
+        m_line_reader.SetReadPtr(m_header.signature);
+
+        // Search for the name in signature
+        m_line_reader.SkipSkippableCharacters();
+        char *end = m_line_reader.ExtractWord();
+        char *rd_ptr = m_line_reader.GetReadPtr();
+
+        if(end - rd_ptr != 0)
+            m_object.name = std::string(rd_ptr, end - rd_ptr);
+        else 
+            m_object.name = "Binary object";
+    }
+
+
+    void BinarySTLParser::Parse(const std::string &_file_name) {
+        // check if new file name was specified
+        if(_file_name != "") {
+            m_file_name = _file_name;
+            _OpenFileStream();
+        }
+        
+        _LoadHeader();
+
+        // allocate enough memory for facets
+        m_object.facets.resize(m_header.facet_c);
+        
+        // read all vertices blocks
+        for(uint32_t i = 0; i < m_header.facet_c; i++) {
+            // read normals
+            m_stream.read(reinterpret_cast<char*>(&m_object.facets[i].normal), sizeof(Point3D<float>));
+
+            // read vertices
+            m_stream.read(reinterpret_cast<char*>(m_object.facets[i].vertices.data()), 3 * sizeof(Point3D<float>));
+
+            // skip atribute byte count
+            std::size_t pos = m_stream.tellg();
+            m_stream.seekg(pos + 2, std::ios_base::beg);
+
+            // error check
+            if(m_stream.fail()) m_error.Error(LIBDAS_ERROR_INVALID_DATA);
+        }
+    }
+
+
+    STLObject BinarySTLParser::GetObject() {
+        return m_object;
     }
 }

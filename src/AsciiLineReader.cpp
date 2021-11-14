@@ -30,36 +30,14 @@ namespace Libdas {
     }
 
 
-    void AsciiLineReader::_SkipSkippableCharacters() {
-        // skip all whitespaces till keyword is found
-        for(; m_rd_ptr < m_line_end; m_rd_ptr++) {
-            if(*m_rd_ptr != ' ' && *m_rd_ptr != 0x00 && *m_rd_ptr != '\t' && *m_rd_ptr != '\r')
-                break;
-        }
-    }
-
-
-    char *AsciiLineReader::_ExtractWord() {
-        char *end = m_rd_ptr;
-        while(true) {
-            if(*end == ' ' || *end == 0x00 || *end == '\t' || *end == '\n' || *end == '\r')
-                break;
-
-            end++;
-        }
-
-        return end;
-    }
-
-
     std::vector<std::string> AsciiLineReader::_ReadStatementArgs() {
         std::vector<std::string> args;
         while(true) {
             char *end = nullptr;
-            _SkipSkippableCharacters();
+            SkipSkippableCharacters();
             if(m_rd_ptr >= m_line_end) break;
             
-            end = _ExtractWord();
+            end = ExtractWord();
             std::string arg = std::string(m_rd_ptr, end - m_rd_ptr);
             m_rd_ptr = end;
             if(arg == "\\\\") {
@@ -72,5 +50,48 @@ namespace Libdas {
         }
 
         return args;
+    }
+
+
+    void AsciiLineReader::SkipSkippableCharacters() {
+        // skip all whitespaces till keyword is found
+        for(; m_rd_ptr < m_line_end; m_rd_ptr++) {
+            if(*m_rd_ptr != ' ' && *m_rd_ptr != 0x00 && *m_rd_ptr != '\t' && *m_rd_ptr != '\r')
+                break;
+        }
+    }
+
+
+    char *AsciiLineReader::ExtractWord() {
+        char *end = m_rd_ptr;
+        while(end < m_line_end) {
+            if(*end == ' ' || *end == 0x00 || *end == '\t' || *end == '\n' || *end == '\r')
+                break;
+
+            end++;
+        }
+
+        return end;
+    }
+
+
+    char *AsciiLineReader::GetReadPtr() {
+        return m_rd_ptr;
+    }
+
+
+    std::pair<char*, char*> AsciiLineReader::GetLineBounds() {
+        return std::make_pair(m_line_beg, m_line_end);
+    }
+
+
+    void AsciiLineReader::SetReadPtr(char *_ptr) {
+        m_rd_ptr = _ptr;
+    }
+
+
+    void AsciiLineReader::SetLineBounds(const std::pair<char*, char*> &_bounds) {
+        m_line_beg = _bounds.first;
+        m_line_end = _bounds.second;
     }
 }

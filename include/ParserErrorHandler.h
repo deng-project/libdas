@@ -23,7 +23,7 @@ typedef bool TerminationType;
 #define TERMINATE true
 #define NO_TERMINATE false
 
-/// Errors
+/// Ascii format errors
 typedef uint16_t ErrorType;
 #define LIBDAS_ERROR_INVALID_KEYWORD                1   // statement error
 #define LIBDAS_ERROR_INVALID_ARGUMENT               2   // statement error
@@ -32,13 +32,19 @@ typedef uint16_t ErrorType;
 #define LIBDAS_ERROR_INCOMPLETE_NEWLINE             5   // non-statement error
 #define LIBDAS_ERROR_INVALID_CSTYPE                 6   // Wavefront OBJ only!!!
 #define LIBDAS_ERROR_INVALID_SYMBOL                 7   // non-statement error
-#define LIBDAS_ERROR_INVALID_FILE                   8   // misc
-#define LIBDAS_ERROR_UNEXPECTED_END_STATEMENT       9   // statement error
-#define LIBDAS_ERROR_INCOMPLETE_SCOPE               10  // statement error
+#define LIBDAS_ERROR_UNEXPECTED_END_STATEMENT       8   // statement error
+#define LIBDAS_ERROR_INCOMPLETE_SCOPE               9  // statement error
+
+/// Binary format errors
+#define LIBDAS_ERROR_INVALID_SIGNATURE              10  // binary error
+#define LIBDAS_ERROR_INVALID_DATA                   11  // binary error
+
+/// Misc
+#define LIBDAS_ERROR_INVALID_FILE                   12  // misc
 
 /// Warnings
-#define LIBDAS_WARNING_UNUSED_STATEMENT             11  // statement warning
-#define LIBDAS_WARNING_MULTIPLE_OBJECTS             12  // non-statement warning
+#define LIBDAS_WARNING_UNUSED_STATEMENT             13  // statement warning
+#define LIBDAS_WARNING_MULTIPLE_OBJECTS             14  // non-statement warning
 
 
 namespace Libdas {
@@ -48,8 +54,10 @@ namespace Libdas {
     
     enum ModelFormat {
         MODEL_FORMAT_WOBJ,
-        MODEL_FORMAT_STL,
-        MODEL_FORMAT_FBX,
+        MODEL_FORMAT_STLA,
+        MODEL_FORMAT_STLB,
+        MODEL_FORMAT_FBXA,
+        MODEL_FORMAT_FBXB,
         MODEL_FORMAT_GLTF,
         MODEL_FORMAT_GLB,
         MODEL_FORMAT_DAS
@@ -78,7 +86,7 @@ namespace Libdas {
         public:
             AsciiFormatErrorHandler(ModelFormat _format);
 
-            /// Syntax error handler declarations
+            /// Error handler declarations
             void Error(ErrorType _type, int _line, TerminationType _terminate = TERMINATE);
             void Error(ErrorType _type, int _line, const std::string &_keyword, const std::string &_arg = "", TerminationType _terminate = TERMINATE);
 
@@ -111,6 +119,27 @@ namespace Libdas {
              * @param _line is the current line that is parsed
              */
             void CheckIntArgs(uint32_t *_beg, uint32_t *_end, const std::string &_arg, const std::string &_keyword, uint32_t _line);
+    };
+
+
+    class BinaryFormatErrorHandler {
+        private:
+            ModelFormat m_format;
+
+        private:
+            /**
+             * Generate correct error message beginning according to the format used
+             */
+            std::string _GetFormatErrorMsg();
+
+        public:
+            BinaryFormatErrorHandler(ModelFormat _format);
+            /**
+             * Throw an binary format error
+             * @param _type specifies the binary format error type
+             * @param _terminate specifies whether the program should be terminated or not
+             */
+            void Error(ErrorType _type, const std::string &_arg = "", TerminationType _terminate = TERMINATE);
     };
 }
 

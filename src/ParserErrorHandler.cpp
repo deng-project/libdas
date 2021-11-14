@@ -8,13 +8,18 @@
 
 namespace Libdas {
 
+
+    /********************************************************/
+    /***** AsciiFormatErrorHandler class implementation *****/
+    /********************************************************/
+
     AsciiFormatErrorHandler::AsciiFormatErrorHandler(ModelFormat _format) : m_format(_format) {}
 
     std::string AsciiFormatErrorHandler::_GetFormatErrorMsg() {
         switch(m_format) {
             case MODEL_FORMAT_WOBJ: return "Wavefront Obj error: ";
-            case MODEL_FORMAT_STL: return "STL error: ";
-            case MODEL_FORMAT_FBX: return "ASCII FBX error: ";
+            case MODEL_FORMAT_STLA: return "Ascii STL error: ";
+            case MODEL_FORMAT_FBXA: return "Ascii FBX error: ";
             case MODEL_FORMAT_GLTF: return "GLTF error: ";
             default: LIBDAS_ASSERT(false);
         }
@@ -71,7 +76,7 @@ namespace Libdas {
                 break;
 
             case LIBDAS_ERROR_INVALID_FILE:
-                std::cerr << err_beg << " Invalid file '" << _keyword << "'" << _line << std::endl;
+                std::cerr << err_beg << " Invalid file '" << _keyword << "'" << std::endl;
                 break;
 
             case LIBDAS_ERROR_UNEXPECTED_END_STATEMENT:
@@ -143,5 +148,46 @@ namespace Libdas {
                 Error(LIBDAS_ERROR_INVALID_ARGUMENT, _line, _keyword, _arg, TERMINATE);
             }
         }
+    }
+
+
+    /*********************************************************/
+    /***** BinaryFormatErrorHandler class implementation *****/
+    /*********************************************************/
+
+    BinaryFormatErrorHandler::BinaryFormatErrorHandler(ModelFormat _format) : m_format(_format) {}
+
+
+    std::string BinaryFormatErrorHandler::_GetFormatErrorMsg() {
+        switch(m_format) {
+            case MODEL_FORMAT_STLB: return "Binary STL error: ";
+            case MODEL_FORMAT_FBXB: return "Binary FBX error: ";
+            case MODEL_FORMAT_GLB: return "GLB error: ";
+            case MODEL_FORMAT_DAS: return "DAS error: ";
+            default: LIBDAS_ASSERT(false);
+        }
+    }
+
+
+    void BinaryFormatErrorHandler::Error(ErrorType _type, const std::string &_arg, TerminationType _terminate) {
+        std::string err_beg = _GetFormatErrorMsg();
+        switch(_type) {
+            case LIBDAS_ERROR_INVALID_SIGNATURE:
+                std::cerr << err_beg << " Invalid header signature" << std::endl;
+                break;
+
+            case LIBDAS_ERROR_INVALID_FILE:
+                std::cerr << err_beg << " Invalid file " << _arg << std::endl;
+                break;
+
+            case LIBDAS_ERROR_INVALID_DATA:
+                std::cerr << err_beg << " Invalid data" << std::endl;
+                break;
+
+            default:
+                LIBDAS_ASSERT(false);
+        }
+
+        if(_terminate) std::exit(_type);
     }
 }

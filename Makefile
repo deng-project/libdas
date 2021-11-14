@@ -12,27 +12,31 @@ ifeq ($(config),debug_win32)
   AsciiStreamReaderTest_config = debug_win32
   WavefrontObjParserTest_config = debug_win32
   AsciiSTLParserTest_config = debug_win32
+  BinarySTLParserTest_config = debug_win32
 
 else ifeq ($(config),debug_linux)
   AsciiStreamReaderTest_config = debug_linux
   WavefrontObjParserTest_config = debug_linux
   AsciiSTLParserTest_config = debug_linux
+  BinarySTLParserTest_config = debug_linux
 
 else ifeq ($(config),release_win32)
   AsciiStreamReaderTest_config = release_win32
   WavefrontObjParserTest_config = release_win32
   AsciiSTLParserTest_config = release_win32
+  BinarySTLParserTest_config = release_win32
 
 else ifeq ($(config),release_linux)
   AsciiStreamReaderTest_config = release_linux
   WavefrontObjParserTest_config = release_linux
   AsciiSTLParserTest_config = release_linux
+  BinarySTLParserTest_config = release_linux
 
 else
   $(error "invalid configuration $(config)")
 endif
 
-PROJECTS := AsciiStreamReaderTest WavefrontObjParserTest AsciiSTLParserTest
+PROJECTS := AsciiStreamReaderTest WavefrontObjParserTest AsciiSTLParserTest BinarySTLParserTest
 
 .PHONY: all clean help $(PROJECTS) 
 
@@ -56,10 +60,17 @@ ifneq (,$(AsciiSTLParserTest_config))
 	@${MAKE} --no-print-directory -C . -f AsciiSTLParserTest.make config=$(AsciiSTLParserTest_config)
 endif
 
+BinarySTLParserTest:
+ifneq (,$(BinarySTLParserTest_config))
+	@echo "==== Building BinarySTLParserTest ($(BinarySTLParserTest_config)) ===="
+	@${MAKE} --no-print-directory -C . -f BinarySTLParserTest.make config=$(BinarySTLParserTest_config)
+endif
+
 clean:
 	@${MAKE} --no-print-directory -C . -f AsciiStreamReaderTest.make clean
 	@${MAKE} --no-print-directory -C . -f WavefrontObjParserTest.make clean
 	@${MAKE} --no-print-directory -C . -f AsciiSTLParserTest.make clean
+	@${MAKE} --no-print-directory -C . -f BinarySTLParserTest.make clean
 
 help:
 	@echo "Usage: make [config=name] [target]"
@@ -76,5 +87,6 @@ help:
 	@echo "   AsciiStreamReaderTest"
 	@echo "   WavefrontObjParserTest"
 	@echo "   AsciiSTLParserTest"
+	@echo "   BinarySTLParserTest"
 	@echo ""
 	@echo "For more information, see https://github.com/premake/premake-core/wiki"

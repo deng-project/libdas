@@ -38,28 +38,42 @@ namespace Libdas {
              */
             bool _NextLine();
             /**
-             * Skip all skippable characters (' ', 0x00, '\t')
-             * @param _end is the last byte in the buffer 
-             */
-            void _SkipSkippableCharacters();
-            /**
-             * Extract word statement, assuming that the starting position charcter is not skippable
-             * @return End position of the word
-             */
-            char *_ExtractWord();
-            /**
              * Read all general statement arguments until the end of line
              */
             std::vector<std::string> _ReadStatementArgs();
 
 
         public:
-            AsciiLineReader(size_t _chunk_size, const std::string &_end = "\n", const std::string &_file_name = "");
+            AsciiLineReader(size_t _chunk_size = DEFAULT_CHUNK, const std::string &_end = "\n", const std::string &_file_name = "");
+            /**
+             * Skip all skippable characters (' ', 0x00, '\t')
+             * @param _end is the last byte in the buffer 
+             */
+            void SkipSkippableCharacters();
+            /**
+             * Extract word statement, assuming that the starting position charcter is not skippable
+             * @return End position of the word
+             */
+            char *ExtractWord();
+            /**
+             * @return current reading pointer
+             */
+            char *GetReadPtr();
             /**
              * @return std::pair object where the first element specifies beginning of the line and second element
              * specifies the end of line
              */
             std::pair<char*, char*> GetLineBounds();
+            /**
+             * Explicitly set the m_rd_ptr value
+             * @param _ptr, new m_rd_ptr value
+             */
+            void SetReadPtr(char *_ptr);
+            /**
+             * Explicitly set the line bounds
+             * @param _bounds is a std::pair value, where the first element states line beginning and second element states the line ending
+             */
+            void SetLineBounds(const std::pair<char*, char*> &_bounds);
     };
 }
 

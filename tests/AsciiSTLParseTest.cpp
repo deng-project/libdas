@@ -1,3 +1,4 @@
+#include <cstring>
 #include <string>
 #include <fstream>
 #include <iostream>
@@ -15,7 +16,7 @@
 
 int main(int argc, char *argv[]) {
     if(argc < 2) {
-        std::cout << "Please provide an STL file name as an argument" << std::endl;
+        std::cout << "Please provide an Ascii STL file name as an argument" << std::endl;
         std::exit(-1);
     }
 

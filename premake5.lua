@@ -42,6 +42,7 @@ newoption {
         { "AsciiStreamReader", "Build AsciiStreamReader class test" },
         { "WavefrontObjParser", "Build WavefrontObjParser class test" },
         { "AsciiSTLParser", "Build AsciiSTLParser class test" },
+        { "BinarySTLParser", "Build BinarySTLParser class test" },
         { "all", "Build all available unit tests" }
     }
 }
@@ -90,6 +91,12 @@ function LoadTests()
     if _OPTIONS["tests"] == "all" or _OPTIONS["tests"] == "AsciiSTLParser" then
         print("Including AsciiSTLParser test config")
         local parser = require("premake/tests/AsciiSTLParser")
+        parser.build()
+    end
+
+    if _OPTIONS["tests"] == "all" or _OPTIONS["tests"] == "BinarySTLParser" then
+        print("Including BinarySTLParser test config")
+        local parser = require("premake/tests/BinarySTLParser")
         parser.build()
     end
 end

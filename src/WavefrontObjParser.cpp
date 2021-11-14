@@ -276,11 +276,11 @@ namespace Libdas {
             while(_NextLine()) {
                 m_rd_ptr = m_line_beg;
                 // start by searching the first keyword
-                _SkipSkippableCharacters();
+                SkipSkippableCharacters();
 
                 // line is empty skip iteration
                 if(m_rd_ptr != m_line_end && m_rd_ptr != m_buffer + m_last_read) {
-                    char *w_end = _ExtractWord();
+                    char *w_end = ExtractWord();
                     WavefrontObjStatementCallback statement_reader = _AnalyseKeyword(w_end);
                     m_rd_ptr = w_end + 1;
 

@@ -14,13 +14,10 @@ function BinarySTLParser.build()
 
         files {
             "include/*",
-            "src/STLParser.cpp",
-            "src/STLStructures.cpp",
-            "src/AsciiStreamReader.cpp",
-            "src/AsciiLineReader.cpp",
-            "src/ParserErrorHandler.cpp",
             "tests/BinarySTLParseTest.cpp"
         }
+
+        links { "das" }
 end
 
 

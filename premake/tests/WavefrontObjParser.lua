@@ -13,13 +13,10 @@ function WavefrontObjParser.build()
 
         files {
             "include/*",
-            "src/WavefrontObjParser.cpp",
-            "src/WavefrontObjStructures.cpp",
-            "src/AsciiStreamReader.cpp",
-            "src/AsciiLineReader.cpp",
-            "src/ParserErrorHandler.cpp",
             "tests/WavefrontObjParseTest.cpp"
         }
+
+        links { "das" }
 end
 
 

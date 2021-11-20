@@ -13,9 +13,10 @@ function AsciiStreamReader.build()
 
         files { 
             "include/*",
-            "src/AsciiStreamReader.cpp",
             "tests/WavefrontObjStreamReader.cpp" 
         }
+
+        links { "das" }
 end
 
 

@@ -104,10 +104,11 @@ end
 
 -- Load all required build configs --
 function LoadBuildConfigs()
+    -- Load libdas build configuration --
     if not _OPTIONS["no-lib"] then
         print("Including libdas configurations")
-        --local libdas = require("premake/libdas")
-        --libdas.build()
+        local libdas = require("premake/libdas")
+        libdas.build()
     end
 
     LoadTests()

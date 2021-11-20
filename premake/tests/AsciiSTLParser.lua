@@ -13,13 +13,10 @@ function AsciiSTLParser.build()
 
         files {
             "include/*",
-            "src/STLParser.cpp",
-            "src/STLStructures.cpp",
-            "src/AsciiStreamReader.cpp",
-            "src/AsciiLineReader.cpp",
-            "src/ParserErrorHandler.cpp",
             "tests/AsciiSTLParseTest.cpp"
         }
+
+        links { "das" }
 end
 
 

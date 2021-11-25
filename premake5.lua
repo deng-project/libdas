@@ -43,6 +43,10 @@ newoption {
         { "WavefrontObjParser", "Build WavefrontObjParser class test" },
         { "AsciiSTLParser", "Build AsciiSTLParser class test" },
         { "BinarySTLParser", "Build BinarySTLParser class test" },
+        -- tmp --
+        { "WriterCore", "Build DasWriterCore class test" },
+        { "MatrixTest", "Build Matrix test application" },
+
         { "all", "Build all available unit tests" }
     }
 }
@@ -98,6 +102,18 @@ function LoadTests()
         print("Including BinarySTLParser test config")
         local parser = require("premake/tests/BinarySTLParser")
         parser.build()
+    end
+
+    if _OPTIONS["tests"] == "all" or _OPTIONS["tests"] == "WriterCore" then
+        print("Including WriterCore test config")
+        local writer = require("premake/tests/WriterCore")
+        writer.build()
+    end
+
+    if _OPTIONS["tests"] == "all" or _OPTIONS["tests"] == "Matrix" then
+        print("Including Matrix classes test config")
+        local mat = require("premake/tests/Matrix")
+        mat.build()
     end
 end
 

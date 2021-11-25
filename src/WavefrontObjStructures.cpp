@@ -15,7 +15,7 @@ namespace Libdas {
         /************************************************/
 
         Point3D<uint32_t> _TripleIndexBlockCallback(AsciiFormatErrorHandler &_error, const std::string &_block, 
-                                                 const std::string &_keyword, const uint32_t _line) {
+                                                    const std::string &_keyword, const uint32_t _line) {
             // get all separator locations if they even exist
             size_t fsep = std::string::npos, ssep = std::string::npos;
             fsep = _block.find("/", 0);

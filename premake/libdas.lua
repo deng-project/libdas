@@ -13,14 +13,22 @@ function Libdas.build()
 
         files {
             "include/*",
-            "src/STLParser.cpp",
-            "src/STLStructures.cpp",
-            "src/WavefrontObjStructures.cpp",
-            "src/WavefrontObjParser.cpp",
-            "src/AsciiStreamReader.cpp",
-            "src/AsciiLineReader.cpp",
-            "src/ParserErrorHandler.cpp",
+            "src/*.cpp",
         }
+
+        -- Most of these files are for legacy references --
+        removefiles {
+            "src/dam.cpp",
+            "src/hashmap.cpp",
+            "src/hf_comp.cpp",
+            "src/huf.cpp",
+            "src/objdump.cpp",
+            "src/tex_loader.cpp",
+            "src/uuid.cpp",
+            "src/WavefrontObjCompiler.cpp"
+            -- This list is incomplete, you can help by expanding it :)))
+        }
+
 end
 
 return Libdas

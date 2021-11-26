@@ -67,8 +67,22 @@ namespace Libdas {
 
                 m_out_stream.write(_value_name.c_str(), _value_name.size());
                 m_out_stream.write(": ", 2);
-                m_out_stream.write(reinterpret_cast<char*>(&_value), sizeof(T));
+                m_out_stream.write(reinterpret_cast<const char*>(&_value), sizeof(T));
                 m_out_stream.write(LIBDAS_DAS_NEWLINE, strlen(LIBDAS_DAS_NEWLINE));
+            }
+            /**
+             * Write an array value to the stream
+             * @param _value_name is a value name string that is used to define the value
+             * @param _n is the total value count
+             * @param _values is a T pointer value to the memory area that contains all the array values
+             */
+            template<typename T>
+            void _WriteArrayValue(const std::string &_value_name, uint32_t _n, T *_values) {
+                LIBDAS_ASSERT(m_out_stream.is_open());
+
+                m_out_stream.write(_value_name.c_str(), _value_name.size());
+                m_out_stream.write(": ", 2);
+                m_out_stream.write(reinterpret_cast<const char*>(_values), sizeof(T) * _n);
             }
             /**
              * Write a generic data value to the stream
@@ -97,12 +111,24 @@ namespace Libdas {
                 m_out_stream.write(LIBDAS_DAS_NEWLINE, strlen(LIBDAS_DAS_NEWLINE));
             }
             /**
+             * Write an animation keyframe to the file
+             * @param _keyframe is a reference to DasKeyframe object that is written to the stream
+             * @param _scope_name is an optional argument that is used to define the scope name (default: "KEYFRAME")
+             */
+            void _WriteAnimationKeyframe(const DasKeyframe &_keyframe, const std::string &_scope_name = "KEYFRAME");
+            /**
+             * Write a scene node to the file
+             * @param _node is a reference to the DasSceneNode object 
+             * @param _scope_name is an optional argument that is used to define the scope name (default: "NODE")
+             */
+            void _WriteNode(const DasSceneNode &_node, const std::string &_scope_name = "NODE");
+            /**
              * Start a new scope definition
              * @param _scope_name is a specified scope name to use when starting a new scope
              */
             void _WriteScopeBeginning(const std::string &_scope_name);
             /**
-             * End a scope declaration
+             * Write a scope ending declaration
              */
             void _EndScope();
 
@@ -130,6 +156,16 @@ namespace Libdas {
              * @param _model is a reference to DasModel object
              */
             void WriteModel(const DasModel &_model);
+            /**
+             * Write an animation information to the file
+             * @param _animation is a reference to DasAnimation object
+             */
+            void WriteAnimation(const DasAnimation &_animation);
+            /**
+             * Write a scene info to the stream
+             * @param _scene is a reference to DasScene object
+             */
+            void WriteScene(const DasScene &_scene);
     };
 }
 

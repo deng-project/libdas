@@ -2,6 +2,7 @@
 #include <utility>
 #include <cmath>
 #include <iostream>
+#include <vector>
 #include <cstring>
 #include <string>
 #include <cfloat>

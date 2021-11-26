@@ -28,13 +28,13 @@ namespace Libdas {
             MatrixIterator(pointer _data, size_t _mat_size, bool _is_row_major = true) :
                 m_data(_data), m_mat_size(_mat_size), m_is_row_major(_is_row_major) {}
 
-            // a, b, c, d
+            // a, b, _c, d
             // e, f, g, h,
             // i, j, k, l
             // m, n, o, p
             //
             // memory layout:
-            //      a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p
+            //      a, b, _c, d, e, f, g, h, i, j, k, l, m, n, o, p
             
             void operator++(int) {
                 // row major matrix order is selected
@@ -89,7 +89,6 @@ namespace Libdas {
     template<typename T>
     struct Matrix2 {
         typedef MatrixIterator<T> iterator;
-        typedef MatrixIterator<const T> const_iterator;
 
         Vector2<T> row1, row2;
 
@@ -105,40 +104,41 @@ namespace Libdas {
         /***** Operator overloads *****/
         /******************************/
 
-        Matrix2<T> operator+(const Matrix2<T> &mat); 
-        Matrix2<T> operator+(const T &c);
-        Matrix2<T> operator-(const Matrix2<T> &mat);
-        Matrix2<T> operator-(const T &c);
-        Matrix2<T> operator*(const T &c); 
-        Matrix2<T> operator*(const Matrix2<T> &mat); 
-        Vector2<T> operator*(const Vector2<T> &vec); 
-        Matrix2<T> operator/(const T &c);
-        void operator*=(const T &c);
-        void operator*=(const Matrix2<T> &mat);
-        void operator+=(const T &c);
-        void operator+=(const Matrix2<T> &mat);
-        void operator-=(const T &c);
-        void operator-=(const Matrix2<T> &mat);
-        void operator/=(const T &c);
-        bool operator==(const Matrix2<T> &mat);
+        Matrix2<T> operator+(const Matrix2<T> &_mat) const; 
+        Matrix2<T> operator+(const T &_c) const;
+        Matrix2<T> operator-(const Matrix2<T> &_mat) const;
+        Matrix2<T> operator-(const T &_c) const;
+        Matrix2<T> operator*(const T &_c) const;
+        Matrix2<T> operator*(const Matrix2<T> &_mat) const; 
+        Vector2<T> operator*(const Vector2<T> &_vec) const;
+        Matrix2<T> operator/(const T &_c) const;
+        void operator*=(const T &_c);
+        void operator*=(const Matrix2<T> &_mat);
+        void operator+=(const T &_c);
+        void operator+=(const Matrix2<T> &_mat);
+        void operator-=(const T &_c);
+        void operator-=(const Matrix2<T> &_mat);
+        void operator/=(const T &_c);
+        bool operator==(const Matrix2<T> &_mat) const;
+        bool operator!=(const Matrix2<T> &_mat) const;
 
 
         /** 
          * Find the determinant of current matrix instance
          */
         template<typename DT>
-        static DT Determinant(const Matrix2<DT> &mat);
+        static DT Determinant(const Matrix2<DT> &_mat);
         /** 
          * Find the inverse of the current matrix 
          */
-        Matrix2<T> Inverse(); 
+        Matrix2<T> Inverse() const;
         /** 
          * Transpose the current matrix
          */
-        Matrix2<T> Transpose();
+        Matrix2<T> Transpose() const;
 
         /// Iterators
-
+        
         iterator BeginRowMajor() const {
             return iterator(const_cast<T*>(&row1.first), 2, true);
         }
@@ -160,7 +160,7 @@ namespace Libdas {
         /** 
          * Log matrix into console output and add description to it
          */
-        void Log(const std::string &desc);
+        void Log(const std::string &_desc);
 #endif
     };
 
@@ -175,47 +175,47 @@ namespace Libdas {
 
 
     template<typename T>
-    Matrix2<T>::Matrix2(const Vector2<T> &r1, const Vector2<T> &r2) {
-        row1 = r1;
-        row2 = r2;
+    Matrix2<T>::Matrix2(const Vector2<T> &_r1, const Vector2<T> &_r2) {
+        row1 = _r1;
+        row2 = _r2;
     }
 
 
     template<typename T>
-    Matrix2<T>::Matrix2(Vector2<T> &&r1, Vector2<T> &&r2) {
-        row1 = std::move(r1);
-        row2 = std::move(r2);
+    Matrix2<T>::Matrix2(Vector2<T> &&_r1, Vector2<T> &&_r2) {
+        row1 = std::move(_r1);
+        row2 = std::move(_r2);
     }
 
 
     template<typename T>
-    Matrix2<T>::Matrix2(const Matrix2<T> &val) {
-        row1 = val.row1;
-        row2 = val.row2;
+    Matrix2<T>::Matrix2(const Matrix2<T> &_val) {
+        row1 = _val.row1;
+        row2 = _val.row2;
     }
 
 
     template<typename T>
-    Matrix2<T>::Matrix2(Matrix2<T> &&val) {
-        row1 = std::move(val.row1);
-        row2 = std::move(val.row2);
+    Matrix2<T>::Matrix2(Matrix2<T> &&_val) {
+        row1 = std::move(_val.row1);
+        row2 = std::move(_val.row2);
     }
 
 
     template<typename T>
-    void Matrix2<T>::operator=(const Matrix2<T> &val) {
-        row1 = val.row1;
-        row2 = val.row2;
+    void Matrix2<T>::operator=(const Matrix2<T> &_val) {
+        row1 = _val.row1;
+        row2 = _val.row2;
     }
 
 
     /// Add two matrices together
     template<typename T>
-    Matrix2<T> Matrix2<T>::operator+(const Matrix2<T> &mat) {
+    Matrix2<T> Matrix2<T>::operator+(const Matrix2<T> &_mat) const {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Matrix2<T> out{}; 
-            out.row1 = Vector2<T>{row1.first + mat.row1.first, row1.second + mat.row1.second};
-            out.row2 = Vector2<T>{row2.first + mat.row2.first, row1.second + mat.row2.second};
+            out.row1 = Vector2<T>{row1.first + _mat.row1.first, row1.second + _mat.row1.second};
+            out.row2 = Vector2<T>{row2.first + _mat.row2.first, row1.second + _mat.row2.second};
 
             return out;
         }
@@ -226,11 +226,11 @@ namespace Libdas {
 
     /// Add constant to the current matrix
     template<typename T>
-    Matrix2<T> Matrix2<T>::operator+(const T &c) {
+    Matrix2<T> Matrix2<T>::operator+(const T &_c) const {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Matrix2<T> out{};
-            out.row1 = Vector2<T>{row1.first + c, row1.second + c};
-            out.row1 = Vector2<T>{row2.first + c, row2.second + c};
+            out.row1 = Vector2<T>{row1.first + _c, row1.second + _c};
+            out.row1 = Vector2<T>{row2.first + _c, row2.second + _c};
 
             return out;
         }
@@ -241,11 +241,11 @@ namespace Libdas {
 
     /// Substract current matrix with given matrix
     template<typename T>
-    Matrix2<T> Matrix2<T>::operator-(const Matrix2<T> &mat) {
+    Matrix2<T> Matrix2<T>::operator-(const Matrix2<T> &_mat) const {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Matrix2<T> out{};
-            out.row1 = Vector2<T>{row1.first - mat.row1.first, row1.second - mat.row1.second};
-            out.row2 = Vector2<T>{row2.first - mat.row2.first, row2.second - mat.row2.second};
+            out.row1 = Vector2<T>{row1.first - _mat.row1.first, row1.second - _mat.row1.second};
+            out.row2 = Vector2<T>{row2.first - _mat.row2.first, row2.second - _mat.row2.second};
 
             return out;
         }
@@ -256,11 +256,11 @@ namespace Libdas {
 
     /// Substract a constant number from the current matrix
     template<typename T>
-    Matrix2<T> Matrix2<T>::operator-(const T &c) {
+    Matrix2<T> Matrix2<T>::operator-(const T &_c) const {  
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Matrix2<T> out{};
-            out.row1 = Vector2<T>{row1.first - c, row1.second - c};
-            out.row2 = Vector2<T>{row2.first - c, row2.second - c};
+            out.row1 = Vector2<T>{row1.first - _c, row1.second - _c};
+            out.row2 = Vector2<T>{row2.first - _c, row2.second - _c};
 
             return out;
         }
@@ -271,11 +271,11 @@ namespace Libdas {
     
     /// Multiply all matrix members with a constant
     template<typename T>
-    Matrix2<T> Matrix2<T>::operator*(const T &c) {
+    Matrix2<T> Matrix2<T>::operator*(const T &_c) const {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Matrix2<T> out;
-            out.row1 = {row1.first * c, row1.second * c};
-            out.row2 = {row2.first * c, row2.second * c};
+            out.row1 = {row1.first * _c, row1.second * _c};
+            out.row2 = {row2.first * _c, row2.second * _c};
 
             return out; 
         }
@@ -286,29 +286,17 @@ namespace Libdas {
 
     /// Find the dot product of two matrices
     template<typename T>
-    Matrix2<T> Matrix2<T>::operator*(const Matrix2<T> &mat) {
+    Matrix2<T> Matrix2<T>::operator*(const Matrix2<T> &_mat) const {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Matrix2<T> out_mat;
             out_mat.row1 = Vector2<float>{
-                (
-                    (row1.first * mat.row1.first) +
-                    (row1.second * mat.row2.first)
-                ),
-                (
-                    (row1.first * mat.row1.second) +
-                    (row1.second * mat.row2.second)
-                )
+                ((row1.first * _mat.row1.first) + (row1.second * _mat.row2.first)),
+                ((row1.first * _mat.row1.second) + (row1.second * _mat.row2.second))
             }; 
 
             out_mat.row2 = Vector2<float>{
-                (
-                    (row2.first * mat.row1.first) +
-                    (row2.second * mat.row2.first)
-                ),
-                (
-                    (row2.first * mat.row1.second) +
-                    (row2.second * mat.row2.second)
-                )
+                ((row2.first * _mat.row1.first) + (row2.second * _mat.row2.first)),
+                ((row2.first * _mat.row1.second) + (row2.second * _mat.row2.second))
             };
 
             return out_mat;
@@ -320,11 +308,11 @@ namespace Libdas {
 
     /// Find the dot product of current matrix and a vector
     template<typename T>
-    Vector2<T> Matrix2<T>::operator*(const Vector2<T> &vec) {
+    Vector2<T> Matrix2<T>::operator*(const Vector2<T> &_vec) const {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Vector2<T> out = Vector2<T>{
-                (row1.first * vec.first + row1.second * vec.second),
-                (row2.first * vec.first + row2.second * vec.second)
+                (row1.first * _vec.first + row1.second * _vec.second),
+                (row2.first * _vec.first + row2.second * _vec.second)
             };
 
             return out; 
@@ -336,11 +324,11 @@ namespace Libdas {
 
     /// Divide all matrix elements with constant
     template<typename T>
-    Matrix2<T> Matrix2<T>::operator/(const T &c) { 
+    Matrix2<T> Matrix2<T>::operator/(const T &_c) const { 
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Matrix2<T> out;
-            out.row1 = Vector2<T>{row1.first / c, row1.second / c};
-            out.row2 = Vector2<T>{row2.first / c, row2.second / c};
+            out.row1 = Vector2<T>{row1.first / _c, row1.second / _c};
+            out.row2 = Vector2<T>{row2.first / _c, row2.second / _c};
 
             return out;
         }
@@ -352,12 +340,12 @@ namespace Libdas {
     /// Multiply all matrix members with a constant and
     /// set the product as the value of the current matrix instance
 	template<typename T>
-    void Matrix2<T>::operator*=(const T &c) {
+    void Matrix2<T>::operator*=(const T &_c) {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
-            row1.first *= c;
-            row1.second *= c;
-            row2.first *= c;
-            row2.second *= c;
+            row1.first *= _c;
+            row1.second *= _c;
+            row2.first *= _c;
+            row2.second *= _c;
         }
     }
 
@@ -365,28 +353,28 @@ namespace Libdas {
     /// Find the cross product of two matrices and set the current matrix
     /// instance value to it
 	template<typename T>
-    void Matrix2<T>::operator*=(const Matrix2<T> &mat) {
+    void Matrix2<T>::operator*=(const Matrix2<T> &_mat) {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Matrix2<T> new_mat{};
             new_mat.row1 = Vector2<float>{
                 (
-                    (row1.first * mat.row1.first) +
-                    (row1.second * mat.row2.first)
+                    (row1.first * _mat.row1.first) +
+                    (row1.second * _mat.row2.first)
                 ),
                 (
-                    (row1.first * mat.row1.second) +
-                    (row1.second * mat.row2.second)
+                    (row1.first * _mat.row1.second) +
+                    (row1.second * _mat.row2.second)
                 )
             }; 
 
             new_mat.row2 = Vector2<float>{
                 (
-                    (row2.first * mat.row1.first) +
-                    (row2.second * mat.row2.first)
+                    (row2.first * _mat.row1.first) +
+                    (row2.second * _mat.row2.first)
                 ),
                 (
-                    (row2.first * mat.row1.second) +
-                    (row2.second * mat.row2.second)
+                    (row2.first * _mat.row1.second) +
+                    (row2.second * _mat.row2.second)
                 )
             };
 
@@ -397,89 +385,89 @@ namespace Libdas {
 
     /// Add constant value to matrix and store the value in current matrix instance
 	template<typename T>
-    void Matrix2<T>::operator+=(const T &c) {
+    void Matrix2<T>::operator+=(const T &_c) {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
-            row1.first += c;
-            row1.second += c;
-            row2.first += c;
-            row2.second += c;
+            row1.first += _c;
+            row1.second += _c;
+            row2.first += _c;
+            row2.second += _c;
         }
     }
 
 
     /// Add two matrices together and store the value in current matrix instance
 	template<typename T>
-    void Matrix2<T>::operator+=(const Matrix2<T> &mat) {
+    void Matrix2<T>::operator+=(const Matrix2<T> &_mat) {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
-            row1.first += mat.row1.first;
-            row1.second += mat.row1.second;
-            row2.first += mat.row2.first;
-            row2.second += mat.row2.second;
+            row1.first += _mat.row1.first;
+            row1.second += _mat.row1.second;
+            row2.first += _mat.row2.first;
+            row2.second += _mat.row2.second;
         }
     }
 
 
     /// Substract constant value from matrix and store the result in current matrix instance
 	template<typename T>
-    void Matrix2<T>::operator-=(const T &c) {
+    void Matrix2<T>::operator-=(const T &_c) {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
-            row1.first -= c;
-            row1.second -= c;
-            row2.first -= c;
-            row2.second -= c;
+            row1.first -= _c;
+            row1.second -= _c;
+            row2.first -= _c;
+            row2.second -= _c;
         }
     }
 
 
     /// Substract a matrix from current matrix and store the result in current matrix instance
 	template<typename T>
-    void Matrix2<T>::operator-=(const Matrix2<T> &mat) {
+    void Matrix2<T>::operator-=(const Matrix2<T> &_mat) {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
-            row1.first -= mat.row1.first;
-            row1.second -= mat.row1.second;
-            row2.first -= mat.row2.first;
-            row2.second -= mat.row2.second;
+            row1.first -= _mat.row1.first;
+            row1.second -= _mat.row1.second;
+            row2.first -= _mat.row2.first;
+            row2.second -= _mat.row2.second;
         }
     }
 
 
     /// Divide all matrix elements with constant and store the value in current matrix instance
 	template<typename T>
-    void Matrix2<T>::operator/=(const T &c) {
+    void Matrix2<T>::operator/=(const T &_c) {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
-            row1.first /= c;
-            row1.second /= c;
-            row2.first /= c;
-            row2.second /= c;
+            row1.first /= _c;
+            row1.second /= _c;
+            row2.first /= _c;
+            row2.second /= _c;
         }
     }
     
     
     /// Check if current and given matrix instances have equal values
 	template<typename T>
-    bool Matrix2<T>::operator==(const Matrix2<T> &mat) {
-        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
-            return (bool) (
-                row1 == mat.row1 &&
-                row2 == mat.row2
-            );       
-        }
+    bool Matrix2<T>::operator==(const Matrix2<T> &_mat) const {
+        return row1 == _mat.row1 && row2 == _mat.row2;
+    }
 
-        else return false;
+
+    /// Check if current and given matrix don't have equal values
+    template<typename T>
+    bool Matrix2<T>::operator!=(const Matrix2<T> &_mat) const {
+        return row1 != _mat.row1 || row2 != _mat.row1;
     }
 
 
     /// Find the determinant of current matrix instance
     template<typename T>
     template<typename DT>
-    DT Matrix2<T>::Determinant(const Matrix2<DT> &mat) { 
-        return mat.row1.first * mat.row2.second - mat.row1.second * mat.row2.first; 
+    DT Matrix2<T>::Determinant(const Matrix2<DT> &_mat) { 
+        return _mat.row1.first * _mat.row2.second - _mat.row1.second * _mat.row2.first; 
     }
 
 
     /// Find the inverse of the current matrix 
     template<typename T>
-    Matrix2<T> Matrix2<T>::Inverse() {
+    Matrix2<T> Matrix2<T>::Inverse() const {
         Matrix2<float> fl_mat;
         float inv_det = 1 / Matrix2<T>::Determinant(*this);
         fl_mat.row1.first = row2.second * inv_det;
@@ -497,7 +485,7 @@ namespace Libdas {
 
     /// Transpose the current matrix
     template<typename T>
-    Matrix2<T> Matrix2<T>::Transpose() {
+    Matrix2<T> Matrix2<T>::Transpose() const {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Matrix2<T> new_mat{};
             new_mat.row1 = Vector2<T>{row1.first, row2.first};
@@ -526,7 +514,6 @@ namespace Libdas {
     template<typename T>
     struct Matrix3 {
         typedef MatrixIterator<T> iterator;
-        typedef MatrixIterator<const T> const_iterator;
         Vector3<T> row1, row2, row3;
 
         Matrix3();
@@ -541,35 +528,36 @@ namespace Libdas {
         /***** Operator overloads *****/
         /******************************/
 
-        Matrix3<T> operator+(const Matrix3<T> &mat); 
-        Matrix3<T> operator+(const T &c);
-        Matrix3<T> operator-(const Matrix3<T> &mat);
-        Matrix3<T> operator-(const T &c);
-        Matrix3<T> operator*(const T &c); 
-        Matrix3<T> operator*(const Matrix3<T> &mat); 
-        Vector3<T> operator*(const Vector3<T> &vec); 
-        Matrix3<T> operator/(const T &c);
-        void operator*=(const T &c);
-        void operator*=(const Matrix3<T> &mat);
-        void operator+=(const T &c);
-        void operator+=(const Matrix3<T> &mat);
-        void operator-=(const T &c);
-        void operator-=(const Matrix3<T> &mat);
-        void operator/=(const T &c);
-        bool operator==(const Matrix3<T> &mat);
+        Matrix3<T> operator+(const Matrix3<T> &_mat) const;
+        Matrix3<T> operator+(const T &_c) const;
+        Matrix3<T> operator-(const Matrix3<T> &_mat) const;
+        Matrix3<T> operator-(const T &_c) const;
+        Matrix3<T> operator*(const T &_c) const;
+        Matrix3<T> operator*(const Matrix3<T> &_mat) const;
+        Vector3<T> operator*(const Vector3<T> &_vec) const;
+        Matrix3<T> operator/(const T &_c) const;
+        void operator*=(const T &_c);
+        void operator*=(const Matrix3<T> &_mat);
+        void operator+=(const T &_c);
+        void operator+=(const Matrix3<T> &_mat);
+        void operator-=(const T &_c);
+        void operator-=(const Matrix3<T> &_mat);
+        void operator/=(const T &_c);
+        bool operator==(const Matrix3<T> &_mat) const;
+        bool operator!=(const Matrix3<T> &_mat) const;
         /**
          * Find the determinant of current matrix instance
          */
         template<typename DT>
-        static DT Determinant(const Matrix3<DT> &mat);
+        static DT Determinant(const Matrix3<DT> &_mat);
         /** 
          * Find the inverse of the current matrix 
          */
-        Matrix3<T> Inverse(); 
+        Matrix3<T> Inverse() const;
         /** 
          * Transpose the current matrix
          */
-        Matrix3<T> Transpose();
+        Matrix3<T> Transpose() const;
 
         /// Iterators
 
@@ -648,12 +636,12 @@ namespace Libdas {
 
     /// Add two matrices together
     template<typename T>
-    Matrix3<T> Matrix3<T>::operator+(const Matrix3<T> &mat) {
+    Matrix3<T> Matrix3<T>::operator+(const Matrix3<T> &_mat) const {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Matrix3<T> out;
-            out.row1 = Vector3<T>{row1.first + mat.row1.first, row1.second + mat.row1.second, row1.third + mat.row1.third};
-            out.row2 = Vector3<T>{row2.first + mat.row2.first, row2.second + mat.row2.second, row2.third + mat.row2.third};
-            out.row3 = Vector3<T>{row3.first + mat.row3.first, row3.second + mat.row3.second, row3.third + mat.row3.third};
+            out.row1 = Vector3<T>{row1.first + _mat.row1.first, row1.second + _mat.row1.second, row1.third + _mat.row1.third};
+            out.row2 = Vector3<T>{row2.first + _mat.row2.first, row2.second + _mat.row2.second, row2.third + _mat.row2.third};
+            out.row3 = Vector3<T>{row3.first + _mat.row3.first, row3.second + _mat.row3.second, row3.third + _mat.row3.third};
             return out;
         }
 
@@ -663,12 +651,12 @@ namespace Libdas {
 
     /// Add constant to the current matrix
     template<typename T>
-    Matrix3<T> Matrix3<T>::operator+(const T &c) {
+    Matrix3<T> Matrix3<T>::operator+(const T &_c) const {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Matrix3<T> out{};
-            out.row1 = Vector3<T>{row1.first + c, row1.second + c, row1.third + c};
-            out.row2 = Vector3<T>{row2.first + c, row2.second + c, row2.third + c};
-            out.row3 = Vector3<T>{row3.first + c, row3.second + c, row3.third + c};
+            out.row1 = Vector3<T>{row1.first + _c, row1.second + _c, row1.third + _c};
+            out.row2 = Vector3<T>{row2.first + _c, row2.second + _c, row2.third + _c};
+            out.row3 = Vector3<T>{row3.first + _c, row3.second + _c, row3.third + _c};
 
             return out;
         }
@@ -679,12 +667,12 @@ namespace Libdas {
 
     /// Substract current matrix with given matrix
     template<typename T>
-    Matrix3<T> Matrix3<T>::operator-(const Matrix3<T> &mat) {
+    Matrix3<T> Matrix3<T>::operator-(const Matrix3<T> &_mat) const {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Matrix3<T> out{};
-            out.row1 = Vector3<T>{row1.first - mat.row1.first, row1.second - mat.row1.second, row1.third - mat.row1.third};
-            out.row2 = Vector3<T>{row2.first - mat.row2.first, row2.second - mat.row2.second, row2.second - mat.row2.third};
-            out.row3 = Vector3<T>{row3.first - mat.row3.first, row3.second - mat.row3.second, row3.second - mat.row3.third};
+            out.row1 = Vector3<T>{row1.first - _mat.row1.first, row1.second - _mat.row1.second, row1.third - _mat.row1.third};
+            out.row2 = Vector3<T>{row2.first - _mat.row2.first, row2.second - _mat.row2.second, row2.second - _mat.row2.third};
+            out.row3 = Vector3<T>{row3.first - _mat.row3.first, row3.second - _mat.row3.second, row3.second - _mat.row3.third};
 
             return out;
         }
@@ -695,12 +683,12 @@ namespace Libdas {
 
     /// Substract a constant number from the current matrix
     template<typename T>
-    Matrix3<T> Matrix3<T>::operator-(const T &c) {
+    Matrix3<T> Matrix3<T>::operator-(const T &_c) const {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Matrix3<T> out{};
-            out.row1 = Vector3<T>{row1.first - c, row1.second - c, row1.third - c};
-            out.row2 = Vector3<T>{row2.first - c, row2.second - c, row2.third - c};
-            out.row3 = Vector3<T>{row3.first - c, row3.second - c, row3.third - c};
+            out.row1 = Vector3<T>{row1.first - _c, row1.second - _c, row1.third - _c};
+            out.row2 = Vector3<T>{row2.first - _c, row2.second - _c, row2.third - _c};
+            out.row3 = Vector3<T>{row3.first - _c, row3.second - _c, row3.third - _c};
 
             return out;
         }
@@ -711,12 +699,12 @@ namespace Libdas {
 
     /// Multiply all matrix members with a constant
     template<typename T>
-    Matrix3<T> Matrix3<T>::operator*(const T &c) {
+    Matrix3<T> Matrix3<T>::operator*(const T &_c) const {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Matrix3<T> out;
-            out.row1 = {row1.first * c, row1.second * c, row1.third * c};
-            out.row2 = {row2.first * c, row2.second * c, row2.third * c};
-            out.row3 = {row3.first * c, row3.second * c, row3.third * c};
+            out.row1 = {row1.first * _c, row1.second * _c, row1.third * _c};
+            out.row2 = {row2.first * _c, row2.second * _c, row2.third * _c};
+            out.row3 = {row3.first * _c, row3.second * _c, row3.third * _c};
             return out;
         }
 
@@ -726,61 +714,25 @@ namespace Libdas {
 
     /// Find the dot product of two matrices
     template<typename T>
-    Matrix3<T> Matrix3<T>::operator*(const Matrix3<T> &matrix) {
+    Matrix3<T> Matrix3<T>::operator*(const Matrix3<T> &matrix) const {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Matrix3<T> out_mat;
             out_mat.row1 = Vector3<float>{
-                (
-                    (row1.first * matrix.row1.first) + 
-                    (row1.second * matrix.row2.first) + 
-                    (row1.third * matrix.row3.first)
-                ), 
-                (
-                    (row1.first * matrix.row1.second) + 
-                    (row1.second * matrix.row2.second) + 
-                    (row1.third * matrix.row3.second)
-                ), 
-                (
-                    (row1.first * matrix.row1.third) + 
-                    (row1.second * matrix.row2.third) + 
-                    (row1.third * matrix.row3.third)
-                )
+                ((row1.first * matrix.row1.first) + (row1.second * matrix.row2.first) + (row1.third * matrix.row3.first)), 
+                ((row1.first * matrix.row1.second) + (row1.second * matrix.row2.second) + (row1.third * matrix.row3.second)), 
+                ((row1.first * matrix.row1.third) + (row1.second * matrix.row2.third) + (row1.third * matrix.row3.third))
             };
 
             out_mat.row2 = Vector3<float>{
-                (
-                    (row2.first * matrix.row1.first) + 
-                    (row2.second * matrix.row2.first) + 
-                    (row2.third * matrix.row3.first)
-                ), 
-                (
-                    (row2.first * matrix.row1.second) + 
-                    (row2.second * matrix.row2.second) + 
-                    (row2.third * matrix.row3.second)
-                ), 
-                (
-                    (row2.first * matrix.row1.third) + 
-                    (row2.second * matrix.row2.third) + 
-                    (row2.third * matrix.row3.third)
-                )
+                ((row2.first * matrix.row1.first) + (row2.second * matrix.row2.first) + (row2.third * matrix.row3.first)), 
+                ((row2.first * matrix.row1.second) + (row2.second * matrix.row2.second) + (row2.third * matrix.row3.second)), 
+                ((row2.first * matrix.row1.third) + (row2.second * matrix.row2.third) + (row2.third * matrix.row3.third))
             };
 
             out_mat.row3 = Vector3<float>{
-                (
-                    (row3.first * matrix.row1.first) + 
-                    (row3.second * matrix.row2.first) + 
-                    (row3.third * matrix.row3.first)
-                ), 
-                (
-                    (row3.first * matrix.row1.second) + 
-                    (row3.second * matrix.row2.second) + 
-                    (row3.third * matrix.row3.second)
-                ), 
-                (
-                    (row3.first * matrix.row1.third) + 
-                    (row3.second * matrix.row2.third) + 
-                    (row3.third * matrix.row3.third)
-                )
+                ((row3.first * matrix.row1.first) + (row3.second * matrix.row2.first) + (row3.third * matrix.row3.first)), 
+                ((row3.first * matrix.row1.second) + (row3.second * matrix.row2.second) + (row3.third * matrix.row3.second)), 
+                ((row3.first * matrix.row1.third) + (row3.second * matrix.row2.third) + (row3.third * matrix.row3.third))
             };
 
             return out_mat;
@@ -792,12 +744,12 @@ namespace Libdas {
 
     /// Find the dot product of current matrix and a vector
     template<typename T>
-    Vector3<T> Matrix3<T>::operator*(const Vector3<T> &vec) {
+    Vector3<T> Matrix3<T>::operator*(const Vector3<T> &_vec) const {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Vector3<T> out = {
-                (row1.first * vec.first + row1.second * vec.second + row1.third * vec.third),
-                (row2.first * vec.first + row2.second * vec.second + row2.third * vec.third),
-                (row3.first * vec.first + row3.second * vec.second + row3.third * vec.third)
+                (row1.first * _vec.first + row1.second * _vec.second + row1.third * _vec.third),
+                (row2.first * _vec.first + row2.second * _vec.second + row2.third * _vec.third),
+                (row3.first * _vec.first + row3.second * _vec.second + row3.third * _vec.third)
             }; 
 
             return out;
@@ -809,12 +761,12 @@ namespace Libdas {
 
     /// Divide all matrix elements with a constant
     template<typename T>
-    Matrix3<T> Matrix3<T>::operator/(const T &c) { 
+    Matrix3<T> Matrix3<T>::operator/(const T &_c) const { 
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Matrix3<T> out;
-            out.row1 = Vector3<T>{row1.first / c, row1.second / c, row1.third / c};
-            out.row2 = Vector3<T>{row2.first / c, row2.second / c, row2.third / c};
-            out.row3 = Vector3<T>{row3.first / c, row3.second / c, row3.third / c};
+            out.row1 = Vector3<T>{row1.first / _c, row1.second / _c, row1.third / _c};
+            out.row2 = Vector3<T>{row2.first / _c, row2.second / _c, row2.third / _c};
+            out.row3 = Vector3<T>{row3.first / _c, row3.second / _c, row3.third / _c};
 
             return out;
         }
@@ -825,179 +777,178 @@ namespace Libdas {
 
     /// Multiply all matrix members with a constant and set the product as the value of the current matrix instance
 	template<typename T>
-        void Matrix3<T>::operator*=(const T &c) {
-            if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
-                row1.first *= c;
-                row1.second *= c;
-                row1.third *= c;
-
-                row2.first *= c;
-                row2.second *= c;
-                row2.third *= c;
-
-                row3.first *= c;
-                row3.second *= c;
-                row3.third *= c;
-            }
-        }
-
-
-        /// Find the cross product of two matrices and set the current matrix instance value to it
-        template<typename T>
-        void Matrix3<T>::operator*=(const Matrix3<T> &mat) {
-            if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
-                Matrix3<T> new_mat{};
-                new_mat.row1 = {
-                    ((row1.first * mat.row1.first) + (row1.second * mat.row2.first) + (row1.third * mat.row3.first)), 
-                    ((row1.first * mat.row1.second) + (row1.second * mat.row2.second) + (row1.third * mat.row3.second)), 
-                    ((row1.first * mat.row1.third) + (row1.second * mat.row2.third) + (row1.third * mat.row3.third)) 
-                };
-
-                new_mat.row2 = {
-                    ((row2.first * mat.row1.first) + (row2.second * mat.row2.first) + (row2.third * mat.row3.first)), 
-                    ((row2.first * mat.row1.second) + (row2.second * mat.row2.second) + (row2.third * mat.row3.second)), 
-                    ((row2.first * mat.row1.third) + (row2.second * mat.row2.third) + (row2.third * mat.row3.third)) 
-                };
-
-                new_mat.row3 = {
-                    ((row3.first * mat.row1.first) + (row3.second * mat.row2.first) + (row3.third * mat.row3.first)), 
-                    ((row3.first * mat.row1.second) + (row3.second * mat.row2.second) + (row3.third * mat.row3.second)), 
-                    ((row3.first * mat.row1.third) + (row3.second * mat.row2.third) + (row3.third * mat.row3.third))
-                };
-
-                *this = new_mat;
-            }
-        }
-
-
-        /// Add constant value to matrix and store the value in current matrix instance
-        template<typename T>
-        void Matrix3<T>::operator+=(const T &c) {
-            if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
-                row1.first += c;
-                row1.second += c;
-                row1.third += c;
-
-                row2.first += c;
-                row2.second += c;
-                row2.third += c;
-
-                row3.first += c;
-                row3.second += c;
-                row3.third += c;
-            }
-        }
-
-
-        /// Add two matrices together and store the value in current matrix instance
-        template<typename T>
-        void Matrix3<T>::operator+=(const Matrix3<T> &mat) {
-            if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
-                row1.first += mat.row1.first;
-                row1.second += mat.row1.second;
-                row1.third += mat.row1.third;
-
-                row2.first += mat.row2.first;
-                row2.second += mat.row2.second;
-
-                row3.first += mat.row3.first;
-                row3.second += mat.row3.second;
-                row3.third += mat.row3.third;
-            }
-        }
-
-
-        /// Substract constant value from matrix and store the result in current matrix instance
-        template<typename T>
-        void Matrix3<T>::operator-=(const T &c) {
-            if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
-                row1.first -= c;
-                row1.second -= c;
-                row1.third -= c;
-
-                row2.first -= c;
-                row2.second -= c;
-                row2.third -= c;
-
-                row3.first -= c;
-                row3.second -= c;
-                row3.third -= c;
-            }
-        }
-
-
-        /// Substract a matrix from current matrix and store the result in current matrix instance
-        template<typename T>
-        void Matrix3<T>::operator-=(const Matrix3<T> &mat) {
-            if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
-                row1.first -= mat.row1.first;
-                row1.second -= mat.row1.second;
-                row1.third -= mat.row1.third;
-
-                row2.first -= mat.row2.first;
-                row2.second -= mat.row2.second;
-                row2.third -= mat.row2.third;
-
-                row3.first -= mat.row3.first;
-                row3.second -= mat.row3.second;
-                row3.third -= mat.row3.third;
-            }
-        }
-
-
-        /// Divide all matrix elements with constant and store the value in current matrix instance
-        template<typename T>
-        void Matrix3<T>::operator/=(const T &c) {
-            if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
-                row1.first /= c;
-                row1.second /= c;
-                row1.third /= c;
-
-                row2.first /= c;
-                row2.second /= c;
-                row2.third /= c;
-
-                row3.first /= c;
-                row3.second /= c;
-                row3.third /= c;
-            }
-        }
-        
-        
-        /// Check if current and given matrix instances have equal values
-        template<typename T>
-        bool Matrix3<T>::operator==(const Matrix3<T> &mat) {
+    void Matrix3<T>::operator*=(const T &_c) {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
-            return (bool) (
-                row1 == mat.row1 &&
-                row2 == mat.row2 &&
-                row3 == mat.row3
-            );       
-        }
+            row1.first *= _c;
+            row1.second *= _c;
+            row1.third *= _c;
 
-        else return false;
+            row2.first *= _c;
+            row2.second *= _c;
+            row2.third *= _c;
+
+            row3.first *= _c;
+            row3.second *= _c;
+            row3.third *= _c;
+        }
+    }
+
+
+    /// Find the cross product of two matrices and set the current matrix instance value to it
+    template<typename T>
+    void Matrix3<T>::operator*=(const Matrix3<T> &_mat) {
+        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
+            Matrix3<T> new_mat{};
+            new_mat.row1 = {
+                ((row1.first * _mat.row1.first) + (row1.second * _mat.row2.first) + (row1.third * _mat.row3.first)), 
+                ((row1.first * _mat.row1.second) + (row1.second * _mat.row2.second) + (row1.third * _mat.row3.second)), 
+                ((row1.first * _mat.row1.third) + (row1.second * _mat.row2.third) + (row1.third * _mat.row3.third)) 
+            };
+
+            new_mat.row2 = {
+                ((row2.first * _mat.row1.first) + (row2.second * _mat.row2.first) + (row2.third * _mat.row3.first)), 
+                ((row2.first * _mat.row1.second) + (row2.second * _mat.row2.second) + (row2.third * _mat.row3.second)), 
+                ((row2.first * _mat.row1.third) + (row2.second * _mat.row2.third) + (row2.third * _mat.row3.third)) 
+            };
+
+            new_mat.row3 = {
+                ((row3.first * _mat.row1.first) + (row3.second * _mat.row2.first) + (row3.third * _mat.row3.first)), 
+                ((row3.first * _mat.row1.second) + (row3.second * _mat.row2.second) + (row3.third * _mat.row3.second)), 
+                ((row3.first * _mat.row1.third) + (row3.second * _mat.row2.third) + (row3.third * _mat.row3.third))
+            };
+
+            *this = new_mat;
+        }
+    }
+
+
+    /// Add constant value to matrix and store the value in current matrix instance
+    template<typename T>
+    void Matrix3<T>::operator+=(const T &_c) {
+        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
+            row1.first += _c;
+            row1.second += _c;
+            row1.third += _c;
+
+            row2.first += _c;
+            row2.second += _c;
+            row2.third += _c;
+
+            row3.first += _c;
+            row3.second += _c;
+            row3.third += _c;
+        }
+    }
+
+
+    /// Add two matrices together and store the value in current matrix instance
+    template<typename T>
+    void Matrix3<T>::operator+=(const Matrix3<T> &_mat) {
+        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
+            row1.first += _mat.row1.first;
+            row1.second += _mat.row1.second;
+            row1.third += _mat.row1.third;
+
+            row2.first += _mat.row2.first;
+            row2.second += _mat.row2.second;
+
+            row3.first += _mat.row3.first;
+            row3.second += _mat.row3.second;
+            row3.third += _mat.row3.third;
+        }
+    }
+
+
+    /// Substract constant value from matrix and store the result in current matrix instance
+    template<typename T>
+    void Matrix3<T>::operator-=(const T &_c) {
+        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
+            row1.first -= _c;
+            row1.second -= _c;
+            row1.third -= _c;
+
+            row2.first -= _c;
+            row2.second -= _c;
+            row2.third -= _c;
+
+            row3.first -= _c;
+            row3.second -= _c;
+            row3.third -= _c;
+        }
+    }
+
+
+    /// Substract a matrix from current matrix and store the result in current matrix instance
+    template<typename T>
+    void Matrix3<T>::operator-=(const Matrix3<T> &_mat) {
+        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
+            row1.first -= _mat.row1.first;
+            row1.second -= _mat.row1.second;
+            row1.third -= _mat.row1.third;
+
+            row2.first -= _mat.row2.first;
+            row2.second -= _mat.row2.second;
+            row2.third -= _mat.row2.third;
+
+            row3.first -= _mat.row3.first;
+            row3.second -= _mat.row3.second;
+            row3.third -= _mat.row3.third;
+        }
+    }
+
+
+    /// Divide all matrix elements with constant and store the value in current matrix instance
+    template<typename T>
+    void Matrix3<T>::operator/=(const T &_c) {
+        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
+            row1.first /= _c;
+            row1.second /= _c;
+            row1.third /= _c;
+
+            row2.first /= _c;
+            row2.second /= _c;
+            row2.third /= _c;
+
+            row3.first /= _c;
+            row3.second /= _c;
+            row3.third /= _c;
+        }
+    }
+    
+    
+    /// Check if current and given matrix instances have equal values
+    template<typename T>
+    bool Matrix3<T>::operator==(const Matrix3<T> &_mat) const {
+        return row1 == _mat.row1 && row2 == _mat.row2 && row3 == _mat.row3;
+    }
+
+
+    /// Check if current and given matrix instances don't have equal values
+    template <typename T>
+    bool Matrix3<T>::operator!=(const Matrix3<T> &_mat) const {
+        return row1 != _mat.row1 || row2 != _mat.row2 || row3 != _mat.row3;
     }
 
 
     /// Find the determinant of current matrix instance
     template<typename T>
     template<typename DT>
-    DT Matrix3<T>::Determinant(const Matrix3<DT> &mat) {
-        return (DT) (
-            (mat.row1.first * mat.row2.second * mat.row3.third) +
-            (mat.row1.second * mat.row2.third * mat.row3.first) + 
-            (mat.row1.third * mat.row2.first * mat.row3.second) -
+    DT Matrix3<T>::Determinant(const Matrix3<DT> &_mat) {
+        return static_cast<DT>(
+            (_mat.row1.first * _mat.row2.second * _mat.row3.third) +
+            (_mat.row1.second * _mat.row2.third * _mat.row3.first) + 
+            (_mat.row1.third * _mat.row2.first * _mat.row3.second) -
 
-            (mat.row1.third * mat.row2.second * mat.row3.first) -
-            (mat.row1.first * mat.row2.third * mat.row3.second) -
-            (mat.row1.second * mat.row2.first * mat.row3.third) 
+            (_mat.row1.third * _mat.row2.second * _mat.row3.first) -
+            (_mat.row1.first * _mat.row2.third * _mat.row3.second) -
+            (_mat.row1.second * _mat.row2.first * _mat.row3.third) 
         );
     }
 
 
     /// Find the inverse of the current matrix 
     template<typename T>
-    Matrix3<T> Matrix3<T>::Inverse() {
+    Matrix3<T> Matrix3<T>::Inverse() const {
         Matrix3<float> fl_mat;
         float inv_det = 1 / Matrix3<T>::Determinant(*this);
 
@@ -1030,7 +981,7 @@ namespace Libdas {
 
     /// Transpose the current matrix
     template<typename T>
-    Matrix3<T> Matrix3<T>::Transpose() {
+    Matrix3<T> Matrix3<T>::Transpose() const {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Matrix3<T> new_mat{};
             new_mat.row1 = Vector3<T>{row1.first, row2.first, row3.first};
@@ -1061,13 +1012,12 @@ namespace Libdas {
     template<typename T>
     struct Matrix4 {
         typedef MatrixIterator<T> iterator;
-        typedef MatrixIterator<const T> const_iterator;
         Matrix4();
-        Matrix4(const Vector4<T> &r1, const Vector4<T> &r2, const Vector4<T> &r3, const Vector4<T> &r4);
-        Matrix4(Vector4<T> &&r1, Vector4<T> &&r2, Vector4<T> &&r3, Vector4<T> &&r4);
-        Matrix4(const Matrix4<T> &val);
-        Matrix4(Matrix4<T>&& val);
-        void operator=(const Matrix4<T> &val);
+        Matrix4(const Vector4<T> &_r1, const Vector4<T> &_r2, const Vector4<T> &_r3, const Vector4<T> &_r4);
+        Matrix4(Vector4<T> &&_r1, Vector4<T> &&_r2, Vector4<T> &&_r3, Vector4<T> &&_r4);
+        Matrix4(const Matrix4<T> &_val);
+        Matrix4(Matrix4<T>&& _val);
+        void operator=(const Matrix4<T> &_val);
 
         Vector4<T> row1, row2, row3, row4; 
 
@@ -1076,35 +1026,36 @@ namespace Libdas {
         /***** Operator overloads *****/
         /******************************/
 
-        Matrix4<T> operator+(const Matrix4<T> &mat); 
-        Matrix4<T> operator+(const T &c);
-        Matrix4<T> operator-(const Matrix4<T> &mat);
-        Matrix4<T> operator-(const T &c);
-        Matrix4<T> operator*(const T &c); 
-        Matrix4<T> operator*(const Matrix4<T> &mat); 
-        Vector4<T> operator*(const Vector4<T> &vec); 
-        Matrix4<T> operator/(const T &c);
-        void operator*=(const T &c);
-        void operator*=(const Matrix4<T> &mat);
-        void operator+=(const T &c);
-        void operator+=(const Matrix4<T> &mat);
-        void operator-=(const T &c);
-        void operator-=(const Matrix4<T> &mat);
-        void operator/=(const T &c);
-        bool operator==(const Matrix4<T> &mat);
+        Matrix4<T> operator+(const Matrix4<T> &_mat) const; 
+        Matrix4<T> operator+(const T &_c) const;
+        Matrix4<T> operator-(const Matrix4<T> &_mat) const;
+        Matrix4<T> operator-(const T &_c) const;
+        Matrix4<T> operator*(const T &_c) const;
+        Matrix4<T> operator*(const Matrix4<T> &_mat) const; 
+        Vector4<T> operator*(const Vector4<T> &_vec) const; 
+        Matrix4<T> operator/(const T &_c) const;
+        void operator*=(const T &_c);
+        void operator*=(const Matrix4<T> &_mat);
+        void operator+=(const T &_c);
+        void operator+=(const Matrix4<T> &_mat);
+        void operator-=(const T &_c);
+        void operator-=(const Matrix4<T> &_mat);
+        void operator/=(const T &_c);
+        bool operator==(const Matrix4<T> &_mat) const;
+        bool operator!=(const Matrix4<T> &_mat) const;
 
 
         /// Find the determinant of current matrix instance
         template<typename DT>
-        static DT Determinant(const Matrix4<DT> &mat);
+        static DT Determinant(const Matrix4<DT> &_mat);
 
         
         /// Find the inverse of the current matrix 
-        Matrix4<T> Inverse(); 
+        Matrix4<T> Inverse() const;
 
 
         /// Transpose the current matrix
-        Matrix4<T> Transpose();
+        Matrix4<T> Transpose() const;
 
         /// Iterators
 
@@ -1144,59 +1095,59 @@ namespace Libdas {
 
 
     template<typename T>
-    Matrix4<T>::Matrix4(const Vector4<T> &r1, const Vector4<T> &r2, const Vector4<T> &r3, const Vector4<T> &r4) {
-        row1 = r1;
-        row2 = r2;
-        row3 = r3;
-        row4 = r4;
+    Matrix4<T>::Matrix4(const Vector4<T> &_r1, const Vector4<T> &_r2, const Vector4<T> &_r3, const Vector4<T> &_r4) {
+        row1 = _r1;
+        row2 = _r2;
+        row3 = _r3;
+        row4 = _r4;
     }
 
 
     template<typename T>
-    Matrix4<T>::Matrix4(Vector4<T> &&r1, Vector4<T> &&r2, Vector4<T> &&r3, Vector4<T> &&r4) {
-        row1 = std::move(r1);
-        row2 = std::move(r2);
-        row3 = std::move(r3);
-        row4 = std::move(r4);
+    Matrix4<T>::Matrix4(Vector4<T> &&_r1, Vector4<T> &&_r2, Vector4<T> &&_r3, Vector4<T> &&_r4) {
+        row1 = std::move(_r1);
+        row2 = std::move(_r2);
+        row3 = std::move(_r3);
+        row4 = std::move(_r4);
     }
 
 
     template<typename T>
-    Matrix4<T>::Matrix4(const Matrix4<T> &val) {
-        row1 = val.row1;
-        row2 = val.row2;
-        row3 = val.row3;
-        row4 = val.row4;
+    Matrix4<T>::Matrix4(const Matrix4<T> &_val) {
+        row1 = _val.row1;
+        row2 = _val.row2;
+        row3 = _val.row3;
+        row4 = _val.row4;
     }
 
 
     template<typename T>
-    Matrix4<T>::Matrix4(Matrix4<T> &&val) {
-        row1 = std::move(val.row1);
-        row2 = std::move(val.row2);
-        row3 = std::move(val.row3);
-        row4 = std::move(val.row4);
+    Matrix4<T>::Matrix4(Matrix4<T> &&_val) {
+        row1 = std::move(_val.row1);
+        row2 = std::move(_val.row2);
+        row3 = std::move(_val.row3);
+        row4 = std::move(_val.row4);
     }
 
 
     template<typename T>
-    void Matrix4<T>::operator=(const Matrix4<T> &val) {
-        row1 = val.row1;
-        row2 = val.row2;
-        row3 = val.row3;
-        row4 = val.row4;
+    void Matrix4<T>::operator=(const Matrix4<T> &_val) {
+        row1 = _val.row1;
+        row2 = _val.row2;
+        row3 = _val.row3;
+        row4 = _val.row4;
     }
 
     
     /// Add two matrices together
     template<typename T>
-    Matrix4<T> Matrix4<T>::operator+(const Matrix4<T> &mat) {
+    Matrix4<T> Matrix4<T>::operator+(const Matrix4<T> &_mat) const {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Matrix4<T> out;
-            out.row1 = {row1.first + mat.row1.first, row1.second + mat.row1.second, row1.third + mat.row1.third, row1.fourth + mat.row1.fourth};
-            out.row2 = {row2.first + mat.row2.first, row2.second + mat.row2.second, row2.third + mat.row2.third, row2.fourth + mat.row2.fourth};
-            out.row3 = {row3.first + mat.row3.first, row3.second + mat.row3.second, row3.third + mat.row3.third, row3.fourth + mat.row3.fourth};
-            out.row4 = {row4.first + mat.row4.first, row4.second + mat.row4.second, row4.third + mat.row4.third, row4.fourth + mat.row4.fourth};
+            out.row1 = {row1.first + _mat.row1.first, row1.second + _mat.row1.second, row1.third + _mat.row1.third, row1.fourth + _mat.row1.fourth};
+            out.row2 = {row2.first + _mat.row2.first, row2.second + _mat.row2.second, row2.third + _mat.row2.third, row2.fourth + _mat.row2.fourth};
+            out.row3 = {row3.first + _mat.row3.first, row3.second + _mat.row3.second, row3.third + _mat.row3.third, row3.fourth + _mat.row3.fourth};
+            out.row4 = {row4.first + _mat.row4.first, row4.second + _mat.row4.second, row4.third + _mat.row4.third, row4.fourth + _mat.row4.fourth};
 
             return out;
         }
@@ -1207,13 +1158,13 @@ namespace Libdas {
 
     /// Add constant to the current matrix
     template<typename T>
-    Matrix4<T> Matrix4<T>::operator+(const T &c) {
+    Matrix4<T> Matrix4<T>::operator+(const T &_c) const {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Matrix4<T> out{};
-            out.row1 = Vector4<T>{row1.first + c, row1.second + c, row1.third + c, row1.fourth + c};
-            out.row2 = Vector4<T>{row2.first + c, row2.second + c, row2.third + c, row2.fourth + c};
-            out.row3 = Vector4<T>{row3.first + c, row3.second + c, row3.third + c, row3.fourth + c};
-            out.row4 = Vector4<T>{row4.first + c, row4.second + c, row4.third + c, row4.fourth + c};
+            out.row1 = Vector4<T>{row1.first + _c, row1.second + _c, row1.third + _c, row1.fourth + _c};
+            out.row2 = Vector4<T>{row2.first + _c, row2.second + _c, row2.third + _c, row2.fourth + _c};
+            out.row3 = Vector4<T>{row3.first + _c, row3.second + _c, row3.third + _c, row3.fourth + _c};
+            out.row4 = Vector4<T>{row4.first + _c, row4.second + _c, row4.third + _c, row4.fourth + _c};
 
             return out;
         }
@@ -1224,13 +1175,13 @@ namespace Libdas {
 
     /// Substract current matrix with given matrix
     template<typename T>
-    Matrix4<T> Matrix4<T>::operator-(const Matrix4<T> &mat) {
+    Matrix4<T> Matrix4<T>::operator-(const Matrix4<T> &_mat) const {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Matrix4<T> out{};
-            out.row1 = Vector4<T>{row1.first - mat.row1.first, row1.second - mat.row1.second, row1.third - mat.row1.third, row1.fourth - mat.row1.fourth};
-            out.row2 = Vector4<T>{row2.first - mat.row2.first, row2.second - mat.row2.second, row2.second - mat.row2.third, row2.fourth - mat.row2.fourth};
-            out.row3 = Vector4<T>{row3.first - mat.row3.first, row3.second - mat.row3.second, row3.second - mat.row3.third, row3.fourth - mat.row3.fourth};
-            out.row4 = Vector4<T>{row4.first - mat.row4.first, row4.second - mat.row4.second, row4.second - mat.row4.third, row4.fourth - mat.row4.fourth};
+            out.row1 = Vector4<T>{row1.first - _mat.row1.first, row1.second - _mat.row1.second, row1.third - _mat.row1.third, row1.fourth - _mat.row1.fourth};
+            out.row2 = Vector4<T>{row2.first - _mat.row2.first, row2.second - _mat.row2.second, row2.second - _mat.row2.third, row2.fourth - _mat.row2.fourth};
+            out.row3 = Vector4<T>{row3.first - _mat.row3.first, row3.second - _mat.row3.second, row3.second - _mat.row3.third, row3.fourth - _mat.row3.fourth};
+            out.row4 = Vector4<T>{row4.first - _mat.row4.first, row4.second - _mat.row4.second, row4.second - _mat.row4.third, row4.fourth - _mat.row4.fourth};
 
             return out;
         }
@@ -1241,13 +1192,13 @@ namespace Libdas {
 
     /// Substract a constant number from the current matrix
     template<typename T>
-    Matrix4<T> Matrix4<T>::operator-(const T &c) {
+    Matrix4<T> Matrix4<T>::operator-(const T &_c) const {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Matrix4<T> out{};
-            out.row1 = Vector4<T>{row1.first - c, row1.second - c, row1.third - c, row1.fourth - c};
-            out.row2 = Vector4<T>{row2.first - c, row2.second - c, row2.third - c, row2.fourth - c};
-            out.row3 = Vector4<T>{row3.first - c, row3.second - c, row3.third - c, row3.fourth - c};
-            out.row4 = Vector4<T>{row4.first - c, row4.second - c, row4.third - c, row4.fourth - c};
+            out.row1 = Vector4<T>{row1.first - _c, row1.second - _c, row1.third - _c, row1.fourth - _c};
+            out.row2 = Vector4<T>{row2.first - _c, row2.second - _c, row2.third - _c, row2.fourth - _c};
+            out.row3 = Vector4<T>{row3.first - _c, row3.second - _c, row3.third - _c, row3.fourth - _c};
+            out.row4 = Vector4<T>{row4.first - _c, row4.second - _c, row4.third - _c, row4.fourth - _c};
 
             return out;
         }
@@ -1258,51 +1209,51 @@ namespace Libdas {
 
     /// Multiply all matrix members with a constant
     template<typename T>
-    Matrix4<T> Matrix4<T>::operator*(const T &c) {
+    Matrix4<T> Matrix4<T>::operator*(const T &_c) const {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Matrix4<T> out;
-            out.row1 = {row1.first * c, row1.second * c, row1.third * c, row1.fourth * c};
-            out.row2 = {row2.first * c, row2.second * c, row2.third * c, row2.fourth * c};
-            out.row3 = {row3.first * c, row3.second * c, row3.third * c, row3.fourth * c};
-            out.row4 = {row4.first * c, row4.second * c, row4.third * c, row4.fourth * c};
+            out.row1 = {row1.first * _c, row1.second * _c, row1.third * _c, row1.fourth * _c};
+            out.row2 = {row2.first * _c, row2.second * _c, row2.third * _c, row2.fourth * _c};
+            out.row3 = {row3.first * _c, row3.second * _c, row3.third * _c, row3.fourth * _c};
+            out.row4 = {row4.first * _c, row4.second * _c, row4.third * _c, row4.fourth * _c};
             return out;
         }
 
         else return Matrix4<T>{};
     }
-
+ 
     
     /// Find the dot product of two matrices
     template<typename T>
-    Matrix4<T> Matrix4<T>::operator*(const Matrix4<T> &matrix) {
+    Matrix4<T> Matrix4<T>::operator*(const Matrix4<T> &_mat) const {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Matrix4<T> out_mat;
             out_mat.row1 = Vector4<T>{
-                ((row1.first * matrix.row1.first) + (row1.second * matrix.row2.first) + (row1.third * matrix.row3.first) + (row1.fourth * matrix.row4.first)), 
-                ((row1.first * matrix.row1.second) + (row1.second * matrix.row2.second) + (row1.third * matrix.row3.second) + (row1.fourth * matrix.row4.second)), 
-                ((row1.first * matrix.row1.third) + (row1.second * matrix.row2.third) + (row1.third * matrix.row3.third) + (row1.fourth * matrix.row4.third)), 
-                ((row1.first * matrix.row1.fourth) + (row1.second * matrix.row2.fourth) + (row1.third * matrix.row3.fourth) + (row1.fourth * matrix.row4.fourth))
+                ((row1.first * _mat.row1.first) + (row1.second * _mat.row2.first) + (row1.third * _mat.row3.first) + (row1.fourth * _mat.row4.first)), 
+                ((row1.first * _mat.row1.second) + (row1.second * _mat.row2.second) + (row1.third * _mat.row3.second) + (row1.fourth * _mat.row4.second)), 
+                ((row1.first * _mat.row1.third) + (row1.second * _mat.row2.third) + (row1.third * _mat.row3.third) + (row1.fourth * _mat.row4.third)), 
+                ((row1.first * _mat.row1.fourth) + (row1.second * _mat.row2.fourth) + (row1.third * _mat.row3.fourth) + (row1.fourth * _mat.row4.fourth))
             };
 
             out_mat.row2 = Vector4<T>{ 
-                ((row2.first * matrix.row1.first) + (row2.second * matrix.row2.first) + (row2.third * matrix.row3.first) + (row2.fourth * matrix.row4.first)), 
-                ((row2.first * matrix.row1.second) + (row2.second * matrix.row2.second) + (row2.third * matrix.row3.second) + (row2.fourth * matrix.row4.second)), 
-                ((row2.first * matrix.row1.third) + (row2.second * matrix.row2.third) + (row2.third * matrix.row3.third) + (row2.fourth * matrix.row4.third)), 
-                ((row2.first * matrix.row1.fourth) + (row2.second * matrix.row2.fourth) + (row2.third * matrix.row3.fourth) + (row2.fourth * matrix.row4.fourth))
+                ((row2.first * _mat.row1.first) + (row2.second * _mat.row2.first) + (row2.third * _mat.row3.first) + (row2.fourth * _mat.row4.first)), 
+                ((row2.first * _mat.row1.second) + (row2.second * _mat.row2.second) + (row2.third * _mat.row3.second) + (row2.fourth * _mat.row4.second)), 
+                ((row2.first * _mat.row1.third) + (row2.second * _mat.row2.third) + (row2.third * _mat.row3.third) + (row2.fourth * _mat.row4.third)), 
+                ((row2.first * _mat.row1.fourth) + (row2.second * _mat.row2.fourth) + (row2.third * _mat.row3.fourth) + (row2.fourth * _mat.row4.fourth))
             };
 
             out_mat.row3 = Vector4<T>{
-                ((row3.first * matrix.row1.first) + (row3.second * matrix.row2.first) + (row3.third * matrix.row3.first) + (row3.fourth * matrix.row4.first)), 
-                ((row3.first * matrix.row1.second) + (row3.second * matrix.row2.second) + (row3.third * matrix.row3.second) + (row3.fourth * matrix.row4.second)), 
-                ((row3.first * matrix.row1.third) + (row3.second * matrix.row2.third) + (row3.third * matrix.row3.third) + (row3.fourth * matrix.row4.third)), 
-                ((row3.first * matrix.row1.fourth) + (row3.second * matrix.row2.fourth) + (row3.third * matrix.row3.fourth) + (row3.fourth * matrix.row4.fourth))
+                ((row3.first * _mat.row1.first) + (row3.second * _mat.row2.first) + (row3.third * _mat.row3.first) + (row3.fourth * _mat.row4.first)), 
+                ((row3.first * _mat.row1.second) + (row3.second * _mat.row2.second) + (row3.third * _mat.row3.second) + (row3.fourth * _mat.row4.second)), 
+                ((row3.first * _mat.row1.third) + (row3.second * _mat.row2.third) + (row3.third * _mat.row3.third) + (row3.fourth * _mat.row4.third)), 
+                ((row3.first * _mat.row1.fourth) + (row3.second * _mat.row2.fourth) + (row3.third * _mat.row3.fourth) + (row3.fourth * _mat.row4.fourth))
             };
 
             out_mat.row4 = Vector4<T>{
-                ((row4.first * matrix.row1.first) + (row4.second * matrix.row2.first) + (row4.third * matrix.row3.first) + (row4.fourth * matrix.row4.first)), 
-                ((row4.first * matrix.row1.second) + (row4.second * matrix.row2.second) + (row4.third * matrix.row3.second) + (row4.fourth * matrix.row4.second)), 
-                ((row4.first * matrix.row1.third) + (row4.second * matrix.row2.third) + (row4.third * matrix.row3.third) + (row4.fourth * matrix.row4.third)), 
-                ((row4.first * matrix.row1.fourth) + (row4.second * matrix.row2.fourth) + (row4.third * matrix.row3.fourth) + (row4.fourth * matrix.row4.fourth))
+                ((row4.first * _mat.row1.first) + (row4.second * _mat.row2.first) + (row4.third * _mat.row3.first) + (row4.fourth * _mat.row4.first)), 
+                ((row4.first * _mat.row1.second) + (row4.second * _mat.row2.second) + (row4.third * _mat.row3.second) + (row4.fourth * _mat.row4.second)), 
+                ((row4.first * _mat.row1.third) + (row4.second * _mat.row2.third) + (row4.third * _mat.row3.third) + (row4.fourth * _mat.row4.third)), 
+                ((row4.first * _mat.row1.fourth) + (row4.second * _mat.row2.fourth) + (row4.third * _mat.row3.fourth) + (row4.fourth * _mat.row4.fourth))
             };
 
             return out_mat;
@@ -1314,36 +1265,13 @@ namespace Libdas {
 
     /// Multiply with column vector
     template<typename T>
-    Vector4<T> Matrix4<T>::operator*(const Vector4<T> &vec) {
+    Vector4<T> Matrix4<T>::operator*(const Vector4<T> &_vec) const {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Vector4<T> out_vec;
-            out_vec.first = {
-                vec.first * row1.first + 
-                vec.second * row1.second + 
-                vec.third * row1.third +
-                vec.fourth * row1.fourth
-            };
-
-            out_vec.second = {
-                vec.first * row2.first +
-                vec.second * row2.second +
-                vec.third * row2.third +
-                vec.fourth * row2.fourth
-            };
-
-            out_vec.third = {
-                vec.first * row3.first +
-                vec.second * row3.second +
-                vec.third * row3.third +
-                vec.fourth * row3.fourth
-            };
-
-            out_vec.fourth = {
-                vec.first * row4.first +
-                vec.second * row4.second +
-                vec.third * row4.third +
-                vec.fourth * row4.fourth
-            };
+            out_vec.first = { _vec.first * row1.first + _vec.second * row1.second + _vec.third * row1.third + _vec.fourth * row1.fourth };
+            out_vec.second = { _vec.first * row2.first + _vec.second * row2.second + _vec.third * row2.third + _vec.fourth * row2.fourth };
+            out_vec.third = { _vec.first * row3.first + _vec.second * row3.second + _vec.third * row3.third + _vec.fourth * row3.fourth };
+            out_vec.fourth = { _vec.first * row4.first + _vec.second * row4.second + _vec.third * row4.third + _vec.fourth * row4.fourth };
 
             return out_vec;
         }
@@ -1354,13 +1282,13 @@ namespace Libdas {
 
     /// Divide all matrix elements with a constant
     template<typename T>
-    Matrix4<T> Matrix4<T>::operator/(const T &c) { 
+    Matrix4<T> Matrix4<T>::operator/(const T &_c) const {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Matrix4<T> out;
-            out.row1 = Vector4<T>{row1.first / c, row1.second / c, row1.third / c, row1.fourth / c};
-            out.row2 = Vector4<T>{row2.first / c, row2.second / c, row2.third / c, row2.fourth / c};
-            out.row3 = Vector4<T>{row3.first / c, row3.second / c, row3.third / c, row3.fourth / c};
-            out.row4 = Vector4<T>{row4.first / c, row4.second / c, row4.third / c, row4.fourth / c};
+            out.row1 = Vector4<T>{row1.first / _c, row1.second / _c, row1.third / _c, row1.fourth / _c};
+            out.row2 = Vector4<T>{row2.first / _c, row2.second / _c, row2.third / _c, row2.fourth / _c};
+            out.row3 = Vector4<T>{row3.first / _c, row3.second / _c, row3.third / _c, row3.fourth / _c};
+            out.row4 = Vector4<T>{row4.first / _c, row4.second / _c, row4.third / _c, row4.fourth / _c};
 
             return out;
         }
@@ -1371,62 +1299,62 @@ namespace Libdas {
 
     /// Multiply all matrix members with a constant and set the product as the value of the current matrix instance
 	template<typename T>
-    void Matrix4<T>::operator*=(const T &c) {
+    void Matrix4<T>::operator*=(const T &_c) {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
-            row1.first *= c;
-            row1.second *= c;
-            row1.third *= c;
-            row1.fourth *= c;
+            row1.first *= _c;
+            row1.second *= _c;
+            row1.third *= _c;
+            row1.fourth *= _c;
 
-            row2.first *= c;
-            row2.second *= c;
-            row2.third *= c;
-            row2.fourth *= c;
+            row2.first *= _c;
+            row2.second *= _c;
+            row2.third *= _c;
+            row2.fourth *= _c;
 
-            row3.first *= c;
-            row3.second *= c;
-            row3.third *= c;
-            row3.fourth *= c;
+            row3.first *= _c;
+            row3.second *= _c;
+            row3.third *= _c;
+            row3.fourth *= _c;
 
-            row4.first *= c;
-            row4.second *= c;
-            row4.third *= c;
-            row4.fourth *= c;
+            row4.first *= _c;
+            row4.second *= _c;
+            row4.third *= _c;
+            row4.fourth *= _c;
         }
     }
 
 
     /// Find the cross product of two matrices and set the current matrix instance value to it
     template<typename T>
-    void Matrix4<T>::operator*=(const Matrix4<T> &mat) {
+    void Matrix4<T>::operator*=(const Matrix4<T> &_mat) {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Matrix4<T> new_mat{};
             new_mat.row1 = Vector4<T>{
-                ((row1.first * mat.row1.first) + (row1.second * mat.row2.first) + (row1.third * mat.row3.first) + (row1.fourth * mat.row4.first)), 
-                ((row1.first * mat.row1.second) + (row1.second * mat.row2.second) + (row1.third * mat.row3.second) + (row1.fourth * mat.row4.second)), 
-                ((row1.first * mat.row1.third) + (row1.second * mat.row2.third) + (row1.third * mat.row3.third) + (row1.fourth * mat.row4.third)), 
-                ((row1.first * mat.row1.fourth) + (row1.second * mat.row2.fourth) + (row1.third * mat.row3.fourth) + (row1.fourth * mat.row4.fourth))
+                ((row1.first * _mat.row1.first) + (row1.second * _mat.row2.first) + (row1.third * _mat.row3.first) + (row1.fourth * _mat.row4.first)), 
+                ((row1.first * _mat.row1.second) + (row1.second * _mat.row2.second) + (row1.third * _mat.row3.second) + (row1.fourth * _mat.row4.second)), 
+                ((row1.first * _mat.row1.third) + (row1.second * _mat.row2.third) + (row1.third * _mat.row3.third) + (row1.fourth * _mat.row4.third)), 
+                ((row1.first * _mat.row1.fourth) + (row1.second * _mat.row2.fourth) + (row1.third * _mat.row3.fourth) + (row1.fourth * _mat.row4.fourth))
             };
 
             new_mat.row2 = Vector4<T>{ 
-                ((row2.first * mat.row1.first) + (row2.second * mat.row2.first) + (row2.third * mat.row3.first) + (row2.fourth * mat.row4.first)), 
-                ((row2.first * mat.row1.second) + (row2.second * mat.row2.second) + (row2.third * mat.row3.second) + (row2.fourth * mat.row4.second)), 
-                ((row2.first * mat.row1.third) + (row2.second * mat.row2.third) + (row2.third * mat.row3.third) + (row2.fourth * mat.row4.third)), 
-                ((row2.first * mat.row1.fourth) + (row2.second * mat.row2.fourth) + (row2.third * mat.row3.fourth) + (row2.fourth * mat.row4.fourth))
+                ((row2.first * _mat.row1.first) + (row2.second * _mat.row2.first) + (row2.third * _mat.row3.first) + (row2.fourth * _mat.row4.first)), 
+                ((row2.first * _mat.row1.second) + (row2.second * _mat.row2.second) + (row2.third * _mat.row3.second) + (row2.fourth * _mat.row4.second)), 
+                ((row2.first * _mat.row1.third) + (row2.second * _mat.row2.third) + (row2.third * _mat.row3.third) + (row2.fourth * _mat.row4.third)), 
+                ((row2.first * _mat.row1.fourth) + (row2.second * _mat.row2.fourth) + (row2.third * _mat.row3.fourth) + (row2.fourth * _mat.row4.fourth))
             };
 
             new_mat.row3 = Vector4<T>{
-                ((row3.first * mat.row1.first) + (row3.second * mat.row2.first) + (row3.third * mat.row3.first) + (row3.fourth * mat.row4.first)), 
-                ((row3.first * mat.row1.second) + (row3.second * mat.row2.second) + (row3.third * mat.row3.second) + (row3.fourth * mat.row4.second)), 
-                ((row3.first * mat.row1.third) + (row3.second * mat.row2.third) + (row3.third * mat.row3.third) + (row3.fourth * mat.row4.third)), 
-                ((row3.first * mat.row1.fourth) + (row3.second * mat.row2.fourth) + (row3.third * mat.row3.fourth) + (row3.fourth * mat.row4.fourth))
+                ((row3.first * _mat.row1.first) + (row3.second * _mat.row2.first) + (row3.third * _mat.row3.first) + (row3.fourth * _mat.row4.first)), 
+                ((row3.first * _mat.row1.second) + (row3.second * _mat.row2.second) + (row3.third * _mat.row3.second) + (row3.fourth * _mat.row4.second)), 
+                ((row3.first * _mat.row1.third) + (row3.second * _mat.row2.third) + (row3.third * _mat.row3.third) + (row3.fourth * _mat.row4.third)), 
+                ((row3.first * _mat.row1.fourth) + (row3.second * _mat.row2.fourth) + (row3.third * _mat.row3.fourth) + (row3.fourth * _mat.row4.fourth))
             };
 
             new_mat.row4 = Vector4<T>{
-                ((row4.first * mat.row1.first) + (row4.second * mat.row2.first) + (row4.third * mat.row3.first) + (row4.fourth * mat.row4.first)), 
-                ((row4.first * mat.row1.second) + (row4.second * mat.row2.second) + (row4.third * mat.row3.second) + (row4.fourth * mat.row4.second)), 
-                ((row4.first * mat.row1.third) + (row4.second * mat.row2.third) + (row4.third * mat.row3.third) + (row4.fourth * mat.row4.third)), 
-                ((row4.first * mat.row1.fourth) + (row4.second * mat.row2.fourth) + (row4.third * mat.row3.fourth) + (row4.fourth * mat.row4.fourth))
+                ((row4.first * _mat.row1.first) + (row4.second * _mat.row2.first) + (row4.third * _mat.row3.first) + (row4.fourth * _mat.row4.first)), 
+                ((row4.first * _mat.row1.second) + (row4.second * _mat.row2.second) + (row4.third * _mat.row3.second) + (row4.fourth * _mat.row4.second)), 
+                ((row4.first * _mat.row1.third) + (row4.second * _mat.row2.third) + (row4.third * _mat.row3.third) + (row4.fourth * _mat.row4.third)), 
+                ((row4.first * _mat.row1.fourth) + (row4.second * _mat.row2.fourth) + (row4.third * _mat.row3.fourth) + (row4.fourth * _mat.row4.fourth))
             };
 
             *this = new_mat;
@@ -1436,190 +1364,188 @@ namespace Libdas {
 
     /// Add constant value to matrix and store the value in current matrix instance
     template<typename T>
-    void Matrix4<T>::operator+=(const T &c) {
+    void Matrix4<T>::operator+=(const T &_c) {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
-            row1.first += c;
-            row1.second += c;
-            row1.third += c;
-            row1.fourth += c;
+            row1.first += _c;
+            row1.second += _c;
+            row1.third += _c;
+            row1.fourth += _c;
 
-            row2.first += c;
-            row2.second += c;
-            row2.third += c;
-            row2.fourth += c;
+            row2.first += _c;
+            row2.second += _c;
+            row2.third += _c;
+            row2.fourth += _c;
 
-            row3.first += c;
-            row3.second += c;
-            row3.third += c;
-            row3.fourth += c;
+            row3.first += _c;
+            row3.second += _c;
+            row3.third += _c;
+            row3.fourth += _c;
 
-            row4.first += c;
-            row4.second += c;
-            row4.third += c;
-            row4.fourth += c;
+            row4.first += _c;
+            row4.second += _c;
+            row4.third += _c;
+            row4.fourth += _c;
         }
     }
 
 
     /// Add two matrices together and store the value in current matrix instance
     template<typename T>
-    void Matrix4<T>::operator+=(const Matrix4<T> &mat) {
+    void Matrix4<T>::operator+=(const Matrix4<T> &_mat) {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
-            row1.first += mat.row1.first;
-            row1.second += mat.row1.second;
-            row1.third += mat.row1.third;
-            row1.fourth += mat.row1.fourth;
+            row1.first += _mat.row1.first;
+            row1.second += _mat.row1.second;
+            row1.third += _mat.row1.third;
+            row1.fourth += _mat.row1.fourth;
 
-            row2.first += mat.row2.first;
-            row2.second += mat.row2.second;
-            row2.third += mat.row2.third;
-            row2.fourth += mat.row2.fourth;
+            row2.first += _mat.row2.first;
+            row2.second += _mat.row2.second;
+            row2.third += _mat.row2.third;
+            row2.fourth += _mat.row2.fourth;
 
-            row3.first += mat.row3.first;
-            row3.second += mat.row3.second;
-            row3.third += mat.row3.third;
-            row3.fourth += mat.row3.fourth;
+            row3.first += _mat.row3.first;
+            row3.second += _mat.row3.second;
+            row3.third += _mat.row3.third;
+            row3.fourth += _mat.row3.fourth;
 
-            row4.first += mat.row4.first;
-            row4.second += mat.row4.second;
-            row4.third += mat.row4.third;
-            row4.fourth += mat.row4.fourth;
+            row4.first += _mat.row4.first;
+            row4.second += _mat.row4.second;
+            row4.third += _mat.row4.third;
+            row4.fourth += _mat.row4.fourth;
         }
     }
 
 
     /// Substract constant value from matrix and store the result in current matrix instance
     template<typename T>
-    void Matrix4<T>::operator-=(const T &c) {
+    void Matrix4<T>::operator-=(const T &_c) {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
-            row1.first -= c;
-            row1.second -= c;
-            row1.third -= c;
-            row1.fourth -= c;
+            row1.first -= _c;
+            row1.second -= _c;
+            row1.third -= _c;
+            row1.fourth -= _c;
 
-            row2.first -= c;
-            row2.second -= c;
-            row2.third -= c;
-            row2.fourth -= c;
+            row2.first -= _c;
+            row2.second -= _c;
+            row2.third -= _c;
+            row2.fourth -= _c;
 
-            row3.first -= c;
-            row3.second -= c;
-            row3.third -= c;
-            row3.fourth -= c;
+            row3.first -= _c;
+            row3.second -= _c;
+            row3.third -= _c;
+            row3.fourth -= _c;
 
-            row4.first -= c;
-            row4.second -= c;
-            row4.third -= c;
-            row4.fourth -= c;
+            row4.first -= _c;
+            row4.second -= _c;
+            row4.third -= _c;
+            row4.fourth -= _c;
         }
     }
 
 
     /// Substract a matrix from current matrix and store the result in current matrix instance
     template<typename T>
-    void Matrix4<T>::operator-=(const Matrix4<T> &mat) {
+    void Matrix4<T>::operator-=(const Matrix4<T> &_mat) {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
-            row1.first -= mat.row1.first;
-            row1.second -= mat.row1.second;
-            row1.third -= mat.row1.third;
-            row1.fourth -= mat.row1.fourth;
+            row1.first -= _mat.row1.first;
+            row1.second -= _mat.row1.second;
+            row1.third -= _mat.row1.third;
+            row1.fourth -= _mat.row1.fourth;
 
-            row2.first -= mat.row2.first;
-            row2.second -= mat.row2.second;
-            row2.third -= mat.row2.third;
-            row2.fourth -= mat.row2.fourth;
+            row2.first -= _mat.row2.first;
+            row2.second -= _mat.row2.second;
+            row2.third -= _mat.row2.third;
+            row2.fourth -= _mat.row2.fourth;
 
-            row3.first -= mat.row3.first;
-            row3.second -= mat.row3.second;
-            row3.third -= mat.row3.third;
-            row3.fourth -= mat.row3.fourth;
+            row3.first -= _mat.row3.first;
+            row3.second -= _mat.row3.second;
+            row3.third -= _mat.row3.third;
+            row3.fourth -= _mat.row3.fourth;
 
-            row4.first -= mat.row4.first;
-            row4.second -= mat.row4.second;
-            row4.third -= mat.row4.third;
-            row4.fourth -= mat.row4.fourth;
+            row4.first -= _mat.row4.first;
+            row4.second -= _mat.row4.second;
+            row4.third -= _mat.row4.third;
+            row4.fourth -= _mat.row4.fourth;
         }
     }
 
 
     /// Divide all matrix elements with constant and store the value in current matrix instance
     template<typename T>
-    void Matrix4<T>::operator/=(const T &c) {
+    void Matrix4<T>::operator/=(const T &_c) {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
-            row1.first /= c;
-            row1.second /= c;
-            row1.third /= c;
-            row1.fourth /= c;
+            row1.first /= _c;
+            row1.second /= _c;
+            row1.third /= _c;
+            row1.fourth /= _c;
 
-            row2.first /= c;
-            row2.second /= c;
-            row2.third /= c;
-            row2.fourth /= c;
+            row2.first /= _c;
+            row2.second /= _c;
+            row2.third /= _c;
+            row2.fourth /= _c;
 
-            row3.first /= c;
-            row3.second /= c;
-            row3.third /= c;
-            row3.fourth /= c;
+            row3.first /= _c;
+            row3.second /= _c;
+            row3.third /= _c;
+            row3.fourth /= _c;
 
-            row4.first /= c;
-            row4.second /= c;
-            row4.third /= c;
-            row4.fourth /= c;
+            row4.first /= _c;
+            row4.second /= _c;
+            row4.third /= _c;
+            row4.fourth /= _c;
         }
     }
     
     
     /// Check if current and given matrix instances have equal values
     template<typename T>
-    bool Matrix4<T>::operator==(const Matrix4<T> &mat) {
-        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
-            return row1 == mat.row1 && row2 == mat.row2 && row3 == mat.row3 && row4 == mat.row4;
-        }
+    bool Matrix4<T>::operator==(const Matrix4<T> &_mat) const {
+        return row1 == _mat.row1 && row2 == _mat.row2 && row3 == _mat.row3 && row4 == _mat.row4;
+    }
 
-        else return false;
+
+    /// Check if current and given matrices don't have equal values
+    template<typename T>
+    bool Matrix4<T>::operator!=(const Matrix4<T> &_mat) const {
+        return row1 != _mat.row1 || row2 != _mat.row2 || row3 != _mat.row3 || row4 != _mat.row4;
     }
 
     
     /// Find the determinant of current matrix instance
     template<typename T>
     template<typename DT>
-    DT Matrix4<T>::Determinant(const Matrix4<DT> &mat) {
+    DT Matrix4<T>::Determinant(const Matrix4<DT> &_mat) {
         Matrix3<DT> adj_mat[4];
         
-        adj_mat[0].row1 = Vector3<float>{mat.row2.second, mat.row2.third, mat.row2.fourth};
-        adj_mat[0].row2 = Vector3<float>{mat.row3.second, mat.row3.third, mat.row3.fourth};
-        adj_mat[0].row3 = Vector3<float>{mat.row4.second, mat.row4.third, mat.row4.fourth};
+        adj_mat[0].row1 = Vector3<float>{_mat.row2.second, _mat.row2.third, _mat.row2.fourth};
+        adj_mat[0].row2 = Vector3<float>{_mat.row3.second, _mat.row3.third, _mat.row3.fourth};
+        adj_mat[0].row3 = Vector3<float>{_mat.row4.second, _mat.row4.third, _mat.row4.fourth};
 
-        adj_mat[1].row1 = Vector3<float>{mat.row2.first, mat.row2.third, mat.row2.fourth};
-        adj_mat[1].row2 = Vector3<float>{mat.row3.first, mat.row3.third, mat.row3.fourth};
-        adj_mat[1].row3 = Vector3<float>{mat.row4.first, mat.row4.third, mat.row4.fourth};
+        adj_mat[1].row1 = Vector3<float>{_mat.row2.first, _mat.row2.third, _mat.row2.fourth};
+        adj_mat[1].row2 = Vector3<float>{_mat.row3.first, _mat.row3.third, _mat.row3.fourth};
+        adj_mat[1].row3 = Vector3<float>{_mat.row4.first, _mat.row4.third, _mat.row4.fourth};
 
-        adj_mat[2].row1 = Vector3<float>{mat.row2.first, mat.row2.second, mat.row2.fourth};
-        adj_mat[2].row2 = Vector3<float>{mat.row3.first, mat.row3.second, mat.row3.fourth};
-        adj_mat[2].row3 = Vector3<float>{mat.row4.first, mat.row4.second, mat.row4.fourth};
+        adj_mat[2].row1 = Vector3<float>{_mat.row2.first, _mat.row2.second, _mat.row2.fourth};
+        adj_mat[2].row2 = Vector3<float>{_mat.row3.first, _mat.row3.second, _mat.row3.fourth};
+        adj_mat[2].row3 = Vector3<float>{_mat.row4.first, _mat.row4.second, _mat.row4.fourth};
 
-        adj_mat[3].row1 = Vector3<float>{mat.row2.first, mat.row2.second, mat.row2.third};
-        adj_mat[3].row2 = Vector3<float>{mat.row3.first, mat.row3.second, mat.row3.third};
-        adj_mat[3].row3 = Vector3<float>{mat.row4.first, mat.row4.second, mat.row4.third};
+        adj_mat[3].row1 = Vector3<float>{_mat.row2.first, _mat.row2.second, _mat.row2.third};
+        adj_mat[3].row2 = Vector3<float>{_mat.row3.first, _mat.row3.second, _mat.row3.third};
+        adj_mat[3].row3 = Vector3<float>{_mat.row4.first, _mat.row4.second, _mat.row4.third};
 
         Vector4<DT> out;
-        out.first = mat.row1.first * Matrix3<DT>::Determinant(adj_mat[0]);
-        out.second = mat.row1.second * Matrix3<DT>::Determinant(adj_mat[1]);
-        out.third = mat.row1.third * Matrix3<DT>::Determinant(adj_mat[2]);
-        out.fourth = mat.row1.fourth * Matrix3<DT>::Determinant(adj_mat[3]); 
+        out.first = _mat.row1.first * Matrix3<DT>::Determinant(adj_mat[0]);
+        out.second = _mat.row1.second * Matrix3<DT>::Determinant(adj_mat[1]);
+        out.third = _mat.row1.third * Matrix3<DT>::Determinant(adj_mat[2]);
+        out.fourth = _mat.row1.fourth * Matrix3<DT>::Determinant(adj_mat[3]); 
         
-        return (DT) (
-            out.first -
-            out.second +
-            out.third -
-            out.fourth
-        );
+        return out.first - out.second + out.third - out.fourth;
     };
 
 
     /// Find the inverse of the current matrix 
     template<typename T>
-    Matrix4<T> Matrix4<T>::Inverse() {
+    Matrix4<T> Matrix4<T>::Inverse() const {
         float inv_det = 1 / Matrix4<T>::Determinant(*this);
         Matrix4<T> out_mat;
         Matrix3<float> adj_mat;
@@ -1746,7 +1672,7 @@ namespace Libdas {
 
     /// Transpose the current matrix
     template<typename T>
-    Matrix4<T> Matrix4<T>::Transpose() {
+    Matrix4<T> Matrix4<T>::Transpose() const {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Matrix4<T> new_mat;
             new_mat.row1 = Vector4<T>{row1.first, row2.first, row3.first, row4.first};

@@ -1,7 +1,7 @@
-/// libdas: deng asset handling management library
-/// licence: apache, see licence file
-/// file: texturereader.h - generic texture image reader class header
-/// author: karl-mihkel ott
+/// libdas: DENG asset handling management library
+/// licence: Apache, see licence file
+/// file: TextureReader.h - Generic texture image reader class header
+/// author: Karl-Mihkel Ott
 
 #define TEXTURE_READER_CPP
 #include <TextureReader.h>

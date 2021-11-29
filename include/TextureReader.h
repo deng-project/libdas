@@ -41,8 +41,8 @@ namespace Libdas {
             TextureReader(const std::string &_file_name, std::ifstream &_stream, size_t _img_size);
             ~TextureReader();
             /**
-             * Read all data from image file into buffer and return the pointer
-             * NOTE: Allocated heap memory is automatically freed
+             * Read all data from image file into buffer and return the pointer.
+             * Allocated heap memory is automatically freed
              * @return const char* pointer to the image file buffer read into memory
              */
             const char *GetBuffer();
@@ -53,7 +53,7 @@ namespace Libdas {
             size_t GetBufferSize();
             /**
              * Read the image stream and return a pointer to raw image data
-             * NOTE: Allocated heap memory is automatically freed
+             * Allocated heap memory is automatically freed
              * @return const char* pointer to the raw image data buffer
              */
             const char *GetRawBuffer(int *_x, int *_y);

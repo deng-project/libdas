@@ -74,11 +74,20 @@ namespace Libdas {
     }
 
 
+    std::vector<DasModel> WavefrontObjCompiler::
+
+
     void WavefrontObjCompiler::Compile(std::vector<WavefrontObjGroup> &_groups, const std::string &_out_file) {
         // open a new file if specified
         if(_out_file != "")
             NewFile(_out_file);
 
-        _CreateBuffers(_groups);
+        // write all buffers to the output file
+        std::vector<DasBuffer> buffers = _CreateBuffers(_groups);
+        for(const DasBuffer &buffer : buffers)
+            WriteBuffer(buffer);
+
+        // write all given models to the output file
+        std::vector<DasModel> models = _CreateModels(_groups);
     }
 }

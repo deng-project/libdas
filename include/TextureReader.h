@@ -27,6 +27,9 @@
 
 namespace Libdas {
 
+    /**
+     * Interface for reading and handling texture files 
+     */
     class TextureReader {
         private:
             char *m_buffer = nullptr;

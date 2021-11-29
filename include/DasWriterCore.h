@@ -19,8 +19,9 @@
     #include <Vector.h>
     #include <Matrix.h>
     #include <DasStructures.h>
-    #include <ParserErrorHandler.h>
+    #include <ErrorHandlers.h>
     #include <LibdasAssert.h>
+    #include <TextureReader.h>
 #endif
 
 
@@ -151,6 +152,11 @@ namespace Libdas {
              * @param _buffer is a reference to DasBuffer object
              */
             void WriteBuffer(const DasBuffer &_buffer);
+            /**
+             * Write texture buffers from given texture images files
+             * @param _textures is a const reference to std::vector that contains all texture file names in std::string type
+             */
+            void WriteTextureBuffer(const std::vector<std::string> &_textures);
             /**
              * Write a model information to a file
              * @param _model is a reference to DasModel object

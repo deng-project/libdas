@@ -14,7 +14,7 @@
     #include <array>
 
     #include <Points.h>
-    #include <ParserErrorHandler.h>
+    #include <ErrorHandlers.h>
 #endif
 
 

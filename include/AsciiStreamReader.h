@@ -18,7 +18,7 @@
     #include <algorithm>
 
     #include <LibdasAssert.h>
-    #include <ParserErrorHandler.h>
+    #include <ErrorHandlers.h>
 #endif
 
 

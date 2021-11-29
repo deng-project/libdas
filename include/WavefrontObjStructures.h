@@ -16,7 +16,7 @@
     #include <cmath>
     #include <unordered_map>
     
-    #include <ParserErrorHandler.h>
+    #include <ErrorHandlers.h>
     #include <Points.h>
 #endif
 
@@ -99,11 +99,20 @@ namespace Libdas {
     };
 
 
-    struct WavefrontObjFace {
-        std::vector<uint32_t> verts;
-        std::vector<uint32_t> textures;
-        std::vector<uint32_t> normals;
+    /**
+     * Structure for containing single face index properties
+     */
+    struct WavefrontObjIndex {
+        uint32_t vert;
+        uint32_t texture;
+        uint32_t normal;
     };
+
+
+    /**
+     * Data type for containing face indicies
+     */
+    typedef std::vector<WavefrontObjIndex> WavefrontObjFace;
 
 
     /**
@@ -153,7 +162,7 @@ namespace Libdas {
 
     /// Namespace for containing all Wavefront OBJ keyword parsing functions
     namespace WavefrontObjFunctions {
-        typedef std::queue<WavefrontObjGroup> Groups;
+        typedef std::vector<WavefrontObjGroup> Groups;
         /**
          * Universal function pointer for keyword action callback
          */

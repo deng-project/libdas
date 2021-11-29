@@ -7,7 +7,7 @@
 #include <queue>
 
 #include <Points.h>
-#include <ParserErrorHandler.h>
+#include <ErrorHandlers.h>
 #include <AsciiStreamReader.h>
 #include <AsciiLineReader.h>
 #include <STLStructures.h>

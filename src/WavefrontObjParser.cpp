@@ -12,7 +12,7 @@ namespace Libdas {
     WavefrontObjParser::WavefrontObjParser(size_t _chunk_size, const std::string &_file_name) : 
         AsciiLineReader(_chunk_size, "\n", _file_name), m_file_name(_file_name), m_error(MODEL_FORMAT_WOBJ) {
         std::vector<std::string> names = {"main"};
-        m_groups.push(WavefrontObjGroup(names));
+        m_groups.push_back(WavefrontObjGroup(names));
         _Tokenize();
 
     }
@@ -302,14 +302,32 @@ namespace Libdas {
     }
 
 
-    WavefrontObjGroup WavefrontObjParser::PopFromGroupQueue() {
-        WavefrontObjGroup group = std::move(m_groups.front());
-        m_groups.pop();
-        return group;
-    }
+    void WavefrontObjParser::TriangulateGroups() {
+        std::cout << "Triangulating..." << std::endl;
+
+        for(WavefrontObjGroup &group : m_groups) {
+            for(size_t i = 0; i < group.indices.faces.size(); i++) {
+                std::vector<WavefrontObjFace> new_faces;
+                // more than 3 vertices per face
+                if(group.indices.faces[i].size() > 3) {
+                    size_t face_size = group.indices.faces[i].size();
+                    for(size_t j = 0; j < face_size; j += 2) {
+                        new_faces.push_back(std::vector<WavefrontObjIndex> {
+                            group.indices.faces[i][j % face_size], 
+                            group.indices.faces[i][j + 1 % face_size],
+                            group.indices.faces[i][j + 2 % face_size]
+                        });
+                    }
+
+                    group.indices.faces.erase(group.indices.faces.begin() + i);
+                    group.indices.faces.insert(group.indices.faces.begin() + i, new_faces.begin(), new_faces.end());
+                }
+            }
+        }
+    } 
 
 
-    bool WavefrontObjParser::IsGroupQueueEmpty() {
-        return m_groups.empty();
+    const WavefrontObjFunctions::Groups &WavefrontObjParser::GetParsedGroups() {
+        return m_groups;
     }
 }

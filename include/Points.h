@@ -138,9 +138,9 @@ namespace Libdas {
             else x = T(), y = T(), z = T(), w = T();
         }
 
-        Point4D<T>(const Point4D<T> &_val) : x(_val.x), y(_val.y) {}
+        Point4D<T>(const Point4D<T> &_val) : x(_val.x), y(_val.y), z(_val.z), w(_val.w) {}
 
-        Point4D<T>(Point4D<T> &&_val) : x(std::move(_val.x)), y(std::move(_val.y)) {}
+        Point4D<T>(Point4D<T> &&_val) : x(std::move(_val.x)), y(std::move(_val.y)), z(std::move(_val.z)), w(std::move(_val.w)) {}
 
         Point4D<T>(T &&_x, T &&_y = T(), T &&_z = T(), T &&_w = T()) : 
             x(std::move(_x)), y(std::move(_y)), z(std::move(_z)), w(std::move(_w)) {}

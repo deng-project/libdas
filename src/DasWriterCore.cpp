@@ -173,8 +173,23 @@ namespace Libdas {
         _WriteScopeBeginning("BUFFER");
         _WriteNumericalValue<BufferType>("BUFFERTYPE", _buffer.type);
         _WriteNumericalValue<uint32_t>("DATALEN", _buffer.data_len);
-        _WriteGenericDataValue("DATA", _buffer.data, _buffer.data_len);
+
+        for(const std::pair<const char*, size_t> &data : _buffer.data_ptrs)
+            _WriteGenericDataValue("DATA", data.first, data.second);
+
         _EndScope();
+    }
+
+
+    void DasWriterCore::WriteTextureBuffer(const std::vector<std::string> &_textures) {
+        for(const std::string &file_name : _textures) {
+            _WriteScopeBeginning("BUFFER");
+            TextureReader rd = TextureReader(file_name);
+            BufferType type = rd.GetImageBufferType();
+            _WriteNumericalValue<BufferType>("BUFFERTYPE", type);
+            _WriteNumericalValue<uint32_t>("DATALEN", static_cast<uint32_t>(rd.GetBufferSize()));
+            _WriteGenericDataValue("DATA", rd.GetBuffer(), rd.GetBufferSize());
+        }
     }
 
 

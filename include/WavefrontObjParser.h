@@ -22,7 +22,7 @@
     #include <memory>
 
     #include <Points.h>
-    #include <ParserErrorHandler.h>
+    #include <ErrorHandlers.h>
     #include <AsciiStreamReader.h>
     #include <AsciiLineReader.h>
 #endif
@@ -93,13 +93,14 @@ namespace Libdas {
              */
             void Parse();
             /**
-             * Retrieve all read groups
+             * Triangulate all non-triangular groups and insert new triangles between faces
              */
-            WavefrontObjGroup PopFromGroupQueue();
+            void TriangulateGroups();
             /**
-             * Check if the group queue is empty
+             * Get all parsed WavefrontObj groups
+             * @return reference to std::vector<WavefrontObjGroup>
              */
-            bool IsGroupQueueEmpty();
+            const WavefrontObjFunctions::Groups &GetParsedGroups();
     };
 }
 

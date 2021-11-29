@@ -17,12 +17,14 @@ typedef uint8_t BufferType;
 #define LIBDAS_BUFFER_TYPE_TEXTURE_TGA      6
 #define LIBDAS_BUFFER_TYPE_TEXTURE_BMP      7
 #define LIBDAS_BUFFER_TYPE_TEXTURE_PPM      8
+#define LIBDAS_BUFFER_TYPE_TEXTURE_RAW      9
+#define LIBDAS_BUFFER_TYPE_UNKNOWN          10
 
 /// Animation interpolation technique definitions 
 typedef uint8_t InterpolationValue;
-#define LIBDAS_INTERPOLATION_VALUE_LINEAR       9
-#define LIBDAS_INTERPOLATION_VALUE_STEP         10
-#define LIBDAS_INTERPOLATION_VALUE_CUBICSPLINE  11
+#define LIBDAS_INTERPOLATION_VALUE_LINEAR       11
+#define LIBDAS_INTERPOLATION_VALUE_STEP         12
+#define LIBDAS_INTERPOLATION_VALUE_CUBICSPLINE  13
 
 namespace Libdas {
 
@@ -45,12 +47,22 @@ namespace Libdas {
 
 
     /**
+     * Data structure for containing indicies information (default indices are: -1)
+     */
+    struct DasFace {
+        uint32_t position;
+        uint32_t texture;
+        uint32_t normals;
+    };
+
+
+    /**
      * DAS scope structure that defines single buffer related information
      */
     struct DasBuffer {
         BufferType type;
         uint32_t data_len = 0;
-        char *data;
+        std::vector<std::pair<const char*, size_t>> data_ptrs;
     };
 
 

@@ -43,10 +43,10 @@ newoption {
         { "WavefrontObjParser", "Build WavefrontObjParser class test" },
         { "AsciiSTLParser", "Build AsciiSTLParser class test" },
         { "BinarySTLParser", "Build BinarySTLParser class test" },
+        { "HuffmanCompression", "Build Huffman compression class test application" },
         -- tmp --
-        { "WriterCore", "Build DasWriterCore class test" },
-        { "MatrixTest", "Build Matrix test application" },
-
+        { "TextureReader", "Build TextureReader class test" },
+        -- misc --
         { "all", "Build all available unit tests" }
     }
 }
@@ -104,16 +104,16 @@ function LoadTests()
         parser.build()
     end
 
-    if _OPTIONS["tests"] == "all" or _OPTIONS["tests"] == "WriterCore" then
-        print("Including WriterCore test config")
-        local writer = require("premake/tests/WriterCore")
-        writer.build()
+    if _OPTIONS["tests"] == "all" or _OPTIONS["tests"] == "HuffmanCompression" then
+        print("Including HuffmanCompression test config");
+        local huf = require("premake/tests/HuffmanCompression");
+        huf.build()
     end
 
-    if _OPTIONS["tests"] == "all" or _OPTIONS["tests"] == "Matrix" then
-        print("Including Matrix classes test config")
-        local mat = require("premake/tests/Matrix")
-        mat.build()
+    if _OPTIONS["tests"] == "all" or _OPTIONS["tests"] == "TextureReader" then
+        print("Including TextureReader test config");
+        local texture = require("premake/tests/TextureReader");
+        texture.build()
     end
 end
 

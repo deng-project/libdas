@@ -1,22 +1,23 @@
 --- libdas: DENG asset management library
 --- licence: Apache, see LICENCE file
---- file: WriterCore.lua - DasWriterCore class test build configuration
+--- file: HuffmanCompression.lua - Huffman compression classes test build config
 --- author: Karl-Mihkel Ott
 
-local WriterCore = {}
+local HuffmanCompression = {}
 
-function WriterCore.build()
-    project "WriterCoreTest"
+function HuffmanCompression.build()
+    project "HuffmanCompressionTest"
         kind "ConsoleApp"
         language "C++"
         cppdialect "C++14"
 
         files {
             "include/*",
-            "tests/WriterCoreTest.cpp"
+            "tests/HuffmanCompressionTest.cpp"
         }
 
         links { "das" }
 end
 
-return WriterCore
+
+return HuffmanCompression

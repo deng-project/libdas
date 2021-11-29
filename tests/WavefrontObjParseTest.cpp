@@ -15,11 +15,14 @@
 #include <unordered_map>
 
 #include <Points.h>
-#include <ParserErrorHandler.h>
+#include <LibdasAssert.h>
+#include <ErrorHandlers.h>
 #include <AsciiStreamReader.h>
 #include <AsciiLineReader.h>
 #include <WavefrontObjStructures.h>
 #include <WavefrontObjParser.h>
+
+using Groups = Libdas::WavefrontObjFunctions::Groups;
 
 
 int main(int argc, char *argv[]) {
@@ -30,11 +33,11 @@ int main(int argc, char *argv[]) {
 
     Libdas::WavefrontObjParser parser;
     parser.Parse(argv[1]);
+    parser.TriangulateGroups();
 
+    const Groups &groups = parser.GetParsedGroups();
     
-    while(!parser.IsGroupQueueEmpty()) {
-        Libdas::WavefrontObjGroup group = parser.PopFromGroupQueue();
-        
+    for(const Libdas::WavefrontObjGroup &group : groups) {
         // display group names 
         std::cout << "Group names: ";
         for(size_t i = 0; i < group.names.size(); i++)

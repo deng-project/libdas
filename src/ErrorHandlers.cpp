@@ -1,10 +1,10 @@
 /// libdas: DENG asset handling management library
 /// licence: Apache, see LICENCE file
-/// file: ParseErrorHandler.cpp - Parser error handler class implementation
+/// file: ErrorHandlers.cpp - Error handler classes implementation
 /// author: Karl-Mihkel Ott
 
 #define ERROR_HANDLER_CPP
-#include <ParserErrorHandler.h>
+#include <ErrorHandlers.h>
 
 namespace Libdas {
 

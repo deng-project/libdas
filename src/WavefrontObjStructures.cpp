@@ -144,6 +144,7 @@ namespace Libdas {
             _groups.back().indices.pt.push_back(verts);
         }
 
+
         //void LineArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args) {
             //const std::string keyword = "l";
             //_ArgCountCheck(_error, keyword, _args.first, static_cast<uint32_t>(_args.second.size()), 3, UINT32_MAX, TERMINATE);
@@ -155,16 +156,13 @@ namespace Libdas {
         void FaceArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args) {
             const std::string keyword = "f";
             _error.ArgCountCheck(keyword, _args.first, static_cast<uint32_t>(_args.second.size()), 1, UINT32_MAX, TERMINATE);
-            WavefrontObjFace face;
-            face.verts.reserve(_args.second.size());
-            face.textures.reserve(_args.second.size());
-            face.normals.reserve(_args.second.size());
+            WavefrontObjFace face(_args.second.size());
 
             for(size_t i = 0; i < _args.second.size(); i++) {
                 Point3D<uint32_t> elem = _TripleIndexBlockCallback(_error, _args.second[i], keyword, _args.first);
-                face.verts.push_back(elem.x);
-                face.textures.push_back(elem.y);
-                face.normals.push_back(elem.z);
+                face[i].vert = elem.x;
+                face[i].texture = elem.y;
+                face[i].normal = elem.z;
             }
 
             _groups.back().indices.faces.push_back(face);
@@ -183,7 +181,7 @@ namespace Libdas {
         void GroupArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args) {
             const std::string keyword = "g";
             _error.ArgCountCheck(keyword, _args.first, static_cast<uint32_t>(_args.second.size()), 0, UINT32_MAX, TERMINATE);
-            _groups.push(WavefrontObjGroup(_args.second));
+            _groups.push_back(WavefrontObjGroup(_args.second));
         }
 
 
@@ -194,7 +192,7 @@ namespace Libdas {
         void ObjectNameCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args) {
             const std::string keyword = "o";
             _error.ArgCountCheck(keyword, _args.first, static_cast<uint32_t>(_args.second.size()), 1, 1, TERMINATE);
-            _groups.push(WavefrontObjGroup(_args.second));
+            _groups.push_back(WavefrontObjGroup(_args.second));
         }
 
 

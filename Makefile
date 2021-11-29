@@ -14,8 +14,8 @@ ifeq ($(config),debug_win32)
   WavefrontObjParserTest_config = debug_win32
   AsciiSTLParserTest_config = debug_win32
   BinarySTLParserTest_config = debug_win32
-  WriterCoreTest_config = debug_win32
-  MatrixTest_config = debug_win32
+  HuffmanCompressionTest_config = debug_win32
+  TextureReaderTest_config = debug_win32
 
 else ifeq ($(config),debug_linux)
   das_config = debug_linux
@@ -23,8 +23,8 @@ else ifeq ($(config),debug_linux)
   WavefrontObjParserTest_config = debug_linux
   AsciiSTLParserTest_config = debug_linux
   BinarySTLParserTest_config = debug_linux
-  WriterCoreTest_config = debug_linux
-  MatrixTest_config = debug_linux
+  HuffmanCompressionTest_config = debug_linux
+  TextureReaderTest_config = debug_linux
 
 else ifeq ($(config),release_win32)
   das_config = release_win32
@@ -32,8 +32,8 @@ else ifeq ($(config),release_win32)
   WavefrontObjParserTest_config = release_win32
   AsciiSTLParserTest_config = release_win32
   BinarySTLParserTest_config = release_win32
-  WriterCoreTest_config = release_win32
-  MatrixTest_config = release_win32
+  HuffmanCompressionTest_config = release_win32
+  TextureReaderTest_config = release_win32
 
 else ifeq ($(config),release_linux)
   das_config = release_linux
@@ -41,14 +41,14 @@ else ifeq ($(config),release_linux)
   WavefrontObjParserTest_config = release_linux
   AsciiSTLParserTest_config = release_linux
   BinarySTLParserTest_config = release_linux
-  WriterCoreTest_config = release_linux
-  MatrixTest_config = release_linux
+  HuffmanCompressionTest_config = release_linux
+  TextureReaderTest_config = release_linux
 
 else
   $(error "invalid configuration $(config)")
 endif
 
-PROJECTS := das AsciiStreamReaderTest WavefrontObjParserTest AsciiSTLParserTest BinarySTLParserTest WriterCoreTest MatrixTest
+PROJECTS := das AsciiStreamReaderTest WavefrontObjParserTest AsciiSTLParserTest BinarySTLParserTest HuffmanCompressionTest TextureReaderTest
 
 .PHONY: all clean help $(PROJECTS) 
 
@@ -84,16 +84,16 @@ ifneq (,$(BinarySTLParserTest_config))
 	@${MAKE} --no-print-directory -C . -f BinarySTLParserTest.make config=$(BinarySTLParserTest_config)
 endif
 
-WriterCoreTest: das
-ifneq (,$(WriterCoreTest_config))
-	@echo "==== Building WriterCoreTest ($(WriterCoreTest_config)) ===="
-	@${MAKE} --no-print-directory -C . -f WriterCoreTest.make config=$(WriterCoreTest_config)
+HuffmanCompressionTest: das
+ifneq (,$(HuffmanCompressionTest_config))
+	@echo "==== Building HuffmanCompressionTest ($(HuffmanCompressionTest_config)) ===="
+	@${MAKE} --no-print-directory -C . -f HuffmanCompressionTest.make config=$(HuffmanCompressionTest_config)
 endif
 
-MatrixTest: das
-ifneq (,$(MatrixTest_config))
-	@echo "==== Building MatrixTest ($(MatrixTest_config)) ===="
-	@${MAKE} --no-print-directory -C . -f MatrixTest.make config=$(MatrixTest_config)
+TextureReaderTest: das
+ifneq (,$(TextureReaderTest_config))
+	@echo "==== Building TextureReaderTest ($(TextureReaderTest_config)) ===="
+	@${MAKE} --no-print-directory -C . -f TextureReaderTest.make config=$(TextureReaderTest_config)
 endif
 
 clean:
@@ -102,8 +102,8 @@ clean:
 	@${MAKE} --no-print-directory -C . -f WavefrontObjParserTest.make clean
 	@${MAKE} --no-print-directory -C . -f AsciiSTLParserTest.make clean
 	@${MAKE} --no-print-directory -C . -f BinarySTLParserTest.make clean
-	@${MAKE} --no-print-directory -C . -f WriterCoreTest.make clean
-	@${MAKE} --no-print-directory -C . -f MatrixTest.make clean
+	@${MAKE} --no-print-directory -C . -f HuffmanCompressionTest.make clean
+	@${MAKE} --no-print-directory -C . -f TextureReaderTest.make clean
 
 help:
 	@echo "Usage: make [config=name] [target]"
@@ -122,7 +122,7 @@ help:
 	@echo "   WavefrontObjParserTest"
 	@echo "   AsciiSTLParserTest"
 	@echo "   BinarySTLParserTest"
-	@echo "   WriterCoreTest"
-	@echo "   MatrixTest"
+	@echo "   HuffmanCompressionTest"
+	@echo "   TextureReaderTest"
 	@echo ""
 	@echo "For more information, see https://github.com/premake/premake-core/wiki"

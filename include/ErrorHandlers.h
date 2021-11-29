@@ -1,6 +1,6 @@
 /// libdas: DENG asset handling management library
 /// licence: Apache, see LICENCE file
-/// file: ParseErrorHandler.h - Parser error handler class header
+/// file: ErrorHandlers.h - Error handler classes header
 /// author: Karl-Mihkel Ott
 
 #ifndef ERROR_HANDLER_H
@@ -122,6 +122,7 @@ namespace Libdas {
     };
 
 
+    /// Error handling class for binary formats
     class BinaryFormatErrorHandler {
         private:
             ModelFormat m_format;

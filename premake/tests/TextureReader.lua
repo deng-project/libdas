@@ -1,23 +1,22 @@
 --- libdas: DENG asset management library
 --- licence: Apache, see LICENCE file
---- file: Matrix.lua - Matrix classes test build configuration
+--- file: TextureReader.lua - TextureReader class test build configuration
 --- author: Karl-Mihkel Ott
 
+local TextureReader = {}
 
-local Matrix = {}
-
-function Matrix.build()
-    project "MatrixTest"
+function TextureReader.build() 
+    project "TextureReaderTest"
         kind "ConsoleApp"
         language "C++"
         cppdialect "C++14"
 
         files {
             "include/*",
-            "tests/MatrixIterationTest.cpp"
+            "tests/TextureReaderTest.cpp"
         }
 
         links { "das" }
 end
 
-return Matrix
+return TextureReader

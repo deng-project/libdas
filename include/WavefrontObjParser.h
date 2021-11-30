@@ -82,7 +82,7 @@ namespace Libdas {
             void _AnalyseArgs(WavefrontObjStatementCallback _callback, std::vector<std::string> &_args);
 
         public:
-            WavefrontObjParser(size_t _chunk_size = DEFAULT_CHUNK, const std::string &_file_name = "");
+            WavefrontObjParser(const std::string &_file_name = "", size_t _chunk_size = DEFAULT_CHUNK);
             /** 
              * Parse the whole new file 
              * @param _file_name is an optional argument to use when parsing the Wavefront OBJ file

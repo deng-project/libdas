@@ -12,14 +12,14 @@ namespace Libdas {
     WavefrontObjCompiler::WavefrontObjCompiler(const std::string &_out_file) : DasWriterCore(_out_file) {}
     
 
-    WavefrontObjCompiler::WavefrontObjCompiler(std::vector<WavefrontObjGroup> &_groups, const std::string &_out_file) :
+    WavefrontObjCompiler::WavefrontObjCompiler(const std::vector<WavefrontObjGroup> &_groups, const std::string &_out_file, bool use_huffman) :
         DasWriterCore(_out_file)
     {
         Compile(_groups, _out_file);
     }
 
 
-    std::vector<DasBuffer> WavefrontObjCompiler::_CreateBuffers(std::vector<WavefrontObjGroup> &_groups) {
+    std::vector<DasBuffer> WavefrontObjCompiler::_CreateBuffers(const std::vector<WavefrontObjGroup> &_groups) {
         // by default initialise following buffer types
         //  * Vertex buffer
         //  * Texture vertices buffer
@@ -32,8 +32,8 @@ namespace Libdas {
         buffers[3].type = LIBDAS_BUFFER_TYPE_INDICIES;
 
         for(const WavefrontObjGroup &group : _groups) {
-            const char *data;
-            size_t size;
+            const char *data = nullptr;
+            size_t size = 0;
             for(const DasBuffer &buffer : buffers) {
                 // vertices are given, append to the buffer
                 if(group.vertices.position.size()) {
@@ -74,10 +74,33 @@ namespace Libdas {
     }
 
 
-    std::vector<DasModel> WavefrontObjCompiler::
+    std::vector<DasModel> WavefrontObjCompiler::_CreateModels(const std::vector<WavefrontObjGroup> &_groups) {
+        std::vector<DasModel> models(_groups.size());
+
+        // buffer id constants declarations
+        const uint32_t vertex_id = 0;
+        const uint32_t texture_map_id = 1;
+        const uint32_t vertex_normal_id = 2;
+        const uint32_t indices_id = 3;
+
+        // offset values
+        uint32_t indices_offset = 0;
+
+        for(size_t i = 0; i < _groups.size(); i++) {
+            models[i].name = String::ConcatenateNameArgs(_groups[i].names);
+            models[i].index_buffer_id = indices_id;
+            models[i].index_buffer_offset = indices_offset;
+            models[i].vertex_buffer_id = vertex_id;
+            models[i].texture_id = UINT32_MAX; // reserved value for future usage
+            models[i].texture_map_buffer_id = texture_map_id;
+            models[i].vertex_normal_buffer_id = vertex_normal_id;
+        }
+
+        return models;
+    }
 
 
-    void WavefrontObjCompiler::Compile(std::vector<WavefrontObjGroup> &_groups, const std::string &_out_file) {
+    void WavefrontObjCompiler::Compile(const std::vector<WavefrontObjGroup> &_groups, const std::string &_out_file) {
         // open a new file if specified
         if(_out_file != "")
             NewFile(_out_file);
@@ -89,5 +112,7 @@ namespace Libdas {
 
         // write all given models to the output file
         std::vector<DasModel> models = _CreateModels(_groups);
+        for(const DasModel &model : models)
+            WriteModel(model);
     }
 }

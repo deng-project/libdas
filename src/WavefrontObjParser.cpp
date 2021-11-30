@@ -9,12 +9,11 @@
 
 namespace Libdas {
 
-    WavefrontObjParser::WavefrontObjParser(size_t _chunk_size, const std::string &_file_name) : 
+    WavefrontObjParser::WavefrontObjParser(const std::string &_file_name, size_t _chunk_size) : 
         AsciiLineReader(_chunk_size, "\n", _file_name), m_file_name(_file_name), m_error(MODEL_FORMAT_WOBJ) {
         std::vector<std::string> names = {"main"};
         m_groups.push_back(WavefrontObjGroup(names));
         _Tokenize();
-
     }
     
 

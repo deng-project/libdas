@@ -9,6 +9,8 @@
 
 #ifdef WAVEFRONT_OBJ_COMPILER_CPP
     #include <string>
+    #include <climits>
+    #include <cstring>
     #include <iostream>
     #include <fstream>
     #include <vector>
@@ -21,6 +23,7 @@
 
     #include <LibdasAssert.h>
     #include <ErrorHandlers.h>
+    #include <FileNameString.h>
     #include <WavefrontObjStructures.h>
     #include <DasStructures.h>
     #include <DasWriterCore.h>
@@ -45,7 +48,7 @@ namespace Libdas {
              * Wavefront OBJ groups
              * @return std::vector<DasBuffer> instance that has all buffer memory area pointers that should be written
              */
-            std::vector<DasBuffer> _CreateBuffers(std::vector<WavefrontObjGroup> &_groups);
+            std::vector<DasBuffer> _CreateBuffers(const std::vector<WavefrontObjGroup> &_groups);
             /**
              * Look into WavefrontObjGroups and determine all models with correct buffer offset values
              * @param _groups is a reference to std::vector<WavefrontObjGroup> instance that contains all parsed
@@ -53,17 +56,16 @@ namespace Libdas {
              * @return std::vector<DasModel> instance that has contains all information about models and their correct
              * buffer offsets
              */
-            std::vector<DasModel> _CreateModels(std::vector<WavefrontObjGroup> &_groups);
+            std::vector<DasModel> _CreateModels(const std::vector<WavefrontObjGroup> &_groups);
         public:
             WavefrontObjCompiler(const std::string &_out_file = "");
-            WavefrontObjCompiler(std::vector<WavefrontObjGroup> &_groups, const std::string &_out_file = "");
-            ~WavefrontObjCompiler();
+            WavefrontObjCompiler(const std::vector<WavefrontObjGroup> &_groups, const std::string &_out_file = "", bool use_huffman);
             /**
              * Compile the DAS file from given WavefrontObjGroup objects.
              * @param _groups is a reference to std::queue object that contains all given WavfrontObjGroup objects 
              * @param _out_file is an optional file name that can be given as a parameter
              */
-            void Compile(std::vector<WavefrontObjGroup> &_groups, const std::string &_out_file = "");
+            void Compile(const std::vector<WavefrontObjGroup> &_groups, const std::string &_out_file = "");
     };
 }
 

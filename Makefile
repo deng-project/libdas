@@ -15,6 +15,7 @@ ifeq ($(config),debug_win32)
   AsciiSTLParserTest_config = debug_win32
   BinarySTLParserTest_config = debug_win32
   HuffmanCompressionTest_config = debug_win32
+  WavefrontObjCompilerTest_config = debug_win32
   TextureReaderTest_config = debug_win32
 
 else ifeq ($(config),debug_linux)
@@ -24,6 +25,7 @@ else ifeq ($(config),debug_linux)
   AsciiSTLParserTest_config = debug_linux
   BinarySTLParserTest_config = debug_linux
   HuffmanCompressionTest_config = debug_linux
+  WavefrontObjCompilerTest_config = debug_linux
   TextureReaderTest_config = debug_linux
 
 else ifeq ($(config),release_win32)
@@ -33,6 +35,7 @@ else ifeq ($(config),release_win32)
   AsciiSTLParserTest_config = release_win32
   BinarySTLParserTest_config = release_win32
   HuffmanCompressionTest_config = release_win32
+  WavefrontObjCompilerTest_config = release_win32
   TextureReaderTest_config = release_win32
 
 else ifeq ($(config),release_linux)
@@ -42,13 +45,14 @@ else ifeq ($(config),release_linux)
   AsciiSTLParserTest_config = release_linux
   BinarySTLParserTest_config = release_linux
   HuffmanCompressionTest_config = release_linux
+  WavefrontObjCompilerTest_config = release_linux
   TextureReaderTest_config = release_linux
 
 else
   $(error "invalid configuration $(config)")
 endif
 
-PROJECTS := das AsciiStreamReaderTest WavefrontObjParserTest AsciiSTLParserTest BinarySTLParserTest HuffmanCompressionTest TextureReaderTest
+PROJECTS := das AsciiStreamReaderTest WavefrontObjParserTest AsciiSTLParserTest BinarySTLParserTest HuffmanCompressionTest WavefrontObjCompilerTest TextureReaderTest
 
 .PHONY: all clean help $(PROJECTS) 
 
@@ -90,6 +94,12 @@ ifneq (,$(HuffmanCompressionTest_config))
 	@${MAKE} --no-print-directory -C . -f HuffmanCompressionTest.make config=$(HuffmanCompressionTest_config)
 endif
 
+WavefrontObjCompilerTest: das
+ifneq (,$(WavefrontObjCompilerTest_config))
+	@echo "==== Building WavefrontObjCompilerTest ($(WavefrontObjCompilerTest_config)) ===="
+	@${MAKE} --no-print-directory -C . -f WavefrontObjCompilerTest.make config=$(WavefrontObjCompilerTest_config)
+endif
+
 TextureReaderTest: das
 ifneq (,$(TextureReaderTest_config))
 	@echo "==== Building TextureReaderTest ($(TextureReaderTest_config)) ===="
@@ -103,6 +113,7 @@ clean:
 	@${MAKE} --no-print-directory -C . -f AsciiSTLParserTest.make clean
 	@${MAKE} --no-print-directory -C . -f BinarySTLParserTest.make clean
 	@${MAKE} --no-print-directory -C . -f HuffmanCompressionTest.make clean
+	@${MAKE} --no-print-directory -C . -f WavefrontObjCompilerTest.make clean
 	@${MAKE} --no-print-directory -C . -f TextureReaderTest.make clean
 
 help:
@@ -123,6 +134,7 @@ help:
 	@echo "   AsciiSTLParserTest"
 	@echo "   BinarySTLParserTest"
 	@echo "   HuffmanCompressionTest"
+	@echo "   WavefrontObjCompilerTest"
 	@echo "   TextureReaderTest"
 	@echo ""
 	@echo "For more information, see https://github.com/premake/premake-core/wiki"

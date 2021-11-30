@@ -71,16 +71,16 @@ namespace Libdas {
      */
     struct DasModel {
         std::string name = "";
-        uint32_t index_buffer_id;
-        uint32_t index_buffer_offset;
-        uint32_t indices_count;
-        uint32_t vertex_buffer_id;
-        uint32_t vertex_buffer_offset;
-        uint32_t texture_id;
-        uint32_t texture_map_buffer_id;
-        uint32_t texture_map_buffer_offset;
-        uint32_t vertex_normal_buffer_id;
-        uint32_t vertex_normal_buffer_offset;
+        uint32_t index_buffer_id = 0;
+        uint32_t index_buffer_offset = 0;
+        uint32_t indices_count = 0;
+        uint32_t vertex_buffer_id = 0;
+        uint32_t vertex_buffer_offset = 0;
+        uint32_t texture_id = 0;
+        uint32_t texture_map_buffer_id = 0;
+        uint32_t texture_map_buffer_offset = 0;
+        uint32_t vertex_normal_buffer_id = 0;
+        uint32_t vertex_normal_buffer_offset = 0;
         Matrix4<float> transform;
     };
 

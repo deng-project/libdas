@@ -44,6 +44,7 @@ newoption {
         { "AsciiSTLParser", "Build AsciiSTLParser class test" },
         { "BinarySTLParser", "Build BinarySTLParser class test" },
         { "HuffmanCompression", "Build Huffman compression class test application" },
+        { "WavefrontObjCompiler", "Build a Wavefront OBJ compiler test application" },
         -- tmp --
         { "TextureReader", "Build TextureReader class test" },
         -- misc --
@@ -110,6 +111,13 @@ function LoadTests()
         huf.build()
     end
 
+    if _OPTIONS["tests"] == "all" or _OPTIONS["tests"] == "WavefrontObjCompiler" then
+        print("Including WavefrontObjCompiler test config")
+        local wobj_compiler = require("premake/tests/WavefrontObjCompiler")
+        wobj_compiler.build()
+    end
+
+    -- tmp --
     if _OPTIONS["tests"] == "all" or _OPTIONS["tests"] == "TextureReader" then
         print("Including TextureReader test config");
         local texture = require("premake/tests/TextureReader");

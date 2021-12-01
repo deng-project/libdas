@@ -9,13 +9,14 @@
 
 namespace Libdas {
 
-    WavefrontObjCompiler::WavefrontObjCompiler(const std::string &_out_file) : DasWriterCore(_out_file) {}
+    WavefrontObjCompiler::WavefrontObjCompiler(const std::string &_out_file, bool use_huffman) : 
+        DasWriterCore(_out_file), m_use_huffman(use_huffman) {}
     
 
-    WavefrontObjCompiler::WavefrontObjCompiler(const std::vector<WavefrontObjGroup> &_groups, const std::string &_out_file, bool use_huffman) :
-        DasWriterCore(_out_file)
+    WavefrontObjCompiler::WavefrontObjCompiler(const std::vector<WavefrontObjGroup> &_groups, const DasProperties &_props, const std::string &_out_file, bool use_huffman) :
+        DasWriterCore(_out_file), m_use_huffman(use_huffman)
     {
-        Compile(_groups, _out_file);
+        Compile(_groups, _props, _out_file);
     }
 
 
@@ -100,10 +101,25 @@ namespace Libdas {
     }
 
 
-    void WavefrontObjCompiler::Compile(const std::vector<WavefrontObjGroup> &_groups, const std::string &_out_file) {
+    void WavefrontObjCompiler::_HuffmanEncode() {
+        std::string tmp_file = m_file_name + ".huf";
+        // close the output stream
+        CloseStream();
+        
+        // create new streams and huffman encoder class instance
+        std::ifstream in(m_file_name, std::ios_base::binary);
+        std::ofstream out(tmp_file, std::ios_base::binary);
+
+        //DasReaderCore rd(in, out);
+    }
+
+
+    void WavefrontObjCompiler::Compile(const std::vector<WavefrontObjGroup> &_groups, const DasProperties &_props, const std::string &_out_file) {
         // open a new file if specified
         if(_out_file != "")
             NewFile(_out_file);
+
+        InitialiseFile(_props);
 
         // write all buffers to the output file
         std::vector<DasBuffer> buffers = _CreateBuffers(_groups);
@@ -114,5 +130,9 @@ namespace Libdas {
         std::vector<DasModel> models = _CreateModels(_groups);
         for(const DasModel &model : models)
             WriteModel(model);
+
+        // check if huffman encoding is requested
+        if(m_use_huffman)
+            _HuffmanEncode();
     }
 }

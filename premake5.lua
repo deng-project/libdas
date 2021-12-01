@@ -39,7 +39,6 @@ newoption {
     description = "Specify the test application building",
     allowed = {
         { "none", "Do not build any unit tests (default)" },
-        { "AsciiStreamReader", "Build AsciiStreamReader class test" },
         { "WavefrontObjParser", "Build WavefrontObjParser class test" },
         { "AsciiSTLParser", "Build AsciiSTLParser class test" },
         { "BinarySTLParser", "Build BinarySTLParser class test" },
@@ -81,12 +80,6 @@ end
 -- Check which test configs to include --
 function LoadTests() 
     -- Test options checking
-    if _OPTIONS["tests"] == "all" or _OPTIONS["tests"] == "AsciiStreamReader" then
-        print("Including AsciiStreamReader test config")
-        local stream_reader = require("premake/tests/AsciiStreamReader")
-        stream_reader.build()
-    end
-
     if _OPTIONS["tests"] == "all" or _OPTIONS["tests"] == "WavefrontObjParser" then
         print("Including WavefrontObjParser test config")
         local parser = require("premake/tests/WavefrontObjParser")

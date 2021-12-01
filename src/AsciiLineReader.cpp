@@ -3,8 +3,8 @@
 
 namespace Libdas {
 
-    AsciiLineReader::AsciiLineReader(size_t _chunk_size, const std::string &_end, const std::string &_file_name) :
-        AsciiStreamReader(_chunk_size, _end, _file_name), m_end(_end), m_rd_ptr(m_buffer) {}
+    AsciiLineReader::AsciiLineReader(const std::string &_file_name, size_t _chunk_size, const std::string &_end) :
+        AsciiStreamReader(_file_name, _chunk_size, _end), m_end(_end), m_rd_ptr(m_buffer) {}
 
 
     bool AsciiLineReader::_NextLine() {
@@ -53,11 +53,16 @@ namespace Libdas {
     }
 
 
-    void AsciiLineReader::SkipSkippableCharacters() {
+    void AsciiLineReader::SkipSkippableCharacters(bool _skip_nl) {
         // skip all whitespaces till keyword is found
         for(; m_rd_ptr < m_line_end; m_rd_ptr++) {
-            if(*m_rd_ptr != ' ' && *m_rd_ptr != 0x00 && *m_rd_ptr != '\t' && *m_rd_ptr != '\r')
-                break;
+            if(!_skip_nl) {
+                if(*m_rd_ptr != ' ' && *m_rd_ptr != 0x00 && *m_rd_ptr != '\t' && *m_rd_ptr != '\r')
+                    break;
+             } else {
+                if(*m_rd_ptr != ' ' && *m_rd_ptr != 0x00 && *m_rd_ptr != '\t' && *m_rd_ptr != '\r' && *m_rd_ptr != '\n')
+                    break;
+             }
         }
     }
 

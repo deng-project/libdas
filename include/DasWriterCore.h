@@ -36,9 +36,11 @@ namespace Libdas {
 
     class DasWriterCore {
         private:
-            std::string m_file_name;
             std::ofstream m_out_stream;
             bool m_use_compression = false;
+
+        protected:
+            std::string m_file_name;
 
         private:
             /**
@@ -143,6 +145,10 @@ namespace Libdas {
              */
             void NewFile(const std::string &_file_name);
             /**
+             * Close the stream if opened
+             */
+            void CloseStream();
+            /**
              * Write a file signature with its properties section
              * @param _properties is a reference to DasProperties
              */
@@ -172,6 +178,10 @@ namespace Libdas {
              * @param _scene is a reference to DasScene object
              */
             void WriteScene(const DasScene &_scene);
+            /**
+             * Check if compression is needed and if it is then compress it using Huffman algorithm
+             */
+            void CheckAndCompressFile();
     };
 }
 

@@ -24,6 +24,10 @@
 
 namespace Libdas {
 
+    /**
+     * Parent class for AsciiLineReader and similar ASCII data parsing classes.
+     * The interface allows reading data step by step into specific chunk buffer
+     */
     class AsciiStreamReader {
         private:
             std::string m_end;
@@ -35,16 +39,43 @@ namespace Libdas {
             size_t m_buffer_size;
             size_t m_last_read = 0;
 
-        public:
-            AsciiStreamReader(size_t _chunk_size, const std::string &_end = "\n", const std::string &_file_name = "");
+        protected:
+            AsciiStreamReader(const std::string &_file_name = "", size_t _chunk_size = DEFAULT_CHUNK, const std::string &_end = "\n");
             ~AsciiStreamReader();
+            /**
+             * Read new buffer chunk from the stream
+             * @return true if new chunk value was read
+             */
+            bool _ReadNewChunk();
+            /**
+             * Get the pointer for the last read position
+             * @return size_t value that specifies last read chunk size
+             */
+            const size_t _GetLastRead();
 
-            void OpenStream(const std::string &_file_name);
-            bool ReadNewChunk();
-            void CloseStream();
-
+        public:
+            /**
+             * Open new file stream for reading data from
+             * @param _file_name is an std::string referece value that represents the used file name
+             */
+            void NewFile(const std::string &_file_name);
+            /**
+             * Close previously opened file stream if possible
+             */
+            void CloseFile();
+            /**
+             * Read custom binary blob from seemingly binary file
+             * @param _cont is a reference to the data structure where binary data is read into
+             */
+            template<typename T>
+            void ReadBlob(T &_cont) {
+                m_stream.read(reinterpret_cast<char*>(&_cont), sizeof(T));
+            }
+            /**
+             * Get the chunk buffer starting address
+             * @return Starting address of the chunk buffer
+             */
             char *GetBufferAddress();
-            const size_t GetLastRead();
     };
 }
 

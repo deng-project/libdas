@@ -1,7 +1,7 @@
-/// libdas: DENG asset handling management library
-/// licence: Apache, see LICENCE file
-/// file: WavefrontObjParser.cpp - Wavefront Obj parser source file
-/// author: Karl-Mihkel Ott
+// libdas: DENG asset handling management library
+// licence: Apache, see LICENCE file
+// file: WavefrontObjParser.cpp - Wavefront Obj parser source file
+// author: Karl-Mihkel Ott
 
 
 #define WAVEFRONT_OBJ_PARSER_CPP
@@ -10,7 +10,7 @@
 namespace Libdas {
 
     WavefrontObjParser::WavefrontObjParser(const std::string &_file_name, size_t _chunk_size) : 
-        AsciiLineReader(_chunk_size, "\n", _file_name), m_file_name(_file_name), m_error(MODEL_FORMAT_WOBJ) {
+        AsciiLineReader(_file_name, _chunk_size, "\n"), m_file_name(_file_name), m_error(MODEL_FORMAT_WOBJ) {
         std::vector<std::string> names = {"main"};
         m_groups.push_back(WavefrontObjGroup(names));
         _Tokenize();
@@ -260,8 +260,8 @@ namespace Libdas {
         // check if new file was provided
         if(_file_name != m_file_name) {
             m_file_name = _file_name;
-            OpenStream(m_file_name);
-            if(!ReadNewChunk()) return;
+            NewFile(m_file_name);
+            if(!_ReadNewChunk()) return;
         }
 
         Parse();
@@ -297,7 +297,7 @@ namespace Libdas {
 
             m_line_beg = nullptr;
             m_line_end = nullptr;
-        } while(ReadNewChunk());
+        } while(_ReadNewChunk());
     }
 
 

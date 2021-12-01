@@ -1,10 +1,9 @@
-/// libdas: DENG asset handling management library
-/// licence: Apache, see LICENCE file
-/// file: WavefrontObjParser.h - Wavefront Obj parser header file
-/// author: Karl-Mihkel Ott
+// libdas: DENG asset handling management library
+// licence: Apache, see LICENCE file
+// file: WavefrontObjParser.h - Wavefront Obj parser header file
+// author: Karl-Mihkel Ott
 
-
-/// NOTE: Curves and surfaces are not yet implemented, coming later
+// NOTE: Curves and surfaces are not yet implemented, coming later
 
 #ifndef WAVEFRONT_OBJ_PARSER_H
 #define WAVEFRONT_OBJ_PARSER_H
@@ -56,7 +55,7 @@ namespace Libdas {
     class WavefrontObjParser : private AsciiLineReader {
         private:
             std::unordered_map<std::string, WavefrontObjStatementCallback> m_statement_map;
-            std::vector<std::unique_ptr<AsciiStreamReader>> m_mtl_streams;
+            //std::vector<std::unique_ptr<AsciiStreamReader>> m_mtl_streams;
             uint32_t m_parse_pos = 1;
             std::string m_file_name;
             AsciiFormatErrorHandler m_error;

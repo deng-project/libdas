@@ -142,6 +142,12 @@ namespace Libdas {
     }
 
 
+    void DasWriterCore::CloseStream() {
+        if(m_out_stream.is_open())
+            m_out_stream.close();
+    }
+
+
     void DasWriterCore::InitialiseFile(const DasProperties &_properties) {
         DasSignature sig;
         m_use_compression = _properties.compression;
@@ -241,5 +247,16 @@ namespace Libdas {
             _WriteNode(node);
 
         _EndScope();
+    }
+    
+
+    void DasWriterCore::CheckAndCompressFile() {
+        if(m_use_compression) {
+            // previous file stream is open, close it
+            if(m_out_stream.is_open())
+                m_out_stream.close();
+            
+            // needs a reader class 
+        }
     }
 }

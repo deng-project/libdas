@@ -10,7 +10,6 @@ endif
 
 ifeq ($(config),debug_win32)
   das_config = debug_win32
-  AsciiStreamReaderTest_config = debug_win32
   WavefrontObjParserTest_config = debug_win32
   AsciiSTLParserTest_config = debug_win32
   BinarySTLParserTest_config = debug_win32
@@ -20,7 +19,6 @@ ifeq ($(config),debug_win32)
 
 else ifeq ($(config),debug_linux)
   das_config = debug_linux
-  AsciiStreamReaderTest_config = debug_linux
   WavefrontObjParserTest_config = debug_linux
   AsciiSTLParserTest_config = debug_linux
   BinarySTLParserTest_config = debug_linux
@@ -30,7 +28,6 @@ else ifeq ($(config),debug_linux)
 
 else ifeq ($(config),release_win32)
   das_config = release_win32
-  AsciiStreamReaderTest_config = release_win32
   WavefrontObjParserTest_config = release_win32
   AsciiSTLParserTest_config = release_win32
   BinarySTLParserTest_config = release_win32
@@ -40,7 +37,6 @@ else ifeq ($(config),release_win32)
 
 else ifeq ($(config),release_linux)
   das_config = release_linux
-  AsciiStreamReaderTest_config = release_linux
   WavefrontObjParserTest_config = release_linux
   AsciiSTLParserTest_config = release_linux
   BinarySTLParserTest_config = release_linux
@@ -52,7 +48,7 @@ else
   $(error "invalid configuration $(config)")
 endif
 
-PROJECTS := das AsciiStreamReaderTest WavefrontObjParserTest AsciiSTLParserTest BinarySTLParserTest HuffmanCompressionTest WavefrontObjCompilerTest TextureReaderTest
+PROJECTS := das WavefrontObjParserTest AsciiSTLParserTest BinarySTLParserTest HuffmanCompressionTest WavefrontObjCompilerTest TextureReaderTest
 
 .PHONY: all clean help $(PROJECTS) 
 
@@ -62,12 +58,6 @@ das:
 ifneq (,$(das_config))
 	@echo "==== Building das ($(das_config)) ===="
 	@${MAKE} --no-print-directory -C . -f das.make config=$(das_config)
-endif
-
-AsciiStreamReaderTest: das
-ifneq (,$(AsciiStreamReaderTest_config))
-	@echo "==== Building AsciiStreamReaderTest ($(AsciiStreamReaderTest_config)) ===="
-	@${MAKE} --no-print-directory -C . -f AsciiStreamReaderTest.make config=$(AsciiStreamReaderTest_config)
 endif
 
 WavefrontObjParserTest: das
@@ -108,7 +98,6 @@ endif
 
 clean:
 	@${MAKE} --no-print-directory -C . -f das.make clean
-	@${MAKE} --no-print-directory -C . -f AsciiStreamReaderTest.make clean
 	@${MAKE} --no-print-directory -C . -f WavefrontObjParserTest.make clean
 	@${MAKE} --no-print-directory -C . -f AsciiSTLParserTest.make clean
 	@${MAKE} --no-print-directory -C . -f BinarySTLParserTest.make clean
@@ -129,7 +118,6 @@ help:
 	@echo "   all (default)"
 	@echo "   clean"
 	@echo "   das"
-	@echo "   AsciiStreamReaderTest"
 	@echo "   WavefrontObjParserTest"
 	@echo "   AsciiSTLParserTest"
 	@echo "   BinarySTLParserTest"

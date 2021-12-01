@@ -15,7 +15,7 @@ namespace Libdas {
     /***********************************************/
 
     AsciiSTLParser::AsciiSTLParser(const std::string &_file_name, size_t _chunk_size) : 
-        AsciiLineReader(_chunk_size, "\n", _file_name), m_error(MODEL_FORMAT_STLA)
+        AsciiLineReader(_file_name, _chunk_size, "\n"), m_error(MODEL_FORMAT_STLA)
     {
         _Tokenise();
     }
@@ -103,9 +103,9 @@ namespace Libdas {
     
     void AsciiSTLParser::Parse(const std::string &_file_name) {
         LIBDAS_ASSERT(_file_name == "");
-        OpenStream(_file_name);
+        NewFile(_file_name);
 
-        if(!ReadNewChunk())
+        if(!_ReadNewChunk())
             m_error.Error(LIBDAS_ERROR_INVALID_FILE, 0, _file_name, "", TERMINATE);
 
         Parse();
@@ -139,7 +139,7 @@ namespace Libdas {
 
             m_line_beg = nullptr;
             m_line_end = nullptr;
-        } while(ReadNewChunk());
+        } while(_ReadNewChunk());
     }
 
 
@@ -161,7 +161,7 @@ namespace Libdas {
     /************************************************/
 
     BinarySTLParser::BinarySTLParser(const std::string &_file_name) :
-        m_error(MODEL_FORMAT_STLB)
+        m_line_reader(_file_name), m_error(MODEL_FORMAT_STLB)
     {
         // check if appropriate file name was provided
         if(_file_name != "") {

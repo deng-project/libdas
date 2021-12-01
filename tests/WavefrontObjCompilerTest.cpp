@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <climits>
 #include <cstring>
+#include <ctime>
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -41,7 +42,14 @@ int main(int argc, char *argv[]) {
     parser.Parse();
     file_name += ".das";
 
-    Libdas::WavefrontObjCompiler compiler(parser.GetParsedGroups(), file_name);
+    Libdas::DasProperties props;
+    props.author = "inugami-dev64";
+    props.compression = false;
+    props.copyright = "GPL or something like that";
+    props.moddate = static_cast<uint64_t>(time(NULL));
+    props.model = argv[1];
+
+    Libdas::WavefrontObjCompiler compiler(parser.GetParsedGroups(), props, file_name);
 
     return 0;
 }

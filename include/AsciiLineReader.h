@@ -22,7 +22,7 @@
 
 namespace Libdas {
 
-    class AsciiLineReader : protected AsciiStreamReader {
+    class AsciiLineReader : public AsciiStreamReader {
         private:
             const std::string &m_end;
 
@@ -44,14 +44,14 @@ namespace Libdas {
 
 
         public:
-            AsciiLineReader(size_t _chunk_size = DEFAULT_CHUNK, const std::string &_end = "\n", const std::string &_file_name = "");
+            AsciiLineReader(const std::string &_file_name, size_t _chunk_size = DEFAULT_CHUNK, const std::string &_end = "\n");
             /**
-             * Skip all skippable characters (' ', 0x00, '\t')
-             * @param _end is the last byte in the buffer 
+             * Skip all skippable characters (' ', 0x00, '\t', '\d' and or '\n')
+             * @param _skip_nl is a boolean flag indicating newline skipping
              */
-            void SkipSkippableCharacters();
+            void SkipSkippableCharacters(bool _skip_nl = false);
             /**
-             * Extract word statement, assuming that the starting position charcter is not skippable
+             * Extract word statement, assuming that the starting position character is not skippable
              * @return End position of the word
              */
             char *ExtractWord();

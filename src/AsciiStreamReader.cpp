@@ -10,7 +10,7 @@
 namespace Libdas {
 
 
-    AsciiStreamReader::AsciiStreamReader(size_t _chunk_size, const std::string &_end, const std::string &_file_name) : 
+    AsciiStreamReader::AsciiStreamReader(const std::string &_file_name, size_t _chunk_size, const std::string &_end) : 
         m_end(_end), m_buffer_size(_chunk_size) 
     {
         LIBDAS_ASSERT(_chunk_size > 0);
@@ -18,8 +18,8 @@ namespace Libdas {
         std::memset(m_buffer, 0, m_buffer_size);
 
         if(_file_name != "") {
-            OpenStream(_file_name);
-            ReadNewChunk();
+            NewFile(_file_name);
+            _ReadNewChunk();
         }
     }
 
@@ -30,24 +30,7 @@ namespace Libdas {
             m_stream.close();
     }
 
-
-    void AsciiStreamReader::OpenStream(const std::string &_file_name) {
-        m_stream.open(_file_name.c_str(), std::ios::binary);
-
-        if(m_stream.bad()) {
-            std::cerr << "Failed to open file " << _file_name << std::endl;
-            std::exit(LIBDAS_ERROR_INVALID_FILE);
-        }
-
-        // determine the file size
-        m_stream_size = m_stream.tellg();
-        m_stream.seekg(0, std::ios::end);
-        m_stream_size = static_cast<size_t>(m_stream.tellg()) - m_stream_size;
-        m_stream.seekg(0, std::ios::beg);
-    }
-
-
-    bool AsciiStreamReader::ReadNewChunk() {
+    bool AsciiStreamReader::_ReadNewChunk() {
         // verify that stream is open
         LIBDAS_ASSERT(m_stream.is_open());
             
@@ -79,17 +62,30 @@ namespace Libdas {
     }
 
 
-    void AsciiStreamReader::CloseStream() {
-        m_stream.close();
+    void AsciiStreamReader::NewFile(const std::string &_file_name) {
+        m_stream.open(_file_name.c_str(), std::ios::binary);
+
+        if(m_stream.bad()) {
+            std::cerr << "Failed to open file " << _file_name << std::endl;
+            std::exit(LIBDAS_ERROR_INVALID_FILE);
+        }
+
+        // determine the file size
+        m_stream_size = m_stream.tellg();
+        m_stream.seekg(0, std::ios::end);
+        m_stream_size = static_cast<size_t>(m_stream.tellg()) - m_stream_size;
+        m_stream.seekg(0, std::ios::beg);
     }
+
+
+    void AsciiStreamReader::CloseFile() {
+        if(m_stream.is_open())
+            m_stream.close();
+    }
+
 
 
     char *AsciiStreamReader::GetBufferAddress() {
         return m_buffer;
-    }
-
-
-    const size_t AsciiStreamReader::GetLastRead() {
-        return m_last_read;
     }
 }

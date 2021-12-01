@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
 
 
     std::string in_file = std::string(argv[1]);
-    Libdas::AsciiStreamReader sr(CHUNK, "\n", std::string(argv[1]));
+    Libdas::AsciiStreamReader sr(std::string(argv[1]), CHUNK, "\n");
     std::string out_file = in_file.substr(0, in_file.find('.')) + ".out";
     std::ofstream out_stream = std::ofstream(out_file, std::ios::binary);
 

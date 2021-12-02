@@ -9,7 +9,7 @@ function Libdas.build()
     project "das"
         kind "SharedLib"
         language "C++"
-        cppdialect "C++14"
+        cppdialect "C++17"
 
         files {
             "include/*",

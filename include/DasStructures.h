@@ -43,6 +43,14 @@ namespace Libdas {
         std::string copyright;
         uint64_t moddate;
         bool compression;
+
+        enum ValueType {
+            LIBDAS_PROPERTIES_MODEL,
+            LIBDAS_PROPERTIES_AUTHOR,
+            LIBDAS_PROPERTIES_COPYRIGHT,
+            LIBDAS_PROPERTIES_MODDATE,
+            LIBDAS_PROPERTIES_COMPRESSION
+        } val_type;
     };
 
 
@@ -63,6 +71,12 @@ namespace Libdas {
         BufferType type;
         uint32_t data_len = 0;
         std::vector<std::pair<const char*, size_t>> data_ptrs;
+
+        enum ValueType {
+            LIBDAS_BUFFER_BUFFER_TYPE,
+            LIBDAS_BUFFER_DATA_LEN,
+            LIBDAS_BUFFER_DATA
+        } val_type;
     };
 
 
@@ -82,6 +96,21 @@ namespace Libdas {
         uint32_t vertex_normal_buffer_id = 0;
         uint32_t vertex_normal_buffer_offset = 0;
         Matrix4<float> transform;
+
+        enum ValueType {
+            LIBDAS_MODEL_NAME,
+            LIBDAS_MODEL_INDEX_BUFFER_ID,
+            LIBDAS_MODEL_INDEX_BUFFER_OFFSET,
+            LIBDAS_MODEL_INDICES_COUNT,
+            LIBDAS_MODEL_VERTEX_BUFFER_ID,
+            LIBDAS_MODEL_VERTEX_BUFFER_OFFSET,
+            LIBDAS_MODEL_TEXTURE_ID,
+            LIBDAS_MODEL_TEXTURE_MAP_BUFFER_ID,
+            LIBDAS_MODEL_TEXTURE_MAP_BUFFER_OFFSET,
+            LIBDAS_MODEL_VERTEX_NORMAL_BUFFER_ID,
+            LIBDAS_MODEL_VERTEX_NORMAL_BUFFER_OFFSET,
+            LIBDAS_MODEL_TRANSFORM
+        } val_type;
     };
 
     /*****************************************/
@@ -101,6 +130,17 @@ namespace Libdas {
         uint32_t texture_map_buffer_offset;
         uint32_t vertex_normal_buffer_id;
         uint32_t vertex_normal_buffer_offset;
+
+
+        enum ValueType {
+            LIBDAS_KEYFRAME_TIMESTAMP,
+            LIBDAS_KEYFRAME_VERTEX_BUFFER_ID,
+            LIBDAS_KEYFRAME_VERTEX_BUFFER_OFFSET,
+            LIBDAS_KEYFRAME_TEXTURE_MAP_VERTICES_BUFFER_ID,
+            LIBDAS_KEYFRAME_TEXTURE_MAP_VERTICES_BUFFER_OFFSET,
+            LIBDAS_KEYFRAME_VERTEX_NORMAL_BUFFER_ID,
+            LIBDAS_KEYFRAME_VERTEX_NORMAL_BUFFER_OFFSET
+        } val_type;
     };
 
 
@@ -113,6 +153,13 @@ namespace Libdas {
         uint32_t length;
         std::vector<DasKeyframe> keyframes;
         InterpolationValue interpolation;
+
+        enum ValueType {
+            LIBDAS_ANIMATION_NAME,
+            LIBDAS_ANIMATION_MODEL,
+            LIBDAS_ANIMATION_LENGTH,
+            LIBDAS_ANIMATION_INTERPOLATION
+        } val_type;
     };
 
 
@@ -137,6 +184,18 @@ namespace Libdas {
         uint32_t animation_count = 0;
         uint32_t *animations = nullptr;
         Matrix4<float> transform;
+
+        // value types
+        enum ValueType {
+            LIBDAS_SCENE_NODE_NAME,
+            LIBDAS_SCENE_NODE_CHILDREN_COUNT,
+            LIBDAS_SCENE_NODE_CHILDREN,
+            LIBDAS_SCENE_NODE_MODEL_COUNT,
+            LIBDAS_SCENE_NODE_MODELS,
+            LIBDAS_SCENE_NODE_ANIMATION_COUNT,
+            LIBDAS_SCENE_NODE_ANIMATIONS,
+            LIBDAS_SCENE_NODE_TRANSFORM
+        } val_types;
     };
 
 
@@ -146,6 +205,12 @@ namespace Libdas {
     struct DasScene {
         std::string name = "";
         std::vector<DasSceneNode> nodes;
+
+        // value types
+        enum ValueType {
+            LIBDAS_SCENE_NAME,
+            LIBDAS_SCENE_NODE
+        } val_types;
     };
 }
 

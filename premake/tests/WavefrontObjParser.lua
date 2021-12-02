@@ -9,7 +9,7 @@ function WavefrontObjParser.build()
     project "WavefrontObjParserTest"
         kind "ConsoleApp"
         language "C++"
-        cppdialect "C++14"
+        cppdialect "C++17"
 
         files {
             "include/*",

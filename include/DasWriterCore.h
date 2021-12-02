@@ -89,11 +89,12 @@ namespace Libdas {
             }
             /**
              * Write a generic data value to the stream
-             * @param _value_name is a value name string that is used to define the value
              * @param _data is a pointer to the valid data that will be written 
              * @param _len is a length of the data in bytes
+             * @param _append_nl is a boolean flag indicating if the appendix newline should be written or not
+             * @param _value_name is a value name string that is used to define the value
              */
-            void _WriteGenericDataValue(const std::string &_value_name, const char *_data, const size_t _len);
+            void _WriteGenericDataValue(const char *_data, const size_t _len, bool _append_nl = true, const std::string &_value_name = "");
             /**
              * Write a generic 4x4 matrix value to the stream
              * @param _value_name is a value name string that is used to define the value

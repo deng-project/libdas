@@ -9,7 +9,7 @@ function AsciiSTLParser.build()
     project "AsciiSTLParserTest"
         kind "ConsoleApp"
         language "C++"
-        cppdialect "C++14"
+        cppdialect "C++17"
 
         files {
             "include/*",

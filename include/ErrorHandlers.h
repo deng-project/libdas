@@ -60,7 +60,8 @@ namespace Libdas {
         MODEL_FORMAT_FBXB,
         MODEL_FORMAT_GLTF,
         MODEL_FORMAT_GLB,
-        MODEL_FORMAT_DAS
+        MODEL_FORMAT_DAS,
+        MODEL_FORMAT_DASC
     };
 
 

@@ -9,7 +9,7 @@ function WavefrontObjCompiler.build()
     project "WavefrontObjCompilerTest"
         kind "ConsoleApp"
         language "C++"
-        cppdialect "C++14"
+        cppdialect "C++17"
 
         files {
             "include/*",

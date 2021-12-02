@@ -25,7 +25,7 @@
 
 
 int main(int argc, char *argv[]) {
-    if(argc < 1) {
+    if(argc < 2) {
         std::cerr << "Please provide a Wavefront OBJ file name as an argument" << std::endl;
         std::exit(-1);
     }

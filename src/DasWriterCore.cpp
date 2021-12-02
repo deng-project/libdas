@@ -67,13 +67,17 @@ namespace Libdas {
     }
 
 
-    void DasWriterCore::_WriteGenericDataValue(const std::string &_value_name, const char *_data, const size_t _len) {
+    void DasWriterCore::_WriteGenericDataValue(const char *_data, const size_t _len, bool _append_nl, const std::string &_value_name) {
         LIBDAS_ASSERT(m_out_stream.is_open());
 
-        m_out_stream.write(_value_name.c_str(), _value_name.size());
-        m_out_stream.write(": ", 2);
+        if(_value_name != "") {
+            m_out_stream.write(_value_name.c_str(), _value_name.size());
+            m_out_stream.write(": ", 2);
+        }
+
         m_out_stream.write(_data, _len);
-        m_out_stream.write(LIBDAS_DAS_NEWLINE, strlen(LIBDAS_DAS_NEWLINE));
+
+        if(_append_nl) m_out_stream.write(LIBDAS_DAS_NEWLINE, strlen(LIBDAS_DAS_NEWLINE));
     }
 
 
@@ -163,6 +167,10 @@ namespace Libdas {
         if(_properties.author != "")
             _WriteStringValue("AUTHOR", _properties.author);
 
+        // write copyright if present
+        if(_properties.copyright != "")
+            _WriteStringValue("COPYRIGHT", _properties.copyright);
+
         // write modification date
         const auto epoch = std::chrono::system_clock::now().time_since_epoch();
         const auto s = std::chrono::duration_cast<std::chrono::seconds>(epoch);
@@ -180,8 +188,12 @@ namespace Libdas {
         _WriteNumericalValue<BufferType>("BUFFERTYPE", _buffer.type);
         _WriteNumericalValue<uint32_t>("DATALEN", _buffer.data_len);
 
-        for(const std::pair<const char*, size_t> &data : _buffer.data_ptrs)
-            _WriteGenericDataValue("DATA", data.first, data.second);
+        for(size_t i = 0; i < _buffer.data_ptrs.size(); i++) {
+            if(!i) _WriteGenericDataValue(_buffer.data_ptrs[i].first, _buffer.data_ptrs[i].second, false, "DATA");
+            else if(i != _buffer.data_ptrs.size() - 1)
+                _WriteGenericDataValue(_buffer.data_ptrs[i].first, _buffer.data_ptrs[i].second, false);
+            else _WriteGenericDataValue(_buffer.data_ptrs[i].first, _buffer.data_ptrs[i].second);
+        }
 
         _EndScope();
     }
@@ -194,7 +206,7 @@ namespace Libdas {
             BufferType type = rd.GetImageBufferType();
             _WriteNumericalValue<BufferType>("BUFFERTYPE", type);
             _WriteNumericalValue<uint32_t>("DATALEN", static_cast<uint32_t>(rd.GetBufferSize()));
-            _WriteGenericDataValue("DATA", rd.GetBuffer(), rd.GetBufferSize());
+            _WriteGenericDataValue(rd.GetBuffer(), rd.GetBufferSize(), true, "DATA");
         }
     }
 

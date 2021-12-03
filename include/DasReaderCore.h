@@ -135,9 +135,26 @@ namespace Libdas {
              * Parse the next value declaration and retrieve information about the type and size of the value
              * @param _parent is a parent scope type
              * @param _value is a string value declaration name that is used
-             * @return pair value specifying the value type and value length respectively
+             * @return std::any value specifying any scope value type 
              */
-            std::pair<std::any, size_t> _GetValueInformation(const DasScopeType _parent, const std::string &_value);
+            std::any _GetValueInformation(const DasScopeType _parent, const std::string &_value);
+
+            ////////////////////////////////////////////////
+            // ***** Property value reading methods ***** //
+            ////////////////////////////////////////////////
+
+            /**
+             * Read properties scope value according to the value type
+             * @param _props is a reference to DasProperties value, where all data is stored
+             * @param _type is a type value specifying the current value type that is read
+             */
+            void _ReadPropertiesValue(DasProperties &_props, DasProperties::ValueType _type);
+            /**
+             * Read buffer scope value according to the value type 
+             * @param _buffer is a reference to DasBuffer value, where all data is stored
+             * @param _type is a type value specifying the current value type
+             */
+            void _ReadBufferValue(DasBuffer &_buffer, DasBuffer::ValueType _type);
 
         public:
             DasReaderCore(const std::string &_file_name = "");

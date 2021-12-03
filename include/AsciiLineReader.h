@@ -51,10 +51,20 @@ namespace Libdas {
              */
             void SkipSkippableCharacters(bool _skip_nl = false);
             /**
+             * Skip the reading pointer by specified amount
+             * @param _skip_val is a size_t value that specifies the read_ptr offset in bytes
+             */
+            void SkipData(const size_t _skip_val);
+            /**
              * Extract word statement, assuming that the starting position character is not skippable
              * @return End position of the word
              */
             char *ExtractWord();
+            /**
+             * Extract string value from buffer (value must be in between quotation marks)
+             * @return std::string value that contains the string value without quotation marks
+             */
+            std::string ExtractString();
             /**
              * @return current reading pointer
              */

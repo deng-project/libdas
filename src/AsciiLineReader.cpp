@@ -67,6 +67,11 @@ namespace Libdas {
     }
 
 
+    void AsciiLineReader::SkipData(const size_t _skip_val) {
+        m_rd_ptr += _skip_val;
+    }
+
+
     char *AsciiLineReader::ExtractWord() {
         char *end = m_rd_ptr;
         while(end < m_line_end) {
@@ -77,6 +82,28 @@ namespace Libdas {
         }
 
         return end;
+    }
+
+    
+    std::string AsciiLineReader::ExtractString() {
+        char *end = m_rd_ptr;
+        bool br = false;
+
+        do {
+            end = strchr(end, static_cast<int>('"'));
+            
+            if(end == m_buffer || *(end - 1) != '\\')
+                br = true;
+        } while(br);
+
+        std::string str_val = std::string(m_rd_ptr, end - m_rd_ptr);
+
+        // check if quotation marks can be avoided
+        if(str_val.size() > 2)
+            str_val = str_val.substr(1, str_val.size() - 1);
+
+        m_rd_ptr = end + 1;
+        return str_val;
     }
 
 

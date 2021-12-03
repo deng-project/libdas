@@ -139,7 +139,7 @@ namespace Libdas {
     }
 
 
-    std::pair<std::any, size_t> DasReaderCore::_GetValueInformation(const DasScopeType _parent, const std::string &_value) {
+    std::any DasReaderCore::_GetValueInformation(const DasScopeType _parent, const std::string &_value) {
         DasUniqueValueType type = _FindUniqueValueType(_value);
 
         // nested switch statement mess
@@ -147,188 +147,248 @@ namespace Libdas {
             case LIBDAS_DAS_SCOPE_PROPERTIES:
                 switch(type) {
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_MODEL:
-                        return std::make_pair(DasProperties::LIBDAS_PROPERTIES_MODEL, -1);
+                        return DasProperties::LIBDAS_PROPERTIES_MODEL;
 
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_AUTHOR:
-                        return std::make_pair(DasProperties::LIBDAS_PROPERTIES_AUTHOR, -1);
+                        return DasProperties::LIBDAS_PROPERTIES_AUTHOR;
 
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_COPYRIGHT:
-                        return std::make_pair(DasProperties::LIBDAS_PROPERTIES_COPYRIGHT, -1);
+                        return DasProperties::LIBDAS_PROPERTIES_COPYRIGHT;
 
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_MODDATE:
-                        return std::make_pair(DasProperties::LIBDAS_PROPERTIES_MODDATE, sizeof(uint64_t));
+                        return DasProperties::LIBDAS_PROPERTIES_MODDATE;
 
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_COMPRESSION:
-                        return std::make_pair(DasProperties::LIBDAS_PROPERTIES_COMPRESSION, sizeof(bool));
+                        return DasProperties::LIBDAS_PROPERTIES_COMPRESSION;
 
                     default:
-                        return std::make_pair(LIBDAS_DAS_UNIQUE_VALUE_TYPE_UNKNOWN, -1);
+                        return LIBDAS_DAS_UNIQUE_VALUE_TYPE_UNKNOWN;
                 }
                 break;
 
             case LIBDAS_DAS_SCOPE_BUFFER:
                 switch(type) {
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_BUFFER_TYPE:
-                        return std::make_pair(DasBuffer::LIBDAS_BUFFER_BUFFER_TYPE, sizeof(BufferType));
+                        return DasBuffer::LIBDAS_BUFFER_BUFFER_TYPE;
 
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_DATA_LEN:
-                        return std::make_pair(DasBuffer::LIBDAS_BUFFER_DATA_LEN, sizeof(BufferType));
+                        return DasBuffer::LIBDAS_BUFFER_DATA_LEN;
 
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_DATA:
-                        return std::make_pair(DasBuffer::LIBDAS_BUFFER_DATA, -1);
+                        return DasBuffer::LIBDAS_BUFFER_DATA;
 
                     default:
-                        return std::make_pair(LIBDAS_DAS_UNIQUE_VALUE_TYPE_UNKNOWN, -1);
+                        return LIBDAS_DAS_UNIQUE_VALUE_TYPE_UNKNOWN;
                 }
                 break;
 
             case LIBDAS_DAS_SCOPE_MODEL:
                 switch(type) {
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_NAME:
-                        return std::make_pair(DasModel::LIBDAS_MODEL_NAME, -1);
+                        return DasModel::LIBDAS_MODEL_NAME;
 
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_INDEX_BUFFER_ID:
-                        return std::make_pair(DasModel::LIBDAS_MODEL_INDEX_BUFFER_ID, sizeof(uint32_t));
+                        return DasModel::LIBDAS_MODEL_INDEX_BUFFER_ID;
 
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_INDEX_BUFFER_OFFSET:
-                        return std::make_pair(DasModel::LIBDAS_MODEL_INDEX_BUFFER_OFFSET, sizeof(uint32_t));
+                        return DasModel::LIBDAS_MODEL_INDEX_BUFFER_OFFSET;
 
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_INDICES_COUNT:
-                        return std::make_pair(DasModel::LIBDAS_MODEL_INDICES_COUNT, sizeof(uint32_t));
+                        return DasModel::LIBDAS_MODEL_INDICES_COUNT;
 
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_BUFFER_ID:
-                        return std::make_pair(DasModel::LIBDAS_MODEL_VERTEX_BUFFER_ID, sizeof(uint32_t));
+                        return DasModel::LIBDAS_MODEL_VERTEX_BUFFER_ID;
 
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_BUFFER_OFFSET:
-                        return std::make_pair(DasModel::LIBDAS_MODEL_VERTEX_BUFFER_OFFSET, sizeof(uint32_t));
+                        return DasModel::LIBDAS_MODEL_VERTEX_BUFFER_OFFSET;
 
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_TEXTURE_ID:
-                        return std::make_pair(DasModel::LIBDAS_MODEL_TEXTURE_ID, sizeof(uint32_t));
+                        return DasModel::LIBDAS_MODEL_TEXTURE_ID;
 
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_TEXTURE_MAP_BUFFER_ID:
-                        return std::make_pair(DasModel::LIBDAS_MODEL_TEXTURE_MAP_BUFFER_ID, sizeof(uint32_t));
+                        return DasModel::LIBDAS_MODEL_TEXTURE_MAP_BUFFER_ID;
 
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_TEXTURE_MAP_BUFFER_OFFSET:
-                        return std::make_pair(DasModel::LIBDAS_MODEL_TEXTURE_MAP_BUFFER_OFFSET, sizeof(uint32_t));
+                        return DasModel::LIBDAS_MODEL_TEXTURE_MAP_BUFFER_OFFSET;
 
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_NORMAL_BUFFER_ID:
-                        return std::make_pair(DasModel::LIBDAS_MODEL_VERTEX_NORMAL_BUFFER_ID, sizeof(uint32_t));
+                        return DasModel::LIBDAS_MODEL_VERTEX_NORMAL_BUFFER_ID;
 
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_NORMAL_BUFFER_OFFSET:
-                        return std::make_pair(DasModel::LIBDAS_MODEL_VERTEX_NORMAL_BUFFER_OFFSET, sizeof(uint32_t));
+                        return DasModel::LIBDAS_MODEL_VERTEX_NORMAL_BUFFER_OFFSET;
 
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_TRANSFORM:
-                        return std::make_pair(DasModel::LIBDAS_MODEL_TRANSFORM, sizeof(Matrix4<float>));
+                        return DasModel::LIBDAS_MODEL_TRANSFORM;
 
                     default:
-                        return std::make_pair(LIBDAS_DAS_UNIQUE_VALUE_TYPE_UNKNOWN, -1);
+                        return LIBDAS_DAS_UNIQUE_VALUE_TYPE_UNKNOWN;
                 }
                 break;
 
             case LIBDAS_DAS_SCOPE_ANIMATION:
                 switch(type) {
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_NAME:
-                        return std::make_pair(DasAnimation::LIBDAS_ANIMATION_NAME, -1);
+                        return DasAnimation::LIBDAS_ANIMATION_NAME;
 
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_MODEL:
-                        return std::make_pair(DasAnimation::LIBDAS_ANIMATION_NAME, sizeof(uint32_t));
+                        return DasAnimation::LIBDAS_ANIMATION_NAME;
 
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_LENGTH:
-                        return std::make_pair(DasAnimation::LIBDAS_ANIMATION_NAME, sizeof(uint32_t));
+                        return DasAnimation::LIBDAS_ANIMATION_NAME;
 
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_INTERPOLATION:
-                        return std::make_pair(DasAnimation::LIBDAS_ANIMATION_NAME, sizeof(InterpolationValue));
+                        return DasAnimation::LIBDAS_ANIMATION_NAME;
 
                     default:
-                        return std::make_pair(LIBDAS_DAS_UNIQUE_VALUE_TYPE_UNKNOWN, -1);
+                        return LIBDAS_DAS_UNIQUE_VALUE_TYPE_UNKNOWN;
                 }
                 break;
 
             case LIBDAS_DAS_SCOPE_KEYFRAME:
                 switch(type) {
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_TIMESTAMP:
-                        return std::make_pair(DasKeyframe::LIBDAS_KEYFRAME_TIMESTAMP, sizeof(uint64_t));
+                        return DasKeyframe::LIBDAS_KEYFRAME_TIMESTAMP;
 
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_BUFFER_ID:
-                        return std::make_pair(DasKeyframe::LIBDAS_KEYFRAME_VERTEX_BUFFER_ID, sizeof(uint32_t));
+                        return DasKeyframe::LIBDAS_KEYFRAME_VERTEX_BUFFER_ID;
 
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_BUFFER_OFFSET:
-                        return std::make_pair(DasKeyframe::LIBDAS_KEYFRAME_VERTEX_BUFFER_OFFSET, sizeof(uint32_t));
+                        return DasKeyframe::LIBDAS_KEYFRAME_VERTEX_BUFFER_OFFSET;
 
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_TEXTURE_MAP_BUFFER_ID:
-                        return std::make_pair(DasKeyframe::LIBDAS_KEYFRAME_VERTEX_BUFFER_ID, sizeof(uint32_t));
+                        return DasKeyframe::LIBDAS_KEYFRAME_VERTEX_BUFFER_ID;
 
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_TEXTURE_MAP_BUFFER_OFFSET:
-                        return std::make_pair(DasKeyframe::LIBDAS_KEYFRAME_VERTEX_BUFFER_ID, sizeof(uint32_t));
+                        return DasKeyframe::LIBDAS_KEYFRAME_VERTEX_BUFFER_ID;
 
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_NORMAL_BUFFER_ID:
-                        return std::make_pair(DasKeyframe::LIBDAS_KEYFRAME_VERTEX_BUFFER_ID, sizeof(uint32_t));
+                        return DasKeyframe::LIBDAS_KEYFRAME_VERTEX_BUFFER_ID;
 
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_NORMAL_BUFFER_OFFSET:
-                        return std::make_pair(DasKeyframe::LIBDAS_KEYFRAME_VERTEX_BUFFER_ID, sizeof(uint32_t));
+                        return DasKeyframe::LIBDAS_KEYFRAME_VERTEX_BUFFER_ID;
 
                     default:
-                        return std::make_pair(LIBDAS_DAS_UNIQUE_VALUE_TYPE_UNKNOWN, -1);
+                        return LIBDAS_DAS_UNIQUE_VALUE_TYPE_UNKNOWN;
                 }
                 break;
 
             case LIBDAS_DAS_SCOPE_SCENE:
                 switch(type) {
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_NAME:
-                        return std::make_pair(DasScene::LIBDAS_SCENE_NAME, -1);
+                        return DasScene::LIBDAS_SCENE_NAME;
 
                     default:
-                        return std::make_pair(LIBDAS_DAS_UNIQUE_VALUE_TYPE_UNKNOWN, -1);
+                        return LIBDAS_DAS_UNIQUE_VALUE_TYPE_UNKNOWN;
                 }
                 break;
 
             case LIBDAS_DAS_SCOPE_SCENE_NODE:
                 switch(type) {
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_NAME:
-                        return std::make_pair(DasSceneNode::LIBDAS_SCENE_NODE_NAME, -1);
+                        return DasSceneNode::LIBDAS_SCENE_NODE_NAME;
 
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_CHILDREN_COUNT:
-                        return std::make_pair(DasSceneNode::LIBDAS_SCENE_NODE_CHILDREN_COUNT, sizeof(uint32_t));
+                        return DasSceneNode::LIBDAS_SCENE_NODE_CHILDREN_COUNT;
 
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_CHILDREN:
-                        return std::make_pair(DasSceneNode::LIBDAS_SCENE_NODE_CHILDREN, -1);
+                        return DasSceneNode::LIBDAS_SCENE_NODE_CHILDREN;
 
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_MODEL_COUNT:
-                        return std::make_pair(DasSceneNode::LIBDAS_SCENE_NODE_MODEL_COUNT, sizeof(uint32_t));
+                        return DasSceneNode::LIBDAS_SCENE_NODE_MODEL_COUNT;
 
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_MODELS:
-                        return std::make_pair(DasSceneNode::LIBDAS_SCENE_NODE_MODELS, -1);
+                        return DasSceneNode::LIBDAS_SCENE_NODE_MODELS;
 
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_ANIMATION_COUNT:
-                        return std::make_pair(DasSceneNode::LIBDAS_SCENE_NODE_ANIMATION_COUNT, sizeof(uint32_t));
+                        return DasSceneNode::LIBDAS_SCENE_NODE_ANIMATION_COUNT;
 
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_ANIMATIONS:
-                        return std::make_pair(DasSceneNode::LIBDAS_SCENE_NODE_ANIMATIONS, -1);
+                        return DasSceneNode::LIBDAS_SCENE_NODE_ANIMATIONS;
 
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_TRANSFORM:
-                        return std::make_pair(DasSceneNode::LIBDAS_SCENE_NODE_TRANSFORM, sizeof(Matrix4<float>));
+                        return DasSceneNode::LIBDAS_SCENE_NODE_TRANSFORM;
 
                     default:
-                        return std::make_pair(LIBDAS_DAS_UNIQUE_VALUE_TYPE_UNKNOWN, -1);
+                        return LIBDAS_DAS_UNIQUE_VALUE_TYPE_UNKNOWN;
                 }
                 break;
 
             default:
-                return std::make_pair(LIBDAS_DAS_UNIQUE_VALUE_TYPE_UNKNOWN, -1);
+                return LIBDAS_DAS_UNIQUE_VALUE_TYPE_UNKNOWN;
+        }
+    }
+
+
+    void DasReaderCore::_ReadPropertiesValue(DasProperties &_props, DasProperties::ValueType _type) {
+        switch(_type) {
+            case DasProperties::LIBDAS_PROPERTIES_MODEL: 
+                _props.model = ExtractString();
+                break;
+
+            case DasProperties::LIBDAS_PROPERTIES_AUTHOR:
+                _props.author = ExtractString();
+                break;
+
+            case DasProperties::LIBDAS_PROPERTIES_COPYRIGHT:
+                _props.copyright = ExtractString();
+                break;
+
+            case DasProperties::LIBDAS_PROPERTIES_MODDATE:
+                _props.moddate = *reinterpret_cast<uint64_t*>(GetReadPtr());
+                SkipData(sizeof(uint64_t));
+                break;
+
+            case DasProperties::LIBDAS_PROPERTIES_COMPRESSION:
+                _props.compression = reinterpret_cast<bool*>(GetReadPtr());
+                SkipData(sizeof(bool));
+                break;
+
+            default:
+                LIBDAS_ASSERT(false);
+        }
+    }
+
+
+    void DasReaderCore::_ReadBufferValue(DasBuffer &_buffer, DasBuffer::ValueType _type) {
+        switch(_type) {
+            case DasBuffer::LIBDAS_BUFFER_BUFFER_TYPE:
+                _buffer.type = *reinterpret_cast<BufferType*>(GetReadPtr());
+                break;
         }
     }
 
 
     DasProperties DasReaderCore::ReadProperties() {
-        const std::string exp_prop_scope = "PROPERTIES";
+        DasProperties props;
+        std::string val_decl, val_statement;
 
-        SkipSkippableCharacters();
-        char *beg = GetReadPtr();
-        char *end = ExtractWord();
+        do {
+            SkipSkippableCharacters();
+            char *beg = GetReadPtr(), *end = ExtractWord();
+            val_decl = std::string(beg, end - beg);
+            val_statement = val_decl.substr(0, val_decl.size() - 1);
 
-        std::string prop_str = std::string(beg, end);
-        if(prop_str != exp_prop_scope)
-            m_error.Error(LIBDAS_ERROR_INVALID_DATA, prop_str);
+            // check if value declaration is present
+            // in ReadProperties method there can be only single non-value statement "ENDSCOPE"
+            if(val_decl[val_decl.size() - 1] != ':') {
+                if(val_decl != "ENDSCOPE")
+                    m_error.Error(LIBDAS_ERROR_INVALID_DATA);
+            }
+                
+            std::pair<std::any, size_t> value_info = _GetValueInformation(LIBDAS_DAS_SCOPE_PROPERTIES, val_statement);
+
+            // check if expected value type was not found
+            if(value_info.first.type() != typeid(DasProperties::ValueType))
+                m_error.Error(LIBDAS_ERROR_INVALID_DATA);
+            
+            // skip the whitespace following the declaration
+            SkipData(1);
+
+            // data is in correct type thus read its value
+            if(value_info.first.type() == typeid(DasUniqueValueType))
+                _ReadPropertyValue(props, std::any_cast<DasProperties::ValueType>(value_info.first));
+
+        } while(val_decl != "ENDSCOPE");
 
         return DasProperties();
     }

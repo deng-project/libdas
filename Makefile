@@ -16,6 +16,7 @@ ifeq ($(config),debug_win32)
   HuffmanCompressionTest_config = debug_win32
   WavefrontObjCompilerTest_config = debug_win32
   TextureReaderTest_config = debug_win32
+  DasReaderCoreTest_config = debug_win32
 
 else ifeq ($(config),debug_linux)
   das_config = debug_linux
@@ -25,6 +26,7 @@ else ifeq ($(config),debug_linux)
   HuffmanCompressionTest_config = debug_linux
   WavefrontObjCompilerTest_config = debug_linux
   TextureReaderTest_config = debug_linux
+  DasReaderCoreTest_config = debug_linux
 
 else ifeq ($(config),release_win32)
   das_config = release_win32
@@ -34,6 +36,7 @@ else ifeq ($(config),release_win32)
   HuffmanCompressionTest_config = release_win32
   WavefrontObjCompilerTest_config = release_win32
   TextureReaderTest_config = release_win32
+  DasReaderCoreTest_config = release_win32
 
 else ifeq ($(config),release_linux)
   das_config = release_linux
@@ -43,12 +46,13 @@ else ifeq ($(config),release_linux)
   HuffmanCompressionTest_config = release_linux
   WavefrontObjCompilerTest_config = release_linux
   TextureReaderTest_config = release_linux
+  DasReaderCoreTest_config = release_linux
 
 else
   $(error "invalid configuration $(config)")
 endif
 
-PROJECTS := das WavefrontObjParserTest AsciiSTLParserTest BinarySTLParserTest HuffmanCompressionTest WavefrontObjCompilerTest TextureReaderTest
+PROJECTS := das WavefrontObjParserTest AsciiSTLParserTest BinarySTLParserTest HuffmanCompressionTest WavefrontObjCompilerTest TextureReaderTest DasReaderCoreTest
 
 .PHONY: all clean help $(PROJECTS) 
 
@@ -96,6 +100,12 @@ ifneq (,$(TextureReaderTest_config))
 	@${MAKE} --no-print-directory -C . -f TextureReaderTest.make config=$(TextureReaderTest_config)
 endif
 
+DasReaderCoreTest: das
+ifneq (,$(DasReaderCoreTest_config))
+	@echo "==== Building DasReaderCoreTest ($(DasReaderCoreTest_config)) ===="
+	@${MAKE} --no-print-directory -C . -f DasReaderCoreTest.make config=$(DasReaderCoreTest_config)
+endif
+
 clean:
 	@${MAKE} --no-print-directory -C . -f das.make clean
 	@${MAKE} --no-print-directory -C . -f WavefrontObjParserTest.make clean
@@ -104,6 +114,7 @@ clean:
 	@${MAKE} --no-print-directory -C . -f HuffmanCompressionTest.make clean
 	@${MAKE} --no-print-directory -C . -f WavefrontObjCompilerTest.make clean
 	@${MAKE} --no-print-directory -C . -f TextureReaderTest.make clean
+	@${MAKE} --no-print-directory -C . -f DasReaderCoreTest.make clean
 
 help:
 	@echo "Usage: make [config=name] [target]"
@@ -124,5 +135,6 @@ help:
 	@echo "   HuffmanCompressionTest"
 	@echo "   WavefrontObjCompilerTest"
 	@echo "   TextureReaderTest"
+	@echo "   DasReaderCoreTest"
 	@echo ""
 	@echo "For more information, see https://github.com/premake/premake-core/wiki"

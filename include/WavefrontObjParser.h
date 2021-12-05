@@ -52,7 +52,7 @@ namespace Libdas {
     /**
      * Interface to parse Wavefront OBJ files
      */
-    class WavefrontObjParser : private AsciiLineReader {
+    class WavefrontObjParser : public AsciiLineReader {
         private:
             std::unordered_map<std::string, WavefrontObjStatementCallback> m_statement_map;
             //std::vector<std::unique_ptr<AsciiStreamReader>> m_mtl_streams;

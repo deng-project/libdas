@@ -25,6 +25,7 @@ function Libdas.build()
             "src/objdump.cpp",
             "src/tex_loader.cpp",
             "src/uuid.cpp",
+            "src/KMP.cpp"
             -- This list is incomplete, you can help by expanding it :)))
         }
 

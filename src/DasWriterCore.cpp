@@ -85,7 +85,7 @@ namespace Libdas {
         _WriteScopeBeginning(_scope_name);
         _WriteNumericalValue<uint32_t>("TIMESTAMP", _keyframe.timestamp);
         _WriteNumericalValue<uint32_t>("VERTEXBUFFERID", _keyframe.vertex_buffer_id);
-        _WriteNumericalValue<uint32_t>("VERTEXOFFSET", _keyframe.vertex_offset);
+        _WriteNumericalValue<uint32_t>("VERTEXOFFSET", _keyframe.vertex_buffer_offset);
 
         // optional values
         if(_keyframe.texture_map_buffer_id != UINT32_MAX) {
@@ -224,12 +224,26 @@ namespace Libdas {
         _WriteNumericalValue<uint32_t>("INDICESCOUNT", _model.indices_count);
         _WriteNumericalValue<uint32_t>("VERTEXBUFFERID", _model.vertex_buffer_id);
         _WriteNumericalValue<uint32_t>("VERTEXBUFFEROFFSET", _model.vertex_buffer_offset);
-        _WriteNumericalValue<uint32_t>("TEXTUREID", _model.texture_id);
-        _WriteNumericalValue<uint32_t>("TEXTUREMAPBUFFERID", _model.texture_map_buffer_id);
-        _WriteNumericalValue<uint32_t>("TEXTUREMAPBUFFEROFFSET", _model.texture_map_buffer_offset);
-        _WriteNumericalValue<uint32_t>("VERTEXNORMALBUFFERID", _model.vertex_normal_buffer_id);
-        _WriteNumericalValue<uint32_t>("VERTEXNORMALBUFFEROFFSET", _model.vertex_normal_buffer_offset);
-        _WriteMatrixValue("TRANSFORM", _model.transform);
+
+        // write texture buffer id if available
+        if(_model.texture_id != UINT32_MAX)
+            _WriteNumericalValue<uint32_t>("TEXTUREID", _model.texture_id);
+
+        // write texture map buffer id if available
+        if(_model.texture_map_buffer_id != UINT32_MAX) {
+            _WriteNumericalValue<uint32_t>("TEXTUREMAPBUFFERID", _model.texture_map_buffer_id);
+            _WriteNumericalValue<uint32_t>("TEXTUREMAPBUFFEROFFSET", _model.texture_map_buffer_offset);
+        }
+
+        // write vertex normal buffer id if available
+        if(_model.vertex_normal_buffer_id) {
+            _WriteNumericalValue<uint32_t>("VERTEXNORMALBUFFERID", _model.vertex_normal_buffer_id);
+            _WriteNumericalValue<uint32_t>("VERTEXNORMALBUFFEROFFSET", _model.vertex_normal_buffer_offset);
+        }
+
+        // write transformation matrix value if possible
+        if(_model.transform != Matrix4<float>())
+            _WriteMatrixValue("TRANSFORM", _model.transform);
 
         _EndScope();
     }

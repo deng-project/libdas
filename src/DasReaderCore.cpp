@@ -9,13 +9,12 @@
 namespace Libdas {
 
     DasReaderCore::DasReaderCore(const std::string &_file_name) : 
-        AsciiLineReader(_file_name), m_file_name(_file_name), m_error(MODEL_FORMAT_DAS) 
+        AsciiLineReader(_file_name, DEFAULT_CHUNK, "ENDSCOPE"), 
+        m_error(MODEL_FORMAT_DAS) 
     {
-        // open file stream if file name was specified
-        if(m_file_name != "")
-            m_in_stream.open(m_file_name, std::ios_base::binary);
-
         _CreateScopeNameMap();
+        _CreateScopeValueTypeMap();
+        _SetLineBounds(std::make_pair(m_buffer, m_buffer + m_buffer_size - 1));
     }
 
 
@@ -32,12 +31,15 @@ namespace Libdas {
     void DasReaderCore::_CreateScopeValueTypeMap() {
         // PROPERTIES 
         m_unique_val_map["MODEL"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_MODEL;
+        m_unique_val_map["AUTHOR"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_AUTHOR;
+        m_unique_val_map["COPYRIGHT"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_COPYRIGHT;
         m_unique_val_map["MODDATE"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_MODDATE;
         m_unique_val_map["COMPRESSION"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_COMPRESSION;
 
         // BUFFER
         m_unique_val_map["BUFFERTYPE"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_BUFFER_TYPE;
         m_unique_val_map["DATALEN"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_DATA_LEN;
+        m_unique_val_map["DATA"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_DATA;
 
         // MODEL
         m_unique_val_map["INDEXBUFFERID"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_INDEX_BUFFER_ID;
@@ -69,73 +71,11 @@ namespace Libdas {
     }
 
 
-    DasScopeType DasReaderCore::_FindScopeType() {
-        SkipSkippableCharacters(true);
-        char *beg = GetReadPtr();
-        char *end = ExtractWord();
-
-        std::string scope_name = std::string(beg, end - beg);
-
-        // check if the element with key scope_name was not found 
-        if(m_scope_name_map.find(scope_name) == m_scope_name_map.end())
-            return LIBDAS_DAS_SCOPE_SCENE_UNDEFINED;
-
-        return m_scope_name_map[scope_name];
-    }
-
-
     DasUniqueValueType DasReaderCore::_FindUniqueValueType(const std::string &_value) {
         if(m_unique_val_map.find(_value) == m_unique_val_map.end())
             return LIBDAS_DAS_UNIQUE_VALUE_TYPE_UNKNOWN;
 
         return m_unique_val_map[_value];
-    }
-
-
-    void DasReaderCore::NewFile(const std::string &_file_name) {
-        LIBDAS_ASSERT(_file_name != "");
-
-        // close the previous stream if it was opened
-        CloseStream();
-
-        // open the file stream
-        m_in_stream.open(_file_name, std::ios_base::binary);
-    }
-
-
-    void DasReaderCore::CloseStream() {
-        if(m_in_stream.is_open())
-            m_in_stream.close();
-    }
-
-
-    void DasReaderCore::ReadSignature() {
-        DasSignature exp_sig;
-        DasSignature sig;
-
-        m_in_stream.read(reinterpret_cast<char*>(&sig), sizeof(DasSignature));
-        bool is_pad = false;
-        
-        // verify signature integrity
-        if(sig.magic == exp_sig.magic) {
-            // verify padding values, zero byte padding
-            if(strncmp(sig.padding, exp_sig.padding, sizeof(sig.padding))) {
-                // check newline byte padding
-                memset(exp_sig.padding, 0x0a, 12);
-                if(strncmp(sig.padding, exp_sig.padding, 12)) {
-                    // check whitespace byte padding
-                    memset(exp_sig.padding, 0x20, 12);
-                    if(!strncmp(sig.padding, exp_sig.padding, 12))
-                        is_pad = true;
-                }
-
-                else is_pad = true;
-            }
-
-            else is_pad = true;
-        }
-
-        if(is_pad != exp_sig.magic) m_error.Error(LIBDAS_ERROR_INVALID_SIGNATURE);
     }
 
 
@@ -319,28 +259,28 @@ namespace Libdas {
     }
 
 
-    void DasReaderCore::_ReadPropertiesValue(DasProperties &_props, DasProperties::ValueType _type) {
+    void DasReaderCore::_ReadPropertiesValue(DasProperties *_props, DasProperties::ValueType _type) {
         switch(_type) {
             case DasProperties::LIBDAS_PROPERTIES_MODEL: 
-                _props.model = ExtractString();
+                _props->model = _ExtractString();
                 break;
 
             case DasProperties::LIBDAS_PROPERTIES_AUTHOR:
-                _props.author = ExtractString();
+                _props->author = _ExtractString();
                 break;
 
             case DasProperties::LIBDAS_PROPERTIES_COPYRIGHT:
-                _props.copyright = ExtractString();
+                _props->copyright = _ExtractString();
                 break;
 
             case DasProperties::LIBDAS_PROPERTIES_MODDATE:
-                _props.moddate = *reinterpret_cast<uint64_t*>(GetReadPtr());
-                SkipData(sizeof(uint64_t));
+                _props->moddate = *reinterpret_cast<uint64_t*>(_GetReadPtr());
+                _SkipData(sizeof(uint64_t));
                 break;
 
             case DasProperties::LIBDAS_PROPERTIES_COMPRESSION:
-                _props.compression = reinterpret_cast<bool*>(GetReadPtr());
-                SkipData(sizeof(bool));
+                _props->compression = reinterpret_cast<bool*>(_GetReadPtr());
+                _SkipData(sizeof(bool));
                 break;
 
             default:
@@ -349,47 +289,416 @@ namespace Libdas {
     }
 
 
-    void DasReaderCore::_ReadBufferValue(DasBuffer &_buffer, DasBuffer::ValueType _type) {
+    void DasReaderCore::_ReadBufferValue(DasBuffer *_buffer, DasBuffer::ValueType _type) {
         switch(_type) {
             case DasBuffer::LIBDAS_BUFFER_BUFFER_TYPE:
-                _buffer.type = *reinterpret_cast<BufferType*>(GetReadPtr());
+                _buffer->type = *reinterpret_cast<BufferType*>(_GetReadPtr());
+                _SkipData(sizeof(BufferType));
+                break;
+
+            case DasBuffer::LIBDAS_BUFFER_DATA_LEN:
+                _buffer->data_len = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                _SkipData(sizeof(uint32_t));
+                break;
+
+            case DasBuffer::LIBDAS_BUFFER_DATA:
+                _buffer->data_ptrs.push_back(std::make_pair(_ExtractBlob(_buffer->data_len), _buffer->data_len));
+                break;
+
+            default:
+                LIBDAS_ASSERT(false);
+        }
+    }
+
+
+    void DasReaderCore::_ReadModelValue(DasModel *_model, DasModel::ValueType _type) {
+        switch(_type) {
+            case DasModel::LIBDAS_MODEL_NAME:
+                _model->name = _ExtractString();
+                break;
+
+            case DasModel::LIBDAS_MODEL_INDEX_BUFFER_ID:
+                _model->index_buffer_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                _SkipData(sizeof(uint32_t));
+                break;
+
+            case DasModel::LIBDAS_MODEL_INDEX_BUFFER_OFFSET:
+                _model->index_buffer_offset = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                _SkipData(sizeof(uint32_t));
+                break;
+
+            case DasModel::LIBDAS_MODEL_INDICES_COUNT:
+                _model->indices_count = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                _SkipData(sizeof(uint32_t));
+                break;
+
+            case DasModel::LIBDAS_MODEL_VERTEX_BUFFER_ID:
+                _model->vertex_buffer_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                _SkipData(sizeof(uint32_t));
+                break;
+
+            case DasModel::LIBDAS_MODEL_VERTEX_BUFFER_OFFSET:
+                _model->vertex_buffer_offset = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                _SkipData(sizeof(uint32_t));
+                break;
+
+            case DasModel::LIBDAS_MODEL_TEXTURE_ID:
+                _model->texture_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                _SkipData(sizeof(uint32_t));
+                break;
+
+            case DasModel::LIBDAS_MODEL_TEXTURE_MAP_BUFFER_ID:
+                _model->texture_map_buffer_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                _SkipData(sizeof(uint32_t));
+                break;
+
+            case DasModel::LIBDAS_MODEL_TEXTURE_MAP_BUFFER_OFFSET:
+                _model->texture_map_buffer_offset = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                _SkipData(sizeof(uint32_t));
+                break;
+
+            case DasModel::LIBDAS_MODEL_VERTEX_NORMAL_BUFFER_ID:
+                _model->vertex_normal_buffer_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                _SkipData(sizeof(uint32_t));
+                break;
+
+            case DasModel::LIBDAS_MODEL_VERTEX_NORMAL_BUFFER_OFFSET:
+                _model->vertex_normal_buffer_offset = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                _SkipData(sizeof(uint32_t));
+                break;
+
+            case DasModel::LIBDAS_MODEL_TRANSFORM:
+                _model->transform = *reinterpret_cast<Matrix4<float>*>(_GetReadPtr());
+                _SkipData(sizeof(Matrix4<float>));
+                break;
+
+            default:
+                LIBDAS_ASSERT(false);
+        }
+    }
+
+
+    void DasReaderCore::_ReadAnimationValue(DasAnimation *_animation, DasAnimation::ValueType _type) {
+        switch(_type) {
+            case DasAnimation::LIBDAS_ANIMATION_NAME:
+                _animation->name = _ExtractString();
+                break;
+
+            case DasAnimation::LIBDAS_ANIMATION_MODEL:
+                _animation->model = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                _SkipData(sizeof(uint32_t));
+                break;
+
+            case DasAnimation::LIBDAS_ANIMATION_LENGTH:
+                _animation->length = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                _SkipData(sizeof(uint32_t));
+                break;
+
+            case DasAnimation::LIBDAS_ANIMATION_INTERPOLATION:
+                _animation->interpolation = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                _SkipData(sizeof(InterpolationValue));
+                break;
+
+            default:
+                LIBDAS_ASSERT(false);
+        }
+    }
+
+
+    void DasReaderCore::_ReadKeyframeValue(DasKeyframe *_keyframe, DasKeyframe::ValueType _type) {
+        switch(_type) {
+            case DasKeyframe::LIBDAS_KEYFRAME_TIMESTAMP:
+                _keyframe->timestamp = *reinterpret_cast<uint64_t*>(_GetReadPtr());
+                _SkipData(sizeof(uint64_t));
+                break;
+
+            case DasKeyframe::LIBDAS_KEYFRAME_VERTEX_BUFFER_ID:
+                _keyframe->vertex_buffer_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                _SkipData(sizeof(uint32_t));
+                break;
+
+            case DasKeyframe::LIBDAS_KEYFRAME_VERTEX_BUFFER_OFFSET:
+                _keyframe->vertex_buffer_offset = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                _SkipData(sizeof(uint32_t));
+                break;
+
+            case DasKeyframe::LIBDAS_KEYFRAME_TEXTURE_MAP_VERTICES_BUFFER_ID:
+                _keyframe->texture_map_buffer_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                _SkipData(sizeof(uint32_t));
+                break;
+
+            case DasKeyframe::LIBDAS_KEYFRAME_TEXTURE_MAP_VERTICES_BUFFER_OFFSET:
+                _keyframe->texture_map_buffer_offset = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                _SkipData(sizeof(uint32_t));
+                break;
+
+            case DasKeyframe::LIBDAS_KEYFRAME_VERTEX_NORMAL_BUFFER_ID:
+                _keyframe->vertex_normal_buffer_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                _SkipData(sizeof(uint32_t));
+                break;
+
+            case DasKeyframe::LIBDAS_KEYFRAME_VERTEX_NORMAL_BUFFER_OFFSET:
+                _keyframe->vertex_normal_buffer_offset = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                _SkipData(sizeof(uint32_t));
+                break;
+
+            default:
+                LIBDAS_ASSERT(false);
+        }
+    }
+
+
+    void DasReaderCore::_ReadSceneValue(DasScene *_scene, DasScene::ValueType _type) {
+        switch(_type) {
+            case DasScene::LIBDAS_SCENE_NAME:
+                _scene->name = _ExtractString();
+                break;
+
+            default:
+                LIBDAS_ASSERT(false);
+        }
+    }
+
+
+    void DasReaderCore::_ReadSceneNodeValue(DasSceneNode *_node, DasSceneNode::ValueType _type) {
+        switch(_type) {
+            case DasSceneNode::LIBDAS_SCENE_NODE_NAME:
+                _node->name = _ExtractString();
+                break;
+
+            case DasSceneNode::LIBDAS_SCENE_NODE_CHILDREN_COUNT:
+                _node->children_count = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                _SkipData(sizeof(uint32_t));
+                break;
+
+            case DasSceneNode::LIBDAS_SCENE_NODE_CHILDREN:
+                _node->children = reinterpret_cast<uint32_t*>(malloc(sizeof(uint32_t) * _node->children_count));
+                memcpy(_node->children, _GetReadPtr(), sizeof(uint32_t) * _node->children_count);
+                _SkipData(sizeof(uint32_t) * _node->children_count);
+                break;
+
+            case DasSceneNode::LIBDAS_SCENE_NODE_MODEL_COUNT:
+                _node->model_count = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                _SkipData(sizeof(uint32_t));
+                break;
+
+            case DasSceneNode::LIBDAS_SCENE_NODE_MODELS:
+                _node->models = reinterpret_cast<uint32_t*>(malloc(sizeof(uint32_t) * _node->model_count));
+                memcpy(_node->models, _GetReadPtr(), sizeof(uint32_t) * _node->model_count);
+                _SkipData(sizeof(uint32_t) * _node->model_count);
+                break;
+
+            case DasSceneNode::LIBDAS_SCENE_NODE_ANIMATION_COUNT:
+                _node->animation_count = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                _SkipData(sizeof(uint32_t));
+                break;
+
+            case DasSceneNode::LIBDAS_SCENE_NODE_ANIMATIONS:
+                _node->animations = reinterpret_cast<uint32_t*>(malloc(sizeof(uint32_t) * _node->animation_count));
+                memcpy(_node->animations, _GetReadPtr(), sizeof(uint32_t) * _node->animation_count);
+                _SkipData(sizeof(uint32_t) * _node->animation_count);
+                break;
+
+            case DasSceneNode::LIBDAS_SCENE_NODE_TRANSFORM:
+                _node->transform = *reinterpret_cast<Matrix4<float>*>(_GetReadPtr());
+                _SkipData(sizeof(Matrix4<float>));
+                break;
+            
+            default:
+                LIBDAS_ASSERT(false);
+        }
+    }
+
+
+    void DasReaderCore::_ReadScopeValueDataCaller(std::any &_scope, DasScopeType _type, std::any &_value_type) {
+        switch(_type) {
+            case LIBDAS_DAS_SCOPE_PROPERTIES:
+                _ReadPropertiesValue(std::any_cast<DasProperties>(&_scope), std::any_cast<DasProperties::ValueType>(_value_type));
+                break;
+
+            case LIBDAS_DAS_SCOPE_BUFFER:
+                _ReadBufferValue(std::any_cast<DasBuffer>(&_scope), std::any_cast<DasBuffer::ValueType>(_value_type));
+                break;
+
+            case LIBDAS_DAS_SCOPE_MODEL:
+                _ReadModelValue(std::any_cast<DasModel>(&_scope), std::any_cast<DasModel::ValueType>(_value_type));
+                break;
+
+            case LIBDAS_DAS_SCOPE_ANIMATION:
+                _ReadAnimationValue(std::any_cast<DasAnimation>(&_scope), std::any_cast<DasAnimation::ValueType>(_value_type));
+                break;
+
+            case LIBDAS_DAS_SCOPE_KEYFRAME:
+                _ReadKeyframeValue(std::any_cast<DasKeyframe>(&_scope), std::any_cast<DasKeyframe::ValueType>(_value_type));
+                break;
+
+            case LIBDAS_DAS_SCOPE_SCENE:
+                _ReadSceneValue(std::any_cast<DasScene>(&_scope), std::any_cast<DasScene::ValueType>(_value_type));
+                break;
+
+            case LIBDAS_DAS_SCOPE_SCENE_NODE:
+                _ReadSceneNodeValue(std::any_cast<DasSceneNode>(&_scope), std::any_cast<DasSceneNode::ValueType>(_value_type));
+                break;
+
+            default:
+                LIBDAS_ASSERT(false);
+        }
+    }
+
+
+    void DasReaderCore::_VerifySubScope(DasScopeType _type, DasScopeType _sub_type, const std::any &_scope, const std::any &_sub_scope) {
+        // parent scopes that have no subscopes will throw an incomplete scope error
+        switch(_type) {
+            case LIBDAS_DAS_SCOPE_ANIMATION:
+                LIBDAS_ASSERT(_scope.type() == typeid(DasAnimation));
+
+                // only one subscope type allowed thus check it for errors
+                if(_sub_scope.type() != typeid(DasKeyframe))
+                    m_error.Error(LIBDAS_ERROR_INVALID_DATA);
+
+                std::any_cast<DasAnimation>(_scope).keyframes.push_back(std::any_cast<DasKeyframe>(_sub_scope));
+                break;
+
+            case LIBDAS_DAS_SCOPE_SCENE:
+                LIBDAS_ASSERT(_scope.type() == typeid(DasScene));
+
+                // ... //
+                if(_sub_scope.type() != typeid(DasSceneNode))
+                    m_error.Error(LIBDAS_ERROR_INVALID_DATA);
+
+                std::any_cast<DasScene>(_scope).nodes.push_back(std::any_cast<DasSceneNode>(_sub_scope));
+                break;
+
+            default:
+                m_error.Error(LIBDAS_ERROR_INCOMPLETE_SCOPE);
                 break;
         }
     }
 
 
-    DasProperties DasReaderCore::ReadProperties() {
-        DasProperties props;
+    std::any DasReaderCore::_GetAnyScopeStructure(DasScopeType _type) {
+        switch(_type) {
+            case LIBDAS_DAS_SCOPE_PROPERTIES:
+                return DasProperties();
+
+            case LIBDAS_DAS_SCOPE_BUFFER:
+                return DasBuffer();
+
+            case LIBDAS_DAS_SCOPE_MODEL:
+                return DasModel();
+
+            case LIBDAS_DAS_SCOPE_ANIMATION:
+                return DasAnimation();
+
+            case LIBDAS_DAS_SCOPE_KEYFRAME:
+                return DasKeyframe();
+
+            case LIBDAS_DAS_SCOPE_SCENE:
+                return DasScene();
+
+            case LIBDAS_DAS_SCOPE_SCENE_NODE:
+                return DasSceneNode();
+
+            default:
+                LIBDAS_ASSERT(false);
+        }
+    }
+
+
+    void DasReaderCore::ReadSignature() {
+        DasSignature exp_sig;
+        DasSignature sig;
+
+        _ExtractBlob(sizeof(DasSignature), reinterpret_cast<char*>(&sig));
+        bool is_pad = false;
+        
+        // verify signature integrity
+        if(sig.magic == exp_sig.magic) {
+            // verify padding values, zero byte padding
+            if(strncmp(sig.padding, exp_sig.padding, sizeof(sig.padding))) {
+                // check newline byte padding
+                memset(exp_sig.padding, 0x0a, 12);
+                if(strncmp(sig.padding, exp_sig.padding, 12)) {
+                    // check whitespace byte padding
+                    memset(exp_sig.padding, 0x20, 12);
+                    if(!strncmp(sig.padding, exp_sig.padding, 12))
+                        is_pad = true;
+                }
+
+                else is_pad = true;
+            }
+
+            else is_pad = true;
+        }
+
+        if(!is_pad || sig.magic != exp_sig.magic) 
+            m_error.Error(LIBDAS_ERROR_INVALID_SIGNATURE);
+    }
+
+
+    std::any DasReaderCore::ReadScopeData(DasScopeType _type) {
+        std::any scope = _GetAnyScopeStructure(_type);
         std::string val_decl, val_statement;
 
         do {
-            SkipSkippableCharacters();
-            char *beg = GetReadPtr(), *end = ExtractWord();
+            _SkipSkippableCharacters(true);
+            char *beg = _GetReadPtr();
+            char *end = _ExtractWord();
+
             val_decl = std::string(beg, end - beg);
             val_statement = val_decl.substr(0, val_decl.size() - 1);
 
             // check if value declaration is present
             // in ReadProperties method there can be only single non-value statement "ENDSCOPE"
             if(val_decl[val_decl.size() - 1] != ':') {
-                if(val_decl != "ENDSCOPE")
+                DasScopeType sub_scope = ParseScopeDeclaration(val_decl);
+                if(sub_scope == LIBDAS_DAS_SCOPE_UNDEFINED && val_decl != "ENDSCOPE") 
                     m_error.Error(LIBDAS_ERROR_INVALID_DATA);
+                else if(val_decl == "ENDSCOPE") break;
+                else {
+                    std::any sub_scope_val = ReadScopeData(sub_scope);
+                    _VerifySubScope(_type, sub_scope, sub_scope_val, scope);
+                }
             }
                 
-            std::pair<std::any, size_t> value_info = _GetValueInformation(LIBDAS_DAS_SCOPE_PROPERTIES, val_statement);
+            _SetReadPtr(end);
+            std::any value_info = _GetValueInformation(_type, val_statement);
 
             // check if expected value type was not found
-            if(value_info.first.type() != typeid(DasProperties::ValueType))
+            if(value_info.type() != typeid(DasProperties::ValueType))
                 m_error.Error(LIBDAS_ERROR_INVALID_DATA);
             
             // skip the whitespace following the declaration
-            SkipData(1);
+            _SkipData(1);
 
             // data is in correct type thus read its value
-            if(value_info.first.type() == typeid(DasUniqueValueType))
-                _ReadPropertyValue(props, std::any_cast<DasProperties::ValueType>(value_info.first));
+            _ReadScopeValueDataCaller(scope, _type, value_info);
 
-        } while(val_decl != "ENDSCOPE");
+        } while(_GetReadPtr() < m_buffer + m_buffer_size);
 
-        return DasProperties();
+        return scope;
+    }
+
+
+    DasScopeType DasReaderCore::ParseScopeDeclaration(const std::string &_scope_str) {
+        if(_scope_str == "") {
+            _SkipSkippableCharacters();
+            char *beg = _GetReadPtr();
+            char *end = _ExtractWord();
+            _SetReadPtr(end);
+            std::string decl = std::string(beg, end - beg);
+
+            if(m_scope_name_map.find(decl) == m_scope_name_map.end())
+                return LIBDAS_DAS_SCOPE_UNDEFINED;
+
+            return m_scope_name_map[decl];
+        }
+
+        else {
+            if(m_scope_name_map.find(_scope_str) == m_scope_name_map.end())
+                return LIBDAS_DAS_SCOPE_UNDEFINED;
+
+            return m_scope_name_map[_scope_str];
+        }
     }
 }

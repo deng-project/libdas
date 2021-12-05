@@ -39,6 +39,18 @@ namespace Libdas {
             size_t m_buffer_size;
             size_t m_last_read = 0;
 
+        private:
+            /**
+             * Create longest suffix-prefix table from end string for KMP algorithm
+             * @return int array containing the LSP table
+             */
+            size_t *_CreateLSPArray();
+            /**
+             * Find all end string locations from given buffer using kmp algorithm (O(n))
+             * @return std::vector<int> instance containing all substring occurence indices
+             */
+            std::vector<size_t> _FindEndStringInstances();
+
         protected:
             AsciiStreamReader(const std::string &_file_name = "", size_t _chunk_size = DEFAULT_CHUNK, const std::string &_end = "\n");
             ~AsciiStreamReader();
@@ -48,10 +60,10 @@ namespace Libdas {
              */
             bool _ReadNewChunk();
             /**
-             * Get the pointer for the last read position
-             * @return size_t value that specifies last read chunk size
+             * Get the current stream reading std::ifstream reference 
+             * @return reference to std::ifstream 
              */
-            const size_t _GetLastRead();
+            std::ifstream &_GetStream();
 
         public:
             /**

@@ -233,7 +233,8 @@ namespace Libdas {
 
 
     WavefrontObjStatementCallback WavefrontObjParser::_AnalyseKeyword(char *_end) {
-        std::string key = std::string(m_rd_ptr, _end - m_rd_ptr);
+        char *rd = _GetReadPtr();
+        std::string key = std::string(rd, _end - rd);
         if(key == "") return WavefrontObjStatementCallback();
 
         // verify that the key is valid
@@ -251,8 +252,8 @@ namespace Libdas {
             auto arg_pair = std::make_pair(m_parse_pos, _args);
             _callback.keyword_callback(m_groups, m_error, arg_pair);
         }
-        // tmp for testing purposes
-        m_rd_ptr = m_line_end;
+
+        _SetReadPtr(_GetLineBounds().second);
     }
 
 
@@ -273,15 +274,19 @@ namespace Libdas {
         do {
             // new line can be read
             while(_NextLine()) {
-                m_rd_ptr = m_line_beg;
+                std::pair<char*, char*> bounds = _GetLineBounds();
+                _SetReadPtr(bounds.first);
+                char *rd = _GetReadPtr();
+
                 // start by searching the first keyword
-                SkipSkippableCharacters();
+                _SkipSkippableCharacters();
 
                 // line is empty skip iteration
-                if(m_rd_ptr != m_line_end && m_rd_ptr != m_buffer + m_last_read) {
-                    char *w_end = ExtractWord();
+                if(rd != bounds.second && rd != m_buffer + m_last_read) {
+                    char *w_end = _ExtractWord();
                     WavefrontObjStatementCallback statement_reader = _AnalyseKeyword(w_end);
-                    m_rd_ptr = w_end + 1;
+                    _SetReadPtr(w_end);
+                    rd = _GetReadPtr();
 
                     // Check if valid statement was extracted
                     if(statement_reader.type != WAVEFRONT_OBJ_STATEMENT_NONE) {
@@ -289,14 +294,13 @@ namespace Libdas {
                         _AnalyseArgs(statement_reader, args);
                     }
                 }
-                else if(m_rd_ptr == m_buffer + m_last_read)
+                else if(rd == m_buffer + m_last_read)
                     break;
 
                 m_parse_pos++;
             }
 
-            m_line_beg = nullptr;
-            m_line_end = nullptr;
+            _SetLineBounds(std::make_pair(nullptr, nullptr));
         } while(_ReadNewChunk());
     }
 

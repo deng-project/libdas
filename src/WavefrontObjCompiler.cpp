@@ -35,39 +35,47 @@ namespace Libdas {
         for(const WavefrontObjGroup &group : _groups) {
             const char *data = nullptr;
             size_t size = 0;
-            for(const DasBuffer &buffer : buffers) {
-                // vertices are given, append to the buffer
-                if(group.vertices.position.size()) {
-                    data = reinterpret_cast<const char*>(group.vertices.position.data());
-                    size = group.vertices.position.size() * sizeof(Point4D<float>);
-                    buffers[0].data_ptrs.push_back(std::make_pair(data, size));
-                    buffers[0].data_len += size;
-                }
 
-                // texture vertices are given, append to the buffer
-                if(group.vertices.texture.size()) {
-                    data = reinterpret_cast<const char*>(group.vertices.texture.data());
-                    size = group.vertices.texture.size() * sizeof(Point3D<float>);
-                    buffers[1].data_ptrs.push_back(std::make_pair(data, size));
-                    buffers[1].data_len += size;
-                }
+            // vertices are given, append to the buffer
+            if(group.vertices.position.size()) {
+                data = reinterpret_cast<const char*>(group.vertices.position.data());
+                size = group.vertices.position.size() * sizeof(Point4D<float>);
+                buffers[0].data_ptrs.push_back(std::make_pair(data, size));
+                buffers[0].data_len += size;
+            }
 
-                // vertex normals are given, append to the buffer
-                if(group.vertices.normals.size()) {
-                    data = reinterpret_cast<const char*>(group.vertices.normals.data());
-                    size = group.vertices.normals.size() * sizeof(Point3D<float>);
-                    buffers[2].data_ptrs.push_back(std::make_pair(data, size));
-                    buffers[2].data_len += size;
-                }
+            // texture vertices are given, append to the buffer
+            if(group.vertices.texture.size()) {
+                data = reinterpret_cast<const char*>(group.vertices.texture.data());
+                size = group.vertices.texture.size() * sizeof(Point3D<float>);
+                buffers[1].data_ptrs.push_back(std::make_pair(data, size));
+                buffers[1].data_len += size;
+            }
 
-                // vertex indicies are given append to the buffer
-                if(group.indices.faces.size()) {
-                    // NOTE: WavefrontObjFace structure is same as DasFace thus no data realignment is necessary
-                    data = reinterpret_cast<const char*>(group.indices.faces.data());
-                    size = group.indices.faces.size() * sizeof(DasFace);
-                    buffers[3].data_ptrs.push_back(std::make_pair(data, size));
-                    buffers[3].data_len += size;
-                }
+            // vertex normals are given, append to the buffer
+            if(group.vertices.normals.size()) {
+                data = reinterpret_cast<const char*>(group.vertices.normals.data());
+                size = group.vertices.normals.size() * sizeof(Point3D<float>);
+                buffers[2].data_ptrs.push_back(std::make_pair(data, size));
+                buffers[2].data_len += size;
+            }
+
+            // vertex indicies are given append to the buffer
+            if(group.indices.faces.size()) {
+                // NOTE: WavefrontObjFace structure is same as DasFace thus no data realignment is necessary
+                data = reinterpret_cast<const char*>(group.indices.faces.data());
+                size = group.indices.faces.size() * sizeof(DasFace);
+                buffers[3].data_ptrs.push_back(std::make_pair(data, size));
+                buffers[3].data_len += size;
+            }
+        }
+
+
+        // check if any buffers are empty and if they are remove them
+        for(size_t i = 0; i < buffers.size(); i++) {
+            if(!buffers[i].data_len) {
+                buffers.erase(buffers.begin() + i);
+                if(i) i--;
             }
         }
 
@@ -91,8 +99,8 @@ namespace Libdas {
             models[i].name = String::ConcatenateNameArgs(_groups[i].names);
             models[i].index_buffer_id = indices_id;
             models[i].index_buffer_offset = indices_offset;
+            models[i].indices_count = _groups[i].indices.faces.size();
             models[i].vertex_buffer_id = vertex_id;
-            models[i].texture_id = UINT32_MAX; // reserved value for future usage
             models[i].texture_map_buffer_id = texture_map_id;
             models[i].vertex_normal_buffer_id = vertex_normal_id;
         }

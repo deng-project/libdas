@@ -30,34 +30,76 @@ namespace Libdas {
             m_stream.close();
     }
 
+
+    size_t *AsciiStreamReader::_CreateLSPArray() {
+        size_t *lsp = new size_t[m_end.size()];
+        lsp[0] = 0;
+
+        size_t j = 0;
+        for(size_t i = 1; i < m_end.size(); i++) {
+            j = lsp[i - 1];
+
+            // skip all invalid prefixes
+            while(j > 0 && m_end[i] != m_end[j])
+                j = lsp[j - 1];
+
+            if(m_end[i] == m_end[j])
+                j = j + 1;
+
+            lsp[i] = j;
+        }
+
+        return lsp;
+    }
+
+
+    std::vector<size_t> AsciiStreamReader::_FindEndStringInstances() {
+        std::vector<size_t> occurences;
+        occurences.reserve(m_buffer_size / 4 > 0 ? m_buffer_size / 4 : 1); // assuming the probable worst case
+
+        size_t *lsp = _CreateLSPArray();
+
+        size_t j = 0;
+        for(size_t i = 0; i < m_buffer_size; i++) {
+            // fallback on invalid values
+            while(j > 0 && m_buffer[i] != m_end[j])
+                j = lsp[j - 1];
+
+            if(m_buffer[i] == m_end[j]) {
+                j++;
+                if(j == m_end.size())
+                    occurences.push_back(i - j + 1);
+            }
+        }
+
+        delete [] lsp;
+        return occurences;
+    }
+
+
     bool AsciiStreamReader::_ReadNewChunk() {
         // verify that stream is open
         LIBDAS_ASSERT(m_stream.is_open());
             
-        const size_t read_bytes = m_stream.tellg();
+        size_t read_bytes = m_stream.tellg();
         m_last_read = std::min(m_buffer_size, m_stream_size - static_cast<size_t>(read_bytes));
 
         if(m_last_read == 0) return false;
 
-        // find the first instance of end character
-        for(int32_t i = static_cast<int32_t>(m_last_read) - m_end.size() - 1; i >= 0; i--) {
-            m_stream.seekg(i + read_bytes, std::ios::beg);
-            char substr[m_end.size() + 1];
-            substr[m_end.size()] = 0;
-            m_stream.read(substr, m_end.size());
-
-            if(substr == m_end) {
-                m_last_read = static_cast<size_t>(i) + 1;
-                break;
-            }
-        }
-
-        m_stream.seekg(read_bytes, std::ios::beg);
-
         // clear the buffer and refill it with new data from stream
         std::memset(m_buffer, 0, m_buffer_size);
         m_stream.read(m_buffer, m_last_read);
-         
+
+        read_bytes = m_stream.tellg();
+
+        // using backwards KMP substring search algorithm
+        std::vector<size_t> instances = _FindEndStringInstances();
+
+        int64_t back = static_cast<int64_t>(instances.back()) + static_cast<int64_t>(m_end.size()) - 
+                       static_cast<int64_t>(m_last_read);
+
+        m_stream.seekg(back, std::ios_base::cur);
+        m_last_read = instances.back() + m_end.size();
         return true;
     }
 

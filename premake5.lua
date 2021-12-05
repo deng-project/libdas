@@ -46,6 +46,8 @@ newoption {
         { "WavefrontObjCompiler", "Build a Wavefront OBJ compiler test application" },
         -- tmp --
         { "TextureReader", "Build TextureReader class test" },
+        { "DasReaderCoreTest", "Build DasReaderCore class test" },
+
         -- misc --
         { "all", "Build all available unit tests" }
     }
@@ -115,6 +117,12 @@ function LoadTests()
         print("Including TextureReader test config");
         local texture = require("premake/tests/TextureReader");
         texture.build()
+    end
+
+    if _OPTIONS["tests"] == "all" or _OPTIONS["tests"] == "DasReaderCore" then
+        print("Including DasReaderCore test config")
+        local reader = require("premake/tests/DasReaderCore")
+        reader.build();
     end
 end
 

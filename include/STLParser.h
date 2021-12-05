@@ -128,7 +128,6 @@ namespace Libdas {
         private:
             BinarySTLHeader m_header;
             BinaryFormatErrorHandler m_error;
-            AsciiLineReader m_line_reader;
             STLObject m_object;
             std::ifstream m_stream;
             std::string m_file_name;
@@ -142,6 +141,11 @@ namespace Libdas {
              * Load the header signature contents
              */
             void _LoadHeader();
+            /**
+             * Extract the model name from STL header
+             * @return std::string instance, describing the name of the model
+             */
+            std::string _ExtractModelName();
 
         public:
             BinarySTLParser(const std::string &_file_name = "");

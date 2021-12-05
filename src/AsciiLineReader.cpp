@@ -4,7 +4,7 @@
 namespace Libdas {
 
     AsciiLineReader::AsciiLineReader(const std::string &_file_name, size_t _chunk_size, const std::string &_end) :
-        AsciiStreamReader(_file_name, _chunk_size, _end), m_end(_end), m_rd_ptr(m_buffer) {}
+        AsciiStreamReader(_file_name, _chunk_size, _end), m_rd_ptr(m_buffer) {}
 
 
     bool AsciiLineReader::_NextLine() {
@@ -34,10 +34,10 @@ namespace Libdas {
         std::vector<std::string> args;
         while(true) {
             char *end = nullptr;
-            SkipSkippableCharacters();
+            _SkipSkippableCharacters();
             if(m_rd_ptr >= m_line_end) break;
             
-            end = ExtractWord();
+            end = _ExtractWord();
             std::string arg = std::string(m_rd_ptr, end - m_rd_ptr);
             m_rd_ptr = end;
             if(arg == "\\\\") {
@@ -53,7 +53,7 @@ namespace Libdas {
     }
 
 
-    void AsciiLineReader::SkipSkippableCharacters(bool _skip_nl) {
+    void AsciiLineReader::_SkipSkippableCharacters(bool _skip_nl) {
         // skip all whitespaces till keyword is found
         for(; m_rd_ptr < m_line_end; m_rd_ptr++) {
             if(!_skip_nl) {
@@ -67,12 +67,12 @@ namespace Libdas {
     }
 
 
-    void AsciiLineReader::SkipData(const size_t _skip_val) {
+    void AsciiLineReader::_SkipData(const size_t _skip_val) {
         m_rd_ptr += _skip_val;
     }
 
 
-    char *AsciiLineReader::ExtractWord() {
+    char *AsciiLineReader::_ExtractWord() {
         char *end = m_rd_ptr;
         while(end < m_line_end) {
             if(*end == ' ' || *end == 0x00 || *end == '\t' || *end == '\n' || *end == '\r')
@@ -85,45 +85,61 @@ namespace Libdas {
     }
 
     
-    std::string AsciiLineReader::ExtractString() {
-        char *end = m_rd_ptr;
+    std::string AsciiLineReader::_ExtractString() {
+        char *end = m_rd_ptr + 1;
         bool br = false;
 
         do {
-            end = strchr(end, static_cast<int>('"'));
+            end = strchr(end, static_cast<int>('\"'));
             
             if(end == m_buffer || *(end - 1) != '\\')
                 br = true;
-        } while(br);
+            else end++;
+        } while(!br);
 
-        std::string str_val = std::string(m_rd_ptr, end - m_rd_ptr);
+        std::string str_val = std::string(m_rd_ptr, end - m_rd_ptr + 1);
 
         // check if quotation marks can be avoided
         if(str_val.size() > 2)
-            str_val = str_val.substr(1, str_val.size() - 1);
+            str_val = str_val.substr(1, str_val.size() - 2);
 
         m_rd_ptr = end + 1;
         return str_val;
     }
 
 
-    char *AsciiLineReader::GetReadPtr() {
+    char *AsciiLineReader::_ExtractBlob(uint32_t _size, char *_data) {
+        // allocate memory if _data is a nullptr
+        if(!_data) _data = reinterpret_cast<char*>(std::malloc(static_cast<size_t>(_size)));
+        std::memcpy(_data, m_rd_ptr, static_cast<size_t>(_size));
+        m_rd_ptr += _size;
+
+        return _data;
+    }
+
+
+    char *AsciiLineReader::_GetReadPtr() {
         return m_rd_ptr;
     }
 
 
-    std::pair<char*, char*> AsciiLineReader::GetLineBounds() {
+    std::pair<char*, char*> AsciiLineReader::_GetLineBounds() {
         return std::make_pair(m_line_beg, m_line_end);
     }
 
 
-    void AsciiLineReader::SetReadPtr(char *_ptr) {
+    void AsciiLineReader::_SetReadPtr(char *_ptr) {
         m_rd_ptr = _ptr;
     }
 
 
-    void AsciiLineReader::SetLineBounds(const std::pair<char*, char*> &_bounds) {
+    void AsciiLineReader::_SetLineBounds(const std::pair<char*, char*> &_bounds) {
         m_line_beg = _bounds.first;
         m_line_end = _bounds.second;
+    }
+
+
+    std::string AsciiLineReader::GetFileName() {
+        return m_file_name;
     }
 }

@@ -85,15 +85,16 @@ namespace Libdas {
      */
     struct DasModel {
         std::string name = "";
+        // buffer ids with values UINT32_MAX are reserved values, indicating that no value is used
         uint32_t index_buffer_id = 0;
         uint32_t index_buffer_offset = 0;
         uint32_t indices_count = 0;
         uint32_t vertex_buffer_id = 0;
         uint32_t vertex_buffer_offset = 0;
-        uint32_t texture_id = 0;
-        uint32_t texture_map_buffer_id = 0;
+        uint32_t texture_id = UINT32_MAX; 
+        uint32_t texture_map_buffer_id = UINT32_MAX;
         uint32_t texture_map_buffer_offset = 0;
-        uint32_t vertex_normal_buffer_id = 0;
+        uint32_t vertex_normal_buffer_id = UINT32_MAX;
         uint32_t vertex_normal_buffer_offset = 0;
         Matrix4<float> transform;
 
@@ -125,7 +126,7 @@ namespace Libdas {
         // NOTE: timestamp value 0 is never used and by default the initial keyframe is considered to be the models position value
         uint32_t timestamp;
         uint32_t vertex_buffer_id;
-        uint32_t vertex_offset;
+        uint32_t vertex_buffer_offset;
         uint32_t texture_map_buffer_id;
         uint32_t texture_map_buffer_offset;
         uint32_t vertex_normal_buffer_id;
@@ -208,8 +209,7 @@ namespace Libdas {
 
         // value types
         enum ValueType {
-            LIBDAS_SCENE_NAME,
-            LIBDAS_SCENE_NODE
+            LIBDAS_SCENE_NAME
         } val_types;
     };
 }

@@ -117,14 +117,16 @@ namespace Libdas {
         do {
             // line can be read
             while(_NextLine()) {
-                m_rd_ptr = m_line_beg;
+                _SetReadPtr(_GetLineBounds().first);
                 // search the first keyword
-                SkipSkippableCharacters();
+                _SkipSkippableCharacters();
+                char *rd = _GetReadPtr();
 
                 // extract keyword
-                char *end = ExtractWord();
-                std::string key = std::string(m_rd_ptr, end - m_rd_ptr);
-                m_rd_ptr = end;
+                char *end = _ExtractWord();
+                std::string key = std::string(rd, end - rd);
+                _SetReadPtr(end);
+                rd = _GetReadPtr();
                 AsciiSTLStatementCallback callback = _AnalyseKeyword(key);
 
                 if(callback.type != ASCII_STL_STATEMENT_NONE) {
@@ -137,8 +139,7 @@ namespace Libdas {
                 m_parse_pos++;
             }
 
-            m_line_beg = nullptr;
-            m_line_end = nullptr;
+            _SetLineBounds(std::make_pair(nullptr, nullptr));
         } while(_ReadNewChunk());
     }
 
@@ -160,8 +161,8 @@ namespace Libdas {
     /***** BinarySTLParser class implementation *****/
     /************************************************/
 
-    BinarySTLParser::BinarySTLParser(const std::string &_file_name) :
-        m_line_reader(_file_name), m_error(MODEL_FORMAT_STLB)
+    BinarySTLParser::BinarySTLParser(const std::string &_file_name) : 
+        m_error(MODEL_FORMAT_STLB)
     {
         // check if appropriate file name was provided
         if(_file_name != "") {
@@ -191,19 +192,18 @@ namespace Libdas {
 
     void BinarySTLParser::_LoadHeader() {
         m_stream.read(reinterpret_cast<char*>(&m_header), sizeof(BinarySTLHeader));
+        m_object.name = _ExtractModelName();
+    }
 
-        m_line_reader.SetLineBounds(std::make_pair(m_header.signature, m_header.signature + STL_BINARY_SIGNATURE_SIZE));
-        m_line_reader.SetReadPtr(m_header.signature);
 
-        // Search for the name in signature
-        m_line_reader.SkipSkippableCharacters();
-        char *end = m_line_reader.ExtractWord();
-        char *rd_ptr = m_line_reader.GetReadPtr();
+    std::string BinarySTLParser::_ExtractModelName() {
+        std::string name = "Binary STL object";
+        for(uint32_t i = 0; i < 80; i++) {
+            if(m_header.signature[i] == 0x00)
+                name = std::string(m_header.signature, i + 1);
+        }
 
-        if(end - rd_ptr != 0)
-            m_object.name = std::string(rd_ptr, end - rd_ptr);
-        else 
-            m_object.name = "Binary object";
+        return name;
     }
 
 

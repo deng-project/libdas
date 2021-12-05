@@ -14,7 +14,7 @@ namespace Libdas {
         m_end(_end), m_buffer_size(_chunk_size) 
     {
         LIBDAS_ASSERT(_chunk_size > 0);
-        m_buffer= (char*) std::malloc(m_buffer_size);
+        m_buffer = (char*) std::calloc(m_buffer_size, sizeof(char));
         std::memset(m_buffer, 0, m_buffer_size);
 
         if(_file_name != "") {
@@ -31,9 +31,8 @@ namespace Libdas {
     }
 
 
-    size_t *AsciiStreamReader::_CreateLSPArray() {
-        size_t *lsp = new size_t[m_end.size()];
-        lsp[0] = 0;
+    std::vector<size_t> AsciiStreamReader::_CreateLSPArray() {
+        std::vector<size_t> lsp(m_end.size());
 
         size_t j = 0;
         for(size_t i = 1; i < m_end.size(); i++) {
@@ -57,7 +56,7 @@ namespace Libdas {
         std::vector<size_t> occurences;
         occurences.reserve(m_buffer_size / 4 > 0 ? m_buffer_size / 4 : 1); // assuming the probable worst case
 
-        size_t *lsp = _CreateLSPArray();
+        std::vector<size_t> lsp = _CreateLSPArray();
 
         size_t j = 0;
         for(size_t i = 0; i < m_buffer_size; i++) {
@@ -69,10 +68,10 @@ namespace Libdas {
                 j++;
                 if(j == m_end.size())
                     occurences.push_back(i - j + 1);
+                j--;
             }
         }
 
-        delete [] lsp;
         return occurences;
     }
 

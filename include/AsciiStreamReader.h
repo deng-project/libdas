@@ -42,9 +42,9 @@ namespace Libdas {
         private:
             /**
              * Create longest suffix-prefix table from end string for KMP algorithm
-             * @return int array containing the LSP table
+             * @return std::vector<size> instance containing the LSP table
              */
-            size_t *_CreateLSPArray();
+            std::vector<size_t> _CreateLSPArray();
             /**
              * Find all end string locations from given buffer using kmp algorithm (O(n))
              * @return std::vector<int> instance containing all substring occurence indices

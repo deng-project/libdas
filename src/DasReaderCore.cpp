@@ -284,8 +284,10 @@ namespace Libdas {
                 break;
 
             default:
-                LIBDAS_ASSERT(false);
+                break;
         }
+
+        LIBDAS_ASSERT(false);
     }
 
 
@@ -306,8 +308,10 @@ namespace Libdas {
                 break;
 
             default:
-                LIBDAS_ASSERT(false);
+                break;
         }
+
+        LIBDAS_ASSERT(false);
     }
 
 
@@ -373,8 +377,10 @@ namespace Libdas {
                 break;
 
             default:
-                LIBDAS_ASSERT(false);
+                break;
         }
+
+        LIBDAS_ASSERT(false);
     }
 
 
@@ -400,8 +406,10 @@ namespace Libdas {
                 break;
 
             default:
-                LIBDAS_ASSERT(false);
+                break;
         }
+
+        LIBDAS_ASSERT(false);
     }
 
 
@@ -443,8 +451,10 @@ namespace Libdas {
                 break;
 
             default:
-                LIBDAS_ASSERT(false);
+                break;
         }
+
+        LIBDAS_ASSERT(false);
     }
 
 
@@ -455,8 +465,10 @@ namespace Libdas {
                 break;
 
             default:
-                LIBDAS_ASSERT(false);
+                break;
         }
+
+        LIBDAS_ASSERT(false);
     }
 
 
@@ -505,8 +517,10 @@ namespace Libdas {
                 break;
             
             default:
-                LIBDAS_ASSERT(false);
+                break;
         }
+
+        LIBDAS_ASSERT(false);
     }
 
 
@@ -541,8 +555,10 @@ namespace Libdas {
                 break;
 
             default:
-                LIBDAS_ASSERT(false);
+                break;
         }
+
+        LIBDAS_ASSERT(false);
     }
 
 
@@ -600,8 +616,11 @@ namespace Libdas {
                 return DasSceneNode();
 
             default:
-                LIBDAS_ASSERT(false);
+                break;
         }
+
+        LIBDAS_ASSERT(false);
+        return std::any();
     }
 
 

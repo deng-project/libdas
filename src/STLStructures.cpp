@@ -11,6 +11,28 @@ namespace Libdas {
     
     namespace STLFunctions {
 
+        bool Identify(const std::string &_file_name) {
+            std::ifstream file(_file_name, std::ios_base::binary);
+
+            // skip whitespaces
+            char ch = file.get();
+            while(ch == ' ' || ch == '\n' || ch == '\r')
+                ch = file.get();
+
+            // read solid statement
+            const std::string exp_statement = "solid ";
+            char statement[7] = {};
+            file.read(statement, 6);
+
+            file.close();
+
+            // determine the file identity
+            if(std::string(statement) == exp_statement)
+                return true;
+            else return false;
+        }
+
+
         std::string _ConcatenateArgs(ArgsType &_args) {
             std::string con = "";
             for(size_t i = 0; i < _args.second.size(); i++) {
@@ -36,7 +58,7 @@ namespace Libdas {
 
             // concatenate arguments into one name
             std::string name = _ConcatenateArgs(_args);
-            _groups.push(STLObject(std::move(name)));
+            _groups.push_back(STLObject(std::move(name)));
         }
 
 

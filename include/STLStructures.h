@@ -10,7 +10,8 @@
 #ifdef STL_STRUCTURES_CPP
     #include <cstdint>
     #include <string>
-    #include <queue>
+    #include <vector>
+    #include <fstream>
     #include <array>
 
     #include <Points.h>
@@ -35,7 +36,14 @@ namespace Libdas {
 
     namespace STLFunctions {
 
-        typedef std::queue<STLObject> Groups;
+        /**
+         * Identify the STL format type (ascii or binary)
+         * @param _file_name specifies the file name to use
+         * @return true is the format is Ascii STL and false otherwards
+         */
+        bool Identify(const std::string &_file_name);
+
+        typedef std::vector<STLObject> Groups;
         
         /**
          * Universal function pointer type declaration for STL keyword action callback

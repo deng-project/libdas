@@ -5,18 +5,18 @@
 
 #ifndef STREAM_READER_H
 #define STREAM_READER_H
-
-
 #define DEFAULT_CHUNK   4096
 
 #ifdef STREAM_READER_CPP
     #include <cstring>
     #include <string>
     #include <vector>
+    #include <climits>
     #include <fstream>
     #include <iostream>
     #include <algorithm>
 
+    #include <FileNameString.h>
     #include <LibdasAssert.h>
     #include <ErrorHandlers.h>
 #endif
@@ -38,18 +38,6 @@ namespace Libdas {
             char *m_buffer;
             size_t m_buffer_size;
             size_t m_last_read = 0;
-
-        private:
-            /**
-             * Create longest suffix-prefix table from end string for KMP algorithm
-             * @return std::vector<size> instance containing the LSP table
-             */
-            std::vector<size_t> _CreateLSPArray();
-            /**
-             * Find all end string locations from given buffer using kmp algorithm (O(n))
-             * @return std::vector<int> instance containing all substring occurence indices
-             */
-            std::vector<size_t> _FindEndStringInstances();
 
         protected:
             AsciiStreamReader(const std::string &_file_name = "", size_t _chunk_size = DEFAULT_CHUNK, const std::string &_end = "\n");

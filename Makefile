@@ -17,6 +17,7 @@ ifeq ($(config),debug_win32)
   WavefrontObjCompilerTest_config = debug_win32
   TextureReaderTest_config = debug_win32
   DasReaderCoreTest_config = debug_win32
+  DASTool_config = debug_win32
 
 else ifeq ($(config),debug_linux)
   das_config = debug_linux
@@ -27,6 +28,7 @@ else ifeq ($(config),debug_linux)
   WavefrontObjCompilerTest_config = debug_linux
   TextureReaderTest_config = debug_linux
   DasReaderCoreTest_config = debug_linux
+  DASTool_config = debug_linux
 
 else ifeq ($(config),release_win32)
   das_config = release_win32
@@ -37,6 +39,7 @@ else ifeq ($(config),release_win32)
   WavefrontObjCompilerTest_config = release_win32
   TextureReaderTest_config = release_win32
   DasReaderCoreTest_config = release_win32
+  DASTool_config = release_win32
 
 else ifeq ($(config),release_linux)
   das_config = release_linux
@@ -47,12 +50,13 @@ else ifeq ($(config),release_linux)
   WavefrontObjCompilerTest_config = release_linux
   TextureReaderTest_config = release_linux
   DasReaderCoreTest_config = release_linux
+  DASTool_config = release_linux
 
 else
   $(error "invalid configuration $(config)")
 endif
 
-PROJECTS := das WavefrontObjParserTest AsciiSTLParserTest BinarySTLParserTest HuffmanCompressionTest WavefrontObjCompilerTest TextureReaderTest DasReaderCoreTest
+PROJECTS := das WavefrontObjParserTest AsciiSTLParserTest BinarySTLParserTest HuffmanCompressionTest WavefrontObjCompilerTest TextureReaderTest DasReaderCoreTest DASTool
 
 .PHONY: all clean help $(PROJECTS) 
 
@@ -106,6 +110,12 @@ ifneq (,$(DasReaderCoreTest_config))
 	@${MAKE} --no-print-directory -C . -f DasReaderCoreTest.make config=$(DasReaderCoreTest_config)
 endif
 
+DASTool: das
+ifneq (,$(DASTool_config))
+	@echo "==== Building DASTool ($(DASTool_config)) ===="
+	@${MAKE} --no-print-directory -C . -f DASTool.make config=$(DASTool_config)
+endif
+
 clean:
 	@${MAKE} --no-print-directory -C . -f das.make clean
 	@${MAKE} --no-print-directory -C . -f WavefrontObjParserTest.make clean
@@ -115,6 +125,7 @@ clean:
 	@${MAKE} --no-print-directory -C . -f WavefrontObjCompilerTest.make clean
 	@${MAKE} --no-print-directory -C . -f TextureReaderTest.make clean
 	@${MAKE} --no-print-directory -C . -f DasReaderCoreTest.make clean
+	@${MAKE} --no-print-directory -C . -f DASTool.make clean
 
 help:
 	@echo "Usage: make [config=name] [target]"
@@ -136,5 +147,6 @@ help:
 	@echo "   WavefrontObjCompilerTest"
 	@echo "   TextureReaderTest"
 	@echo "   DasReaderCoreTest"
+	@echo "   DASTool"
 	@echo ""
 	@echo "For more information, see https://github.com/premake/premake-core/wiki"

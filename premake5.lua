@@ -44,6 +44,7 @@ newoption {
         { "BinarySTLParser", "Build BinarySTLParser class test" },
         { "HuffmanCompression", "Build Huffman compression class test application" },
         { "WavefrontObjCompiler", "Build a Wavefront OBJ compiler test application" },
+        --{ "DasParser", "Build a DAS parser test application" },
         -- tmp --
         { "TextureReader", "Build TextureReader class test" },
         { "DasReaderCoreTest", "Build DasReaderCore class test" },
@@ -112,6 +113,12 @@ function LoadTests()
         wobj_compiler.build()
     end
 
+    --if _OPTIONS["tests"] == "all" or _OPTIONS["tests"] == "DasParser" then
+        --print("Including DasParser test config")
+        --local das_parser = require("premake/tests/DasParser")
+        --das_parser.build()
+    --end
+
     -- tmp --
     if _OPTIONS["tests"] == "all" or _OPTIONS["tests"] == "TextureReader" then
         print("Including TextureReader test config");
@@ -127,6 +134,13 @@ function LoadTests()
 end
 
 
+-- Load DASTool load configuration --
+function LoadToolConfig() 
+    local tool = require("premake/DASTool")
+    tool.build(not _OPTIONS["no-lib"]);
+end
+
+
 -- Load all required build configs --
 function LoadBuildConfigs()
     -- Load libdas build configuration --
@@ -134,9 +148,10 @@ function LoadBuildConfigs()
         print("Including libdas configurations")
         local libdas = require("premake/libdas")
         libdas.build()
+        LoadTests()
     end
 
-    LoadTests()
+    LoadToolConfig();
 end
 
 

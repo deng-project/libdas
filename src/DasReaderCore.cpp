@@ -714,7 +714,10 @@ namespace Libdas {
         }
 
         else {
-            if(m_scope_name_map.find(_scope_str) == m_scope_name_map.end())
+            if(_scope_str == "")
+                return LIBDAS_DAS_SCOPE_END;
+
+            else if(m_scope_name_map.find(_scope_str) == m_scope_name_map.end())
                 return LIBDAS_DAS_SCOPE_UNDEFINED;
 
             return m_scope_name_map[_scope_str];

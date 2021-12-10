@@ -18,14 +18,7 @@ function Libdas.build()
 
         -- Most of these files are for legacy references --
         removefiles {
-            "src/dam.cpp",
-            "src/hashmap.cpp",
-            "src/hf_comp.cpp",
-            "src/huf.cpp",
-            "src/objdump.cpp",
-            "src/tex_loader.cpp",
-            "src/uuid.cpp",
-            "src/KMP.cpp"
+            "src/DASTool.cpp"
             -- This list is incomplete, you can help by expanding it :)))
         }
 

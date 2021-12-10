@@ -30,7 +30,7 @@ namespace Libdas {
         buffers[0].type = LIBDAS_BUFFER_TYPE_VERTEX;
         buffers[1].type = LIBDAS_BUFFER_TYPE_TEXTURE_MAP;
         buffers[2].type = LIBDAS_BUFFER_TYPE_VERTEX_NORMAL;
-        buffers[3].type = LIBDAS_BUFFER_TYPE_INDICIES;
+        buffers[3].type = LIBDAS_BUFFER_TYPE_INDICES;
 
         for(const WavefrontObjGroup &group : _groups) {
             const char *data = nullptr;

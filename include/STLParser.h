@@ -11,7 +11,7 @@
     #include <cstring>
     #include <string>
     #include <iostream>
-    #include <queue>
+    #include <vector>
     #include <fstream>
     #include <unordered_map>
 
@@ -55,7 +55,7 @@ namespace Libdas {
         private:
             AsciiFormatErrorHandler m_error;
             std::unordered_map<std::string, AsciiSTLStatementCallback> m_tokens;
-            std::queue<STLObject> m_objects;
+            std::vector<STLObject> m_objects;
             uint32_t m_parse_pos = 1;
 
             // boolean flags for defining facet, vertex loop and solid object reading statuses
@@ -97,15 +97,10 @@ namespace Libdas {
              */
             void Parse(const std::string &_file_name);
             /**
-             * Pop parsed STL group from the queue
-             * @return most front STLObject instance from the queue
+             * Get all parsed STL objects
+             * @return reference to std::vector instance containing all STL objects
              */
-            STLObject PopSTLObjectFromQueue();
-            /**
-             * Check if the STLObject queue is empty or not
-             * @return true if the queue is empty, false otherwise
-             */
-            bool IsObjectQueueEmpty();
+            std::vector<STLObject> &GetObjects();
     };
 
 

@@ -23,9 +23,8 @@ int main(int argc, char *argv[]) {
     Libdas::AsciiSTLParser stl_parser(argv[1]);
     stl_parser.Parse();
 
-    while(!stl_parser.IsObjectQueueEmpty()) {
-        Libdas::STLObject obj = stl_parser.PopSTLObjectFromQueue();
-
+    std::vector<Libdas::STLObject> &objects = stl_parser.GetObjects();
+    for(Libdas::STLObject &obj : objects) {
         std::cout << "Object name: " << obj.name << std::endl;
         std::cout << "Facets count: " << obj.facets.size() << std::endl;
         std::cout << "Vertices count: " << obj.facets.size() * 3 << std::endl;

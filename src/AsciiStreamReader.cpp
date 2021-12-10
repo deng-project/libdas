@@ -9,7 +9,6 @@
 
 namespace Libdas {
 
-
     AsciiStreamReader::AsciiStreamReader(const std::string &_file_name, size_t _chunk_size, const std::string &_end) : 
         m_end(_end), m_buffer_size(_chunk_size) 
     {
@@ -31,51 +30,6 @@ namespace Libdas {
     }
 
 
-    std::vector<size_t> AsciiStreamReader::_CreateLSPArray() {
-        std::vector<size_t> lsp(m_end.size());
-
-        size_t j = 0;
-        for(size_t i = 1; i < m_end.size(); i++) {
-            j = lsp[i - 1];
-
-            // skip all invalid prefixes
-            while(j > 0 && m_end[i] != m_end[j])
-                j = lsp[j - 1];
-
-            if(m_end[i] == m_end[j])
-                j = j + 1;
-
-            lsp[i] = j;
-        }
-
-        return lsp;
-    }
-
-
-    std::vector<size_t> AsciiStreamReader::_FindEndStringInstances() {
-        std::vector<size_t> occurences;
-        occurences.reserve(m_buffer_size / 4 > 0 ? m_buffer_size / 4 : 1); // assuming the probable worst case
-
-        std::vector<size_t> lsp = _CreateLSPArray();
-
-        size_t j = 0;
-        for(size_t i = 0; i < m_buffer_size; i++) {
-            // fallback on invalid values
-            while(j > 0 && m_buffer[i] != m_end[j])
-                j = lsp[j - 1];
-
-            if(m_buffer[i] == m_end[j]) {
-                j++;
-                if(j == m_end.size())
-                    occurences.push_back(i - j + 1);
-                j--;
-            }
-        }
-
-        return occurences;
-    }
-
-
     bool AsciiStreamReader::_ReadNewChunk() {
         // verify that stream is open
         LIBDAS_ASSERT(m_stream.is_open());
@@ -92,7 +46,7 @@ namespace Libdas {
         read_bytes = m_stream.tellg();
 
         // using backwards KMP substring search algorithm
-        std::vector<size_t> instances = _FindEndStringInstances();
+        std::vector<size_t> instances = String::FindSubstringInstances(const_cast<const char*>(m_buffer), m_buffer_size, m_end);
 
         int64_t back = static_cast<int64_t>(instances.back()) + static_cast<int64_t>(m_end.size()) - 
                        static_cast<int64_t>(m_last_read);

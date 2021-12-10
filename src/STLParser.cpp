@@ -144,16 +144,8 @@ namespace Libdas {
     }
 
 
-    STLObject AsciiSTLParser::PopSTLObjectFromQueue() {
-        STLObject obj = std::move(m_objects.front());
-        m_objects.pop();
-
-        return obj;
-    }
-
-
-    bool AsciiSTLParser::IsObjectQueueEmpty() {
-        return m_objects.empty();
+    std::vector<STLObject> &AsciiSTLParser::GetObjects() {
+        return m_objects;
     }
 
 

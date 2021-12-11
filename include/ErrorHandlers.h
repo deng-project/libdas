@@ -38,9 +38,10 @@ typedef uint16_t ErrorType;
 /// Binary format errors
 #define LIBDAS_ERROR_INVALID_SIGNATURE              10  // binary error
 #define LIBDAS_ERROR_INVALID_DATA                   11  // binary error
+#define LIBDAS_ERROR_INVALID_VALUE                  12  // binary error
 
 /// Misc
-#define LIBDAS_ERROR_INVALID_FILE                   12  // misc
+#define LIBDAS_ERROR_INVALID_FILE                   13  // misc
 
 /// Warnings
 #define LIBDAS_WARNING_UNUSED_STATEMENT             13  // statement warning

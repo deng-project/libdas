@@ -111,8 +111,23 @@ namespace Libdas {
     char *AsciiLineReader::_ExtractBlob(uint32_t _size, char *_data) {
         // allocate memory if _data is a nullptr
         if(!_data) _data = reinterpret_cast<char*>(std::malloc(static_cast<size_t>(_size)));
-        std::memcpy(_data, m_rd_ptr, static_cast<size_t>(_size));
-        m_rd_ptr += _size;
+
+        char *data_ptr = _data;
+        size_t rem = static_cast<size_t>(_size);
+        while(rem != 0) {
+            // remaining size is larger than remaining data in buffer
+            if(m_last_read - (m_rd_ptr - m_buffer) <= rem) {
+                std::memcpy(data_ptr, m_rd_ptr, m_last_read - (m_rd_ptr - m_buffer));
+                data_ptr += m_last_read - (m_rd_ptr - m_buffer);
+                rem -= m_last_read - (m_rd_ptr - m_buffer);
+                _ReadNewChunk();
+                m_rd_ptr = m_buffer;
+            } else {
+                std::memcpy(_data, m_rd_ptr, rem);
+                m_rd_ptr += rem;
+                rem = 0;
+            }
+        }
 
         return _data;
     }

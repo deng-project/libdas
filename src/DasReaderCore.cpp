@@ -20,6 +20,7 @@ namespace Libdas {
 
     void DasReaderCore::_CreateScopeNameMap() {
         m_scope_name_map["PROPERTIES"] = LIBDAS_DAS_SCOPE_PROPERTIES;
+        m_scope_name_map["BUFFER"] = LIBDAS_DAS_SCOPE_BUFFER;
         m_scope_name_map["MODEL"] = LIBDAS_DAS_SCOPE_MODEL;
         m_scope_name_map["ANIMATION"] = LIBDAS_DAS_SCOPE_ANIMATION;
         m_scope_name_map["KEYFRAME"] = LIBDAS_DAS_SCOPE_KEYFRAME;
@@ -61,13 +62,14 @@ namespace Libdas {
         m_unique_val_map["ANIMATIONCOUNT"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_ANIMATION_COUNT;
 
         // universal
+        m_unique_val_map["NAME"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_NAME;
         m_unique_val_map["TRANSFORM"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_TRANSFORM;
         m_unique_val_map["VERTEXBUFFERID"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_BUFFER_ID;
         m_unique_val_map["VERTEXBUFFEROFFSET"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_BUFFER_OFFSET;
         m_unique_val_map["TEXTUREMAPBUFFERID"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_TEXTURE_MAP_BUFFER_ID;
         m_unique_val_map["TEXTUREMAPBUFFEROFFSET"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_TEXTURE_MAP_BUFFER_OFFSET;
         m_unique_val_map["VERTEXNORMALBUFFERID"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_NORMAL_BUFFER_ID;
-        m_unique_val_map["VERTEXNORMALOFFSET"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_NORMAL_BUFFER_OFFSET;
+        m_unique_val_map["VERTEXNORMALBUFFEROFFSET"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_NORMAL_BUFFER_OFFSET;
     }
 
 
@@ -284,10 +286,9 @@ namespace Libdas {
                 break;
 
             default:
+                LIBDAS_ASSERT(false);
                 break;
         }
-
-        LIBDAS_ASSERT(false);
     }
 
 
@@ -308,10 +309,9 @@ namespace Libdas {
                 break;
 
             default:
+                LIBDAS_ASSERT(false);
                 break;
         }
-
-        LIBDAS_ASSERT(false);
     }
 
 
@@ -377,10 +377,9 @@ namespace Libdas {
                 break;
 
             default:
+                LIBDAS_ASSERT(false);
                 break;
         }
-
-        LIBDAS_ASSERT(false);
     }
 
 
@@ -406,10 +405,9 @@ namespace Libdas {
                 break;
 
             default:
+                LIBDAS_ASSERT(false);
                 break;
         }
-
-        LIBDAS_ASSERT(false);
     }
 
 
@@ -451,10 +449,9 @@ namespace Libdas {
                 break;
 
             default:
+                LIBDAS_ASSERT(false);
                 break;
         }
-
-        LIBDAS_ASSERT(false);
     }
 
 
@@ -465,10 +462,9 @@ namespace Libdas {
                 break;
 
             default:
+                LIBDAS_ASSERT(false);
                 break;
         }
-
-        LIBDAS_ASSERT(false);
     }
 
 
@@ -517,48 +513,61 @@ namespace Libdas {
                 break;
             
             default:
+                LIBDAS_ASSERT(false);
                 break;
         }
-
-        LIBDAS_ASSERT(false);
     }
 
 
-    void DasReaderCore::_ReadScopeValueDataCaller(std::any &_scope, DasScopeType _type, std::any &_value_type) {
+    void DasReaderCore::_ReadScopeValueDataCaller(std::any &_scope, DasScopeType _type, std::any &_value_type, const std::string &_val_str) {
+        // any type check is necessary for correct error output
         switch(_type) {
             case LIBDAS_DAS_SCOPE_PROPERTIES:
+                if(_value_type.type() != typeid(DasProperties::ValueType))
+                    m_error.Error(LIBDAS_ERROR_INVALID_VALUE, _val_str);
                 _ReadPropertiesValue(std::any_cast<DasProperties>(&_scope), std::any_cast<DasProperties::ValueType>(_value_type));
                 break;
 
             case LIBDAS_DAS_SCOPE_BUFFER:
+                if(_value_type.type() != typeid(DasBuffer::ValueType))
+                    m_error.Error(LIBDAS_ERROR_INVALID_VALUE, _val_str);
                 _ReadBufferValue(std::any_cast<DasBuffer>(&_scope), std::any_cast<DasBuffer::ValueType>(_value_type));
                 break;
 
             case LIBDAS_DAS_SCOPE_MODEL:
+                if(_value_type.type() != typeid(DasModel::ValueType))
+                    m_error.Error(LIBDAS_ERROR_INVALID_VALUE, _val_str);
                 _ReadModelValue(std::any_cast<DasModel>(&_scope), std::any_cast<DasModel::ValueType>(_value_type));
                 break;
 
             case LIBDAS_DAS_SCOPE_ANIMATION:
+                if(_value_type.type() != typeid(DasAnimation::ValueType))
+                    m_error.Error(LIBDAS_ERROR_INVALID_VALUE, _val_str);
                 _ReadAnimationValue(std::any_cast<DasAnimation>(&_scope), std::any_cast<DasAnimation::ValueType>(_value_type));
                 break;
 
             case LIBDAS_DAS_SCOPE_KEYFRAME:
+                if(_value_type.type() != typeid(DasKeyframe::ValueType))
+                    m_error.Error(LIBDAS_ERROR_INVALID_VALUE, _val_str);
                 _ReadKeyframeValue(std::any_cast<DasKeyframe>(&_scope), std::any_cast<DasKeyframe::ValueType>(_value_type));
                 break;
 
             case LIBDAS_DAS_SCOPE_SCENE:
+                if(_value_type.type() != typeid(DasScene::ValueType))
+                    m_error.Error(LIBDAS_ERROR_INVALID_VALUE, _val_str);
                 _ReadSceneValue(std::any_cast<DasScene>(&_scope), std::any_cast<DasScene::ValueType>(_value_type));
                 break;
 
             case LIBDAS_DAS_SCOPE_SCENE_NODE:
+                if(_value_type.type() != typeid(DasSceneNode::ValueType))
+                    m_error.Error(LIBDAS_ERROR_INVALID_VALUE, _val_str);
                 _ReadSceneNodeValue(std::any_cast<DasSceneNode>(&_scope), std::any_cast<DasSceneNode::ValueType>(_value_type));
                 break;
 
             default:
+                LIBDAS_ASSERT(false);
                 break;
         }
-
-        LIBDAS_ASSERT(false);
     }
 
 
@@ -616,10 +625,10 @@ namespace Libdas {
                 return DasSceneNode();
 
             default:
+                LIBDAS_ASSERT(false);
                 break;
         }
 
-        LIBDAS_ASSERT(false);
         return std::any();
     }
 
@@ -663,8 +672,23 @@ namespace Libdas {
             _SkipSkippableCharacters(true);
             char *beg = _GetReadPtr();
             char *end = _ExtractWord();
+            _SetReadPtr(end);
 
             val_decl = std::string(beg, end - beg);
+
+            // no more data in buffer chunk
+            if(val_decl == "") {
+                bool is_read = _ReadNewChunk();
+                if(!is_read)
+                    m_error.Error(LIBDAS_ERROR_INCOMPLETE_SCOPE);
+
+                _SkipSkippableCharacters(true);
+                beg = _GetReadPtr();
+                end = _ExtractWord();
+                _SetReadPtr(end);
+                val_decl = std::string(beg, end - beg);
+            }
+
             val_statement = val_decl.substr(0, val_decl.size() - 1);
 
             // check if value declaration is present
@@ -673,25 +697,21 @@ namespace Libdas {
                 DasScopeType sub_scope = ParseScopeDeclaration(val_decl);
                 if(sub_scope == LIBDAS_DAS_SCOPE_UNDEFINED && val_decl != "ENDSCOPE") 
                     m_error.Error(LIBDAS_ERROR_INVALID_DATA);
-                else if(val_decl == "ENDSCOPE") break;
+                else if(val_decl == "ENDSCOPE") 
+                    break;
                 else {
                     std::any sub_scope_val = ReadScopeData(sub_scope);
                     _VerifySubScope(_type, sub_scope, sub_scope_val, scope);
                 }
             }
                 
-            _SetReadPtr(end);
             std::any value_info = _GetValueInformation(_type, val_statement);
-
-            // check if expected value type was not found
-            if(value_info.type() != typeid(DasProperties::ValueType))
-                m_error.Error(LIBDAS_ERROR_INVALID_DATA);
             
             // skip the whitespace following the declaration
             _SkipData(1);
 
             // data is in correct type thus read its value
-            _ReadScopeValueDataCaller(scope, _type, value_info);
+            _ReadScopeValueDataCaller(scope, _type, value_info, val_statement);
 
         } while(_GetReadPtr() < m_buffer + m_buffer_size);
 
@@ -701,11 +721,23 @@ namespace Libdas {
 
     DasScopeType DasReaderCore::ParseScopeDeclaration(const std::string &_scope_str) {
         if(_scope_str == "") {
-            _SkipSkippableCharacters();
+            _SkipSkippableCharacters(true);
             char *beg = _GetReadPtr();
             char *end = _ExtractWord();
             _SetReadPtr(end);
+
             std::string decl = std::string(beg, end - beg);
+            if(decl == "") {
+                bool is_read = _ReadNewChunk();
+                _SetReadPtr(m_buffer);
+                if(!is_read) return LIBDAS_DAS_SCOPE_END;
+
+                _SkipSkippableCharacters(true);
+                beg = _GetReadPtr();
+                end = _ExtractWord();
+                _SetReadPtr(end);
+                decl = std::string(beg, end - beg);
+            }
 
             if(m_scope_name_map.find(decl) == m_scope_name_map.end())
                 return LIBDAS_DAS_SCOPE_UNDEFINED;

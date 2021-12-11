@@ -59,9 +59,11 @@ namespace Libdas {
         DasScopeType type = LIBDAS_DAS_SCOPE_END;
         do {
             type = ParseScopeDeclaration();
+            if(type == LIBDAS_DAS_SCOPE_END)
+                break;
             std::any any_scope = ReadScopeData(type);
             _DataCast(any_scope, type);
-        } while(type != LIBDAS_DAS_SCOPE_END);
+        } while(true);
     }
 
 

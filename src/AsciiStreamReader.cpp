@@ -48,11 +48,14 @@ namespace Libdas {
         // using backwards KMP substring search algorithm
         std::vector<size_t> instances = String::FindSubstringInstances(const_cast<const char*>(m_buffer), m_buffer_size, m_end);
 
-        int64_t back = static_cast<int64_t>(instances.back()) + static_cast<int64_t>(m_end.size()) - 
-                       static_cast<int64_t>(m_last_read);
+        if(instances.size()) {
+            m_last_read = instances.back() + m_end.size();
+            int64_t back = static_cast<int64_t>(instances.back()) + static_cast<int64_t>(m_end.size()) - 
+                           static_cast<int64_t>(m_last_read);
 
-        m_stream.seekg(back, std::ios_base::cur);
-        m_last_read = instances.back() + m_end.size();
+            m_stream.seekg(back, std::ios_base::cur);
+        }
+        else m_last_read = m_buffer_size;
         return true;
     }
 

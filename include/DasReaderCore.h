@@ -184,8 +184,9 @@ namespace Libdas {
              * @param _scope specifies any _scope value that is read
              * @param _type specifies that scope type
              * @param _value_type specifies the scope value type
+             * @param _val_str specifies the value string that was read
              */
-            void _ReadScopeValueDataCaller(std::any &_scope, DasScopeType _type, std::any &_value_type);
+            void _ReadScopeValueDataCaller(std::any &_scope, DasScopeType _type, std::any &_value_type, const std::string &_val_str);
             /**
              * Verify parsed subscope and throw an error if the subscope does not belong to the parent scope
              * @param _type specifes the parent scope type

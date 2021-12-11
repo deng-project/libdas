@@ -8,10 +8,12 @@
 #ifdef DAS_TOOL_CPP
     #include <any>
     #include <string>
+    #include <ctime>
     #include <fstream>
     #include <iostream>
     #include <cstring>
     #include <vector>
+    #include <stdexcept>
     #include <unordered_map>
     
     #include <FileNameString.h>
@@ -39,6 +41,11 @@ typedef uint8_t FlagType;
 #define OUTPUT_FLAG_AUTHOR          0x04
 #define OUTPUT_FLAG_COPYRIGHT       0x08
 #define OUTPUT_FLAG_MODEL           0x10
+#define OUTPUT_FLAG_VERBOSE         0x20
+#define OUTPUT_FLAG_OUT_FILE        0x40
+
+#define VERSION_MAJOR       0
+#define VERSION_MINOR       1
 
 // unused
 
@@ -61,10 +68,17 @@ class DASTool {
             std::make_pair("--no-curves", OUTPUT_FLAG_NO_CURVES),
             std::make_pair("--author", OUTPUT_FLAG_AUTHOR),
             std::make_pair("--copyright", OUTPUT_FLAG_COPYRIGHT),
-            std::make_pair("--model", OUTPUT_FLAG_MODEL)
+            std::make_pair("--model", OUTPUT_FLAG_MODEL),
+            std::make_pair("-v", OUTPUT_FLAG_VERBOSE),
+            std::make_pair("--verbose", OUTPUT_FLAG_VERBOSE),
+            std::make_pair("-o", OUTPUT_FLAG_MODEL),
+            std::make_pair("--output", OUTPUT_FLAG_MODEL)
         };
         FlagType m_flags = 0;
         Libdas::DasProperties m_props;
+        std::string m_author = std::string("DASTool v") + std::to_string(VERSION_MAJOR) + std::string(".") + std::to_string(VERSION_MINOR);
+        std::string m_model = "";
+        std::string m_copyright = "";
         std::string m_out_file;
 
     private:
@@ -96,6 +110,42 @@ class DASTool {
          * @param _input_file is specified GLB file to read from
          */
         void _ConvertGLB(const std::string &_input_file);
+
+        /////////////////////////////////
+        // ***** Listing methods ***** //
+        /////////////////////////////////
+
+        /**
+         * List render attributes of given Wavefront Obj group
+         * @param _group is a reference to WavefrontObjGroup where render attributes are read
+         */
+        void _ListWavefrontObjRenderAttributes(const Libdas::WavefrontObjGroup &_group);
+        
+        /**
+         * List data from STL file to stdout
+         * @param _input_file specifies the STL file to read
+         */
+        void _ListSTL(const std::string &_input_file);
+        /**
+         * List data from Wavefront Obj file to stdout
+         * @param _input_file specifies the Wavefront Obj file to read
+         */
+        void _ListWavefrontOBJ(const std::string &_input_file);
+        /**
+         * List data from GLTF file to stdout
+         * @param _input_file specifies the GLTF file to read
+         */
+        void _ListGLTF(const std::string &_input_file);
+        /**
+         * List data from GLB file to stdout
+         * @param _input_file specifies the GLB file to read
+         */
+        void _ListGLB(const std::string &_input_file);
+        /**
+         * List data from DAS file to stdout
+         * @param _input_file specifies the DAS file to read
+         */
+        void _ListDAS(const std::string &_input_file);
         /**
          * Parse all string output flags into bitmask values
          * @param _opts is a const std::vector reference that holds all string flags
@@ -114,7 +164,7 @@ class DASTool {
          * @param _input_file specifies the input file used for reading
          * @param _opts specifies output options
          */
-        void List(const std::string &_input_file);
+        void List(const std::string &_input_file, const std::vector<std::string> &_opts);
         /**
          * Get DASTool help text
          */

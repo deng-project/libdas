@@ -31,7 +31,7 @@
 
 namespace Libdas {
 
-    class DasParser : public DasReaderCore {
+    class DasParser : private DasReaderCore {
         private:
             DasProperties m_props;
             std::vector<DasBuffer> m_buffers;

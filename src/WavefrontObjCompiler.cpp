@@ -64,7 +64,7 @@ namespace Libdas {
             if(group.indices.faces.size()) {
                 // NOTE: WavefrontObjFace structure is same as DasFace thus no data realignment is necessary
                 data = reinterpret_cast<const char*>(group.indices.faces.data());
-                size = group.indices.faces.size() * sizeof(DasFace);
+                size = group.indices.faces.size() * sizeof(WavefrontObjIndex);
                 buffers[3].data_ptrs.push_back(std::make_pair(data, size));
                 buffers[3].data_len += size;
             }

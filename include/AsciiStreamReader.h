@@ -30,7 +30,7 @@ namespace Libdas {
      */
     class AsciiStreamReader {
         private:
-            std::string m_end;
+            const std::string m_end;
             std::ifstream m_stream;
             size_t m_stream_size = 0;
 

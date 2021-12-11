@@ -11,7 +11,7 @@ typedef uint8_t BufferType;
 #define LIBDAS_BUFFER_TYPE_VERTEX           0
 #define LIBDAS_BUFFER_TYPE_TEXTURE_MAP      1
 #define LIBDAS_BUFFER_TYPE_VERTEX_NORMAL    2
-#define LIBDAS_BUFFER_TYPE_INDICES         3
+#define LIBDAS_BUFFER_TYPE_INDICES          3
 #define LIBDAS_BUFFER_TYPE_TEXTURE_JPEG     4
 #define LIBDAS_BUFFER_TYPE_TEXTURE_PNG      5
 #define LIBDAS_BUFFER_TYPE_TEXTURE_TGA      6
@@ -60,7 +60,7 @@ namespace Libdas {
     struct DasFace {
         uint32_t position;
         uint32_t texture;
-        uint32_t normals;
+        uint32_t normal;
     };
 
 

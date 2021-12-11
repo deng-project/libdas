@@ -21,9 +21,11 @@ namespace Libdas {
             case MODEL_FORMAT_STLA: return "Ascii STL error: ";
             case MODEL_FORMAT_FBXA: return "Ascii FBX error: ";
             case MODEL_FORMAT_GLTF: return "GLTF error: ";
-            default: LIBDAS_ASSERT(false);
+            default: 
+                break;
         }
 
+        LIBDAS_ASSERT(false);
         return "";
     }
 
@@ -40,6 +42,7 @@ namespace Libdas {
 
             default:
                 LIBDAS_ASSERT(false);
+                break;
         }
 
         if(_terminate) exit(_type);
@@ -89,6 +92,7 @@ namespace Libdas {
 
             default:
                 LIBDAS_ASSERT(false);
+                break;
         }
 
         if(_terminate) exit(_type);
@@ -164,8 +168,12 @@ namespace Libdas {
             case MODEL_FORMAT_FBXB: return "Binary FBX error: ";
             case MODEL_FORMAT_GLB: return "GLB error: ";
             case MODEL_FORMAT_DAS: return "DAS error: ";
-            default: LIBDAS_ASSERT(false);
+            default: 
+                break;
         }
+        
+        LIBDAS_ASSERT(false);
+        return "";
     }
 
 
@@ -184,8 +192,13 @@ namespace Libdas {
                 std::cerr << err_beg << " Invalid data" << std::endl;
                 break;
 
+            case LIBDAS_ERROR_INVALID_VALUE:
+                std::cerr << err_beg << " Invalid value: '" << _arg  << "'" << std::endl;
+                break;
+
             default:
                 LIBDAS_ASSERT(false);
+                break;
         }
 
         if(_terminate) std::exit(_type);

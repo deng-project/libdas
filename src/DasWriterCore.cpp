@@ -189,7 +189,10 @@ namespace Libdas {
         _WriteNumericalValue<uint32_t>("DATALEN", _buffer.data_len);
 
         for(size_t i = 0; i < _buffer.data_ptrs.size(); i++) {
-            if(!i) _WriteGenericDataValue(_buffer.data_ptrs[i].first, _buffer.data_ptrs[i].second, false, "DATA");
+            if(!i && i != _buffer.data_ptrs.size() - 1) 
+                _WriteGenericDataValue(_buffer.data_ptrs[i].first, _buffer.data_ptrs[i].second, false, "DATA");
+            else if(!i)
+                _WriteGenericDataValue(_buffer.data_ptrs[i].first, _buffer.data_ptrs[i].second, true, "DATA");
             else if(i != _buffer.data_ptrs.size() - 1)
                 _WriteGenericDataValue(_buffer.data_ptrs[i].first, _buffer.data_ptrs[i].second, false);
             else _WriteGenericDataValue(_buffer.data_ptrs[i].first, _buffer.data_ptrs[i].second);

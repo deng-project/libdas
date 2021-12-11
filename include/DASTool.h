@@ -142,10 +142,25 @@ class DASTool {
          */
         void _ListGLB(const std::string &_input_file);
         /**
+         * List all data about scenes to stdout
+         * @param _scenes specifies all scenes that are used
+         */
+        void _ListDasScenes(const std::vector<Libdas::DasScene> &_scenes);
+        /**
+         * List all data about all models that were parsed
+         * @param _parser is a reference to DasParser instance that specifies the parser used
+         */
+        void _ListDasModels(Libdas::DasParser &_parser);
+        /**
+         * List all data about all animations that were parsed
+         * @param _parser is a reference to DasParser instance that specifies the parser used
+         */
+        void _ListDasAnimations(Libdas::DasParser &_parser);
+        /**
          * List data from DAS file to stdout
          * @param _input_file specifies the DAS file to read
          */
-        void _ListDAS(const std::string &_input_file);
+        void _ListDas(const std::string &_input_file);
         /**
          * Parse all string output flags into bitmask values
          * @param _opts is a const std::vector reference that holds all string flags

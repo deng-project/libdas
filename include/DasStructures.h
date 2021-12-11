@@ -127,10 +127,10 @@ namespace Libdas {
         uint32_t timestamp;
         uint32_t vertex_buffer_id;
         uint32_t vertex_buffer_offset;
-        uint32_t texture_map_buffer_id;
-        uint32_t texture_map_buffer_offset;
-        uint32_t vertex_normal_buffer_id;
-        uint32_t vertex_normal_buffer_offset;
+        uint32_t texture_map_buffer_id = UINT32_MAX;
+        uint32_t texture_map_buffer_offset = 0;
+        uint32_t vertex_normal_buffer_id = UINT32_MAX;
+        uint32_t vertex_normal_buffer_offset = 0;
 
 
         enum ValueType {
@@ -153,7 +153,7 @@ namespace Libdas {
         uint32_t model;
         uint32_t length;
         std::vector<DasKeyframe> keyframes;
-        InterpolationValue interpolation;
+        InterpolationValue interpolation = LIBDAS_INTERPOLATION_VALUE_LINEAR;
 
         enum ValueType {
             LIBDAS_ANIMATION_NAME,

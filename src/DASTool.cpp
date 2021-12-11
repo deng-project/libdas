@@ -169,7 +169,122 @@ void DASTool::_ListGLB(const std::string &_input_file) {
 }
 
 
-void DASTool::_ListDAS(const std::string &_input_file) {
+// needs a tree view
+void DASTool::_ListDasScenes(const std::vector<Libdas::DasScene> &_scenes) {
+    if(_scenes.size())
+        std::cout << std::endl;
+
+    for(size_t i = 0; i < _scenes.size(); i++) {
+        std::cout << std::endl;
+        std::cout << "Scene name: " << _scenes[i].name << std::endl;
+        std::cout << "Index: " << i << std::endl;
+
+        for(const Libdas::DasSceneNode &node : _scenes[i].nodes) {
+            std::cout << "-- Node name: " << node.name << std::endl;
+            if(node.children_count) {
+                std::cout << "-- Children: ";
+                for(uint32_t j = 0; j < node.children_count; j++)
+                    std::cout << node.children[j] << " ";
+            }
+
+            if(node.model_count) {
+                std::cout << "-- Used static models: ";
+                for(uint32_t j = 0; j < node.model_count; j++)
+                    std::cout << node.models[j] << " ";
+            }
+
+            if(node.animation_count) {
+                std::cout << "-- Used animations: ";
+                for(uint32_t j = 0; j < node.animation_count; j++)
+                    std::cout << node.animations[j] << " ";
+            }
+        }
+    }
+}
+
+
+void DASTool::_ListDasModels(Libdas::DasParser &_parser) {
+    if(_parser.GetModelCount())
+        std::cout << std::endl;
+
+    for(uint32_t i = 0; i < _parser.GetModelCount(); i++) {
+        Libdas::DasModel &model = _parser.AccessModel(i);
+        std::cout << "Model name: " << model.name << std::endl;
+        std::cout << "Used index buffer id: " << model.index_buffer_id << std::endl;
+        std::cout << "Used index buffer offset: " << model.index_buffer_offset << std::endl;
+        std::cout << "Total indices used: " << model.indices_count << std::endl; 
+        std::cout << "Used vertex buffer id: " << model.vertex_buffer_id << std::endl;
+        std::cout << "Used vertex buffer offset: " << model.vertex_buffer_offset << std::endl;
+
+        if(model.texture_id != UINT32_MAX)
+            std::cout << "Used texture id: " << model.texture_id << std::endl;
+
+        if(model.texture_map_buffer_id != UINT32_MAX)
+            std::cout << "Used texture map buffer id: " << model.texture_map_buffer_id << std::endl;
+
+        if(model.texture_map_buffer_offset != 0)
+            std::cout << "Used texture map buffer offset: " << model.texture_map_buffer_offset << std::endl;
+
+        if(model.vertex_normal_buffer_id != UINT32_MAX)
+            std::cout << "Used vertex normal buffer id: " << model.vertex_normal_buffer_id << std::endl;
+
+        if(model.vertex_normal_buffer_offset != 0)
+            std::cout << "Used vertex normal buffer offset: " << model.vertex_normal_buffer_offset << std::endl;
+    }
+}
+
+
+void DASTool::_ListDasAnimations(Libdas::DasParser &_parser) {
+    if(_parser.GetAnimationCount())
+        std::cout << std::endl;
+
+    std::string interp = "linear";
+
+    for(uint32_t i = 0; i < _parser.GetAnimationCount(); i++) {
+        Libdas::DasAnimation &animation = _parser.AccessAnimation(i);
+
+        // check the interpolation method value
+        switch(animation.interpolation) {
+            case LIBDAS_INTERPOLATION_VALUE_STEP:
+                interp = "step";
+                break;
+
+            case LIBDAS_INTERPOLATION_VALUE_CUBICSPLINE:
+                interp = "cubic spline";
+                break;
+
+            default:
+                break;
+        }
+
+        std::cout << "Animation name: " << animation.name << std::endl;
+        std::cout << "Affiliated model: " << animation.model << std::endl;
+        std::cout << "Animation length: " << animation.length / 60 << "m" << animation.length % 60 << "s" << std::endl;
+        std::cout << "Interpolation: " << interp << std::endl;
+
+        for(const Libdas::DasKeyframe &keyframe : animation.keyframes) {
+            std::cout << "Keyframe" << std::endl;
+            std::cout << "-- Timestamp: " << keyframe.timestamp << std::endl;
+            std::cout << "-- Used vertex buffer id: " << keyframe.vertex_buffer_id << std::endl;
+            std::cout << "-- Used vertex buffer offset: " << keyframe.vertex_buffer_offset << std::endl;
+
+            if(keyframe.texture_map_buffer_id != UINT32_MAX)
+                std::cout << "-- Used texture map buffer id: " << keyframe.texture_map_buffer_id << std::endl;
+
+            if(keyframe.texture_map_buffer_offset)
+                std::cout << "-- Used texture map buffer offset: " << keyframe.texture_map_buffer_offset << std::endl;
+
+            if(keyframe.vertex_normal_buffer_id != UINT32_MAX)
+                std::cout << "-- Used vertex normal buffer id: " << keyframe.vertex_normal_buffer_id << std::endl;
+
+            if(keyframe.vertex_normal_buffer_offset)
+                std::cout << "-- Used vertex normal buffer offset: " << keyframe.vertex_normal_buffer_offset << std::endl;
+        }
+    }
+}
+
+
+void DASTool::_ListDas(const std::string &_input_file) {
     Libdas::DasParser parser(_input_file);
     parser.Parse();
     
@@ -194,33 +309,13 @@ void DASTool::_ListDAS(const std::string &_input_file) {
     std::cout << "Modification date and time: " << date_and_time;
     std::cout << "Compression: " << (props.compression ? "true" : "false") << std::endl;
 
-    // output scene information
-    for(size_t i = 0; i < scenes.size(); i++) {
-        std::cout << std::endl;
-        std::cout << "Scene name: " << scenes[i].name << std::endl;
-        std::cout << "Index: " << i << std::endl;
-
-        for(const Libdas::DasSceneNode &node : scenes[i].nodes) {
-            std::cout << "-- Node name: " << node.name << std::endl;
-            if(node.children_count) {
-                std::cout << "-- Children: ";
-                for(uint32_t j = 0; j < node.children_count; j++)
-                    std::cout << node.children[j] << " ";
-            }
-
-            if(node.model_count) {
-                std::cout << "-- Used static models: ";
-                for(uint32_t j = 0; j < node.model_count; j++)
-                    std::cout << node.models[j] << " ";
-            }
-
-            if(node.animation_count) {
-                std::cout << "-- Used animations: ";
-                for(uint32_t j = 0; j < node.animation_count; j++)
-                    std::cout << node.animations[j] << " ";
-            }
-        }
+    // output animation and model data if verbose mode is specified
+    if(m_flags & OUTPUT_FLAG_VERBOSE) {
+        _ListDasModels(parser);
+        _ListDasAnimations(parser);
     }
+
+    _ListDasScenes(parser.GetScenes());
 }
 
 
@@ -279,15 +374,11 @@ void DASTool::Convert(const std::string &_input_file, const std::vector<std::str
     std::string ext = Libdas::String::ExtractFileExtension(_input_file);
     if(ext == "stl") {
         _ConvertSTL(_input_file);
-        return;
-    }
-    else if(ext == "obj") {
+    } else if(ext == "obj") {
         _ConvertWavefrontOBJ(_input_file);
-        return;
     }
 
-    std::cerr << "Feature not yet implemented" << std::endl;
-    LIBDAS_ASSERT(false);
+    return;
 }
 
 
@@ -296,17 +387,11 @@ void DASTool::List(const std::string &_input_file, const std::vector<std::string
     const std::string ext = Libdas::String::ExtractFileExtension(_input_file);
     if(ext == "stl") {
         _ListSTL(_input_file);
-        return;
     } else if(ext == "obj") {
         _ListWavefrontOBJ(_input_file);
-        return;
     } else if(ext == "das") {
-        _ListDAS(_input_file);
-        return;
+        _ListDas(_input_file);
     }
-
-    std::cerr << "Feature not yet implemented" << std::endl;
-    LIBDAS_ASSERT(false);
 }
 
 
@@ -325,7 +410,7 @@ int main(int argc, char *argv[]) {
 
 
     std::vector<std::string> opts;
-    if(argc > 4) {
+    if(argc > 3) {
         opts.reserve(argc - 3);
         for(int i = 3; i < argc; i++)
             opts.push_back(argv[i]);

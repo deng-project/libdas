@@ -90,4 +90,14 @@ namespace Libdas {
     DasAnimation &DasParser::AccessAnimation(uint32_t _id) {
         return m_animations.at(_id);
     }
+
+
+    uint32_t DasParser::GetModelCount() {
+        return static_cast<uint32_t>(m_models.size());
+    }
+
+
+    uint32_t DasParser::GetAnimationCount() {
+        return static_cast<uint32_t>(m_animations.size());
+    }
 }

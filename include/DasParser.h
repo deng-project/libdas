@@ -88,6 +88,16 @@ namespace Libdas {
              * @return reference to DasAnimation, accessed by the id
              */
             DasAnimation &AccessAnimation(uint32_t _id);
+            /**
+             * Get the amount of models that were parsed
+             * @return uint32_t value specifying the model count
+             */
+            uint32_t GetModelCount();
+            /**
+             * Get the amount of animations that were parsed
+             * @return uint32_t value specifying the animation count
+             */
+            uint32_t GetAnimationCount();
 
     };
 }

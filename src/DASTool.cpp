@@ -27,7 +27,7 @@ void DASTool::_ConvertSTL(const std::string &_input_file) {
 }
 
 
-void DASTool::_ConvertWavefrontOBJ(const std::string &_input_file) {
+void DASTool::_ConvertWavefrontObj(const std::string &_input_file) {
     std::string &out_file = m_out_file; 
 
     if(out_file == "") {
@@ -121,7 +121,7 @@ void DASTool::_ListSTL(const std::string &_input_file) {
 }
 
 
-void DASTool::_ListWavefrontOBJ(const std::string &_input_file) {
+void DASTool::_ListWavefrontObj(const std::string &_input_file) {
     Libdas::WavefrontObjParser parser(_input_file);
     parser.Parse();
 
@@ -129,6 +129,7 @@ void DASTool::_ListWavefrontOBJ(const std::string &_input_file) {
     
     // output information about groups to stdout
     for(size_t i = 0; i < groups.size(); i++) {
+        if(i > 0) std::cout << std::endl;
         std::string name = Libdas::String::ConcatenateNameArgs(groups[i].names);
         std::cout << "Group name: " << name << std::endl;
 
@@ -375,7 +376,7 @@ void DASTool::Convert(const std::string &_input_file, const std::vector<std::str
     if(ext == "stl") {
         _ConvertSTL(_input_file);
     } else if(ext == "obj") {
-        _ConvertWavefrontOBJ(_input_file);
+        _ConvertWavefrontObj(_input_file);
     }
 
     return;
@@ -388,9 +389,12 @@ void DASTool::List(const std::string &_input_file, const std::vector<std::string
     if(ext == "stl") {
         _ListSTL(_input_file);
     } else if(ext == "obj") {
-        _ListWavefrontOBJ(_input_file);
+        _ListWavefrontObj(_input_file);
     } else if(ext == "das") {
         _ListDas(_input_file);
+    } else {
+        std::cerr << "Invalid file '" << _input_file << "'" << std::endl;
+        std::exit(LIBDAS_ERROR_INVALID_FILE);
     }
 }
 

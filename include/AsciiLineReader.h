@@ -64,7 +64,7 @@ namespace Libdas {
              * @param _size specifying the readable blob size in bytes
              * @param _data is an optional argument specifying a pointer that specifies the memory area, 
              * where data should be written to to. If the specified, no allocation occurs and the same pointer is returned
-             * @return a pointer to the BLOB data memory area
+             * @return a pointer to the BLOB data memory area or nullptr if the reading failed
              */
             char *_ExtractBlob(uint32_t _size, char *_data = nullptr);
             /**

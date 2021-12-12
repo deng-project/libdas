@@ -9,7 +9,7 @@
 namespace Libdas {
 
     DasReaderCore::DasReaderCore(const std::string &_file_name) : 
-        AsciiLineReader(_file_name, DEFAULT_CHUNK, "ENDSCOPE"), 
+        AsciiLineReader(_file_name, DEFAULT_CHUNK, "ENDSCOPE\n"), 
         m_error(MODEL_FORMAT_DAS) 
     {
         _CreateScopeNameMap();
@@ -306,6 +306,10 @@ namespace Libdas {
 
             case DasBuffer::LIBDAS_BUFFER_DATA:
                 _buffer->data_ptrs.push_back(std::make_pair(_ExtractBlob(_buffer->data_len), _buffer->data_len));
+
+                // check if blob reading was successful
+                if(!_buffer->data_ptrs.back().first)
+                    m_error.Error(LIBDAS_ERROR_INVALID_DATA);
                 break;
 
             default:
@@ -637,7 +641,10 @@ namespace Libdas {
         DasSignature exp_sig;
         DasSignature sig;
 
-        _ExtractBlob(sizeof(DasSignature), reinterpret_cast<char*>(&sig));
+        char *sig_ptr = _ExtractBlob(sizeof(DasSignature), reinterpret_cast<char*>(&sig));
+        if(!sig_ptr)
+            m_error.Error(LIBDAS_ERROR_INVALID_SIGNATURE);
+
         bool is_pad = false;
         
         // verify signature integrity
@@ -679,6 +686,7 @@ namespace Libdas {
             // no more data in buffer chunk
             if(val_decl == "") {
                 bool is_read = _ReadNewChunk();
+                _SetReadPtr(m_buffer);
                 if(!is_read)
                     m_error.Error(LIBDAS_ERROR_INCOMPLETE_SCOPE);
 

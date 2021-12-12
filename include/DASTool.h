@@ -97,7 +97,7 @@ class DASTool {
          * output file or input file name with das extension
          * @param _input_file is specified Wavefront Obj file to read from
          */
-        void _ConvertWavefrontOBJ(const std::string &_input_file);
+        void _ConvertWavefrontObj(const std::string &_input_file);
         /**
          * Convert GLTF file into DAS file. Output file will be either provided
          * output file or input file name with das extension
@@ -130,7 +130,7 @@ class DASTool {
          * List data from Wavefront Obj file to stdout
          * @param _input_file specifies the Wavefront Obj file to read
          */
-        void _ListWavefrontOBJ(const std::string &_input_file);
+        void _ListWavefrontObj(const std::string &_input_file);
         /**
          * List data from GLTF file to stdout
          * @param _input_file specifies the GLTF file to read

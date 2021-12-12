@@ -56,9 +56,10 @@ namespace Libdas {
 
                 if(_str[i] == _keyword[j]) {
                     j++;
-                    if(j == _keyword.size())
+                    if(j == _keyword.size()) {
                         occurences.push_back(i - j + 1);
-                    j--;
+                        j = lsp[j - 1];
+                    }
                 }
             }
 
@@ -81,9 +82,10 @@ namespace Libdas {
 
                 if(_str[i] == _keyword[j]) {
                     j++;
-                    if(j == _keyword.size())
+                    if(j == _keyword.size()) {
                         occurences.push_back(i - j + 1);
-                    j--;
+                        j = lsp[j - 1];
+                    }
                 }
             }
 

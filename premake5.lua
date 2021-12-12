@@ -48,6 +48,7 @@ newoption {
         -- tmp --
         { "TextureReader", "Build TextureReader class test" },
         { "DasReaderCoreTest", "Build DasReaderCore class test" },
+        { "SubstringSearchTest", "Build substring search test programm" },
 
         -- misc --
         { "all", "Build all available unit tests" }
@@ -130,6 +131,12 @@ function LoadTests()
         print("Including DasReaderCore test config")
         local reader = require("premake/tests/DasReaderCore")
         reader.build();
+    end
+
+    if _OPTIONS["tests"] == "all" or _OPTIONS["tests"] == "SubstringSearchTest" then
+        print("Including SubstringSearchTest test config")
+        local substr = require("premake/tests/SubstringSearchTest")
+        substr.build()
     end
 end
 

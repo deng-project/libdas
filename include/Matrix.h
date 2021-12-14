@@ -9,86 +9,13 @@
 namespace Libdas {
 
     /**
-     * Iterator class for matrices
-     */
-    template<typename Val_t>
-    class MatrixIterator {
-        private:
-            using pointer = Val_t*;
-            using reference = Val_t&;
-
-            size_t m_mat_size;
-            bool m_is_row_major;
-            size_t m_index = 0;
-            pointer m_data;
-
-            int i, j;
-
-        public:
-            MatrixIterator(pointer _data, size_t _mat_size, bool _is_row_major = true) :
-                m_data(_data), m_mat_size(_mat_size), m_is_row_major(_is_row_major) {}
-
-            // a, b, _c, d
-            // e, f, g, h,
-            // i, j, k, l
-            // m, n, o, p
-            //
-            // memory layout:
-            //      a, b, _c, d, e, f, g, h, i, j, k, l, m, n, o, p
-            
-            void operator++(int) {
-                // row major matrix order is selected
-                if(m_is_row_major)
-                    m_data++;
-                else {
-                    m_index += m_mat_size;
-                    // check if the index exceeds maximum row
-                    if(m_index / m_mat_size >= m_mat_size) {
-                        m_index -= m_mat_size;
-                        m_data = m_data - m_index + (m_index % m_mat_size) + 1;
-                        m_index %= m_mat_size;
-                        m_index++;
-
-                        // out of column bounds
-                        if(m_index >= m_mat_size)
-                            m_data = m_data - m_index + m_mat_size * m_mat_size;
-                    }
-                    else m_data += m_mat_size;
-                }
-            }
-
-
-            bool operator!=(const MatrixIterator &_it) {
-                return m_data != _it.m_data;
-            }
-
-
-            bool operator==(const MatrixIterator &_it) {
-                return m_data == _it.m_data;
-            }
-
-            reference operator*() const {
-                return *m_data;
-            }
-
-            pointer operator->() {
-                return m_data;
-            }
-
-
-            pointer GetData() {
-                return m_data;
-            }
-    
-    };
-
-
-    /**
      * 2x2 matrix structure
      */
     template<typename T>
     struct Matrix2 {
+#ifdef ITERATORS_H
         typedef MatrixIterator<T> iterator;
+#endif
 
         Vector2<T> row1, row2;
 
@@ -137,8 +64,8 @@ namespace Libdas {
          */
         Matrix2<T> Transpose() const;
 
-        /// Iterators
-        
+#ifdef ITERATORS_H
+        // iterators
         iterator BeginRowMajor() const {
             return iterator(const_cast<T*>(&row1.first), 2, true);
         }
@@ -154,6 +81,7 @@ namespace Libdas {
         iterator EndColumnMajor() const {
             return iterator(const_cast<T*>(&row2.second) + 1, 2, false);
         }
+#endif
 
 
 #ifdef _DEBUG
@@ -513,7 +441,9 @@ namespace Libdas {
      */
     template<typename T>
     struct Matrix3 {
+#ifdef ITERATORS_H
         typedef MatrixIterator<T> iterator;
+#endif
         Vector3<T> row1, row2, row3;
 
         Matrix3();
@@ -559,14 +489,14 @@ namespace Libdas {
          */
         Matrix3<T> Transpose() const;
 
-        /// Iterators
-
+#ifdef ITERATORS_H
+        // iterators
         iterator BeginRowMajor() const {
             return iterator(const_cast<T*>(&row1.first), 3, true);
         }
 
         iterator EndRowMajor() const {
-            return iterator(const_cast<T*>(&row3.third) + 1, 3, true);
+            return iterator(const_cast<T*>(&row3.third + 1), 3, true);
         }
 
         iterator BeginColumnMajor() const {
@@ -576,6 +506,7 @@ namespace Libdas {
         iterator EndColumnMajor() const {
             return iterator(const_cast<T*>(&row3.third + 1), 3, false);
         }
+#endif
 
 
 #ifdef _DEBUG
@@ -1011,7 +942,9 @@ namespace Libdas {
      */
     template<typename T>
     struct Matrix4 {
+#ifdef ITERATORS_H
         typedef MatrixIterator<T> iterator;
+#endif
         Matrix4();
         Matrix4(const Vector4<T> &_r1, const Vector4<T> &_r2, const Vector4<T> &_r3, const Vector4<T> &_r4);
         Matrix4(Vector4<T> &&_r1, Vector4<T> &&_r2, Vector4<T> &&_r3, Vector4<T> &&_r4);
@@ -1057,8 +990,8 @@ namespace Libdas {
         /// Transpose the current matrix
         Matrix4<T> Transpose() const;
 
-        /// Iterators
-
+#ifdef ITERATORS_H
+        // iterators
         iterator BeginRowMajor() const {
             return iterator(const_cast<T*>(&row1.first), 4, true);
         }
@@ -1074,6 +1007,7 @@ namespace Libdas {
         iterator EndColumnMajor() const {
             return iterator(const_cast<T*>(&row4.fourth + 1), 4, false);
         }
+#endif
 
 
 #ifdef _DEBUG

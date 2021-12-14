@@ -44,7 +44,7 @@ newoption {
         { "BinarySTLParser", "Build BinarySTLParser class test" },
         { "HuffmanCompression", "Build Huffman compression class test application" },
         { "WavefrontObjCompiler", "Build a Wavefront OBJ compiler test application" },
-        --{ "DasParser", "Build a DAS parser test application" },
+        { "STLCompiler", "Build an STL compiler test application" },
         -- tmp --
         { "TextureReader", "Build TextureReader class test" },
         { "DasReaderCoreTest", "Build DasReaderCore class test" },
@@ -112,6 +112,12 @@ function LoadTests()
         print("Including WavefrontObjCompiler test config")
         local wobj_compiler = require("premake/tests/WavefrontObjCompiler")
         wobj_compiler.build()
+    end
+
+    if _OPTIONS["tests"] == "all" or _OPTIONS["tests"] == "STLCompiler" then
+        print("Including STLCompiler test config")
+        local stl_compiler = require("premake/tests/STLCompiler")
+        stl_compiler.build()
     end
 
     --if _OPTIONS["tests"] == "all" or _OPTIONS["tests"] == "DasParser" then

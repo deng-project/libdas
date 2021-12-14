@@ -1,22 +1,22 @@
 --- libdas: DENG asset management library
 --- licence: Apache, see LICENCE file
---- file: DasParser.lua - DasParser class test build configuration
+--- file: STLCompiler.lua - STLCompiler class test build configuration
 --- author: Karl-Mihkel Ott
 
-local DasParser = {}
+local STLCompiler = {}
 
-function DasParser.build()
-    project "DasParser"
+function STLCompiler.build()
+    project "STLCompilerTest"
         kind "ConsoleApp"
         language "C++"
         cppdialect "C++17"
 
         files {
             "include/*",
-            "tests/DasParserTest.cpp"
+            "tests/STLCompilerTest.cpp"
         }
 
         links { "das" }
 end
 
-return DasParser
+return STLCompiler

@@ -19,6 +19,8 @@ namespace Libdas {
             while(ch == ' ' || ch == '\n' || ch == '\r')
                 ch = file.get();
 
+            file.seekg(-1, std::ios_base::cur);
+
             // read solid statement
             const std::string exp_statement = "solid ";
             char statement[7] = {};

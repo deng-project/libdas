@@ -11,12 +11,16 @@
 
 namespace Libdas {
 
+
     template <typename T> struct Point2D;
     template <typename T> struct Point3D;
     template <typename T> struct Point4D;
 
     template <typename T>
     struct Point2D {
+#ifdef ITERATORS_H
+        typedef VectorIterator<T> iterator;
+#endif
         T x, y;
 
         Point2D<T>() {
@@ -64,11 +68,25 @@ namespace Libdas {
         bool operator==(const Point2D<T> &_pt) const {
             return x == _pt.x && y == _pt.y;
         }
+
+#ifdef ITERATORS_H
+        iterator Begin() {
+            return iterator(const_cast<T*>(&x));
+        }
+
+
+        iterator End() {
+            return iterator(const_cast<T*>(&y + 1));
+        }
+#endif
     };
 
 
     template <typename T>
     struct Point3D {
+#ifdef ITERATORS_H
+        typedef VectorIterator<T> iterator;
+#endif
         T x, y, z;
 
         Point3D<T>() {
@@ -125,11 +143,26 @@ namespace Libdas {
         operator Point4D<T>() const {
             return Point4D<T>{x, y, z, Point4D<T>::GetNormalizedValue()};
         }
+
+#ifdef ITERATORS_H
+        // iterators
+        iterator Begin() {
+            return iterator(const_cast<T*>(&x));
+        }
+
+
+        iterator End() {
+            return iterator(const_cast<T*>(&z + 1));
+        }
+#endif
     };
 
 
     template <typename T>
     struct Point4D {
+#ifdef ITERATORS_H
+        typedef VectorIterator<T> iterator;
+#endif
         T x, y, z, w;
 
         Point4D<T>() {
@@ -203,7 +236,87 @@ namespace Libdas {
                 return 1;
             else return T();
         }
+
+#ifdef ITERATORS_H
+        // iterators
+        iterator Begin() {
+            return iterator(const_cast<T*>(&x));
+        }
+
+        iterator End() {
+            return iterator(const_cast<T*>(&w + 1));
+        }
+#endif
     };
 }
+
+
+#ifdef ITERATORS_H
+namespace std {
+    template <>
+    struct hash<Libdas::Point3D<float>> {
+        typedef Libdas::Point3D<float> argument_type;
+        typedef std::size_t result_type;
+
+        /**
+         * Compatible with Point3D<float> class
+         * @param _s specifies the variable value for hashing
+         */
+        result_type operator()(argument_type const& _s) const {
+            Libdas::Point3D<result_type> hashes = Libdas::Point3D<result_type>(*reinterpret_cast<const result_type*>(&_s.x), 
+                                                                               *reinterpret_cast<const result_type*>(&_s.y),
+                                                                               *reinterpret_cast<const result_type*>(&_s.z));
+            // using joaat hash
+            result_type h = 0;
+
+            for(auto it = hashes.Begin(); it != hashes.End(); it++) {
+                h += *it & 0xff;
+                h += h << 10;
+                h ^= h >> 6;
+            }
+
+            h += h << 3;
+            h ^= h >> 11;
+            h += h << 16;
+
+            return h;
+        }
+    };
+
+
+    template<>
+    struct hash<Libdas::Point4D<float>> {
+        typedef Libdas::Point4D<float> argument_type;
+        typedef std::size_t result_type;
+
+        /**
+         * Compatible with Point4D<float> class
+         * @param _s specifies the variable value for hashing
+         */
+        result_type operator()(argument_type const &_s) const {
+            Libdas::Point4D<result_type> hashes = Libdas::Point4D<result_type>(*reinterpret_cast<const result_type*>(&_s.x),
+                                                                               *reinterpret_cast<const result_type*>(&_s.y),
+                                                                               *reinterpret_cast<const result_type*>(&_s.z),
+                                                                               *reinterpret_cast<const result_type*>(&_s.w));
+
+            // using joaat hash
+            result_type h = 0;
+
+            for(auto it = hashes.Begin(); it != hashes.End(); it++) {
+                h += *it & 0xff;
+                h += h << 10;
+                h ^= h >> 6;
+            }
+
+            h += h << 3;
+            h ^= h >> 11;
+            h += h << 16;
+
+            return h;
+        }
+    };
+}
+
+#endif
 
 #endif

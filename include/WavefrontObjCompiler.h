@@ -37,14 +37,8 @@ namespace Libdas {
 
     /**
      * Compiler class that uses Wavefront OBJ files as source files and outputs DAS file.
-     * Since there are no scene nor animation structures in Wavefront OBJ format, the outputted DAS
-     * files will be considered as mesh data libraries. Unless static assets are needed it would be 
-     * wise to avoid Wavefront OBJ format completely, when importing models to DENG.
      */
     class WavefrontObjCompiler : private DasWriterCore {
-        private:
-            bool m_use_huffman = false;
-
         private:
             //std::vector<DasBuffer> _ReadImages();
             
@@ -68,8 +62,8 @@ namespace Libdas {
              */
             void _HuffmanEncode();
         public:
-            WavefrontObjCompiler(const std::string &_out_file = "", bool use_huffman = false);
-            WavefrontObjCompiler(const std::vector<WavefrontObjGroup> &_groups, const DasProperties &_props, const std::string &_out_file = "", bool use_huffman = false);
+            WavefrontObjCompiler(const std::string &_out_file = "");
+            WavefrontObjCompiler(const std::vector<WavefrontObjGroup> &_groups, const DasProperties &_props, const std::string &_out_file);
             /**
              * Compile the DAS file from given WavefrontObjGroup objects.
              * @param _groups is a reference to std::queue object that contains all given WavfrontObjGroup objects 

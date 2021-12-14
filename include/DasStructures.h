@@ -58,9 +58,9 @@ namespace Libdas {
      * Data structure for containing indicies information (default indices are: -1)
      */
     struct DasFace {
-        uint32_t position;
-        uint32_t texture;
-        uint32_t normal;
+        uint32_t position = UINT32_MAX;
+        uint32_t texture = UINT32_MAX;
+        uint32_t normal = UINT32_MAX;
     };
 
 

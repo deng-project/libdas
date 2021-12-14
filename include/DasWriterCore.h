@@ -16,10 +16,11 @@
     #include <iostream>
     #include <chrono>
 
+    #include <ErrorHandlers.h>
+    #include <Iterators.h>
     #include <Vector.h>
     #include <Matrix.h>
     #include <DasStructures.h>
-    #include <ErrorHandlers.h>
     #include <LibdasAssert.h>
     #include <TextureReader.h>
 #endif

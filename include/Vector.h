@@ -8,13 +8,14 @@
 
 namespace Libdas {
 
-    //template<typename T> struct Matrix2;
-
     /**
      * 2D vector structure
      */
     template<typename T>
     struct Vector2 {
+#ifdef ITERATORS_H
+        typedef VectorIterator<T> iterator;
+#endif
         Vector2();
         Vector2(const T &r1, const T &r2);
         Vector2(T &&r1, T &&r2);
@@ -58,6 +59,18 @@ namespace Libdas {
          * Normalise the vector coordinates (T must be a numeral)
          */
         void Normalise();
+
+#ifdef ITERATORS_H
+        /// Iterators
+        iterator Begin() const {
+            return iterator(const_cast<T*>(&first));
+        }
+
+
+        iterator End() const {
+            return iterator(const_cast<T*>(&second + 1));
+        }
+#endif
     };
 
 
@@ -284,6 +297,9 @@ namespace Libdas {
     //template<typename T> struct Matrix3;
     template<typename T>
     struct Vector3 {
+#ifdef ITERATORS_H
+        typedef VectorIterator<T> iterator;
+#endif
         Vector3();
         Vector3(const T &r1, const T &r2, const T &r3);
         Vector3(T &&r1, T &&r2, T &&r3);
@@ -330,6 +346,18 @@ namespace Libdas {
 
         /// Find the crossproduct of two vectors
         static const Vector3<T> Cross(const Vector3<T> &Vector1, const Vector3<T> &Vector2);
+
+#ifdef ITERATORS_H
+        // iterators
+        iterator Begin() const {
+            return iterator(const_cast<T*>(&first));
+        }
+
+        
+        iterator End() const {
+            return iterator(const_cast<T*>(&third + 1));
+        }
+#endif
     };
 
 
@@ -636,6 +664,9 @@ namespace Libdas {
     //template<typename T> struct Matrix4;
     template<typename T>
     struct Vector4 {
+#ifdef ITERATORS_H
+        typedef VectorIterator<T> iterator;
+#endif
         Vector4();
         Vector4(const T &r1, const T &r2, const T &r3, const T &r4);
         Vector4(T &&r1, T &&r2, T &&r3, T &&r4);
@@ -689,6 +720,18 @@ namespace Libdas {
         /// Find the crossproduct of two vectors
         /// PS! Only first three axes are used
         static const Vector4<T> Cross(const Vector4<T> &_vec1, const Vector4<T> &_vec2); 
+
+#ifdef ITERATORS_H
+        // iterators
+        iterator Begin() {
+            return iterator(const_cast<T*>(&first));
+        }
+
+
+        iterator End() {
+            return iterator(const_cast<T*>(&fourth + 1));
+        }
+#endif
     };
 
 

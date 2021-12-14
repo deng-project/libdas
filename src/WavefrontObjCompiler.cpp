@@ -9,12 +9,12 @@
 
 namespace Libdas {
 
-    WavefrontObjCompiler::WavefrontObjCompiler(const std::string &_out_file, bool use_huffman) : 
-        DasWriterCore(_out_file), m_use_huffman(use_huffman) {}
+    WavefrontObjCompiler::WavefrontObjCompiler(const std::string &_out_file) : 
+        DasWriterCore(_out_file) {}
     
 
-    WavefrontObjCompiler::WavefrontObjCompiler(const std::vector<WavefrontObjGroup> &_groups, const DasProperties &_props, const std::string &_out_file, bool use_huffman) :
-        DasWriterCore(_out_file), m_use_huffman(use_huffman)
+    WavefrontObjCompiler::WavefrontObjCompiler(const std::vector<WavefrontObjGroup> &_groups, const DasProperties &_props, const std::string &_out_file) :
+        DasWriterCore(_out_file)
     {
         Compile(_groups, _props, _out_file);
     }
@@ -118,7 +118,8 @@ namespace Libdas {
         std::ifstream in(m_file_name, std::ios_base::binary);
         std::ofstream out(tmp_file, std::ios_base::binary);
 
-        //DasReaderCore rd(in, out);
+        DasSignature sig;
+        in.read(reinterpret_cast<char*>(&sig), sizeof(DasSignature));
     }
 
 
@@ -138,9 +139,5 @@ namespace Libdas {
         std::vector<DasModel> models = _CreateModels(_groups);
         for(const DasModel &model : models)
             WriteModel(model);
-
-        // check if huffman encoding is requested
-        if(m_use_huffman)
-            _HuffmanEncode();
     }
 }

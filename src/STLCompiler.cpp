@@ -84,6 +84,7 @@ namespace Libdas {
             models[i].vertex_normal_buffer_id = NORMALS_ID;
             models[i].index_buffer_id = INDICES_ID;
             models[i].index_buffer_offset = m_index_offsets[i];
+            models[i].indices_count = i == _objects.size() - 1 ? m_faces.size() - m_index_offsets[i] / sizeof(DasFace) : (m_index_offsets[i + 1] - m_index_offsets[i]) / sizeof(DasFace);
         }
 
         return models;

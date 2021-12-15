@@ -13,16 +13,25 @@
 
 // incomplete method
 void DASTool::_ConvertSTL(const std::string &_input_file) {
-    std::cerr << "Feature not yet implemented" << std::endl; 
-    LIBDAS_ASSERT(false); // necessary measures rn
+    std::string &out_file = m_out_file;
+
+    // check if the output file name is correctly specified
+    if(out_file == "") {
+        out_file = Libdas::String::ReplaceFileExtension(_input_file, "das");
+        out_file = Libdas::String::ExtractFileName(out_file);
+    }
 
     bool is_ascii = Libdas::STLFunctions::Identify(_input_file);
     if(is_ascii) {
         Libdas::AsciiSTLParser parser(_input_file);
         parser.Parse();
+        Libdas::STLCompiler(parser.GetObjects(), m_props, out_file);
     } else {
         Libdas::BinarySTLParser parser(_input_file);
         parser.Parse();
+
+        std::vector<Libdas::STLObject> objects = {parser.GetObject()};
+        Libdas::STLCompiler(objects, m_props, out_file);
     }
 }
 
@@ -101,12 +110,10 @@ void DASTool::_ListSTL(const std::string &_input_file) {
     if(is_ascii) {
         Libdas::AsciiSTLParser parser(_input_file);
         parser.Parse();
-
         objects = parser.GetObjects();
     } else {
         Libdas::BinarySTLParser parser(_input_file);
         parser.Parse();
-
         objects.push_back(parser.GetObject());
     }
 
@@ -326,7 +333,7 @@ void DASTool::_ParseFlags(const std::vector<std::string> &_opts) {
         if(m_flag_map.find(_opts[i]) == m_flag_map.end()) {
             std::cerr << "Invalid output option '" << _opts[i] << "'" << std::endl;
             std::cout << m_help_text;
-            std::exit(1);
+            std::exit(LIBDAS_ERROR_INVALID_KEYWORD);
         }
 
         else {
@@ -338,23 +345,42 @@ void DASTool::_ParseFlags(const std::vector<std::string> &_opts) {
                     break;
 
                 case OUTPUT_FLAG_AUTHOR:
-                    if(i == _opts.size() - 1)
-                        throw std::runtime_error("Expected author name after flag '" + _opts[i] + "'" + "\n");
+                    if(i == _opts.size() - 1) {
+                        std::cerr << "Expected author name after flag '" + _opts[i] + "'\n" << std::endl;
+                        std::exit(LIBDAS_ERROR_INVALID_KEYWORD);
+                    }
+
                     m_author = _opts[i + 1];
                     skip_it = true;
                     break;
 
                 case OUTPUT_FLAG_COPYRIGHT:
-                    if(i == _opts.size() - 1)
-                        throw std::runtime_error("Expected copyright message after flag '" + _opts[i] + "'" + "\n");
+                    if(i == _opts.size() - 1) {
+                        std::cerr << "Expected copyright message after flag '" + _opts[i] + "'\n" << std::endl;
+                        std::exit(LIBDAS_ERROR_INVALID_KEYWORD);
+                    }
+
                     m_copyright = _opts[i + 1];
                     skip_it = true;
                     break;
 
                 case OUTPUT_FLAG_MODEL:
-                    if(i == _opts.size() - 1)
-                        throw std::runtime_error("Expected model name after flag '" + _opts[i] + "'" + "\n");
+                    if(i == _opts.size() - 1) {
+                        std::cerr << "Expected model name after flag '" + _opts[i] + "'\n" << std::endl;
+                        std::exit(LIBDAS_ERROR_INVALID_KEYWORD);
+                    }
+
                     m_model = _opts[i + 1];
+                    skip_it = true;
+                    break;
+
+                case OUTPUT_FLAG_OUT_FILE:
+                    if(i == _opts.size() - 1) {
+                        std::cerr << "Expected output file name after flag '" + _opts[i] + "'\n" << std::endl;
+                        std::exit(LIBDAS_ERROR_INVALID_KEYWORD);
+                    }
+
+                    m_out_file = _opts[i + 1];
                     skip_it = true;
                     break;
 
@@ -369,8 +395,53 @@ void DASTool::_ParseFlags(const std::vector<std::string> &_opts) {
 }
 
 
+void DASTool::_ExcludeFlags(bool _is_convert) {
+    // invalid flag is:
+    // * -v / --verbose
+    if(_is_convert) {
+        if((m_flags & OUTPUT_FLAG_VERBOSE) == OUTPUT_FLAG_VERBOSE)
+            std::cerr << "Invalid use of verbose flag in convertion mode" << std::endl;
+    }
+
+    // invalid flags are:
+    // * -c / --compressed
+    // * --no-curves
+    // * --author
+    // * --copyright
+    // * --model
+    // * -o / --output
+    else {
+        if((m_flags & OUTPUT_FLAG_COMPRESSED) == OUTPUT_FLAG_COMPRESSED) {
+            std::cerr << "Invalid use use of compression flag in listing mode" << std::endl;
+            std::exit(LIBDAS_ERROR_INVALID_KEYWORD);
+        }
+        if((m_flags & OUTPUT_FLAG_NO_CURVES) == OUTPUT_FLAG_NO_CURVES) {
+            std::cerr << "Invalid use use of no curves flag in listing mode" << std::endl;
+            std::exit(LIBDAS_ERROR_INVALID_KEYWORD);
+        }
+        if((m_flags & OUTPUT_FLAG_AUTHOR) == OUTPUT_FLAG_AUTHOR) {
+            std::cerr << "Invalid use use of author flag in listing mode" << std::endl;
+            std::exit(LIBDAS_ERROR_INVALID_KEYWORD);
+        }
+        if((m_flags & OUTPUT_FLAG_COPYRIGHT) == OUTPUT_FLAG_COPYRIGHT) {
+            std::cerr << "Invalid use use of copyright specifier flag in listing mode" << std::endl;
+            std::exit(LIBDAS_ERROR_INVALID_KEYWORD);
+        }
+        if((m_flags & OUTPUT_FLAG_MODEL) == OUTPUT_FLAG_MODEL) {
+            std::cerr << "Invalid use use of model specifier flag in listing mode" << std::endl;
+            std::exit(LIBDAS_ERROR_INVALID_KEYWORD);
+        }
+        if((m_flags & OUTPUT_FLAG_OUT_FILE) == OUTPUT_FLAG_OUT_FILE) {
+            std::cerr << "Invalid use use of output file specifier flag in listing mode" << std::endl;
+            std::exit(LIBDAS_ERROR_INVALID_KEYWORD);
+        }
+    }
+}
+
+
 void DASTool::Convert(const std::string &_input_file, const std::vector<std::string> &_opts) {
     _ParseFlags(_opts);
+    _ExcludeFlags(true);
 
     std::string ext = Libdas::String::ExtractFileExtension(_input_file);
     if(ext == "stl") {
@@ -385,6 +456,8 @@ void DASTool::Convert(const std::string &_input_file, const std::vector<std::str
 
 void DASTool::List(const std::string &_input_file, const std::vector<std::string> &_opts) {
     _ParseFlags(_opts);
+    _ExcludeFlags(false);
+
     const std::string ext = Libdas::String::ExtractFileExtension(_input_file);
     if(ext == "stl") {
         _ListSTL(_input_file);
@@ -411,7 +484,6 @@ int main(int argc, char *argv[]) {
         std::cout << tool.GetHelpText();
         return 0;
     }
-
 
     std::vector<std::string> opts;
     if(argc > 3) {

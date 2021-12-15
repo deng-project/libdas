@@ -30,6 +30,7 @@
     #include <DasParser.h>
     #include <STLStructures.h>
     #include <STLParser.h>
+    #include <STLCompiler.h>
     #include <WavefrontObjStructures.h>
     #include <WavefrontObjParser.h>
     #include <WavefrontObjCompiler.h>
@@ -71,8 +72,8 @@ class DASTool {
             std::make_pair("--model", OUTPUT_FLAG_MODEL),
             std::make_pair("-v", OUTPUT_FLAG_VERBOSE),
             std::make_pair("--verbose", OUTPUT_FLAG_VERBOSE),
-            std::make_pair("-o", OUTPUT_FLAG_MODEL),
-            std::make_pair("--output", OUTPUT_FLAG_MODEL)
+            std::make_pair("-o", OUTPUT_FLAG_OUT_FILE),
+            std::make_pair("--output", OUTPUT_FLAG_OUT_FILE)
         };
         FlagType m_flags = 0;
         Libdas::DasProperties m_props;
@@ -166,6 +167,11 @@ class DASTool {
          * @param _opts is a const std::vector reference that holds all string flags
          */
         void _ParseFlags(const std::vector<std::string> &_opts);
+        /**
+         * Exclude all invalid options according to the specified mode
+         * @param _is_convert is true if the convertion mode was requested
+         */
+        void _ExcludeFlags(bool _is_convert);
 
     public:
         /**

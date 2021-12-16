@@ -45,6 +45,7 @@ newoption {
         { "HuffmanCompression", "Build Huffman compression class test application" },
         { "WavefrontObjCompiler", "Build a Wavefront OBJ compiler test application" },
         { "STLCompiler", "Build an STL compiler test application" },
+        { "Base64Decoder", "Build a Base64Decoder class test application" },
         -- tmp --
         { "TextureReader", "Build TextureReader class test" },
         { "DasReaderCoreTest", "Build DasReaderCore class test" },
@@ -118,6 +119,12 @@ function LoadTests()
         print("Including STLCompiler test config")
         local stl_compiler = require("premake/tests/STLCompiler")
         stl_compiler.build()
+    end
+
+    if _OPTIONS["tests"] == "all" or _OPTIONS["tests"] == "Base64Decoder" then
+        print("Including Base64Decoder test config")
+        local decoder = require("premake/tests/Base64Decoder")
+        decoder.build()
     end
 
     --if _OPTIONS["tests"] == "all" or _OPTIONS["tests"] == "DasParser" then

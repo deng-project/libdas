@@ -21,6 +21,8 @@
 #define LIBDAS_ASCII_ALPHABET_SIZE      256
 #define LIBDAS_MAX_KEY_BYTES            32  
 
+#ifndef LIBDAS_DEFS_ONLY
+
 namespace Libdas {
 
     namespace Huffman {
@@ -217,4 +219,5 @@ namespace Libdas {
     }
 }
 
+#endif
 #endif

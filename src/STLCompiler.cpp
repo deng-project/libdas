@@ -1,3 +1,8 @@
+// libdas: DENG asset handling management library
+// licence: Apache, see LICENCE file
+// file: STLCompiler.cpp - STL file to DAS compiler class implementation
+// author: Karl-Mihkel Ott
+
 #define STL_COMPILER_CPP
 #include <STLCompiler.h>
 

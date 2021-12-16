@@ -1,6 +1,6 @@
 /// libdas: DENG asset handling management library
 /// licence: Apache, see LICENCE file
-/// file: huf.h - Huffman coding algorithm header
+/// file: HuffmanCompression.h - Huffman coding compression algorithm header
 /// author: Karl-Mihkel Ott
 
 

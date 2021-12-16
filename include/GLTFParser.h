@@ -9,6 +9,12 @@
 
 #ifdef GLTF_PARSER_CPP
     #include <any>
+    #include <map>
+    #include <memory>
+    #include <fstream>
+#ifdef _DEBUG
+    #include <iostream>
+#endif
     #include <string>
     #include <vector>
     #include <cfloat>
@@ -17,6 +23,8 @@
     #include <Points.h>
     #include <Vector.h>
     #include <Matrix.h>
+    #include <ErrorHandlers.h>
+    #include <AsciiStreamReader.h>
     #include <JSONParser.h>
     #include <GLTFStructures.h>
 #endif

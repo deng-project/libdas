@@ -8,8 +8,10 @@
 
 
 #ifdef JSON_PARSER_CPP
+    #include <any>
     #include <map>
     #include <fstream>
+    #include <memory>
     #include <vector>
     #include <string>
     #include <utility>
@@ -41,16 +43,9 @@ namespace Libdas {
     };
 
 
-    union JSONValue {
-        std::string str_val;
-        float fl_val;
-        uint32_t int_val;
-    };
-
-
     struct JSONNode {
-        std::map<std::string, JSONNode> sub_nodes = {};
-        std::vector<std::pair<JSONType, JSONValue>> values;
+        std::map<std::string, std::unique_ptr<JSONNode>> sub_nodes = {};
+        std::vector<std::pair<JSONType, std::any>> values;
         bool is_scope_open = false;
         bool is_array_open = false;
     };

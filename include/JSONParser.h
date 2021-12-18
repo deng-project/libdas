@@ -14,6 +14,7 @@
     #include <memory>
     #include <vector>
     #include <string>
+    #include <cstring>
     #include <utility>
 
     #include <ErrorHandlers.h>
@@ -29,9 +30,10 @@ namespace Libdas {
         JSON_TOKEN_ARRAY_START,
         JSON_TOKEN_ARRAY_END,
         JSON_TOKEN_STRING_STATEMENT,
-        JSON_TOKEN_STATEMENT_END,
+        JSON_TOKEN_BOOLEAN,
         JSON_TOKEN_NUMERICAL,
         JSON_TOKEN_KEY_VALUE_DECL,
+        JSON_TOKEN_NEXT_ELEMENT,
         JSON_TOKEN_UNKNOWN
     };
 
@@ -39,12 +41,16 @@ namespace Libdas {
     enum JSONType {
         JSON_TYPE_STRING,
         JSON_TYPE_FLOAT,
-        JSON_TYPE_INTEGER
+        JSON_TYPE_INTEGER,
+        JSON_TYPE_BOOLEAN,
+        JSON_TYPE_OBJECT
     };
 
 
     struct JSONNode {
-        std::map<std::string, std::unique_ptr<JSONNode>> sub_nodes = {};
+        JSONNode *parent = nullptr;
+        std::string name = "root";
+        std::map<std::string, std::shared_ptr<JSONNode>> sub_nodes = {};
         std::vector<std::pair<JSONType, std::any>> values;
         bool is_scope_open = false;
         bool is_array_open = false;
@@ -60,9 +66,13 @@ namespace Libdas {
             std::string m_file_name;
             char *m_rd_ptr = m_buffer;
             char m_str_statement_beg = 0;
+            bool m_allow_next_element = true; // flag that determines if 
+
+            std::string m_loose_string = "";
 
             // variable for accounting lines
             size_t m_line_nr = 1;
+            bool m_prev_decl = false; // boolean flag for identifying previous key value statement
 
         private:
             ////////////////////////////////
@@ -74,8 +84,9 @@ namespace Libdas {
             void _HandleArrayStartToken();
             void _HandleArrayEndToken();
             void _HandleStringToken();
-            void _HandleStatementEndToken(); // unnecessary?
+            void _HandleBooleanToken();
             void _HandleNumericalToken();
+            void _HandleNextElementToken();
             void _HandleKeyValueDeclToken();
 
             /**

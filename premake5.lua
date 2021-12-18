@@ -46,6 +46,7 @@ newoption {
         { "WavefrontObjCompiler", "Build a Wavefront OBJ compiler test application" },
         { "STLCompiler", "Build an STL compiler test application" },
         { "Base64Decoder", "Build a Base64Decoder class test application" },
+        { "JSONParser", "Build a JSONParser class test application" },
         -- tmp --
         { "TextureReader", "Build TextureReader class test" },
         { "DasReaderCoreTest", "Build DasReaderCore class test" },
@@ -125,6 +126,12 @@ function LoadTests()
         print("Including Base64Decoder test config")
         local decoder = require("premake/tests/Base64Decoder")
         decoder.build()
+    end
+
+    if _OPTIONS["tests"] == "all" or _OPTIONS["tests"] == "JSONParser" then
+        print("Including JSONParser test config")
+        local parser = require("premake/tests/JSONParser")
+        parser.build()
     end
 
     --if _OPTIONS["tests"] == "all" or _OPTIONS["tests"] == "DasParser" then

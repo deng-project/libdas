@@ -21,6 +21,7 @@ namespace Libdas {
             case MODEL_FORMAT_STLA: return "Ascii STL error: ";
             case MODEL_FORMAT_FBXA: return "Ascii FBX error: ";
             case MODEL_FORMAT_GLTF: return "GLTF error: ";
+            case MODEL_FORMAT_JSON: return "JSON error: ";
             default: 
                 break;
         }
@@ -58,6 +59,10 @@ namespace Libdas {
                 std::cerr << err_beg << " Invalid keyword '" << _keyword << "' at line " << _line << std::endl;
                 break;
 
+            case LIBDAS_ERROR_NO_IDENTIFIER:
+                std::cerr << err_beg << " Expected identifier '" << _keyword << "' at line " << _line << std::endl;
+                break;
+
             case LIBDAS_ERROR_INVALID_ARGUMENT:
                 std::cerr << err_beg << " Invalid argument '" << _arg << "' for keyword '" << _keyword << "' at line " << _line << std::endl;
                 break;
@@ -88,6 +93,10 @@ namespace Libdas {
 
             case LIBDAS_ERROR_INCOMPLETE_SCOPE:
                 std::cerr << err_beg << " Cannot start new '" << _keyword << "' scope at line " << _line << ", previous one is still unfinished" << std::endl;
+                break;
+
+            case LIBDAS_ERROR_SCOPE_ALREADY_CLOSED:
+                std::cerr << err_beg << " Cannot close scope '" << _keyword << "' at line " << _line << ", already closed" << std::endl;
                 break;
 
             default:

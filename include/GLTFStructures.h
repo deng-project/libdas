@@ -25,6 +25,10 @@
 #define KHRONOS_MIRRORED_REPEAT         33648
 #define KHRONOS_REPEAT                  10497
 
+// buffer view target properties
+#define KHRONOS_ARRAY_BUFFER            34962
+#define KHRONOS_ELEMENT_ARRAY_BUFFER    34963
+
 // primitive types
 #define KHRONOS_POINTS                  0
 #define KHRONOS_LINES                   1
@@ -87,8 +91,8 @@ namespace Libdas {
         bool normalized = false;                        // not required (default: false)
         int32_t count;                                  // required
         std::string type;                               // required
-        float max = FLT_MAX;                            // not required
-        float min = FLT_MIN;                            // not required
+        std::vector<float> max;                         // not required
+        std::vector<float> min;                         // not required
         GLTFAccessorSparse sparse;                      // not required
         std::string name = "";                          // not required
         std::vector<std::any> extensions;               // ignored
@@ -139,7 +143,7 @@ namespace Libdas {
      * Structure containing information about keyframe animation
      */
     struct GLTFAnimation {
-        std::vector<GLTFAnimationChannel> channels;     // required
+        std::vector<GLTFAnimationChannel> channels;      // required
         std::vector<GLTFAnimationSampler> samplers;     // required
         std::string name;                               // not required
         std::vector<std::any> extensions;               // ignored
@@ -181,10 +185,10 @@ namespace Libdas {
      */
     struct GLTFBufferView {
         int32_t buffer;                                 // required
-        uint32_t byte_offset;                           // not required (default: 0)
+        uint32_t byte_offset = 0;                       // not required (default: 0)
         uint32_t byte_length;                           // required
-        uint32_t byte_stride;                           // not required
-        uint32_t target;                                // not required
+        uint32_t byte_stride = 1;                       // not required
+        uint32_t target = 0;                            // not required
         std::string name;                               // not required
         std::vector<std::any> extensions;               // ignored
         std::vector<std::any> extras;                   // ignored
@@ -336,7 +340,7 @@ namespace Libdas {
      * Reference to a normal material texture 
      */
     struct GLTFNormalTextureInfo {
-        int32_t index;                                  // required
+        int32_t index = INT32_MAX;                      // required
         int32_t tex_coord = 0;                          // not required (default: 0)
         float scale = 1.0f;                             // not required (default: 1)
         std::vector<std::any> extensions;               // ignored
@@ -348,9 +352,9 @@ namespace Libdas {
      * Reference to a occlusion material texture 
      */
     struct GLTFOcclusionTextureInfo {
-        int32_t index;                                  // required
+        int32_t index = INT32_MAX;                      // required
         int32_t tex_coord = 0;                          // not required (default: 0)
-        float strength = 1.0f;                             // not required (default: 1)
+        float strength = 1.0f;                          // not required (default: 1)
         std::vector<std::any> extensions;               // ignored
         std::vector<std::any> extras;                   // ignored
     };
@@ -361,7 +365,7 @@ namespace Libdas {
      * Physically-Based Rendering methology
      */
     struct GLTFpbrMetallicRoughness {
-        Point4D<float> base_color_factor = {1, 1, 1};   // not required (default: 1, 1, 1, 1)
+        Point4D<float> base_color_factor = {1, 1, 1, 1};// not required (default: 1, 1, 1, 1)
         GLTFTextureInfo base_color_texture;             // not required
         float metallic_factor = 1.0f;                   // not required (default: 1.0f)
         float roughness_factor = 1.0f;                  // not required (default: 1.0f)
@@ -382,7 +386,7 @@ namespace Libdas {
         GLTFNormalTextureInfo normal_texture;           // not required
         GLTFOcclusionTextureInfo occlusion_texture;     // not required
         GLTFTextureInfo emissive_texture;               // not required
-        Point3D<float> emissive_factor;                 // not required (default: [0, 0, 0])
+        Point3D<float> emissive_factor = {0, 0, 0};     // not required (default: [0, 0, 0])
         std::string alpha_mode = "OPAQUE";              // not required (default: "OPAQUE")
         float alpha_cutoff = 0.5f;                      // not required (default: 0.5f)
         bool double_sided = false;                      // not required (default: false)
@@ -403,7 +407,9 @@ namespace Libdas {
         int32_t indices = INT32_MAX;                    // not required
         int32_t material = INT32_MAX;                   // not required
         uint32_t mode = KHRONOS_TRIANGLES;              // not required (default: 4) 
-        AttributesType targets;                         // 
+        AttributesType targets;                         // not required
+        std::vector<std::any> extensions;               // ignored
+        std::vector<std::any> extras;                   // ignored
     };
 
 
@@ -432,7 +438,7 @@ namespace Libdas {
         std::vector<std::string> extensions_required;   // not required
         std::vector<GLTFAccessor> accessors;            // not required
         std::vector<GLTFAnimation> animations;          // not required
-        std::vector<GLTFAsset> asset;                   // required
+        GLTFAsset asset;                                // required
         std::vector<GLTFBuffer> buffers;                // not required
         std::vector<GLTFBufferView> buffer_views;       // not required
         std::vector<GLTFCamera> cameras;                // not required
@@ -442,6 +448,7 @@ namespace Libdas {
         std::vector<GLTFNode> nodes;                    // not required
         std::vector<GLTFSampler> samplers;              // not required
         std::vector<GLTFScene> scenes;                  // not required
+        GLTFScene load_time_scene;                      // not required
         std::vector<GLTFSkin> skins;                    // not required
         std::vector<GLTFTexture> textures;              // not required
         std::vector<std::any> extensions;               // ignored

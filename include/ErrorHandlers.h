@@ -26,28 +26,29 @@ typedef bool TerminationType;
 /// Ascii format errors
 typedef uint16_t ErrorType;
 #define LIBDAS_ERROR_INVALID_KEYWORD                1   // statement error
-#define LIBDAS_ERROR_NO_IDENTIFIER                  2   // statement error
-#define LIBDAS_ERROR_INVALID_ARGUMENT               3   // statement error
-#define LIBDAS_ERROR_TOO_MANY_ATTRIBUTES            4   // statement error
-#define LIBDAS_ERROR_NOT_ENOUGH_ATTRIBUTES          5   // statement error
-#define LIBDAS_ERROR_INCOMPLETE_NEWLINE             6   // non-statement error
-#define LIBDAS_ERROR_INVALID_CSTYPE                 7   // Wavefront OBJ only!!!
-#define LIBDAS_ERROR_INVALID_SYMBOL                 8   // non-statement error
-#define LIBDAS_ERROR_UNEXPECTED_END_STATEMENT       9   // statement error
-#define LIBDAS_ERROR_INCOMPLETE_SCOPE               10  // statement error
-#define LIBDAS_ERROR_SCOPE_ALREADY_CLOSED           11  // statement error
+#define LIBDAS_ERROR_INVALID_TYPE                   2   // statement error (JSON mostly, because of its loose typing)
+#define LIBDAS_ERROR_NO_IDENTIFIER                  3   // statement error
+#define LIBDAS_ERROR_INVALID_ARGUMENT               4   // statement error
+#define LIBDAS_ERROR_TOO_MANY_ATTRIBUTES            5   // statement error
+#define LIBDAS_ERROR_NOT_ENOUGH_ATTRIBUTES          6   // statement error
+#define LIBDAS_ERROR_INCOMPLETE_NEWLINE             7   // non-statement error
+#define LIBDAS_ERROR_INVALID_CSTYPE                 8   // Wavefront OBJ only!!!
+#define LIBDAS_ERROR_INVALID_SYMBOL                 9   // non-statement error
+#define LIBDAS_ERROR_UNEXPECTED_END_STATEMENT       10  // statement error
+#define LIBDAS_ERROR_INCOMPLETE_SCOPE               11  // statement error
+#define LIBDAS_ERROR_SCOPE_ALREADY_CLOSED           12  // statement error
 
 /// Binary format errors
-#define LIBDAS_ERROR_INVALID_SIGNATURE              11  // binary error
-#define LIBDAS_ERROR_INVALID_DATA                   12  // binary error
-#define LIBDAS_ERROR_INVALID_VALUE                  13  // binary error
+#define LIBDAS_ERROR_INVALID_SIGNATURE              13  // binary error
+#define LIBDAS_ERROR_INVALID_DATA                   14  // binary error
+#define LIBDAS_ERROR_INVALID_VALUE                  15  // binary or ascii error
 
 /// Misc
-#define LIBDAS_ERROR_INVALID_FILE                   14  // misc
+#define LIBDAS_ERROR_INVALID_FILE                   16  // misc
 
 /// Warnings
-#define LIBDAS_WARNING_UNUSED_STATEMENT             15  // statement warning
-#define LIBDAS_WARNING_MULTIPLE_OBJECTS             16  // non-statement warning
+#define LIBDAS_WARNING_UNUSED_STATEMENT             17  // statement warning
+#define LIBDAS_WARNING_MULTIPLE_OBJECTS             18  // non-statement warning
 
 
 namespace Libdas {

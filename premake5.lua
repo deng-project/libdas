@@ -47,6 +47,7 @@ newoption {
         { "STLCompiler", "Build an STL compiler test application" },
         { "Base64Decoder", "Build a Base64Decoder class test application" },
         { "JSONParser", "Build a JSONParser class test application" },
+        { "GLTFParser", "Build a GLTFParser class test application" },
         -- tmp --
         { "TextureReader", "Build TextureReader class test" },
         { "DasReaderCoreTest", "Build DasReaderCore class test" },
@@ -131,6 +132,12 @@ function LoadTests()
     if _OPTIONS["tests"] == "all" or _OPTIONS["tests"] == "JSONParser" then
         print("Including JSONParser test config")
         local parser = require("premake/tests/JSONParser")
+        parser.build()
+    end
+
+    if _OPTIONS["tests"] == "all" or _OPTIONS["tests"] == "GLTFParser" then
+        print("Including GLTFParser test config")
+        local parser = require("premake/tests/GLTFParser")
         parser.build()
     end
 

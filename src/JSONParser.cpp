@@ -8,8 +8,8 @@
 
 namespace Libdas {
     
-    JSONParser::JSONParser(const std::string &_file_name) : 
-        AsciiStreamReader(_file_name, DEFAULT_CHUNK, "}"), m_error(MODEL_FORMAT_GLTF), m_file_name(_file_name) {}
+    JSONParser::JSONParser(ModelFormat _format, const std::string &_file_name) : 
+        AsciiStreamReader(_file_name, DEFAULT_CHUNK, "}"), m_error(_format), m_file_name(_file_name) {}
 
 
     JSONToken JSONParser::_CheckForToken() {
@@ -153,16 +153,20 @@ namespace Libdas {
         std::string bool_str;
 
         while(m_rd_ptr < m_buffer + m_buffer_size && *m_rd_ptr != ',' && *m_rd_ptr != ' ' &&
-              *m_rd_ptr != '\n' && *m_rd_ptr != '}' && *m_rd_ptr != ']') {
+              *m_rd_ptr != '\n' && *m_rd_ptr != '}' && *m_rd_ptr != ']' && *m_rd_ptr != '\r') {
             bool_str += *m_rd_ptr;
             m_rd_ptr++;
         }
 
         if(bool_str == "false" || bool_str == "true")
             m_active_node->values.push_back(std::make_pair(JSON_TYPE_BOOLEAN, bool_str == "true" ? true : false));
-        else m_error.Error(LIBDAS_ERROR_INVALID_ARGUMENT, m_line_nr, bool_str);
+        else m_error.Error(LIBDAS_ERROR_INVALID_VALUE, m_line_nr, m_active_node->name);
 
         m_rd_ptr--;
+
+        // check if fallback to parent scope should be made
+        if(!m_active_node->is_scope_open && !m_active_node->is_array_open)
+            m_active_node = m_active_node->parent;
     }
 
 
@@ -181,12 +185,18 @@ namespace Libdas {
         }
 
         std::string num_str = std::string(m_rd_ptr, end - m_rd_ptr);
+        std::variant<JSONInteger, JSONNumber> var_int;
 
         // detected a float value
-        if(is_fl)
-            m_active_node->values.push_back(std::make_pair(JSON_TYPE_FLOAT, std::stof(num_str.c_str())));
+        if(is_fl) {
+            var_int = std::stof(num_str.c_str());
+            m_active_node->values.push_back(std::make_pair(JSON_TYPE_FLOAT, var_int));
+        }
         // detected integer value
-        else m_active_node->values.push_back(std::make_pair(JSON_TYPE_INTEGER, std::stoi(num_str.c_str())));
+        else {
+            var_int = std::stoi(num_str.c_str());
+            m_active_node->values.push_back(std::make_pair(JSON_TYPE_INTEGER, var_int));
+        }
 
         // check if fallback to parent scope should be made
         if(!m_active_node->is_scope_open && !m_active_node->is_array_open)
@@ -215,6 +225,7 @@ namespace Libdas {
             m_active_node->sub_nodes[m_loose_string]->parent = m_active_node;
             m_active_node = m_active_node->sub_nodes[m_loose_string].get();
             m_active_node->name = m_loose_string;
+            m_active_node->key_val_decl_line = m_line_nr;
             m_prev_decl = true;
         }
 
@@ -232,6 +243,7 @@ namespace Libdas {
             m_active_node->sub_nodes[m_loose_string]->parent = m_active_node;
             m_active_node = m_active_node->sub_nodes[m_loose_string].get();
             m_active_node->name = m_loose_string;
+            m_active_node->key_val_decl_line = m_line_nr;
             m_prev_decl = true;
         }
 

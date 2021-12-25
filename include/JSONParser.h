@@ -9,6 +9,7 @@
 
 #ifdef JSON_PARSER_CPP
     #include <any>
+    #include <variant>
     #include <map>
     #include <fstream>
     #include <memory>
@@ -38,20 +39,38 @@ namespace Libdas {
     };
 
 
-    enum JSONType {
-        JSON_TYPE_STRING,
-        JSON_TYPE_FLOAT,
-        JSON_TYPE_INTEGER,
-        JSON_TYPE_BOOLEAN,
-        JSON_TYPE_OBJECT
-    };
+    typedef uint8_t JSONType;
+    #define JSON_TYPE_STRING    0x01
+    #define JSON_TYPE_FLOAT     0x02
+    #define JSON_TYPE_INTEGER   0x04
+    #define JSON_TYPE_BOOLEAN   0x08
+    #define JSON_TYPE_OBJECT    0x10
+    #define JSON_TYPE_UNKNOWN   0x20
 
+
+    // JSON data type definitions
+    typedef std::string JSONString;
+    typedef float JSONNumber;
+    typedef int32_t JSONInteger;
+    typedef bool JSONBoolean;
+
+
+    // Value and subnode type declarations for easier typing
+    struct JSONNode;
+    typedef std::vector<std::pair<JSONType, std::any>> JSONValues;
+    typedef std::map<std::string, std::shared_ptr<JSONNode>> SubnodeMap;
 
     struct JSONNode {
+        JSONNode() {}
+        JSONNode(const JSONNode &_node) { *this = _node; }
+
         JSONNode *parent = nullptr;
         std::string name = "root";
-        std::map<std::string, std::shared_ptr<JSONNode>> sub_nodes = {};
-        std::vector<std::pair<JSONType, std::any>> values;
+        SubnodeMap sub_nodes = {};
+        JSONValues values;
+        uint32_t key_val_decl_line = 1;
+
+        // flags for data reading
         bool is_scope_open = false;
         bool is_array_open = false;
     };
@@ -106,7 +125,7 @@ namespace Libdas {
             void _SkipSkippableCharacters(bool _no_nl = false);
 
         public:
-            JSONParser(const std::string &_file_name = "");
+            JSONParser(ModelFormat _format, const std::string &_file_name = "");
             /**
              * Parse the JSON file and create appropriate maps for each node
              * @param _file_name optionally specifies the JSON file name to use, can be ignored if the file name was provided in constructor

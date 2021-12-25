@@ -59,6 +59,18 @@ namespace Libdas {
                 std::cerr << err_beg << " Invalid keyword '" << _keyword << "' at line " << _line << std::endl;
                 break;
 
+            case LIBDAS_ERROR_INVALID_TYPE:
+                std::cerr << err_beg << " Invalid type for key '" << _keyword << "' at line " << _line << ", expected type '" <<
+                    _arg << "'" << std::endl;
+                break;
+
+            case LIBDAS_ERROR_INVALID_VALUE:
+                if(_arg == "")
+                    std::cerr << err_beg << " Unexpected value in '" << _keyword << "' starting at line " << _line << std::endl;
+                else 
+                    std::cerr << err_beg << " Unexpected value '" << _arg << "' in '" << _keyword << "' starting at line " << _line << std::endl;
+                break;
+
             case LIBDAS_ERROR_NO_IDENTIFIER:
                 std::cerr << err_beg << " Expected identifier '" << _keyword << "' at line " << _line << std::endl;
                 break;

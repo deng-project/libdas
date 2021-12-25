@@ -1,5 +1,6 @@
 #include <string>
 #include <any>
+#include <variant>
 #include <map>
 #include <fstream>
 #include <memory>
@@ -15,23 +16,23 @@ void OutputNodes(const std::string &_name, Libdas::JSONNode *_node, std::string 
     _sep += "-";
     for(size_t i = 0; i < _node->values.size(); i++) {
         switch(_node->values[i].first) {
-            case Libdas::JSON_TYPE_STRING:
+            case JSON_TYPE_STRING:
                 std::cout << _sep << " " << std::any_cast<std::string>(_node->values[i].second) << std::endl;
                 break;
 
-            case Libdas::JSON_TYPE_INTEGER:
-                std::cout << _sep << " " << std::any_cast<int>(_node->values[i].second) << std::endl;
+            case JSON_TYPE_INTEGER:
+                std::cout << _sep << " " << std::get<int32_t>(std::any_cast<std::variant<int32_t, float>>(_node->values[i].second)) << std::endl;
                 break;
 
-            case Libdas::JSON_TYPE_FLOAT:
-                std::cout << _sep << " " << std::any_cast<float>(_node->values[i].second) << std::endl;
+            case JSON_TYPE_FLOAT:
+                std::cout << _sep << " " << std::get<float>(std::any_cast<std::variant<int32_t, float>>(_node->values[i].second)) << std::endl;
                 break;
 
-            case Libdas::JSON_TYPE_BOOLEAN:
+            case JSON_TYPE_BOOLEAN:
                 std::cout << _sep << " " << (std::any_cast<bool>(_node->values[i].second) ? "true" : "false") << std::endl;
                 break;
 
-            case Libdas::JSON_TYPE_OBJECT:
+            case JSON_TYPE_OBJECT:
                 OutputNodes("{}", &std::any_cast<Libdas::JSONNode&>(_node->values[i].second), _sep);
                 break;
 
@@ -53,7 +54,7 @@ int main(int argc, char *argv[]) {
     }
 
 
-    Libdas::JSONParser parser(argv[1]);
+    Libdas::JSONParser parser(Libdas::MODEL_FORMAT_JSON, argv[1]);
     parser.Parse();
 
     Libdas::JSONNode &root = parser.GetRootNode();

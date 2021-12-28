@@ -151,12 +151,12 @@ namespace Libdas {
 
             case GLTF_TYPE_CAMERA_ORTHOGRAPHIC:
                 _VerifySourceData(_src, JSON_TYPE_OBJECT, false);
-                _ReadCameraOrthographic(std::any_cast<JSONNode>(&_src->values.back().second), *reinterpret_cast<GLTFCameraOrthographic*>(_dst.val_ptr));
+                _ReadCameraOrthographic(_src, *reinterpret_cast<GLTFCameraOrthographic*>(_dst.val_ptr));
                 break;
 
             case GLTF_TYPE_CAMERA_PERSPECTIVE:
                 _VerifySourceData(_src, JSON_TYPE_OBJECT, false);
-                _ReadCameraPerspective(std::any_cast<JSONNode>(&_src->values.back().second), *reinterpret_cast<GLTFCameraPerspective*>(_dst.val_ptr));
+                _ReadCameraPerspective(_src, *reinterpret_cast<GLTFCameraPerspective*>(_dst.val_ptr));
                 break;
 
             case GLTF_TYPE_MATERIAL_PBR_METALLIC_ROUGHNESS:
@@ -180,7 +180,7 @@ namespace Libdas {
                 break;
 
             case GLTF_TYPE_MESH_PRIMITIVES:
-                _VerifySourceData(_src, JSON_TYPE_OBJECT, false);
+                _VerifySourceData(_src, JSON_TYPE_OBJECT, true);
                 _ReadMeshPrimitives(_src, *reinterpret_cast<std::vector<GLTFMeshPrimitive>*>(_dst.val_ptr));
                 break;
 

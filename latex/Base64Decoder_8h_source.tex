@@ -1,0 +1,46 @@
+\hypertarget{Base64Decoder_8h_source}{}\doxysection{Base64\+Decoder.\+h}
+\label{Base64Decoder_8h_source}\index{include/Base64Decoder.h@{include/Base64Decoder.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{comment}{// libdas: DENG asset handling management library}}
+\DoxyCodeLine{2 \textcolor{comment}{// licence: Apache, see LICENCE file}}
+\DoxyCodeLine{3 \textcolor{comment}{// file: Base64Decoder.h -\/ Base64 encoded data decoder class header}}
+\DoxyCodeLine{4 \textcolor{comment}{// author: Karl-\/Mihkel Ott}}
+\DoxyCodeLine{5 }
+\DoxyCodeLine{6 \textcolor{preprocessor}{\#ifndef BASE64\_DECODER\_H}}
+\DoxyCodeLine{7 \textcolor{preprocessor}{\#define BASE64\_DECODER\_H}}
+\DoxyCodeLine{8 }
+\DoxyCodeLine{9 }
+\DoxyCodeLine{10 \textcolor{preprocessor}{\#ifdef BASE64\_DECODER\_CPP}}
+\DoxyCodeLine{11 \textcolor{preprocessor}{    \#include <cstdint>}}
+\DoxyCodeLine{12 \textcolor{preprocessor}{    \#include <string>}}
+\DoxyCodeLine{13 \textcolor{preprocessor}{    \#include <vector>}}
+\DoxyCodeLine{14 \textcolor{preprocessor}{    \#include <utility>}}
+\DoxyCodeLine{15 \textcolor{preprocessor}{    \#include <algorithm>}}
+\DoxyCodeLine{16 }
+\DoxyCodeLine{17 \textcolor{preprocessor}{    \#define LIBDAS\_DEFS\_ONLY}}
+\DoxyCodeLine{18 \textcolor{preprocessor}{    \#include <HuffmanCompression.h>}}
+\DoxyCodeLine{19 \textcolor{preprocessor}{    \#undef LIBDAS\_DEFS\_ONLY}}
+\DoxyCodeLine{20 \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{21 }
+\DoxyCodeLine{22 \textcolor{keyword}{namespace }\mbox{\hyperlink{namespaceLibdas}{Libdas}} \{}
+\DoxyCodeLine{23 }
+\DoxyCodeLine{24     \textcolor{keyword}{class }\mbox{\hyperlink{classLibdas_1_1Base64Decoder}{Base64Decoder}} \{}
+\DoxyCodeLine{25         \textcolor{keyword}{private}:}
+\DoxyCodeLine{26             std::string m\_base64\_str;}
+\DoxyCodeLine{27             uint8\_t m\_base64\_table[LIBDAS\_ASCII\_ALPHABET\_SIZE] = \{0\};}
+\DoxyCodeLine{28 }
+\DoxyCodeLine{29         \textcolor{keyword}{public}:}
+\DoxyCodeLine{30             \mbox{\hyperlink{classLibdas_1_1Base64Decoder}{Base64Decoder}}(\textcolor{keyword}{const} std::string \&\_base64\_str = \textcolor{stringliteral}{"{}"{}});\textcolor{comment}{}}
+\DoxyCodeLine{31 \textcolor{comment}{            /**}}
+\DoxyCodeLine{32 \textcolor{comment}{             * Decode base64 encoded string into char array}}
+\DoxyCodeLine{33 \textcolor{comment}{             * @param \_base64\_str optionally specifies the base64 string to decode}}
+\DoxyCodeLine{34 \textcolor{comment}{             * @return std::vector instance containing decoded data}}
+\DoxyCodeLine{35 \textcolor{comment}{             */}}
+\DoxyCodeLine{36             std::vector<char> \mbox{\hyperlink{classLibdas_1_1Base64Decoder_ad2a52082e410cfac0508e5185807182c}{Decode}}(\textcolor{keyword}{const} std::string \&\_base64\_str = \textcolor{stringliteral}{"{}"{}});}
+\DoxyCodeLine{37     \};}
+\DoxyCodeLine{38 \}}
+\DoxyCodeLine{39 }
+\DoxyCodeLine{40 \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

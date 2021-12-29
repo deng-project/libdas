@@ -9,6 +9,7 @@
 
 #ifdef GLTF_PARSER_CPP
     #include <any>
+    #include <set>
     #include <variant>
     #include <map>
     #include <memory>
@@ -26,11 +27,17 @@
     #include <Points.h>
     #include <Vector.h>
     #include <Matrix.h>
+    #include <FileNameString.h>
     #include <LibdasAssert.h>
     #include <ErrorHandlers.h>
+#define LIBDAS_DEFS_ONLY
+    #include <HuffmanCompression.h>
+#undef LIBDAS_DEFS_ONLY
     #include <AsciiStreamReader.h>
     #include <JSONParser.h>
     #include <GLTFStructures.h>
+    #include <Base64Decoder.h>
+    #include <URIResolver.h>
 #endif
 
 
@@ -289,6 +296,11 @@ namespace Libdas {
              * @param _node is a valid pointer to JSONNode instance, that specifies the current subnode that will be parsed
              */
             void _RootObjectParserCaller(GLTFObjectType _type, JSONNode *_node);
+            /**
+             * Resolve all buffer uris and create appropriate map entries for them into GLTFRoot::resources
+             * @param _file_name specifies the current gltf file name in order to extract root path from it
+             */
+            void _ResolveBufferUris(const std::string &_file_name);
 
         public:
             GLTFParser(const std::string &_file_name = "");

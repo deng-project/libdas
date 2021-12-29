@@ -1,0 +1,142 @@
+\hypertarget{classLibdas_1_1AsciiSTLParser}{}\doxysection{Libdas\+::Ascii\+STLParser Class Reference}
+\label{classLibdas_1_1AsciiSTLParser}\index{Libdas::AsciiSTLParser@{Libdas::AsciiSTLParser}}
+
+
+Inheritance diagram for Libdas\+::Ascii\+STLParser\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=550pt]{classLibdas_1_1AsciiSTLParser__inherit__graph}
+\end{center}
+\end{figure}
+
+
+Collaboration diagram for Libdas\+::Ascii\+STLParser\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=550pt]{classLibdas_1_1AsciiSTLParser__coll__graph}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classLibdas_1_1AsciiSTLParser_aa148b7604a301cf9ef03a853f3b69aa4}\label{classLibdas_1_1AsciiSTLParser_aa148b7604a301cf9ef03a853f3b69aa4}} 
+{\bfseries Ascii\+STLParser} (const std\+::string \&\+\_\+file\+\_\+name=\char`\"{}\char`\"{}, size\+\_\+t \+\_\+chunk\+\_\+size=DEFAULT\+\_\+\+CHUNK)
+\item 
+void \mbox{\hyperlink{classLibdas_1_1AsciiSTLParser_a9f0ae6a4104a151b3de23272cf3fd521}{Parse}} ()
+\item 
+void \mbox{\hyperlink{classLibdas_1_1AsciiSTLParser_a3db001a5e2a48275e0ee9e5fe477ed28}{Parse}} (const std\+::string \&\+\_\+file\+\_\+name)
+\item 
+std\+::vector$<$ \mbox{\hyperlink{structLibdas_1_1STLObject}{STLObject}} $>$ \& \mbox{\hyperlink{classLibdas_1_1AsciiSTLParser_ac210eae495488eb45d15420861d1c805}{Get\+Objects}} ()
+\end{DoxyCompactItemize}
+\doxysubsection*{Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{classLibdas_1_1AsciiSTLParser_a90be9504f282ed5bdb6d1df528d47fe4}{\+\_\+\+Tokenise}} ()
+\item 
+\mbox{\hyperlink{structLibdas_1_1AsciiSTLStatementCallback}{Ascii\+STLStatement\+Callback}} \mbox{\hyperlink{classLibdas_1_1AsciiSTLParser_aaf531fae1923da3a128b16f81194c09b}{\+\_\+\+Analyse\+Keyword}} (const std\+::string \&\+\_\+key)
+\item 
+void \mbox{\hyperlink{classLibdas_1_1AsciiSTLParser_ae9f140016c6ff60e09de250ae6c3aebe}{\+\_\+\+Analyse\+Statement}} (\mbox{\hyperlink{structLibdas_1_1AsciiSTLStatementCallback}{Ascii\+STLStatement\+Callback}} \&\+\_\+callback, std\+::vector$<$ std\+::string $>$ \&\+\_\+args)
+\item 
+void $\ast$ \mbox{\hyperlink{classLibdas_1_1AsciiSTLParser_a2d69fcbb18924e3a29a6a988aa47f883}{\+\_\+\+Get\+Custom\+Data}} (Ascii\+STLStatement\+Type \+\_\+type)
+\end{DoxyCompactItemize}
+\doxysubsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classLibdas_1_1AsciiSTLParser_a6e510bb0981e0762e903fe7c6a02d7ad}\label{classLibdas_1_1AsciiSTLParser_a6e510bb0981e0762e903fe7c6a02d7ad}} 
+\mbox{\hyperlink{classLibdas_1_1AsciiFormatErrorHandler}{Ascii\+Format\+Error\+Handler}} {\bfseries m\+\_\+error}
+\item 
+\mbox{\Hypertarget{classLibdas_1_1AsciiSTLParser_a19acf20f998ee9504ef3068b67376ce4}\label{classLibdas_1_1AsciiSTLParser_a19acf20f998ee9504ef3068b67376ce4}} 
+std\+::unordered\+\_\+map$<$ std\+::string, \mbox{\hyperlink{structLibdas_1_1AsciiSTLStatementCallback}{Ascii\+STLStatement\+Callback}} $>$ {\bfseries m\+\_\+tokens}
+\item 
+\mbox{\Hypertarget{classLibdas_1_1AsciiSTLParser_af6687ec01d35ddebea495aeccbed52ed}\label{classLibdas_1_1AsciiSTLParser_af6687ec01d35ddebea495aeccbed52ed}} 
+std\+::vector$<$ \mbox{\hyperlink{structLibdas_1_1STLObject}{STLObject}} $>$ {\bfseries m\+\_\+objects}
+\item 
+\mbox{\Hypertarget{classLibdas_1_1AsciiSTLParser_ace15c5f27fd80bde1c71a6815156fdb7}\label{classLibdas_1_1AsciiSTLParser_ace15c5f27fd80bde1c71a6815156fdb7}} 
+uint32\+\_\+t {\bfseries m\+\_\+parse\+\_\+pos} = 1
+\item 
+\mbox{\Hypertarget{classLibdas_1_1AsciiSTLParser_ae3c04182c8ca8ed914de2f056da3126b}\label{classLibdas_1_1AsciiSTLParser_ae3c04182c8ca8ed914de2f056da3126b}} 
+bool {\bfseries m\+\_\+is\+\_\+solid\+\_\+obj} = false
+\item 
+\mbox{\Hypertarget{classLibdas_1_1AsciiSTLParser_a8ee5785f0d43a79a4cf55ed80046437a}\label{classLibdas_1_1AsciiSTLParser_a8ee5785f0d43a79a4cf55ed80046437a}} 
+bool {\bfseries m\+\_\+is\+\_\+facet} = false
+\item 
+\mbox{\Hypertarget{classLibdas_1_1AsciiSTLParser_a101d9e2b00534322380bb45c0d8318a1}\label{classLibdas_1_1AsciiSTLParser_a101d9e2b00534322380bb45c0d8318a1}} 
+bool {\bfseries m\+\_\+is\+\_\+loop} = false
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classLibdas_1_1AsciiSTLParser_aaf531fae1923da3a128b16f81194c09b}\label{classLibdas_1_1AsciiSTLParser_aaf531fae1923da3a128b16f81194c09b}} 
+\index{Libdas::AsciiSTLParser@{Libdas::AsciiSTLParser}!\_AnalyseKeyword@{\_AnalyseKeyword}}
+\index{\_AnalyseKeyword@{\_AnalyseKeyword}!Libdas::AsciiSTLParser@{Libdas::AsciiSTLParser}}
+\doxysubsubsection{\texorpdfstring{\_AnalyseKeyword()}{\_AnalyseKeyword()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{structLibdas_1_1AsciiSTLStatementCallback}{Ascii\+STLStatement\+Callback}} Libdas\+::\+Ascii\+STLParser\+::\+\_\+\+Analyse\+Keyword (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{\+\_\+key }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+Analyse the keyword and if it is valid return its callback 
+\begin{DoxyParams}{Parameters}
+{\em \+\_\+key} & is the key to use in retrieving from the keyword map \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+on success \mbox{\hyperlink{structLibdas_1_1AsciiSTLStatementCallback}{Ascii\+STLStatement\+Callback}} instance that includes a valid type and data pointer to statement callback 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classLibdas_1_1AsciiSTLParser_ae9f140016c6ff60e09de250ae6c3aebe}\label{classLibdas_1_1AsciiSTLParser_ae9f140016c6ff60e09de250ae6c3aebe}} 
+\index{Libdas::AsciiSTLParser@{Libdas::AsciiSTLParser}!\_AnalyseStatement@{\_AnalyseStatement}}
+\index{\_AnalyseStatement@{\_AnalyseStatement}!Libdas::AsciiSTLParser@{Libdas::AsciiSTLParser}}
+\doxysubsubsection{\texorpdfstring{\_AnalyseStatement()}{\_AnalyseStatement()}}
+{\footnotesize\ttfamily void Libdas\+::\+Ascii\+STLParser\+::\+\_\+\+Analyse\+Statement (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structLibdas_1_1AsciiSTLStatementCallback}{Ascii\+STLStatement\+Callback}} \&}]{\+\_\+callback,  }\item[{std\+::vector$<$ std\+::string $>$ \&}]{\+\_\+args }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+Analyse the statement and call its callback function if it exists 
+\begin{DoxyParams}{Parameters}
+{\em \+\_\+callback} & is an Ascii\+STLStatement instance that defines the function pointer \\
+\hline
+{\em \+\_\+args} & is an std\+::vector instance of all read arguments \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classLibdas_1_1AsciiSTLParser_a2d69fcbb18924e3a29a6a988aa47f883}\label{classLibdas_1_1AsciiSTLParser_a2d69fcbb18924e3a29a6a988aa47f883}} 
+\index{Libdas::AsciiSTLParser@{Libdas::AsciiSTLParser}!\_GetCustomData@{\_GetCustomData}}
+\index{\_GetCustomData@{\_GetCustomData}!Libdas::AsciiSTLParser@{Libdas::AsciiSTLParser}}
+\doxysubsubsection{\texorpdfstring{\_GetCustomData()}{\_GetCustomData()}}
+{\footnotesize\ttfamily void $\ast$ Libdas\+::\+Ascii\+STLParser\+::\+\_\+\+Get\+Custom\+Data (\begin{DoxyParamCaption}\item[{Ascii\+STLStatement\+Type}]{\+\_\+type }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+Get the correct callback function custom data according to the specified type 
+\begin{DoxyParams}{Parameters}
+{\em \+\_\+type} & is a Ascii\+STLStatement\+Type value that describes the statement type \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classLibdas_1_1AsciiSTLParser_a90be9504f282ed5bdb6d1df528d47fe4}\label{classLibdas_1_1AsciiSTLParser_a90be9504f282ed5bdb6d1df528d47fe4}} 
+\index{Libdas::AsciiSTLParser@{Libdas::AsciiSTLParser}!\_Tokenise@{\_Tokenise}}
+\index{\_Tokenise@{\_Tokenise}!Libdas::AsciiSTLParser@{Libdas::AsciiSTLParser}}
+\doxysubsubsection{\texorpdfstring{\_Tokenise()}{\_Tokenise()}}
+{\footnotesize\ttfamily void Libdas\+::\+Ascii\+STLParser\+::\+\_\+\+Tokenise (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+Create all possible tokens to consider for Wavefront Obj format \mbox{\Hypertarget{classLibdas_1_1AsciiSTLParser_ac210eae495488eb45d15420861d1c805}\label{classLibdas_1_1AsciiSTLParser_ac210eae495488eb45d15420861d1c805}} 
+\index{Libdas::AsciiSTLParser@{Libdas::AsciiSTLParser}!GetObjects@{GetObjects}}
+\index{GetObjects@{GetObjects}!Libdas::AsciiSTLParser@{Libdas::AsciiSTLParser}}
+\doxysubsubsection{\texorpdfstring{GetObjects()}{GetObjects()}}
+{\footnotesize\ttfamily std\+::vector$<$ \mbox{\hyperlink{structLibdas_1_1STLObject}{STLObject}} $>$ \& Libdas\+::\+Ascii\+STLParser\+::\+Get\+Objects (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+Get all parsed STL objects \begin{DoxyReturn}{Returns}
+reference to std\+::vector instance containing all STL objects 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classLibdas_1_1AsciiSTLParser_a9f0ae6a4104a151b3de23272cf3fd521}\label{classLibdas_1_1AsciiSTLParser_a9f0ae6a4104a151b3de23272cf3fd521}} 
+\index{Libdas::AsciiSTLParser@{Libdas::AsciiSTLParser}!Parse@{Parse}}
+\index{Parse@{Parse}!Libdas::AsciiSTLParser@{Libdas::AsciiSTLParser}}
+\doxysubsubsection{\texorpdfstring{Parse()}{Parse()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily void Libdas\+::\+Ascii\+STLParser\+::\+Parse (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+Parse the currently loaded file given as a parameter in constructor \mbox{\Hypertarget{classLibdas_1_1AsciiSTLParser_a3db001a5e2a48275e0ee9e5fe477ed28}\label{classLibdas_1_1AsciiSTLParser_a3db001a5e2a48275e0ee9e5fe477ed28}} 
+\index{Libdas::AsciiSTLParser@{Libdas::AsciiSTLParser}!Parse@{Parse}}
+\index{Parse@{Parse}!Libdas::AsciiSTLParser@{Libdas::AsciiSTLParser}}
+\doxysubsubsection{\texorpdfstring{Parse()}{Parse()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily void Libdas\+::\+Ascii\+STLParser\+::\+Parse (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{\+\_\+file\+\_\+name }\end{DoxyParamCaption})}
+
+Parse completely new file 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+include/STLParser.\+h\end{DoxyCompactItemize}

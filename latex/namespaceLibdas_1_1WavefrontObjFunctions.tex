@@ -1,0 +1,113 @@
+\hypertarget{namespaceLibdas_1_1WavefrontObjFunctions}{}\doxysection{Libdas\+::Wavefront\+Obj\+Functions Namespace Reference}
+\label{namespaceLibdas_1_1WavefrontObjFunctions}\index{Libdas::WavefrontObjFunctions@{Libdas::WavefrontObjFunctions}}
+
+
+Namespace for containing all Wavefront OBJ keyword parsing functions.  
+
+
+\doxysubsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{namespaceLibdas_1_1WavefrontObjFunctions_a78b574a4b44542d51994ad11e4d58ade}\label{namespaceLibdas_1_1WavefrontObjFunctions_a78b574a4b44542d51994ad11e4d58ade}} 
+typedef std\+::vector$<$ \mbox{\hyperlink{structLibdas_1_1WavefrontObjGroup}{Wavefront\+Obj\+Group}} $>$ {\bfseries Groups}
+\item 
+typedef void($\ast$ \mbox{\hyperlink{namespaceLibdas_1_1WavefrontObjFunctions_a43eb0cfdbcb6a13be62cd3d67aa3aa3c}{PTR\+\_\+\+Keyword\+Callback}}) (Groups \&\+\_\+groups, \mbox{\hyperlink{classLibdas_1_1AsciiFormatErrorHandler}{Ascii\+Format\+Error\+Handler}} \&\+\_\+error, Args\+Type \&\+\_\+args)
+\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{structLibdas_1_1Point2D}{Point2D}}$<$ uint32\+\_\+t $>$ \mbox{\hyperlink{namespaceLibdas_1_1WavefrontObjFunctions_a4507395ec81485b7bee1d0614b7aa02c}{\+\_\+\+Double\+Index\+Block\+Callback}} (\mbox{\hyperlink{classLibdas_1_1AsciiFormatErrorHandler}{Ascii\+Format\+Error\+Handler}} \&\+\_\+error, const std\+::string \&\+\_\+block, const std\+::string \&\+\_\+keyword, const uint32\+\_\+t \+\_\+line)
+\item 
+\mbox{\hyperlink{structLibdas_1_1Point3D}{Point3D}}$<$ uint32\+\_\+t $>$ \mbox{\hyperlink{namespaceLibdas_1_1WavefrontObjFunctions_add8746d7b424eabf4151424673f87924}{\+\_\+\+Triple\+Index\+Block\+Callback}} (\mbox{\hyperlink{classLibdas_1_1AsciiFormatErrorHandler}{Ascii\+Format\+Error\+Handler}} \&\+\_\+error, const std\+::string \&\+\_\+block, const std\+::string \&\+\_\+keyword, const uint32\+\_\+t \+\_\+line)
+\item 
+\mbox{\Hypertarget{namespaceLibdas_1_1WavefrontObjFunctions_a9db12295ca5638be1096c8f2ceb89f31}\label{namespaceLibdas_1_1WavefrontObjFunctions_a9db12295ca5638be1096c8f2ceb89f31}} 
+void {\bfseries Vertex\+Keyword\+Args\+Callback} (Groups \&\+\_\+groups, \mbox{\hyperlink{classLibdas_1_1AsciiFormatErrorHandler}{Ascii\+Format\+Error\+Handler}} \&\+\_\+error, Args\+Type \&\+\_\+args)
+\begin{DoxyCompactList}\small\item\em Functions to use as parsing function pointer. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{namespaceLibdas_1_1WavefrontObjFunctions_ae2d5e064b0f78c9db3a0b9bc71cde33e}\label{namespaceLibdas_1_1WavefrontObjFunctions_ae2d5e064b0f78c9db3a0b9bc71cde33e}} 
+void {\bfseries Point\+Keyword\+Args\+Callback} (Groups \&\+\_\+groups, \mbox{\hyperlink{classLibdas_1_1AsciiFormatErrorHandler}{Ascii\+Format\+Error\+Handler}} \&\+\_\+error, Args\+Type \&\+\_\+args)
+\item 
+\mbox{\Hypertarget{namespaceLibdas_1_1WavefrontObjFunctions_afcb468eddcb19cc64ea7b9221e97d284}\label{namespaceLibdas_1_1WavefrontObjFunctions_afcb468eddcb19cc64ea7b9221e97d284}} 
+void {\bfseries Vertex\+Normal\+Keyword\+Args\+Callback} (Groups \&\+\_\+groups, \mbox{\hyperlink{classLibdas_1_1AsciiFormatErrorHandler}{Ascii\+Format\+Error\+Handler}} \&\+\_\+error, Args\+Type \&\+\_\+args)
+\item 
+\mbox{\Hypertarget{namespaceLibdas_1_1WavefrontObjFunctions_a7b629cc8fb49fa6c181c7450c8f8ee92}\label{namespaceLibdas_1_1WavefrontObjFunctions_a7b629cc8fb49fa6c181c7450c8f8ee92}} 
+void {\bfseries Texture\+Vertex\+Keyword\+Args\+Callback} (Groups \&\+\_\+groups, \mbox{\hyperlink{classLibdas_1_1AsciiFormatErrorHandler}{Ascii\+Format\+Error\+Handler}} \&\+\_\+error, Args\+Type \&\+\_\+args)
+\item 
+\mbox{\Hypertarget{namespaceLibdas_1_1WavefrontObjFunctions_a67ec96ca17cf76cc6f2ff69e3bd662ce}\label{namespaceLibdas_1_1WavefrontObjFunctions_a67ec96ca17cf76cc6f2ff69e3bd662ce}} 
+void {\bfseries CSType\+Args\+Callback} (Groups \&\+\_\+groups, \mbox{\hyperlink{classLibdas_1_1AsciiFormatErrorHandler}{Ascii\+Format\+Error\+Handler}} \&\+\_\+error, Args\+Type \&\+\_\+args)
+\item 
+\mbox{\Hypertarget{namespaceLibdas_1_1WavefrontObjFunctions_a1f3000ff87b4578e9069eb7547ea94d1}\label{namespaceLibdas_1_1WavefrontObjFunctions_a1f3000ff87b4578e9069eb7547ea94d1}} 
+void {\bfseries Polynomial\+Degree\+Args\+Callback} (Groups \&\+\_\+groups, \mbox{\hyperlink{classLibdas_1_1AsciiFormatErrorHandler}{Ascii\+Format\+Error\+Handler}} \&\+\_\+error, Args\+Type \&\+\_\+args)
+\item 
+\mbox{\Hypertarget{namespaceLibdas_1_1WavefrontObjFunctions_a4db5d619c7607adcb2d4726f56af7e6f}\label{namespaceLibdas_1_1WavefrontObjFunctions_a4db5d619c7607adcb2d4726f56af7e6f}} 
+void {\bfseries Basis\+Matrix\+Args\+Callback} (Groups \&\+\_\+groups, \mbox{\hyperlink{classLibdas_1_1AsciiFormatErrorHandler}{Ascii\+Format\+Error\+Handler}} \&\+\_\+error, Args\+Type \&\+\_\+args)
+\item 
+\mbox{\Hypertarget{namespaceLibdas_1_1WavefrontObjFunctions_a2de412d224495fb234414e4d25e664b7}\label{namespaceLibdas_1_1WavefrontObjFunctions_a2de412d224495fb234414e4d25e664b7}} 
+void {\bfseries CSStep\+Args\+Callback} (Groups \&\+\_\+groups, \mbox{\hyperlink{classLibdas_1_1AsciiFormatErrorHandler}{Ascii\+Format\+Error\+Handler}} \&\+\_\+error, Args\+Type \&\+\_\+args)
+\item 
+\mbox{\Hypertarget{namespaceLibdas_1_1WavefrontObjFunctions_aa6165e77bc4c7a6dddd4e34c08375df0}\label{namespaceLibdas_1_1WavefrontObjFunctions_aa6165e77bc4c7a6dddd4e34c08375df0}} 
+void {\bfseries Points\+Args\+Callback} (Groups \&\+\_\+groups, \mbox{\hyperlink{classLibdas_1_1AsciiFormatErrorHandler}{Ascii\+Format\+Error\+Handler}} \&\+\_\+error, Args\+Type \&\+\_\+args)
+\item 
+\mbox{\Hypertarget{namespaceLibdas_1_1WavefrontObjFunctions_ad0b5a7e421bccffe8ecf1e30844c416d}\label{namespaceLibdas_1_1WavefrontObjFunctions_ad0b5a7e421bccffe8ecf1e30844c416d}} 
+void {\bfseries Face\+Args\+Callback} (Groups \&\+\_\+groups, \mbox{\hyperlink{classLibdas_1_1AsciiFormatErrorHandler}{Ascii\+Format\+Error\+Handler}} \&\+\_\+error, Args\+Type \&\+\_\+args)
+\item 
+\mbox{\Hypertarget{namespaceLibdas_1_1WavefrontObjFunctions_a5e094d2c221c3d7238c7ed176dd0ca50}\label{namespaceLibdas_1_1WavefrontObjFunctions_a5e094d2c221c3d7238c7ed176dd0ca50}} 
+void {\bfseries Group\+Args\+Callback} (Groups \&\+\_\+groups, \mbox{\hyperlink{classLibdas_1_1AsciiFormatErrorHandler}{Ascii\+Format\+Error\+Handler}} \&\+\_\+error, Args\+Type \&\+\_\+args)
+\item 
+\mbox{\Hypertarget{namespaceLibdas_1_1WavefrontObjFunctions_af886d2153e5475f6787f33ed5dff2bb8}\label{namespaceLibdas_1_1WavefrontObjFunctions_af886d2153e5475f6787f33ed5dff2bb8}} 
+void {\bfseries Object\+Name\+Callback} (Groups \&\+\_\+groups, \mbox{\hyperlink{classLibdas_1_1AsciiFormatErrorHandler}{Ascii\+Format\+Error\+Handler}} \&\+\_\+error, Args\+Type \&\+\_\+args)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Namespace for containing all Wavefront OBJ keyword parsing functions. 
+
+\doxysubsection{Typedef Documentation}
+\mbox{\Hypertarget{namespaceLibdas_1_1WavefrontObjFunctions_a43eb0cfdbcb6a13be62cd3d67aa3aa3c}\label{namespaceLibdas_1_1WavefrontObjFunctions_a43eb0cfdbcb6a13be62cd3d67aa3aa3c}} 
+\index{Libdas::WavefrontObjFunctions@{Libdas::WavefrontObjFunctions}!PTR\_KeywordCallback@{PTR\_KeywordCallback}}
+\index{PTR\_KeywordCallback@{PTR\_KeywordCallback}!Libdas::WavefrontObjFunctions@{Libdas::WavefrontObjFunctions}}
+\doxysubsubsection{\texorpdfstring{PTR\_KeywordCallback}{PTR\_KeywordCallback}}
+{\footnotesize\ttfamily typedef void($\ast$ Libdas\+::\+Wavefront\+Obj\+Functions\+::\+PTR\+\_\+\+Keyword\+Callback) (Groups \&\+\_\+groups, \mbox{\hyperlink{classLibdas_1_1AsciiFormatErrorHandler}{Ascii\+Format\+Error\+Handler}} \&\+\_\+error, Args\+Type \&\+\_\+args)}
+
+Universal function pointer for keyword action callback 
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{namespaceLibdas_1_1WavefrontObjFunctions_a4507395ec81485b7bee1d0614b7aa02c}\label{namespaceLibdas_1_1WavefrontObjFunctions_a4507395ec81485b7bee1d0614b7aa02c}} 
+\index{Libdas::WavefrontObjFunctions@{Libdas::WavefrontObjFunctions}!\_DoubleIndexBlockCallback@{\_DoubleIndexBlockCallback}}
+\index{\_DoubleIndexBlockCallback@{\_DoubleIndexBlockCallback}!Libdas::WavefrontObjFunctions@{Libdas::WavefrontObjFunctions}}
+\doxysubsubsection{\texorpdfstring{\_DoubleIndexBlockCallback()}{\_DoubleIndexBlockCallback()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{structLibdas_1_1Point2D}{Point2D}}$<$ uint32\+\_\+t $>$ Libdas\+::\+Wavefront\+Obj\+Functions\+::\+\_\+\+Double\+Index\+Block\+Callback (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classLibdas_1_1AsciiFormatErrorHandler}{Ascii\+Format\+Error\+Handler}} \&}]{\+\_\+error,  }\item[{const std\+::string \&}]{\+\_\+block,  }\item[{const std\+::string \&}]{\+\_\+keyword,  }\item[{const uint32\+\_\+t}]{\+\_\+line }\end{DoxyParamCaption})}
+
+Parse index block that contains maximum 2 indices 
+\begin{DoxyParams}{Parameters}
+{\em \+\_\+error} & is a reference to \mbox{\hyperlink{classLibdas_1_1AsciiFormatErrorHandler}{Ascii\+Format\+Error\+Handler}} \\
+\hline
+{\em \+\_\+block} & is a string block that is going to be parsed \\
+\hline
+{\em \+\_\+keyword} & is a keyword that is used for the statement \\
+\hline
+{\em \+\_\+line} & is the current statement line \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\mbox{\hyperlink{structLibdas_1_1Point2D}{Point2D}} instance, which contains parsed double indicies 
+\end{DoxyReturn}
+\mbox{\Hypertarget{namespaceLibdas_1_1WavefrontObjFunctions_add8746d7b424eabf4151424673f87924}\label{namespaceLibdas_1_1WavefrontObjFunctions_add8746d7b424eabf4151424673f87924}} 
+\index{Libdas::WavefrontObjFunctions@{Libdas::WavefrontObjFunctions}!\_TripleIndexBlockCallback@{\_TripleIndexBlockCallback}}
+\index{\_TripleIndexBlockCallback@{\_TripleIndexBlockCallback}!Libdas::WavefrontObjFunctions@{Libdas::WavefrontObjFunctions}}
+\doxysubsubsection{\texorpdfstring{\_TripleIndexBlockCallback()}{\_TripleIndexBlockCallback()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{structLibdas_1_1Point3D}{Point3D}}$<$ uint32\+\_\+t $>$ Libdas\+::\+Wavefront\+Obj\+Functions\+::\+\_\+\+Triple\+Index\+Block\+Callback (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classLibdas_1_1AsciiFormatErrorHandler}{Ascii\+Format\+Error\+Handler}} \&}]{\+\_\+error,  }\item[{const std\+::string \&}]{\+\_\+block,  }\item[{const std\+::string \&}]{\+\_\+keyword,  }\item[{const uint32\+\_\+t}]{\+\_\+line }\end{DoxyParamCaption})}
+
+Parse index block that contains maximum 3 indices 
+\begin{DoxyParams}{Parameters}
+{\em \+\_\+error} & is a reference to \mbox{\hyperlink{classLibdas_1_1AsciiFormatErrorHandler}{Ascii\+Format\+Error\+Handler}} \\
+\hline
+{\em \+\_\+block} & is a string block that is going to be parsed \\
+\hline
+{\em \+\_\+keyword} & is the keyword that is associated with the index block \\
+\hline
+{\em \+\_\+line} & is the current statement line \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\mbox{\hyperlink{structLibdas_1_1Point3D}{Point3D}} instance, which contains parsed triple indicies 
+\end{DoxyReturn}

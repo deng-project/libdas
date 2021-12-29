@@ -1,0 +1,83 @@
+\hypertarget{WavefrontObjCompiler_8h_source}{}\doxysection{Wavefront\+Obj\+Compiler.\+h}
+\label{WavefrontObjCompiler_8h_source}\index{include/WavefrontObjCompiler.h@{include/WavefrontObjCompiler.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{comment}{// libdas: DENG asset handling management library}}
+\DoxyCodeLine{2 \textcolor{comment}{// licence: Apache, see LICENCE file}}
+\DoxyCodeLine{3 \textcolor{comment}{// file: WavefrontObjCompiler.h -\/ Wavefront OBJ to DAS compiler class header}}
+\DoxyCodeLine{4 \textcolor{comment}{// author: Karl-\/Mihkel Ott}}
+\DoxyCodeLine{5 }
+\DoxyCodeLine{6 \textcolor{preprocessor}{\#ifndef WAVEFRONT\_OBJ\_COMPILER\_H}}
+\DoxyCodeLine{7 \textcolor{preprocessor}{\#define WAVEFRONT\_OBJ\_COMPILER\_H}}
+\DoxyCodeLine{8 }
+\DoxyCodeLine{9 }
+\DoxyCodeLine{10 \textcolor{preprocessor}{\#ifdef WAVEFRONT\_OBJ\_COMPILER\_CPP}}
+\DoxyCodeLine{11 \textcolor{preprocessor}{    \#include <string>}}
+\DoxyCodeLine{12 \textcolor{preprocessor}{    \#include <climits>}}
+\DoxyCodeLine{13 \textcolor{preprocessor}{    \#include <cstring>}}
+\DoxyCodeLine{14 \textcolor{preprocessor}{    \#include <cstdio>}}
+\DoxyCodeLine{15 \textcolor{preprocessor}{    \#include <iostream>}}
+\DoxyCodeLine{16 \textcolor{preprocessor}{    \#include <fstream>}}
+\DoxyCodeLine{17 \textcolor{preprocessor}{    \#include <vector>}}
+\DoxyCodeLine{18 \textcolor{preprocessor}{    \#include <queue>}}
+\DoxyCodeLine{19 \textcolor{preprocessor}{    \#include <unordered\_map>}}
+\DoxyCodeLine{20 }
+\DoxyCodeLine{21 \textcolor{preprocessor}{    \#include <Points.h>}}
+\DoxyCodeLine{22 \textcolor{preprocessor}{    \#include <Vector.h>}}
+\DoxyCodeLine{23 \textcolor{preprocessor}{    \#include <Matrix.h>}}
+\DoxyCodeLine{24 }
+\DoxyCodeLine{25 \textcolor{preprocessor}{    \#include <LibdasAssert.h>}}
+\DoxyCodeLine{26 \textcolor{preprocessor}{    \#include <ErrorHandlers.h>}}
+\DoxyCodeLine{27 \textcolor{preprocessor}{    \#include <FileNameString.h>}}
+\DoxyCodeLine{28 \textcolor{preprocessor}{    \#include <HuffmanCompression.h>}}
+\DoxyCodeLine{29 \textcolor{preprocessor}{    \#include <WavefrontObjStructures.h>}}
+\DoxyCodeLine{30 \textcolor{preprocessor}{    \#include <DasStructures.h>}}
+\DoxyCodeLine{31 \textcolor{preprocessor}{    \#include <DasWriterCore.h>}}
+\DoxyCodeLine{32     \textcolor{comment}{//\#include <DasReaderCore.h>}}
+\DoxyCodeLine{33 \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{34 }
+\DoxyCodeLine{35 }
+\DoxyCodeLine{36 \textcolor{keyword}{namespace }\mbox{\hyperlink{namespaceLibdas}{Libdas}} \{}
+\DoxyCodeLine{37 \textcolor{comment}{}}
+\DoxyCodeLine{38 \textcolor{comment}{    /**}}
+\DoxyCodeLine{39 \textcolor{comment}{     * Compiler class that uses Wavefront OBJ files as source files and outputs DAS file.}}
+\DoxyCodeLine{40 \textcolor{comment}{     */}}
+\DoxyCodeLine{41     \textcolor{keyword}{class }\mbox{\hyperlink{classLibdas_1_1WavefrontObjCompiler}{WavefrontObjCompiler}} : \textcolor{keyword}{private} \mbox{\hyperlink{classLibdas_1_1DasWriterCore}{DasWriterCore}} \{}
+\DoxyCodeLine{42         \textcolor{keyword}{private}:}
+\DoxyCodeLine{43             \textcolor{comment}{//std::vector<DasBuffer> \_ReadImages();}}
+\DoxyCodeLine{44             \textcolor{comment}{}}
+\DoxyCodeLine{45 \textcolor{comment}{            /**}}
+\DoxyCodeLine{46 \textcolor{comment}{             * Look into WavefrontObjGroups and create buffer structures out of them}}
+\DoxyCodeLine{47 \textcolor{comment}{             * @param \_groups is a reference to std::vector<WavefrontObjGroup> instance that contains all parsed}}
+\DoxyCodeLine{48 \textcolor{comment}{             * Wavefront OBJ groups}}
+\DoxyCodeLine{49 \textcolor{comment}{             * @return std::vector<DasBuffer> instance that has all buffer memory area pointers that should be written}}
+\DoxyCodeLine{50 \textcolor{comment}{             */}}
+\DoxyCodeLine{51             std::vector<DasBuffer> \mbox{\hyperlink{classLibdas_1_1WavefrontObjCompiler_a192c2903edd023d653602e3733e81eb6}{\_CreateBuffers}}(\textcolor{keyword}{const} std::vector<WavefrontObjGroup> \&\_groups);\textcolor{comment}{}}
+\DoxyCodeLine{52 \textcolor{comment}{            /**}}
+\DoxyCodeLine{53 \textcolor{comment}{             * Look into WavefrontObjGroups and determine all models with correct buffer offset values}}
+\DoxyCodeLine{54 \textcolor{comment}{             * @param \_groups is a reference to std::vector<WavefrontObjGroup> instance that contains all parsed}}
+\DoxyCodeLine{55 \textcolor{comment}{             * Wavefront OBJ groups}}
+\DoxyCodeLine{56 \textcolor{comment}{             * @return std::vector<DasModel> instance that has contains all information about models and their correct}}
+\DoxyCodeLine{57 \textcolor{comment}{             * buffer offsets}}
+\DoxyCodeLine{58 \textcolor{comment}{             */}}
+\DoxyCodeLine{59             std::vector<DasModel> \mbox{\hyperlink{classLibdas_1_1WavefrontObjCompiler_af5ca3f3204bc2cea153837dcd44d70d3}{\_CreateModels}}(\textcolor{keyword}{const} std::vector<WavefrontObjGroup> \&\_groups);\textcolor{comment}{}}
+\DoxyCodeLine{60 \textcolor{comment}{            /**}}
+\DoxyCodeLine{61 \textcolor{comment}{             * Perform Huffman encoding on the written file to finalise compilation}}
+\DoxyCodeLine{62 \textcolor{comment}{             */}}
+\DoxyCodeLine{63             \textcolor{keywordtype}{void} \mbox{\hyperlink{classLibdas_1_1WavefrontObjCompiler_a60448b9ce82a743bfbd78968cd256b33}{\_HuffmanEncode}}();}
+\DoxyCodeLine{64         \textcolor{keyword}{public}:}
+\DoxyCodeLine{65             \mbox{\hyperlink{classLibdas_1_1WavefrontObjCompiler}{WavefrontObjCompiler}}(\textcolor{keyword}{const} std::string \&\_out\_file = \textcolor{stringliteral}{"{}"{}});}
+\DoxyCodeLine{66             \mbox{\hyperlink{classLibdas_1_1WavefrontObjCompiler}{WavefrontObjCompiler}}(\textcolor{keyword}{const} std::vector<WavefrontObjGroup> \&\_groups, \textcolor{keyword}{const} \mbox{\hyperlink{structLibdas_1_1DasProperties}{DasProperties}} \&\_props, \textcolor{keyword}{const} std::string \&\_out\_file);\textcolor{comment}{}}
+\DoxyCodeLine{67 \textcolor{comment}{            /**}}
+\DoxyCodeLine{68 \textcolor{comment}{             * Compile the DAS file from given WavefrontObjGroup objects.}}
+\DoxyCodeLine{69 \textcolor{comment}{             * @param \_groups is a reference to std::queue object that contains all given WavfrontObjGroup objects }}
+\DoxyCodeLine{70 \textcolor{comment}{             * @param \_props is a reference to DasProperties object that contains all properties to write}}
+\DoxyCodeLine{71 \textcolor{comment}{             * @param \_out\_file is an optional file name that can be given as a parameter}}
+\DoxyCodeLine{72 \textcolor{comment}{             */}}
+\DoxyCodeLine{73             \textcolor{keywordtype}{void} \mbox{\hyperlink{classLibdas_1_1WavefrontObjCompiler_aa3b2b7de8a7fd7ef1b21aa315368e9ec}{Compile}}(\textcolor{keyword}{const} std::vector<WavefrontObjGroup> \&\_groups, \textcolor{keyword}{const} \mbox{\hyperlink{structLibdas_1_1DasProperties}{DasProperties}} \&\_props, \textcolor{keyword}{const} std::string \&\_out\_file = \textcolor{stringliteral}{"{}"{}});}
+\DoxyCodeLine{74     \};}
+\DoxyCodeLine{75 \}}
+\DoxyCodeLine{76 }
+\DoxyCodeLine{77 \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

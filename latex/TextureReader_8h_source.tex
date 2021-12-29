@@ -1,0 +1,82 @@
+\hypertarget{TextureReader_8h_source}{}\doxysection{Texture\+Reader.\+h}
+\label{TextureReader_8h_source}\index{include/TextureReader.h@{include/TextureReader.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{comment}{/// libdas: deng asset handling management library}\textcolor{comment}{}}
+\DoxyCodeLine{2 \textcolor{comment}{/// licence: apache, see licence file}}
+\DoxyCodeLine{3 \textcolor{comment}{/// file: texturereader.h -\/ generic texture image reader class header}}
+\DoxyCodeLine{4 \textcolor{comment}{/// author: karl-\/mihkel ott}}
+\DoxyCodeLine{5 \textcolor{comment}{}}
+\DoxyCodeLine{6 \textcolor{preprocessor}{\#ifndef TEXTURE\_READER\_H}}
+\DoxyCodeLine{7 \textcolor{preprocessor}{\#define TEXTURE\_READER\_H}}
+\DoxyCodeLine{8 }
+\DoxyCodeLine{9 }
+\DoxyCodeLine{10 \textcolor{preprocessor}{\#ifdef TEXTURE\_READER\_CPP}}
+\DoxyCodeLine{11 \textcolor{preprocessor}{    \#include <fstream>}}
+\DoxyCodeLine{12 \textcolor{preprocessor}{    \#include <vector>}}
+\DoxyCodeLine{13 \textcolor{preprocessor}{    \#include <iostream>}}
+\DoxyCodeLine{14 }
+\DoxyCodeLine{15 \textcolor{preprocessor}{    \#include <LibdasAssert.h>}}
+\DoxyCodeLine{16 \textcolor{preprocessor}{    \#include <ErrorHandlers.h>}}
+\DoxyCodeLine{17     }
+\DoxyCodeLine{18 \textcolor{preprocessor}{    \#include <Vector.h>}}
+\DoxyCodeLine{19 \textcolor{preprocessor}{    \#include <Matrix.h>}}
+\DoxyCodeLine{20 \textcolor{preprocessor}{    \#include <DasStructures.h>}}
+\DoxyCodeLine{21 }
+\DoxyCodeLine{22     \textcolor{comment}{// third party includes}}
+\DoxyCodeLine{23 \textcolor{preprocessor}{    \#define STB\_IMAGE\_IMPLEMENTATION}}
+\DoxyCodeLine{24 \textcolor{preprocessor}{    \#include <stb\_image.h>}}
+\DoxyCodeLine{25 \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{26 }
+\DoxyCodeLine{27 }
+\DoxyCodeLine{28 \textcolor{keyword}{namespace }\mbox{\hyperlink{namespaceLibdas}{Libdas}} \{}
+\DoxyCodeLine{29 \textcolor{comment}{}}
+\DoxyCodeLine{30 \textcolor{comment}{    /**}}
+\DoxyCodeLine{31 \textcolor{comment}{     * Interface for reading and handling texture files }}
+\DoxyCodeLine{32 \textcolor{comment}{     */}}
+\DoxyCodeLine{33     \textcolor{keyword}{class }\mbox{\hyperlink{classLibdas_1_1TextureReader}{TextureReader}} \{}
+\DoxyCodeLine{34         \textcolor{keyword}{private}:}
+\DoxyCodeLine{35             \textcolor{keywordtype}{char} *m\_buffer = \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{36             \textcolor{keywordtype}{size\_t} m\_buffer\_size = 0;}
+\DoxyCodeLine{37             \textcolor{keywordtype}{char} *m\_raw\_buffer = \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{38             \textcolor{keywordtype}{size\_t} m\_raw\_buffer\_size = 0;}
+\DoxyCodeLine{39             std::string m\_file\_name = \textcolor{stringliteral}{"{}"{}};}
+\DoxyCodeLine{40             FILE *m\_stream = \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{41 }
+\DoxyCodeLine{42         \textcolor{keyword}{public}:}
+\DoxyCodeLine{43             \mbox{\hyperlink{classLibdas_1_1TextureReader}{TextureReader}}(\textcolor{keyword}{const} std::string \&\_file\_name);}
+\DoxyCodeLine{44             \mbox{\hyperlink{classLibdas_1_1TextureReader}{TextureReader}}(\textcolor{keyword}{const} std::string \&\_file\_name, std::ifstream \&\_stream, \textcolor{keywordtype}{size\_t} \_img\_size);}
+\DoxyCodeLine{45             \mbox{\hyperlink{classLibdas_1_1TextureReader}{\string~TextureReader}}();\textcolor{comment}{}}
+\DoxyCodeLine{46 \textcolor{comment}{            /**}}
+\DoxyCodeLine{47 \textcolor{comment}{             * Read all data from image file into buffer and return the pointer.}}
+\DoxyCodeLine{48 \textcolor{comment}{             * Allocated heap memory is automatically freed}}
+\DoxyCodeLine{49 \textcolor{comment}{             * @return const char* pointer to the image file buffer read into memory}}
+\DoxyCodeLine{50 \textcolor{comment}{             */}}
+\DoxyCodeLine{51             \textcolor{keyword}{const} \textcolor{keywordtype}{char} *\mbox{\hyperlink{classLibdas_1_1TextureReader_a32df2a17c16e9f1e2dc64ae7693b1720}{GetBuffer}}();\textcolor{comment}{}}
+\DoxyCodeLine{52 \textcolor{comment}{            /**}}
+\DoxyCodeLine{53 \textcolor{comment}{             * Get the current image buffer size}}
+\DoxyCodeLine{54 \textcolor{comment}{             * @return size\_t value that specifies the buffer size}}
+\DoxyCodeLine{55 \textcolor{comment}{             */}}
+\DoxyCodeLine{56             \textcolor{keywordtype}{size\_t} \mbox{\hyperlink{classLibdas_1_1TextureReader_a9f168145d9d3f0dbefc97a8ba1c2f150}{GetBufferSize}}();\textcolor{comment}{}}
+\DoxyCodeLine{57 \textcolor{comment}{            /**}}
+\DoxyCodeLine{58 \textcolor{comment}{             * Read the image stream and return a pointer to raw image data}}
+\DoxyCodeLine{59 \textcolor{comment}{             * Allocated heap memory is automatically freed}}
+\DoxyCodeLine{60 \textcolor{comment}{             * @return const char* pointer to the raw image data buffer}}
+\DoxyCodeLine{61 \textcolor{comment}{             */}}
+\DoxyCodeLine{62             \textcolor{keyword}{const} \textcolor{keywordtype}{char} *\mbox{\hyperlink{classLibdas_1_1TextureReader_aa9f09d95d9af29630c40d11161ac2ba4}{GetRawBuffer}}(\textcolor{keywordtype}{int} *\_x, \textcolor{keywordtype}{int} *\_y);\textcolor{comment}{}}
+\DoxyCodeLine{63 \textcolor{comment}{            /**}}
+\DoxyCodeLine{64 \textcolor{comment}{             * Get the currently parsed raw image data buffer size}}
+\DoxyCodeLine{65 \textcolor{comment}{             * @return size\_t value that specifies the raw buffer size}}
+\DoxyCodeLine{66 \textcolor{comment}{             */}}
+\DoxyCodeLine{67             \textcolor{keywordtype}{size\_t} \mbox{\hyperlink{classLibdas_1_1TextureReader_af97f4df88a7485ae32313cdbd5ab646b}{GetRawBufferSize}}();\textcolor{comment}{}}
+\DoxyCodeLine{68 \textcolor{comment}{            /**}}
+\DoxyCodeLine{69 \textcolor{comment}{             * Check the file name and get the correct buffer type}}
+\DoxyCodeLine{70 \textcolor{comment}{             * @return BufferType value that specifies the image buffer type}}
+\DoxyCodeLine{71 \textcolor{comment}{             */}}
+\DoxyCodeLine{72             BufferType \mbox{\hyperlink{classLibdas_1_1TextureReader_a9aba5d39c1c0605fc873dbe41ac29e8d}{GetImageBufferType}}();}
+\DoxyCodeLine{73     \};}
+\DoxyCodeLine{74 \}}
+\DoxyCodeLine{75 }
+\DoxyCodeLine{76 \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

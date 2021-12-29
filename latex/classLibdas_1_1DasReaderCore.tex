@@ -1,0 +1,303 @@
+\hypertarget{classLibdas_1_1DasReaderCore}{}\doxysection{Libdas\+::Das\+Reader\+Core Class Reference}
+\label{classLibdas_1_1DasReaderCore}\index{Libdas::DasReaderCore@{Libdas::DasReaderCore}}
+
+
+{\ttfamily \#include $<$Das\+Reader\+Core.\+h$>$}
+
+
+
+Inheritance diagram for Libdas\+::Das\+Reader\+Core\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=550pt]{classLibdas_1_1DasReaderCore__inherit__graph}
+\end{center}
+\end{figure}
+
+
+Collaboration diagram for Libdas\+::Das\+Reader\+Core\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=550pt]{classLibdas_1_1DasReaderCore__coll__graph}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classLibdas_1_1DasReaderCore_ac44d6e401c650faf019c873b5bf76e24}\label{classLibdas_1_1DasReaderCore_ac44d6e401c650faf019c873b5bf76e24}} 
+{\bfseries Das\+Reader\+Core} (const std\+::string \&\+\_\+file\+\_\+name=\char`\"{}\char`\"{})
+\item 
+void \mbox{\hyperlink{classLibdas_1_1DasReaderCore_a5bacff55f0db3eb363e588636c332f8d}{Read\+Signature}} ()
+\item 
+std\+::any \mbox{\hyperlink{classLibdas_1_1DasReaderCore_a2262227edb235d703395e5916eaa853c}{Read\+Scope\+Data}} (\mbox{\hyperlink{namespaceLibdas_a141c8820daf00087f6ff56331c1d079a}{Das\+Scope\+Type}} \+\_\+type)
+\item 
+\mbox{\hyperlink{namespaceLibdas_a141c8820daf00087f6ff56331c1d079a}{Das\+Scope\+Type}} \mbox{\hyperlink{classLibdas_1_1DasReaderCore_a9e5f19bbb7baced64567aea79479d63b}{Parse\+Scope\+Declaration}} (const std\+::string \&\+\_\+scope\+\_\+str=\char`\"{}\char`\"{})
+\end{DoxyCompactItemize}
+\doxysubsection*{Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{classLibdas_1_1DasReaderCore_a7379afa076439f344435c1fde40e3165}{\+\_\+\+Create\+Scope\+Name\+Map}} ()
+\item 
+void \mbox{\hyperlink{classLibdas_1_1DasReaderCore_ac84a7794e47ae661c4b8b2a0d14aed72}{\+\_\+\+Create\+Scope\+Value\+Type\+Map}} ()
+\item 
+\mbox{\hyperlink{namespaceLibdas_a2a98e6267a1c934581be6236e580ff52}{Das\+Unique\+Value\+Type}} \mbox{\hyperlink{classLibdas_1_1DasReaderCore_a2c5c5bbc770f6b620b11971eef4cb82b}{\+\_\+\+Find\+Unique\+Value\+Type}} (const std\+::string \&\+\_\+value)
+\item 
+std\+::any \mbox{\hyperlink{classLibdas_1_1DasReaderCore_abc75102ee8cf48e8a1b2f6a7f5d90f3a}{\+\_\+\+Get\+Value\+Information}} (const \mbox{\hyperlink{namespaceLibdas_a141c8820daf00087f6ff56331c1d079a}{Das\+Scope\+Type}} \+\_\+parent, const std\+::string \&\+\_\+value)
+\item 
+void \mbox{\hyperlink{classLibdas_1_1DasReaderCore_abfd298222c9d4893d1dc5d41e41fc171}{\+\_\+\+Read\+Properties\+Value}} (\mbox{\hyperlink{structLibdas_1_1DasProperties}{Das\+Properties}} $\ast$\+\_\+props, Das\+Properties\+::\+Value\+Type \+\_\+type)
+\item 
+void \mbox{\hyperlink{classLibdas_1_1DasReaderCore_ab6064c7ea1bef519b1bacff163df44f9}{\+\_\+\+Read\+Buffer\+Value}} (\mbox{\hyperlink{structLibdas_1_1DasBuffer}{Das\+Buffer}} $\ast$\+\_\+buffer, Das\+Buffer\+::\+Value\+Type \+\_\+type)
+\item 
+void \mbox{\hyperlink{classLibdas_1_1DasReaderCore_adb9468d11c9ccb1f702a46d68402c1a8}{\+\_\+\+Read\+Model\+Value}} (\mbox{\hyperlink{structLibdas_1_1DasModel}{Das\+Model}} $\ast$\+\_\+model, Das\+Model\+::\+Value\+Type \+\_\+type)
+\item 
+void \mbox{\hyperlink{classLibdas_1_1DasReaderCore_a072e55f93367f9cd5f6d589fc6ea358d}{\+\_\+\+Read\+Animation\+Value}} (\mbox{\hyperlink{structLibdas_1_1DasAnimation}{Das\+Animation}} $\ast$\+\_\+animation, Das\+Animation\+::\+Value\+Type \+\_\+type)
+\item 
+void \mbox{\hyperlink{classLibdas_1_1DasReaderCore_a680c8a5f4705ea76ef4aa242f1078104}{\+\_\+\+Read\+Keyframe\+Value}} (\mbox{\hyperlink{structLibdas_1_1DasKeyframe}{Das\+Keyframe}} $\ast$\+\_\+keyframe, Das\+Keyframe\+::\+Value\+Type \+\_\+type)
+\item 
+void \mbox{\hyperlink{classLibdas_1_1DasReaderCore_a202c5ac39c7e5600fb829aabb0295a79}{\+\_\+\+Read\+Scene\+Value}} (\mbox{\hyperlink{structLibdas_1_1DasScene}{Das\+Scene}} $\ast$\+\_\+scene, Das\+Scene\+::\+Value\+Type \+\_\+type)
+\item 
+void \mbox{\hyperlink{classLibdas_1_1DasReaderCore_a63389d78a1b28b6a14e5fbf1a977ae76}{\+\_\+\+Read\+Scene\+Node\+Value}} (\mbox{\hyperlink{structLibdas_1_1DasSceneNode}{Das\+Scene\+Node}} $\ast$\+\_\+node, Das\+Scene\+Node\+::\+Value\+Type \+\_\+type)
+\item 
+void \mbox{\hyperlink{classLibdas_1_1DasReaderCore_a7428f3f4490688177b06f151b6598044}{\+\_\+\+Read\+Scope\+Value\+Data\+Caller}} (std\+::any \&\+\_\+scope, \mbox{\hyperlink{namespaceLibdas_a141c8820daf00087f6ff56331c1d079a}{Das\+Scope\+Type}} \+\_\+type, std\+::any \&\+\_\+value\+\_\+type, const std\+::string \&\+\_\+val\+\_\+str)
+\item 
+void \mbox{\hyperlink{classLibdas_1_1DasReaderCore_a453946947056df3bbc4d8ac03d3771a5}{\+\_\+\+Verify\+Sub\+Scope}} (\mbox{\hyperlink{namespaceLibdas_a141c8820daf00087f6ff56331c1d079a}{Das\+Scope\+Type}} \+\_\+type, \mbox{\hyperlink{namespaceLibdas_a141c8820daf00087f6ff56331c1d079a}{Das\+Scope\+Type}} \+\_\+sub\+\_\+type, const std\+::any \&\+\_\+scope, const std\+::any \&\+\_\+sub\+\_\+scope)
+\item 
+std\+::any \mbox{\hyperlink{classLibdas_1_1DasReaderCore_ae7f41b1fc08e923b9747e6bc22404827}{\+\_\+\+Get\+Any\+Scope\+Structure}} (\mbox{\hyperlink{namespaceLibdas_a141c8820daf00087f6ff56331c1d079a}{Das\+Scope\+Type}} \+\_\+type)
+\end{DoxyCompactItemize}
+\doxysubsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classLibdas_1_1DasReaderCore_ad07a336c2fd212724f4c271bf2c1369b}\label{classLibdas_1_1DasReaderCore_ad07a336c2fd212724f4c271bf2c1369b}} 
+\mbox{\hyperlink{classLibdas_1_1BinaryFormatErrorHandler}{Binary\+Format\+Error\+Handler}} {\bfseries m\+\_\+error}
+\item 
+\mbox{\Hypertarget{classLibdas_1_1DasReaderCore_ace35066fabc0214672018cbf013120ce}\label{classLibdas_1_1DasReaderCore_ace35066fabc0214672018cbf013120ce}} 
+std\+::unordered\+\_\+map$<$ std\+::string, \mbox{\hyperlink{namespaceLibdas_a141c8820daf00087f6ff56331c1d079a}{Das\+Scope\+Type}} $>$ {\bfseries m\+\_\+scope\+\_\+name\+\_\+map}
+\item 
+\mbox{\Hypertarget{classLibdas_1_1DasReaderCore_a6b5418c6fddd45f0550e7fa836573eef}\label{classLibdas_1_1DasReaderCore_a6b5418c6fddd45f0550e7fa836573eef}} 
+std\+::unordered\+\_\+map$<$ std\+::string, \mbox{\hyperlink{namespaceLibdas_a2a98e6267a1c934581be6236e580ff52}{Das\+Unique\+Value\+Type}} $>$ {\bfseries m\+\_\+unique\+\_\+val\+\_\+map}
+\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+Parent class to read data from DAS file format 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classLibdas_1_1DasReaderCore_a7379afa076439f344435c1fde40e3165}\label{classLibdas_1_1DasReaderCore_a7379afa076439f344435c1fde40e3165}} 
+\index{Libdas::DasReaderCore@{Libdas::DasReaderCore}!\_CreateScopeNameMap@{\_CreateScopeNameMap}}
+\index{\_CreateScopeNameMap@{\_CreateScopeNameMap}!Libdas::DasReaderCore@{Libdas::DasReaderCore}}
+\doxysubsubsection{\texorpdfstring{\_CreateScopeNameMap()}{\_CreateScopeNameMap()}}
+{\footnotesize\ttfamily void Libdas\+::\+Das\+Reader\+Core\+::\+\_\+\+Create\+Scope\+Name\+Map (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+Create scope name value hashmap for efficient type lookup \mbox{\Hypertarget{classLibdas_1_1DasReaderCore_ac84a7794e47ae661c4b8b2a0d14aed72}\label{classLibdas_1_1DasReaderCore_ac84a7794e47ae661c4b8b2a0d14aed72}} 
+\index{Libdas::DasReaderCore@{Libdas::DasReaderCore}!\_CreateScopeValueTypeMap@{\_CreateScopeValueTypeMap}}
+\index{\_CreateScopeValueTypeMap@{\_CreateScopeValueTypeMap}!Libdas::DasReaderCore@{Libdas::DasReaderCore}}
+\doxysubsubsection{\texorpdfstring{\_CreateScopeValueTypeMap()}{\_CreateScopeValueTypeMap()}}
+{\footnotesize\ttfamily void Libdas\+::\+Das\+Reader\+Core\+::\+\_\+\+Create\+Scope\+Value\+Type\+Map (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+Create scope value non-\/buffer types sizes\textquotesingle{} map \mbox{\Hypertarget{classLibdas_1_1DasReaderCore_a2c5c5bbc770f6b620b11971eef4cb82b}\label{classLibdas_1_1DasReaderCore_a2c5c5bbc770f6b620b11971eef4cb82b}} 
+\index{Libdas::DasReaderCore@{Libdas::DasReaderCore}!\_FindUniqueValueType@{\_FindUniqueValueType}}
+\index{\_FindUniqueValueType@{\_FindUniqueValueType}!Libdas::DasReaderCore@{Libdas::DasReaderCore}}
+\doxysubsubsection{\texorpdfstring{\_FindUniqueValueType()}{\_FindUniqueValueType()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{namespaceLibdas_a2a98e6267a1c934581be6236e580ff52}{Das\+Unique\+Value\+Type}} Libdas\+::\+Das\+Reader\+Core\+::\+\_\+\+Find\+Unique\+Value\+Type (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{\+\_\+value }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+Get the unique value type from specified value string 
+\begin{DoxyParams}{Parameters}
+{\em \+\_\+value} & is a string value specifying the value declaration \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Das\+Unique\+Value\+Type enumeral, that defines the unique value type 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classLibdas_1_1DasReaderCore_ae7f41b1fc08e923b9747e6bc22404827}\label{classLibdas_1_1DasReaderCore_ae7f41b1fc08e923b9747e6bc22404827}} 
+\index{Libdas::DasReaderCore@{Libdas::DasReaderCore}!\_GetAnyScopeStructure@{\_GetAnyScopeStructure}}
+\index{\_GetAnyScopeStructure@{\_GetAnyScopeStructure}!Libdas::DasReaderCore@{Libdas::DasReaderCore}}
+\doxysubsubsection{\texorpdfstring{\_GetAnyScopeStructure()}{\_GetAnyScopeStructure()}}
+{\footnotesize\ttfamily std\+::any Libdas\+::\+Das\+Reader\+Core\+::\+\_\+\+Get\+Any\+Scope\+Structure (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{namespaceLibdas_a141c8820daf00087f6ff56331c1d079a}{Das\+Scope\+Type}}}]{\+\_\+type }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+Retrieve correct initialised scope structure in std\+::any format 
+\begin{DoxyParams}{Parameters}
+{\em \+\_\+type} & specifies the scope type \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+std\+::any instance specifying the structure value 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classLibdas_1_1DasReaderCore_abc75102ee8cf48e8a1b2f6a7f5d90f3a}\label{classLibdas_1_1DasReaderCore_abc75102ee8cf48e8a1b2f6a7f5d90f3a}} 
+\index{Libdas::DasReaderCore@{Libdas::DasReaderCore}!\_GetValueInformation@{\_GetValueInformation}}
+\index{\_GetValueInformation@{\_GetValueInformation}!Libdas::DasReaderCore@{Libdas::DasReaderCore}}
+\doxysubsubsection{\texorpdfstring{\_GetValueInformation()}{\_GetValueInformation()}}
+{\footnotesize\ttfamily std\+::any Libdas\+::\+Das\+Reader\+Core\+::\+\_\+\+Get\+Value\+Information (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{namespaceLibdas_a141c8820daf00087f6ff56331c1d079a}{Das\+Scope\+Type}}}]{\+\_\+parent,  }\item[{const std\+::string \&}]{\+\_\+value }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+Parse the next value declaration and retrieve information about the type and size of the value 
+\begin{DoxyParams}{Parameters}
+{\em \+\_\+parent} & is a parent scope type \\
+\hline
+{\em \+\_\+value} & is a string value declaration name that is used \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+std\+::any value specifying any scope value type 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classLibdas_1_1DasReaderCore_a072e55f93367f9cd5f6d589fc6ea358d}\label{classLibdas_1_1DasReaderCore_a072e55f93367f9cd5f6d589fc6ea358d}} 
+\index{Libdas::DasReaderCore@{Libdas::DasReaderCore}!\_ReadAnimationValue@{\_ReadAnimationValue}}
+\index{\_ReadAnimationValue@{\_ReadAnimationValue}!Libdas::DasReaderCore@{Libdas::DasReaderCore}}
+\doxysubsubsection{\texorpdfstring{\_ReadAnimationValue()}{\_ReadAnimationValue()}}
+{\footnotesize\ttfamily void Libdas\+::\+Das\+Reader\+Core\+::\+\_\+\+Read\+Animation\+Value (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structLibdas_1_1DasAnimation}{Das\+Animation}} $\ast$}]{\+\_\+animation,  }\item[{Das\+Animation\+::\+Value\+Type}]{\+\_\+type }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+Read animation scope value according to the specified value type 
+\begin{DoxyParams}{Parameters}
+{\em \+\_\+animation} & is a reference to \mbox{\hyperlink{structLibdas_1_1DasAnimation}{Das\+Animation}} instance, where all data is stored \\
+\hline
+{\em \+\_\+type} & is a type value specifying the current value type \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classLibdas_1_1DasReaderCore_ab6064c7ea1bef519b1bacff163df44f9}\label{classLibdas_1_1DasReaderCore_ab6064c7ea1bef519b1bacff163df44f9}} 
+\index{Libdas::DasReaderCore@{Libdas::DasReaderCore}!\_ReadBufferValue@{\_ReadBufferValue}}
+\index{\_ReadBufferValue@{\_ReadBufferValue}!Libdas::DasReaderCore@{Libdas::DasReaderCore}}
+\doxysubsubsection{\texorpdfstring{\_ReadBufferValue()}{\_ReadBufferValue()}}
+{\footnotesize\ttfamily void Libdas\+::\+Das\+Reader\+Core\+::\+\_\+\+Read\+Buffer\+Value (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structLibdas_1_1DasBuffer}{Das\+Buffer}} $\ast$}]{\+\_\+buffer,  }\item[{Das\+Buffer\+::\+Value\+Type}]{\+\_\+type }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+Read buffer scope value according to the value type 
+\begin{DoxyParams}{Parameters}
+{\em \+\_\+buffer} & is a reference to \mbox{\hyperlink{structLibdas_1_1DasBuffer}{Das\+Buffer}} instance, where all data is stored \\
+\hline
+{\em \+\_\+type} & is a type value specifying the current value type \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classLibdas_1_1DasReaderCore_a680c8a5f4705ea76ef4aa242f1078104}\label{classLibdas_1_1DasReaderCore_a680c8a5f4705ea76ef4aa242f1078104}} 
+\index{Libdas::DasReaderCore@{Libdas::DasReaderCore}!\_ReadKeyframeValue@{\_ReadKeyframeValue}}
+\index{\_ReadKeyframeValue@{\_ReadKeyframeValue}!Libdas::DasReaderCore@{Libdas::DasReaderCore}}
+\doxysubsubsection{\texorpdfstring{\_ReadKeyframeValue()}{\_ReadKeyframeValue()}}
+{\footnotesize\ttfamily void Libdas\+::\+Das\+Reader\+Core\+::\+\_\+\+Read\+Keyframe\+Value (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structLibdas_1_1DasKeyframe}{Das\+Keyframe}} $\ast$}]{\+\_\+keyframe,  }\item[{Das\+Keyframe\+::\+Value\+Type}]{\+\_\+type }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+Read keyframe scope value according to the specified value type 
+\begin{DoxyParams}{Parameters}
+{\em \+\_\+keyframe} & is a reference to \mbox{\hyperlink{structLibdas_1_1DasKeyframe}{Das\+Keyframe}} instance, where all data is stored \\
+\hline
+{\em \+\_\+type} & is a value specifying the current value type \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classLibdas_1_1DasReaderCore_adb9468d11c9ccb1f702a46d68402c1a8}\label{classLibdas_1_1DasReaderCore_adb9468d11c9ccb1f702a46d68402c1a8}} 
+\index{Libdas::DasReaderCore@{Libdas::DasReaderCore}!\_ReadModelValue@{\_ReadModelValue}}
+\index{\_ReadModelValue@{\_ReadModelValue}!Libdas::DasReaderCore@{Libdas::DasReaderCore}}
+\doxysubsubsection{\texorpdfstring{\_ReadModelValue()}{\_ReadModelValue()}}
+{\footnotesize\ttfamily void Libdas\+::\+Das\+Reader\+Core\+::\+\_\+\+Read\+Model\+Value (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structLibdas_1_1DasModel}{Das\+Model}} $\ast$}]{\+\_\+model,  }\item[{Das\+Model\+::\+Value\+Type}]{\+\_\+type }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+Read model scope value according to the specified value type 
+\begin{DoxyParams}{Parameters}
+{\em \+\_\+model} & is a reference to \mbox{\hyperlink{structLibdas_1_1DasModel}{Das\+Model}} instance, where all data is stored \\
+\hline
+{\em \+\_\+type} & is a type value specifying the current value type \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classLibdas_1_1DasReaderCore_abfd298222c9d4893d1dc5d41e41fc171}\label{classLibdas_1_1DasReaderCore_abfd298222c9d4893d1dc5d41e41fc171}} 
+\index{Libdas::DasReaderCore@{Libdas::DasReaderCore}!\_ReadPropertiesValue@{\_ReadPropertiesValue}}
+\index{\_ReadPropertiesValue@{\_ReadPropertiesValue}!Libdas::DasReaderCore@{Libdas::DasReaderCore}}
+\doxysubsubsection{\texorpdfstring{\_ReadPropertiesValue()}{\_ReadPropertiesValue()}}
+{\footnotesize\ttfamily void Libdas\+::\+Das\+Reader\+Core\+::\+\_\+\+Read\+Properties\+Value (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structLibdas_1_1DasProperties}{Das\+Properties}} $\ast$}]{\+\_\+props,  }\item[{Das\+Properties\+::\+Value\+Type}]{\+\_\+type }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+Read properties scope value according to the value type 
+\begin{DoxyParams}{Parameters}
+{\em \+\_\+props} & is a reference to \mbox{\hyperlink{structLibdas_1_1DasProperties}{Das\+Properties}} instance, where all data is stored \\
+\hline
+{\em \+\_\+type} & is a type value specifying the current value type that is read \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classLibdas_1_1DasReaderCore_a63389d78a1b28b6a14e5fbf1a977ae76}\label{classLibdas_1_1DasReaderCore_a63389d78a1b28b6a14e5fbf1a977ae76}} 
+\index{Libdas::DasReaderCore@{Libdas::DasReaderCore}!\_ReadSceneNodeValue@{\_ReadSceneNodeValue}}
+\index{\_ReadSceneNodeValue@{\_ReadSceneNodeValue}!Libdas::DasReaderCore@{Libdas::DasReaderCore}}
+\doxysubsubsection{\texorpdfstring{\_ReadSceneNodeValue()}{\_ReadSceneNodeValue()}}
+{\footnotesize\ttfamily void Libdas\+::\+Das\+Reader\+Core\+::\+\_\+\+Read\+Scene\+Node\+Value (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structLibdas_1_1DasSceneNode}{Das\+Scene\+Node}} $\ast$}]{\+\_\+node,  }\item[{Das\+Scene\+Node\+::\+Value\+Type}]{\+\_\+type }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+Read scene node value according to the specified value type 
+\begin{DoxyParams}{Parameters}
+{\em \+\_\+node} & is a reference to \mbox{\hyperlink{structLibdas_1_1DasSceneNode}{Das\+Scene\+Node}} instance, where all data is stored \\
+\hline
+{\em \+\_\+type} & is a value specifying the current value type \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classLibdas_1_1DasReaderCore_a202c5ac39c7e5600fb829aabb0295a79}\label{classLibdas_1_1DasReaderCore_a202c5ac39c7e5600fb829aabb0295a79}} 
+\index{Libdas::DasReaderCore@{Libdas::DasReaderCore}!\_ReadSceneValue@{\_ReadSceneValue}}
+\index{\_ReadSceneValue@{\_ReadSceneValue}!Libdas::DasReaderCore@{Libdas::DasReaderCore}}
+\doxysubsubsection{\texorpdfstring{\_ReadSceneValue()}{\_ReadSceneValue()}}
+{\footnotesize\ttfamily void Libdas\+::\+Das\+Reader\+Core\+::\+\_\+\+Read\+Scene\+Value (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structLibdas_1_1DasScene}{Das\+Scene}} $\ast$}]{\+\_\+scene,  }\item[{Das\+Scene\+::\+Value\+Type}]{\+\_\+type }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+Read scene scope value according to the specified value type 
+\begin{DoxyParams}{Parameters}
+{\em \+\_\+scene} & is a reference to \mbox{\hyperlink{structLibdas_1_1DasScene}{Das\+Scene}} instance, where all data is stored \\
+\hline
+{\em \+\_\+type} & is a value specifying the current value type \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classLibdas_1_1DasReaderCore_a7428f3f4490688177b06f151b6598044}\label{classLibdas_1_1DasReaderCore_a7428f3f4490688177b06f151b6598044}} 
+\index{Libdas::DasReaderCore@{Libdas::DasReaderCore}!\_ReadScopeValueDataCaller@{\_ReadScopeValueDataCaller}}
+\index{\_ReadScopeValueDataCaller@{\_ReadScopeValueDataCaller}!Libdas::DasReaderCore@{Libdas::DasReaderCore}}
+\doxysubsubsection{\texorpdfstring{\_ReadScopeValueDataCaller()}{\_ReadScopeValueDataCaller()}}
+{\footnotesize\ttfamily void Libdas\+::\+Das\+Reader\+Core\+::\+\_\+\+Read\+Scope\+Value\+Data\+Caller (\begin{DoxyParamCaption}\item[{std\+::any \&}]{\+\_\+scope,  }\item[{\mbox{\hyperlink{namespaceLibdas_a141c8820daf00087f6ff56331c1d079a}{Das\+Scope\+Type}}}]{\+\_\+type,  }\item[{std\+::any \&}]{\+\_\+value\+\_\+type,  }\item[{const std\+::string \&}]{\+\_\+val\+\_\+str }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+Call correct scope value data reader method according to the type specified 
+\begin{DoxyParams}{Parameters}
+{\em \+\_\+scope} & specifies any \+\_\+scope value that is read \\
+\hline
+{\em \+\_\+type} & specifies that scope type \\
+\hline
+{\em \+\_\+value\+\_\+type} & specifies the scope value type \\
+\hline
+{\em \+\_\+val\+\_\+str} & specifies the value string that was read \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classLibdas_1_1DasReaderCore_a453946947056df3bbc4d8ac03d3771a5}\label{classLibdas_1_1DasReaderCore_a453946947056df3bbc4d8ac03d3771a5}} 
+\index{Libdas::DasReaderCore@{Libdas::DasReaderCore}!\_VerifySubScope@{\_VerifySubScope}}
+\index{\_VerifySubScope@{\_VerifySubScope}!Libdas::DasReaderCore@{Libdas::DasReaderCore}}
+\doxysubsubsection{\texorpdfstring{\_VerifySubScope()}{\_VerifySubScope()}}
+{\footnotesize\ttfamily void Libdas\+::\+Das\+Reader\+Core\+::\+\_\+\+Verify\+Sub\+Scope (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{namespaceLibdas_a141c8820daf00087f6ff56331c1d079a}{Das\+Scope\+Type}}}]{\+\_\+type,  }\item[{\mbox{\hyperlink{namespaceLibdas_a141c8820daf00087f6ff56331c1d079a}{Das\+Scope\+Type}}}]{\+\_\+sub\+\_\+type,  }\item[{const std\+::any \&}]{\+\_\+scope,  }\item[{const std\+::any \&}]{\+\_\+sub\+\_\+scope }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+Verify parsed subscope and throw an error if the subscope does not belong to the parent scope 
+\begin{DoxyParams}{Parameters}
+{\em \+\_\+type} & specifes the parent scope type \\
+\hline
+{\em \+\_\+sub\+\_\+type} & specifies the subscope type \\
+\hline
+{\em \+\_\+scope} & is any parent scope data structure reference \\
+\hline
+{\em \+\_\+sub\+\_\+scope} & is any subscope data structure reference \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classLibdas_1_1DasReaderCore_a9e5f19bbb7baced64567aea79479d63b}\label{classLibdas_1_1DasReaderCore_a9e5f19bbb7baced64567aea79479d63b}} 
+\index{Libdas::DasReaderCore@{Libdas::DasReaderCore}!ParseScopeDeclaration@{ParseScopeDeclaration}}
+\index{ParseScopeDeclaration@{ParseScopeDeclaration}!Libdas::DasReaderCore@{Libdas::DasReaderCore}}
+\doxysubsubsection{\texorpdfstring{ParseScopeDeclaration()}{ParseScopeDeclaration()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{namespaceLibdas_a141c8820daf00087f6ff56331c1d079a}{Das\+Scope\+Type}} Libdas\+::\+Das\+Reader\+Core\+::\+Parse\+Scope\+Declaration (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{\+\_\+scope\+\_\+str = {\ttfamily \char`\"{}\char`\"{}} }\end{DoxyParamCaption})}
+
+Read new scope declaration and return its enumeral value \begin{DoxyReturn}{Returns}
+Das\+Scope\+Type value that specifies currently parsed scope 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classLibdas_1_1DasReaderCore_a2262227edb235d703395e5916eaa853c}\label{classLibdas_1_1DasReaderCore_a2262227edb235d703395e5916eaa853c}} 
+\index{Libdas::DasReaderCore@{Libdas::DasReaderCore}!ReadScopeData@{ReadScopeData}}
+\index{ReadScopeData@{ReadScopeData}!Libdas::DasReaderCore@{Libdas::DasReaderCore}}
+\doxysubsubsection{\texorpdfstring{ReadScopeData()}{ReadScopeData()}}
+{\footnotesize\ttfamily std\+::any Libdas\+::\+Das\+Reader\+Core\+::\+Read\+Scope\+Data (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{namespaceLibdas_a141c8820daf00087f6ff56331c1d079a}{Das\+Scope\+Type}}}]{\+\_\+type }\end{DoxyParamCaption})}
+
+Read scope values and return its instance 
+\begin{DoxyParams}{Parameters}
+{\em \+\_\+type} & specifies the current scope type \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\mbox{\hyperlink{structLibdas_1_1DasProperties}{Das\+Properties}} value defining the properties for given file 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classLibdas_1_1DasReaderCore_a5bacff55f0db3eb363e588636c332f8d}\label{classLibdas_1_1DasReaderCore_a5bacff55f0db3eb363e588636c332f8d}} 
+\index{Libdas::DasReaderCore@{Libdas::DasReaderCore}!ReadSignature@{ReadSignature}}
+\index{ReadSignature@{ReadSignature}!Libdas::DasReaderCore@{Libdas::DasReaderCore}}
+\doxysubsubsection{\texorpdfstring{ReadSignature()}{ReadSignature()}}
+{\footnotesize\ttfamily void Libdas\+::\+Das\+Reader\+Core\+::\+Read\+Signature (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+Read and verify file signature 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+include/Das\+Reader\+Core.\+h\end{DoxyCompactItemize}

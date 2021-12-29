@@ -1,0 +1,95 @@
+\hypertarget{classLibdas_1_1URIResolver}{}\doxysection{Libdas\+::URIResolver Class Reference}
+\label{classLibdas_1_1URIResolver}\index{Libdas::URIResolver@{Libdas::URIResolver}}
+
+
+{\ttfamily \#include $<$URIResolver.\+h$>$}
+
+
+
+Inheritance diagram for Libdas\+::URIResolver\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=201pt]{classLibdas_1_1URIResolver__inherit__graph}
+\end{center}
+\end{figure}
+
+
+Collaboration diagram for Libdas\+::URIResolver\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=201pt]{classLibdas_1_1URIResolver__coll__graph}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classLibdas_1_1URIResolver_a7a92f3534e75c5eb24d4466565b3e844}\label{classLibdas_1_1URIResolver_a7a92f3534e75c5eb24d4466565b3e844}} 
+{\bfseries URIResolver} (const std\+::string \&\+\_\+uri=\char`\"{}\char`\"{}, const std\+::string \&\+\_\+root\+\_\+path=\char`\"{}\char`\"{})
+\item 
+void \mbox{\hyperlink{classLibdas_1_1URIResolver_a42ad3fb64b33378875f29e762c0d6f2c}{Resolve}} (const std\+::string \&\+\_\+uri=\char`\"{}\char`\"{}, const std\+::string \&\+\_\+root\+\_\+path=\char`\"{}\char`\"{})
+\item 
+std\+::vector$<$ char $>$ \&\& \mbox{\hyperlink{classLibdas_1_1URIResolver_a8d31b68e85d9c30a0b50ecacb9bda925}{Move\+Buffer}} ()
+\end{DoxyCompactItemize}
+\doxysubsection*{Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{classLibdas_1_1URIResolver_a4ff69601129eb83ca8f3afc1971fc14b}{\+\_\+\+Resolve\+File\+URI}} ()
+\end{DoxyCompactItemize}
+\doxysubsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classLibdas_1_1URIResolver_aa69d24840e0aaf95890b9ec149ca043d}\label{classLibdas_1_1URIResolver_aa69d24840e0aaf95890b9ec149ca043d}} 
+std\+::string {\bfseries m\+\_\+uri}
+\item 
+\mbox{\Hypertarget{classLibdas_1_1URIResolver_ac94b6d4b7a9399572675053ee41070d4}\label{classLibdas_1_1URIResolver_ac94b6d4b7a9399572675053ee41070d4}} 
+std\+::string {\bfseries m\+\_\+root\+\_\+path}
+\item 
+\mbox{\Hypertarget{classLibdas_1_1URIResolver_af6eabc9dacd9e629f7701212bb764fdd}\label{classLibdas_1_1URIResolver_af6eabc9dacd9e629f7701212bb764fdd}} 
+std\+::vector$<$ char $>$ {\bfseries m\+\_\+buffer}
+\item 
+\mbox{\Hypertarget{classLibdas_1_1URIResolver_a42e657328b3fa9a47a8f43e988e9f4e3}\label{classLibdas_1_1URIResolver_a42e657328b3fa9a47a8f43e988e9f4e3}} 
+std\+::ifstream {\bfseries m\+\_\+stream}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Class interface for reading data from given uri. Supported uri types for now are base64 and file 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classLibdas_1_1URIResolver_a4ff69601129eb83ca8f3afc1971fc14b}\label{classLibdas_1_1URIResolver_a4ff69601129eb83ca8f3afc1971fc14b}} 
+\index{Libdas::URIResolver@{Libdas::URIResolver}!\_ResolveFileURI@{\_ResolveFileURI}}
+\index{\_ResolveFileURI@{\_ResolveFileURI}!Libdas::URIResolver@{Libdas::URIResolver}}
+\doxysubsubsection{\texorpdfstring{\_ResolveFileURI()}{\_ResolveFileURI()}}
+{\footnotesize\ttfamily void Libdas\+::\+URIResolver\+::\+\_\+\+Resolve\+File\+URI (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+Resolve \href{file://}{\texttt{ file\+://}} URI \mbox{\Hypertarget{classLibdas_1_1URIResolver_a8d31b68e85d9c30a0b50ecacb9bda925}\label{classLibdas_1_1URIResolver_a8d31b68e85d9c30a0b50ecacb9bda925}} 
+\index{Libdas::URIResolver@{Libdas::URIResolver}!MoveBuffer@{MoveBuffer}}
+\index{MoveBuffer@{MoveBuffer}!Libdas::URIResolver@{Libdas::URIResolver}}
+\doxysubsubsection{\texorpdfstring{MoveBuffer()}{MoveBuffer()}}
+{\footnotesize\ttfamily std\+::vector$<$ char $>$ \&\& Libdas\+::\+URIResolver\+::\+Move\+Buffer (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+Get moveable reference of the buffer containing data found on the resouce \begin{DoxyReturn}{Returns}
+std\+::pair moveable object containing buffer pointer and its size 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classLibdas_1_1URIResolver_a42ad3fb64b33378875f29e762c0d6f2c}\label{classLibdas_1_1URIResolver_a42ad3fb64b33378875f29e762c0d6f2c}} 
+\index{Libdas::URIResolver@{Libdas::URIResolver}!Resolve@{Resolve}}
+\index{Resolve@{Resolve}!Libdas::URIResolver@{Libdas::URIResolver}}
+\doxysubsubsection{\texorpdfstring{Resolve()}{Resolve()}}
+{\footnotesize\ttfamily void Libdas\+::\+URIResolver\+::\+Resolve (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{\+\_\+uri = {\ttfamily \char`\"{}\char`\"{}},  }\item[{const std\+::string \&}]{\+\_\+root\+\_\+path = {\ttfamily \char`\"{}\char`\"{}} }\end{DoxyParamCaption})}
+
+Resolve the uri and read data into URI data buffer 
+\begin{DoxyParams}{Parameters}
+{\em \+\_\+uri} & optionally specifies the given uri to read data from \\
+\hline
+{\em \+\_\+root\+\_\+path} & optionally specifies \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+include/URIResolver.\+h\end{DoxyCompactItemize}

@@ -73,7 +73,7 @@ namespace Libdas {
      * Sparse storage of accessor values that deviate from their initialisation values
      */
     struct GLTFAccessorSparse {
-        int32_t count;                                  // required
+        int32_t count = 0;                              // required
         GLTFAccessorSparseIndices indices;              // required
         GLTFAccessorSparseValues values;                // required
         std::vector<std::any> extensions;               // ignored
@@ -434,25 +434,26 @@ namespace Libdas {
      * Root object for all GLTF objects
      */
     struct GLTFRoot {
-        std::vector<std::string> extensions_used;       // not required
-        std::vector<std::string> extensions_required;   // not required
-        std::vector<GLTFAccessor> accessors;            // not required
-        std::vector<GLTFAnimation> animations;          // not required
-        GLTFAsset asset;                                // required
-        std::vector<GLTFBuffer> buffers;                // not required
-        std::vector<GLTFBufferView> buffer_views;       // not required
-        std::vector<GLTFCamera> cameras;                // not required
-        std::vector<GLTFImage> images;                  // not required
-        std::vector<GLTFMaterial> materials;            // not required
-        std::vector<GLTFMesh> meshes;                   // not required
-        std::vector<GLTFNode> nodes;                    // not required
-        std::vector<GLTFSampler> samplers;              // not required
-        std::vector<GLTFScene> scenes;                  // not required
-        GLTFScene load_time_scene;                      // not required
-        std::vector<GLTFSkin> skins;                    // not required
-        std::vector<GLTFTexture> textures;              // not required
-        std::vector<std::any> extensions;               // ignored
-        std::vector<std::any> extras;                   // ignored
+        std::unordered_map<std::string, std::vector<char>> resources;       // custom
+        std::vector<std::string> extensions_used;                           // not required
+        std::vector<std::string> extensions_required;                       // not required
+        std::vector<GLTFAccessor> accessors;                                // not required
+        std::vector<GLTFAnimation> animations;                              // not required
+        GLTFAsset asset;                                                    // required
+        std::vector<GLTFBuffer> buffers;                                    // not required
+        std::vector<GLTFBufferView> buffer_views;                           // not required
+        std::vector<GLTFCamera> cameras;                                    // not required
+        std::vector<GLTFImage> images;                                      // not required
+        std::vector<GLTFMaterial> materials;                                // not required
+        std::vector<GLTFMesh> meshes;                                       // not required
+        std::vector<GLTFNode> nodes;                                        // not required
+        std::vector<GLTFSampler> samplers;                                  // not required
+        std::vector<GLTFScene> scenes;                                      // not required
+        GLTFScene load_time_scene;                                          // not required
+        std::vector<GLTFSkin> skins;                                        // not required
+        std::vector<GLTFTexture> textures;                                  // not required
+        std::vector<std::any> extensions;                                   // ignored
+        std::vector<std::any> extras;                                       // ignored
     };
 }
 

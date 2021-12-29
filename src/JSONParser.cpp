@@ -129,7 +129,7 @@ namespace Libdas {
             char *end_nl = strchr(m_rd_ptr, '\n');
             if((!end_nl || end_nl > end_str) && end_str) {
                 if(*(end_str - 1) != '\\')
-                    m_loose_string = std::string(beg + 1, end_str);
+                    m_loose_string = beg + 1 == end_str ? std::string("(null)") : std::string(beg + 1, end_str);
                 else {
                     m_rd_ptr = end_str + 1;
                     end_str = nullptr;

@@ -99,7 +99,7 @@ namespace Libdas {
             }
 
             case GLTF_TYPE_FLOAT:
-                _VerifySourceData(_src, JSON_TYPE_FLOAT | JSON_TYPE_FLOAT, false);
+                _VerifySourceData(_src, JSON_TYPE_INTEGER | JSON_TYPE_FLOAT, false);
                 *reinterpret_cast<JSONNumber*>(_dst.val_ptr) = _CastVariantNumber<JSONNumber, JSONInteger>(
                     std::any_cast<std::variant<JSONInteger, JSONNumber>>(_src->values.back().second));
                 break;
@@ -121,17 +121,17 @@ namespace Libdas {
 
             case GLTF_TYPE_ACCESSOR_SPARSE:
                 _VerifySourceData(_src, JSON_TYPE_OBJECT, false);
-                _ReadAccessorSparse(std::any_cast<JSONNode>(&_src->values.back().second), *reinterpret_cast<GLTFAccessorSparse*>(_dst.val_ptr));
+                _ReadAccessorSparse(_src, *reinterpret_cast<GLTFAccessorSparse*>(_dst.val_ptr));
                 break;
 
             case GLTF_TYPE_ACCESSOR_SPARSE_INDICES:
                 _VerifySourceData(_src, JSON_TYPE_OBJECT, false);
-                _ReadAccessorSparseIndices(std::any_cast<JSONNode>(&_src->values.back().second), *reinterpret_cast<GLTFAccessorSparseIndices*>(_dst.val_ptr));
+                _ReadAccessorSparseIndices(_src, *reinterpret_cast<GLTFAccessorSparseIndices*>(_dst.val_ptr));
                 break;
 
             case GLTF_TYPE_ACCESSOR_SPARSE_VALUES:
                 _VerifySourceData(_src, JSON_TYPE_OBJECT, false);
-                _ReadAccessorSparseValues(std::any_cast<JSONNode>(&_src->values.back().second), *reinterpret_cast<GLTFAccessorSparseValues*>(_dst.val_ptr));
+                _ReadAccessorSparseValues(_src, *reinterpret_cast<GLTFAccessorSparseValues*>(_dst.val_ptr));
                 break;
 
             case GLTF_TYPE_ANIMATION_CHANNELS:
@@ -141,7 +141,7 @@ namespace Libdas {
 
             case GLTF_TYPE_ANIMATION_CHANNEL_TARGET:
                 _VerifySourceData(_src, JSON_TYPE_OBJECT, false);
-                _ReadAnimationChannelTarget(std::any_cast<JSONNode>(&_src->values.back().second), *reinterpret_cast<GLTFAnimationChannelTarget*>(_dst.val_ptr));
+                _ReadAnimationChannelTarget(_src, *reinterpret_cast<GLTFAnimationChannelTarget*>(_dst.val_ptr));
                 break;
 
             case GLTF_TYPE_ANIMATION_SAMPLERS:
@@ -741,10 +741,42 @@ namespace Libdas {
     }
 
 
-    void GLTFParser::Parse(const std::string &_file_name) {
-        // parse json files with JSON parser
-        JSONParser::Parse(_file_name);
+    void GLTFParser::_ResolveBufferUris(const std::string &_file_name) {
+        std::set<std::string> duplicate_uris;
+        // iterate through all buffer objects
+        for(auto it = m_root.buffers.begin(); it != m_root.buffers.end(); it++) {
+            // check if the uri already exists in the map
+            if(m_root.resources.find(it->uri) != m_root.resources.end()) {
+                duplicate_uris.insert(it->uri);
+                continue;
+            }
 
+            URIResolver resolver(it->uri, String::ExtractRootPath(_file_name));
+            m_root.resources[it->uri] = resolver.MoveBuffer();
+        }
+
+        // iterate through all image objects
+        for(auto it = m_root.images.begin(); it != m_root.images.end(); it++) {
+            // check if the uri already exists in the map
+            if(m_root.resources.find(it->uri) != m_root.resources.end()) {
+                duplicate_uris.insert(it->uri);
+                continue;
+            }
+
+            URIResolver resolver(it->uri, String::ExtractRootPath(_file_name));
+            std::vector<char> buf = resolver.MoveBuffer();
+        }
+
+        for(auto it = duplicate_uris.begin(); it != duplicate_uris.end(); it++)
+            std::cout << "GLTF warning:  Duplicate URI '" << *it << std::endl;
+    }
+
+
+    void GLTFParser::Parse(const std::string &_file_name) {
+        if(_file_name != "") m_file_name = _file_name; 
+
+        // parse json files with JSON parser
+        JSONParser::Parse(m_file_name);
         JSONNode &root = JSONParser::GetRootNode();
 
         // traverse the root node for data
@@ -752,6 +784,8 @@ namespace Libdas {
             GLTFObjectType type = _FindRootObjectType(it->first, it->second->key_val_decl_line);
             _RootObjectParserCaller(type, it->second.get());
         }
+
+        _ResolveBufferUris(m_file_name);
     }
 
 

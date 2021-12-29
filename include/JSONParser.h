@@ -82,7 +82,6 @@ namespace Libdas {
             JSONNode m_root_node;
             JSONNode *m_active_node = &m_root_node;
 
-            std::string m_file_name;
             char *m_rd_ptr = m_buffer;
             char m_str_statement_beg = 0;
             bool m_allow_next_element = true; // flag that determines if 
@@ -92,6 +91,9 @@ namespace Libdas {
             // variable for accounting lines
             size_t m_line_nr = 1;
             bool m_prev_decl = false; // boolean flag for identifying previous key value statement
+
+        protected:
+            std::string m_file_name;
 
         private:
             ////////////////////////////////

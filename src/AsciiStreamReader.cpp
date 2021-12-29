@@ -61,6 +61,10 @@ namespace Libdas {
 
 
     void AsciiStreamReader::NewFile(const std::string &_file_name) {
+        // check if stream was previously opened, and if it was, close it
+        if(m_stream.is_open())
+            m_stream.close();
+
         m_stream.open(_file_name.c_str(), std::ios::binary);
 
         if(m_stream.bad()) {

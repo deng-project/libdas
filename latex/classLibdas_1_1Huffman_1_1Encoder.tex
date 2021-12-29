@@ -1,0 +1,130 @@
+\hypertarget{classLibdas_1_1Huffman_1_1Encoder}{}\doxysection{Libdas\+::Huffman\+::Encoder Class Reference}
+\label{classLibdas_1_1Huffman_1_1Encoder}\index{Libdas::Huffman::Encoder@{Libdas::Huffman::Encoder}}
+
+
+{\ttfamily \#include $<$Huffman\+Compression.\+h$>$}
+
+
+
+Inheritance diagram for Libdas\+::Huffman\+::Encoder\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=211pt]{classLibdas_1_1Huffman_1_1Encoder__inherit__graph}
+\end{center}
+\end{figure}
+
+
+Collaboration diagram for Libdas\+::Huffman\+::Encoder\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{classLibdas_1_1Huffman_1_1Encoder__coll__graph}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classLibdas_1_1Huffman_1_1Encoder_a07601b2a97b0afec2db7b92e5283c371}\label{classLibdas_1_1Huffman_1_1Encoder_a07601b2a97b0afec2db7b92e5283c371}} 
+{\bfseries Encoder} (std\+::ifstream \&\+\_\+ifile, std\+::ofstream \&\+\_\+ofile)
+\item 
+void \mbox{\hyperlink{classLibdas_1_1Huffman_1_1Encoder_a0a8ec862354c74a709f6ee1e63567a4b}{Encode\+File}} (std\+::ifstream \&\+\_\+ifile, std\+::ofstream \&\+\_\+ofile)
+\end{DoxyCompactItemize}
+\doxysubsection*{Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{classLibdas_1_1Huffman_1_1Encoder_a1b60217c495fd39908ace46729939f4c}{\+\_\+\+Fill\+Frequency\+Table}} (std\+::ifstream \&\+\_\+ifile)
+\item 
+void \mbox{\hyperlink{classLibdas_1_1Huffman_1_1Encoder_aa35cc87ca0f768e06afc7708178a2293}{\+\_\+\+Build\+Huffman\+Tables}} (\mbox{\hyperlink{structLibdas_1_1Huffman_1_1Node}{Node}} $\ast$\+\_\+root, \mbox{\hyperlink{structLibdas_1_1Huffman_1_1BinaryKey}{Binary\+Key}} \+\_\+bkey)
+\item 
+void \mbox{\hyperlink{classLibdas_1_1Huffman_1_1Encoder_a85cee3c1fa596ed8146711c30ac81bb1}{\+\_\+\+Reset\+Entable}} ()
+\item 
+uint16\+\_\+t \mbox{\hyperlink{classLibdas_1_1Huffman_1_1Encoder_af192d870292563e870d628836978568a}{\+\_\+\+Find\+Freq\+Table\+Size}} ()
+\item 
+void \mbox{\hyperlink{classLibdas_1_1Huffman_1_1Encoder_aacc4796633e32a1f807c8f16a27558fd}{\+\_\+\+Encode}} (std\+::ifstream \&\+\_\+ifile, std\+::ofstream \&\+\_\+ofile)
+\end{DoxyCompactItemize}
+\doxysubsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classLibdas_1_1Huffman_1_1Encoder_a2976b0a59afc7f5d9197a5c13aa5524a}\label{classLibdas_1_1Huffman_1_1Encoder_a2976b0a59afc7f5d9197a5c13aa5524a}} 
+\mbox{\hyperlink{structLibdas_1_1Huffman_1_1BinaryKey}{Binary\+Key}} {\bfseries m\+\_\+entable} \mbox{[}LIBDAS\+\_\+\+ASCII\+\_\+\+ALPHABET\+\_\+\+SIZE\mbox{]} = \{\}
+\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+Raw data to Huffman encoded bytes encoder 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classLibdas_1_1Huffman_1_1Encoder_aa35cc87ca0f768e06afc7708178a2293}\label{classLibdas_1_1Huffman_1_1Encoder_aa35cc87ca0f768e06afc7708178a2293}} 
+\index{Libdas::Huffman::Encoder@{Libdas::Huffman::Encoder}!\_BuildHuffmanTables@{\_BuildHuffmanTables}}
+\index{\_BuildHuffmanTables@{\_BuildHuffmanTables}!Libdas::Huffman::Encoder@{Libdas::Huffman::Encoder}}
+\doxysubsubsection{\texorpdfstring{\_BuildHuffmanTables()}{\_BuildHuffmanTables()}}
+{\footnotesize\ttfamily void Libdas\+::\+Huffman\+::\+Encoder\+::\+\_\+\+Build\+Huffman\+Tables (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structLibdas_1_1Huffman_1_1Node}{Node}} $\ast$}]{\+\_\+root,  }\item[{\mbox{\hyperlink{structLibdas_1_1Huffman_1_1BinaryKey}{Binary\+Key}}}]{\+\_\+bkey }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+Build the encoding table 
+\begin{DoxyParams}{Parameters}
+{\em \+\_\+root} & is a pointer to the root node \\
+\hline
+{\em \+\_\+bkey} & is a \mbox{\hyperlink{structLibdas_1_1Huffman_1_1BinaryKey}{Binary\+Key}} value that specifies the used key for the current node \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classLibdas_1_1Huffman_1_1Encoder_aacc4796633e32a1f807c8f16a27558fd}\label{classLibdas_1_1Huffman_1_1Encoder_aacc4796633e32a1f807c8f16a27558fd}} 
+\index{Libdas::Huffman::Encoder@{Libdas::Huffman::Encoder}!\_Encode@{\_Encode}}
+\index{\_Encode@{\_Encode}!Libdas::Huffman::Encoder@{Libdas::Huffman::Encoder}}
+\doxysubsubsection{\texorpdfstring{\_Encode()}{\_Encode()}}
+{\footnotesize\ttfamily void Libdas\+::\+Huffman\+::\+Encoder\+::\+\_\+\+Encode (\begin{DoxyParamCaption}\item[{std\+::ifstream \&}]{\+\_\+ifile,  }\item[{std\+::ofstream \&}]{\+\_\+ofile }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+Encode data from \+\_\+ifile to \+\_\+ofile 
+\begin{DoxyParams}{Parameters}
+{\em \+\_\+ifile} & is an input stream where data is read from \\
+\hline
+{\em \+\_\+ofile} & is an output stream where data is put to \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classLibdas_1_1Huffman_1_1Encoder_a1b60217c495fd39908ace46729939f4c}\label{classLibdas_1_1Huffman_1_1Encoder_a1b60217c495fd39908ace46729939f4c}} 
+\index{Libdas::Huffman::Encoder@{Libdas::Huffman::Encoder}!\_FillFrequencyTable@{\_FillFrequencyTable}}
+\index{\_FillFrequencyTable@{\_FillFrequencyTable}!Libdas::Huffman::Encoder@{Libdas::Huffman::Encoder}}
+\doxysubsubsection{\texorpdfstring{\_FillFrequencyTable()}{\_FillFrequencyTable()}}
+{\footnotesize\ttfamily void Libdas\+::\+Huffman\+::\+Encoder\+::\+\_\+\+Fill\+Frequency\+Table (\begin{DoxyParamCaption}\item[{std\+::ifstream \&}]{\+\_\+ifile }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+Fill the frequency table with all used bytes 
+\begin{DoxyParams}{Parameters}
+{\em \+\_\+ifile} & is a std\+::ifstream reference that has input file opened for reading \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classLibdas_1_1Huffman_1_1Encoder_af192d870292563e870d628836978568a}\label{classLibdas_1_1Huffman_1_1Encoder_af192d870292563e870d628836978568a}} 
+\index{Libdas::Huffman::Encoder@{Libdas::Huffman::Encoder}!\_FindFreqTableSize@{\_FindFreqTableSize}}
+\index{\_FindFreqTableSize@{\_FindFreqTableSize}!Libdas::Huffman::Encoder@{Libdas::Huffman::Encoder}}
+\doxysubsubsection{\texorpdfstring{\_FindFreqTableSize()}{\_FindFreqTableSize()}}
+{\footnotesize\ttfamily uint16\+\_\+t Libdas\+::\+Huffman\+::\+Encoder\+::\+\_\+\+Find\+Freq\+Table\+Size (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+Find the total count of char values that have instances \begin{DoxyReturn}{Returns}
+uint16\+\_\+t value specifying registred characters in current frequency array 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classLibdas_1_1Huffman_1_1Encoder_a85cee3c1fa596ed8146711c30ac81bb1}\label{classLibdas_1_1Huffman_1_1Encoder_a85cee3c1fa596ed8146711c30ac81bb1}} 
+\index{Libdas::Huffman::Encoder@{Libdas::Huffman::Encoder}!\_ResetEntable@{\_ResetEntable}}
+\index{\_ResetEntable@{\_ResetEntable}!Libdas::Huffman::Encoder@{Libdas::Huffman::Encoder}}
+\doxysubsubsection{\texorpdfstring{\_ResetEntable()}{\_ResetEntable()}}
+{\footnotesize\ttfamily void Libdas\+::\+Huffman\+::\+Encoder\+::\+\_\+\+Reset\+Entable (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+Clear all entries in the encoding table \mbox{\Hypertarget{classLibdas_1_1Huffman_1_1Encoder_a0a8ec862354c74a709f6ee1e63567a4b}\label{classLibdas_1_1Huffman_1_1Encoder_a0a8ec862354c74a709f6ee1e63567a4b}} 
+\index{Libdas::Huffman::Encoder@{Libdas::Huffman::Encoder}!EncodeFile@{EncodeFile}}
+\index{EncodeFile@{EncodeFile}!Libdas::Huffman::Encoder@{Libdas::Huffman::Encoder}}
+\doxysubsubsection{\texorpdfstring{EncodeFile()}{EncodeFile()}}
+{\footnotesize\ttfamily void Libdas\+::\+Huffman\+::\+Encoder\+::\+Encode\+File (\begin{DoxyParamCaption}\item[{std\+::ifstream \&}]{\+\_\+ifile,  }\item[{std\+::ofstream \&}]{\+\_\+ofile }\end{DoxyParamCaption})}
+
+Encode the data from \+\_\+ifile to \+\_\+ofile 
+\begin{DoxyParams}{Parameters}
+{\em \+\_\+ifile} & is an input stream to read data from \\
+\hline
+{\em \+\_\+ofile} & is an output stream to write data into \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+include/Huffman\+Compression.\+h\end{DoxyCompactItemize}

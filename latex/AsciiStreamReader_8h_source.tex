@@ -1,0 +1,88 @@
+\hypertarget{AsciiStreamReader_8h_source}{}\doxysection{Ascii\+Stream\+Reader.\+h}
+\label{AsciiStreamReader_8h_source}\index{include/AsciiStreamReader.h@{include/AsciiStreamReader.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{comment}{/// libdas: DENG asset handling management library}\textcolor{comment}{}}
+\DoxyCodeLine{2 \textcolor{comment}{/// licence: Apache, see LICENCE file}}
+\DoxyCodeLine{3 \textcolor{comment}{/// file: StreamReader.h -\/ File stream reader header file that reads chunk by chunk }}
+\DoxyCodeLine{4 \textcolor{comment}{/// author: Karl-\/Mihkel Ott}}
+\DoxyCodeLine{5 \textcolor{comment}{}}
+\DoxyCodeLine{6 \textcolor{preprocessor}{\#ifndef STREAM\_READER\_H}}
+\DoxyCodeLine{7 \textcolor{preprocessor}{\#define STREAM\_READER\_H}}
+\DoxyCodeLine{8 \textcolor{preprocessor}{\#define DEFAULT\_CHUNK   4096}}
+\DoxyCodeLine{9 }
+\DoxyCodeLine{10 \textcolor{preprocessor}{\#ifdef STREAM\_READER\_CPP}}
+\DoxyCodeLine{11 \textcolor{preprocessor}{    \#include <cstring>}}
+\DoxyCodeLine{12 \textcolor{preprocessor}{    \#include <string>}}
+\DoxyCodeLine{13 \textcolor{preprocessor}{    \#include <vector>}}
+\DoxyCodeLine{14 \textcolor{preprocessor}{    \#include <climits>}}
+\DoxyCodeLine{15 \textcolor{preprocessor}{    \#include <fstream>}}
+\DoxyCodeLine{16 \textcolor{preprocessor}{    \#include <iostream>}}
+\DoxyCodeLine{17 \textcolor{preprocessor}{    \#include <algorithm>}}
+\DoxyCodeLine{18 }
+\DoxyCodeLine{19 \textcolor{preprocessor}{    \#include <FileNameString.h>}}
+\DoxyCodeLine{20 \textcolor{preprocessor}{    \#include <LibdasAssert.h>}}
+\DoxyCodeLine{21 \textcolor{preprocessor}{    \#include <ErrorHandlers.h>}}
+\DoxyCodeLine{22 \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{23 }
+\DoxyCodeLine{24 }
+\DoxyCodeLine{25 \textcolor{keyword}{namespace }\mbox{\hyperlink{namespaceLibdas}{Libdas}} \{}
+\DoxyCodeLine{26 \textcolor{comment}{}}
+\DoxyCodeLine{27 \textcolor{comment}{    /**}}
+\DoxyCodeLine{28 \textcolor{comment}{     * Parent class for AsciiLineReader and similar ASCII data parsing classes.}}
+\DoxyCodeLine{29 \textcolor{comment}{     * The interface allows reading data step by step into specific chunk buffer}}
+\DoxyCodeLine{30 \textcolor{comment}{     */}}
+\DoxyCodeLine{31     \textcolor{keyword}{class }\mbox{\hyperlink{classLibdas_1_1AsciiStreamReader}{AsciiStreamReader}} \{}
+\DoxyCodeLine{32         \textcolor{keyword}{private}:}
+\DoxyCodeLine{33             \textcolor{keyword}{const} std::string m\_end;}
+\DoxyCodeLine{34             std::ifstream m\_stream;}
+\DoxyCodeLine{35             \textcolor{keywordtype}{size\_t} m\_stream\_size = 0;}
+\DoxyCodeLine{36 }
+\DoxyCodeLine{37         \textcolor{keyword}{protected}:}
+\DoxyCodeLine{38             \textcolor{keywordtype}{char} *m\_buffer;}
+\DoxyCodeLine{39             \textcolor{keywordtype}{size\_t} m\_buffer\_size;}
+\DoxyCodeLine{40             \textcolor{keywordtype}{size\_t} m\_last\_read = 0;}
+\DoxyCodeLine{41 }
+\DoxyCodeLine{42         \textcolor{keyword}{protected}:}
+\DoxyCodeLine{43             \mbox{\hyperlink{classLibdas_1_1AsciiStreamReader}{AsciiStreamReader}}(\textcolor{keyword}{const} std::string \&\_file\_name = \textcolor{stringliteral}{"{}"{}}, \textcolor{keywordtype}{size\_t} \_chunk\_size = DEFAULT\_CHUNK, \textcolor{keyword}{const} std::string \&\_end = \textcolor{stringliteral}{"{}\(\backslash\)n"{}});}
+\DoxyCodeLine{44             \mbox{\hyperlink{classLibdas_1_1AsciiStreamReader}{\string~AsciiStreamReader}}();\textcolor{comment}{}}
+\DoxyCodeLine{45 \textcolor{comment}{            /**}}
+\DoxyCodeLine{46 \textcolor{comment}{             * Read new buffer chunk from the stream}}
+\DoxyCodeLine{47 \textcolor{comment}{             * @return true if new chunk value was read}}
+\DoxyCodeLine{48 \textcolor{comment}{             */}}
+\DoxyCodeLine{49             \textcolor{keywordtype}{bool} \mbox{\hyperlink{classLibdas_1_1AsciiStreamReader_a4bbf60bb38f7a3000549fcd132337895}{\_ReadNewChunk}}();\textcolor{comment}{}}
+\DoxyCodeLine{50 \textcolor{comment}{            /**}}
+\DoxyCodeLine{51 \textcolor{comment}{             * Get the current stream reading std::ifstream reference }}
+\DoxyCodeLine{52 \textcolor{comment}{             * @return reference to std::ifstream }}
+\DoxyCodeLine{53 \textcolor{comment}{             */}}
+\DoxyCodeLine{54             std::ifstream \&\mbox{\hyperlink{classLibdas_1_1AsciiStreamReader_a1d6d9a32be8bd4d1e6fc8704c6bdea2f}{\_GetStream}}();}
+\DoxyCodeLine{55 }
+\DoxyCodeLine{56         \textcolor{keyword}{public}:\textcolor{comment}{}}
+\DoxyCodeLine{57 \textcolor{comment}{            /**}}
+\DoxyCodeLine{58 \textcolor{comment}{             * Open new file stream for reading data from}}
+\DoxyCodeLine{59 \textcolor{comment}{             * @param \_file\_name is an std::string referece value that represents the used file name}}
+\DoxyCodeLine{60 \textcolor{comment}{             */}}
+\DoxyCodeLine{61             \textcolor{keywordtype}{void} \mbox{\hyperlink{classLibdas_1_1AsciiStreamReader_adeefe38a8c0537f46f974559fc3c41f7}{NewFile}}(\textcolor{keyword}{const} std::string \&\_file\_name);\textcolor{comment}{}}
+\DoxyCodeLine{62 \textcolor{comment}{            /**}}
+\DoxyCodeLine{63 \textcolor{comment}{             * Close previously opened file stream if possible}}
+\DoxyCodeLine{64 \textcolor{comment}{             */}}
+\DoxyCodeLine{65             \textcolor{keywordtype}{void} \mbox{\hyperlink{classLibdas_1_1AsciiStreamReader_a163baf61f6145562d354c96fcf18e1df}{CloseFile}}();\textcolor{comment}{}}
+\DoxyCodeLine{66 \textcolor{comment}{            /**}}
+\DoxyCodeLine{67 \textcolor{comment}{             * Read custom binary blob from seemingly binary file}}
+\DoxyCodeLine{68 \textcolor{comment}{             * @param \_cont is a reference to the data structure where binary data is read into}}
+\DoxyCodeLine{69 \textcolor{comment}{             */}}
+\DoxyCodeLine{70             \textcolor{keyword}{template}<\textcolor{keyword}{typename} T>}
+\DoxyCodeLine{71             \textcolor{keywordtype}{void} \mbox{\hyperlink{classLibdas_1_1AsciiStreamReader_ac9935f144726ecb55d9faf4452244980}{ReadBlob}}(T \&\_cont) \{}
+\DoxyCodeLine{72                 m\_stream.read(\textcolor{keyword}{reinterpret\_cast<}\textcolor{keywordtype}{char}*\textcolor{keyword}{>}(\&\_cont), \textcolor{keyword}{sizeof}(T));}
+\DoxyCodeLine{73             \}\textcolor{comment}{}}
+\DoxyCodeLine{74 \textcolor{comment}{            /**}}
+\DoxyCodeLine{75 \textcolor{comment}{             * Get the chunk buffer starting address}}
+\DoxyCodeLine{76 \textcolor{comment}{             * @return Starting address of the chunk buffer}}
+\DoxyCodeLine{77 \textcolor{comment}{             */}}
+\DoxyCodeLine{78             \textcolor{keywordtype}{char} *\mbox{\hyperlink{classLibdas_1_1AsciiStreamReader_ae2e1ea6bb278f86e54edc11b35613ba0}{GetBufferAddress}}();}
+\DoxyCodeLine{79     \};}
+\DoxyCodeLine{80 \}}
+\DoxyCodeLine{81 }
+\DoxyCodeLine{82 \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

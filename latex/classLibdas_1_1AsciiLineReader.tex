@@ -1,0 +1,200 @@
+\hypertarget{classLibdas_1_1AsciiLineReader}{}\doxysection{Libdas\+::Ascii\+Line\+Reader Class Reference}
+\label{classLibdas_1_1AsciiLineReader}\index{Libdas::AsciiLineReader@{Libdas::AsciiLineReader}}
+
+
+Inheritance diagram for Libdas\+::Ascii\+Line\+Reader\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=550pt]{classLibdas_1_1AsciiLineReader__inherit__graph}
+\end{center}
+\end{figure}
+
+
+Collaboration diagram for Libdas\+::Ascii\+Line\+Reader\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=226pt]{classLibdas_1_1AsciiLineReader__coll__graph}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classLibdas_1_1AsciiLineReader_aa819840de072262bca23c97e3f59fa85}\label{classLibdas_1_1AsciiLineReader_aa819840de072262bca23c97e3f59fa85}} 
+{\bfseries Ascii\+Line\+Reader} (const std\+::string \&\+\_\+file\+\_\+name, size\+\_\+t \+\_\+chunk\+\_\+size=DEFAULT\+\_\+\+CHUNK, const std\+::string \&\+\_\+end=\char`\"{}\textbackslash{}n\char`\"{})
+\item 
+std\+::string \mbox{\hyperlink{classLibdas_1_1AsciiLineReader_a92d1f9c8d2e4020f515a8aee78e011ea}{Get\+File\+Name}} ()
+\end{DoxyCompactItemize}
+\doxysubsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+bool \mbox{\hyperlink{classLibdas_1_1AsciiLineReader_ae2cac42e5a520f4f4076b9323312c885}{\+\_\+\+Next\+Line}} ()
+\item 
+std\+::vector$<$ std\+::string $>$ \mbox{\hyperlink{classLibdas_1_1AsciiLineReader_a4f3cbe722a8dec6fedb3b229e34abe90}{\+\_\+\+Read\+Statement\+Args}} ()
+\item 
+void \mbox{\hyperlink{classLibdas_1_1AsciiLineReader_af274b475ee8805d699bb4a11e79a1ae4}{\+\_\+\+Skip\+Skippable\+Characters}} (bool \+\_\+skip\+\_\+nl=false)
+\item 
+void \mbox{\hyperlink{classLibdas_1_1AsciiLineReader_a3d0216a09533f20c0fe6005a83e9f8d0}{\+\_\+\+Skip\+Data}} (const size\+\_\+t \+\_\+skip\+\_\+val)
+\item 
+char $\ast$ \mbox{\hyperlink{classLibdas_1_1AsciiLineReader_a406934f5cd0de982b431b99df0bfc6fd}{\+\_\+\+Extract\+Word}} ()
+\item 
+std\+::string \mbox{\hyperlink{classLibdas_1_1AsciiLineReader_abae16a19d7a92cfd7e85342619575afa}{\+\_\+\+Extract\+String}} ()
+\item 
+char $\ast$ \mbox{\hyperlink{classLibdas_1_1AsciiLineReader_a85d40a5d0f69436c9b84ed2d3bf965fb}{\+\_\+\+Extract\+Blob}} (uint32\+\_\+t \+\_\+size, char $\ast$\+\_\+data=nullptr)
+\item 
+char $\ast$ \mbox{\hyperlink{classLibdas_1_1AsciiLineReader_a1542991a992c2c211732a9e334c7f8fa}{\+\_\+\+Get\+Read\+Ptr}} ()
+\item 
+std\+::pair$<$ char $\ast$, char $\ast$ $>$ \mbox{\hyperlink{classLibdas_1_1AsciiLineReader_a456fca14cf43d1c71b2882dfda740370}{\+\_\+\+Get\+Line\+Bounds}} ()
+\item 
+void \mbox{\hyperlink{classLibdas_1_1AsciiLineReader_a1d940618614359dcbdd7224c4e206a83}{\+\_\+\+Set\+Read\+Ptr}} (char $\ast$\+\_\+ptr)
+\item 
+void \mbox{\hyperlink{classLibdas_1_1AsciiLineReader_a4d110a998e48190fc53208bdc8e8142c}{\+\_\+\+Set\+Line\+Bounds}} (const std\+::pair$<$ char $\ast$, char $\ast$ $>$ \&\+\_\+bounds)
+\end{DoxyCompactItemize}
+\doxysubsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classLibdas_1_1AsciiLineReader_a62e360451ab10f105bea760f0c353e11}\label{classLibdas_1_1AsciiLineReader_a62e360451ab10f105bea760f0c353e11}} 
+std\+::string {\bfseries m\+\_\+file\+\_\+name}
+\item 
+\mbox{\Hypertarget{classLibdas_1_1AsciiLineReader_a5bdc8c8f817e6ecd0f7ee8a3f53e484d}\label{classLibdas_1_1AsciiLineReader_a5bdc8c8f817e6ecd0f7ee8a3f53e484d}} 
+char $\ast$ {\bfseries m\+\_\+line\+\_\+beg} = nullptr
+\item 
+\mbox{\Hypertarget{classLibdas_1_1AsciiLineReader_abb35b4d8b6c27dd15d0e0bac7467be87}\label{classLibdas_1_1AsciiLineReader_abb35b4d8b6c27dd15d0e0bac7467be87}} 
+char $\ast$ {\bfseries m\+\_\+line\+\_\+end} = nullptr
+\item 
+\mbox{\Hypertarget{classLibdas_1_1AsciiLineReader_a1ab880ab4e4fcafece4bc50fc97da584}\label{classLibdas_1_1AsciiLineReader_a1ab880ab4e4fcafece4bc50fc97da584}} 
+char $\ast$ {\bfseries m\+\_\+rd\+\_\+ptr} = nullptr
+\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classLibdas_1_1AsciiLineReader_a85d40a5d0f69436c9b84ed2d3bf965fb}\label{classLibdas_1_1AsciiLineReader_a85d40a5d0f69436c9b84ed2d3bf965fb}} 
+\index{Libdas::AsciiLineReader@{Libdas::AsciiLineReader}!\_ExtractBlob@{\_ExtractBlob}}
+\index{\_ExtractBlob@{\_ExtractBlob}!Libdas::AsciiLineReader@{Libdas::AsciiLineReader}}
+\doxysubsubsection{\texorpdfstring{\_ExtractBlob()}{\_ExtractBlob()}}
+{\footnotesize\ttfamily char $\ast$ Libdas\+::\+Ascii\+Line\+Reader\+::\+\_\+\+Extract\+Blob (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{\+\_\+size,  }\item[{char $\ast$}]{\+\_\+data = {\ttfamily nullptr} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
+
+Allocate memory and extract a binary blob from stream to buffer 
+\begin{DoxyParams}{Parameters}
+{\em \+\_\+size} & specifying the readable blob size in bytes \\
+\hline
+{\em \+\_\+data} & is an optional argument specifying a pointer that specifies the memory area, where data should be written to to. If the specified, no allocation occurs and the same pointer is returned \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+a pointer to the BLOB data memory area or nullptr if the reading failed 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classLibdas_1_1AsciiLineReader_abae16a19d7a92cfd7e85342619575afa}\label{classLibdas_1_1AsciiLineReader_abae16a19d7a92cfd7e85342619575afa}} 
+\index{Libdas::AsciiLineReader@{Libdas::AsciiLineReader}!\_ExtractString@{\_ExtractString}}
+\index{\_ExtractString@{\_ExtractString}!Libdas::AsciiLineReader@{Libdas::AsciiLineReader}}
+\doxysubsubsection{\texorpdfstring{\_ExtractString()}{\_ExtractString()}}
+{\footnotesize\ttfamily std\+::string Libdas\+::\+Ascii\+Line\+Reader\+::\+\_\+\+Extract\+String (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
+
+Extract string value from buffer (value must be in between quotation marks) \begin{DoxyReturn}{Returns}
+std\+::string value that contains the string value without quotation marks 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classLibdas_1_1AsciiLineReader_a406934f5cd0de982b431b99df0bfc6fd}\label{classLibdas_1_1AsciiLineReader_a406934f5cd0de982b431b99df0bfc6fd}} 
+\index{Libdas::AsciiLineReader@{Libdas::AsciiLineReader}!\_ExtractWord@{\_ExtractWord}}
+\index{\_ExtractWord@{\_ExtractWord}!Libdas::AsciiLineReader@{Libdas::AsciiLineReader}}
+\doxysubsubsection{\texorpdfstring{\_ExtractWord()}{\_ExtractWord()}}
+{\footnotesize\ttfamily char $\ast$ Libdas\+::\+Ascii\+Line\+Reader\+::\+\_\+\+Extract\+Word (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
+
+Extract word statement, assuming that the starting position character is not skippable \begin{DoxyReturn}{Returns}
+End position of the word 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classLibdas_1_1AsciiLineReader_a456fca14cf43d1c71b2882dfda740370}\label{classLibdas_1_1AsciiLineReader_a456fca14cf43d1c71b2882dfda740370}} 
+\index{Libdas::AsciiLineReader@{Libdas::AsciiLineReader}!\_GetLineBounds@{\_GetLineBounds}}
+\index{\_GetLineBounds@{\_GetLineBounds}!Libdas::AsciiLineReader@{Libdas::AsciiLineReader}}
+\doxysubsubsection{\texorpdfstring{\_GetLineBounds()}{\_GetLineBounds()}}
+{\footnotesize\ttfamily std\+::pair$<$ char $\ast$, char $\ast$ $>$ Libdas\+::\+Ascii\+Line\+Reader\+::\+\_\+\+Get\+Line\+Bounds (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
+
+\begin{DoxyReturn}{Returns}
+std\+::pair object where the first element specifies beginning of the line and second element specifies the end of line 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classLibdas_1_1AsciiLineReader_a1542991a992c2c211732a9e334c7f8fa}\label{classLibdas_1_1AsciiLineReader_a1542991a992c2c211732a9e334c7f8fa}} 
+\index{Libdas::AsciiLineReader@{Libdas::AsciiLineReader}!\_GetReadPtr@{\_GetReadPtr}}
+\index{\_GetReadPtr@{\_GetReadPtr}!Libdas::AsciiLineReader@{Libdas::AsciiLineReader}}
+\doxysubsubsection{\texorpdfstring{\_GetReadPtr()}{\_GetReadPtr()}}
+{\footnotesize\ttfamily char $\ast$ Libdas\+::\+Ascii\+Line\+Reader\+::\+\_\+\+Get\+Read\+Ptr (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
+
+Get the current buffer reading pointer \begin{DoxyReturn}{Returns}
+current reading pointer 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classLibdas_1_1AsciiLineReader_ae2cac42e5a520f4f4076b9323312c885}\label{classLibdas_1_1AsciiLineReader_ae2cac42e5a520f4f4076b9323312c885}} 
+\index{Libdas::AsciiLineReader@{Libdas::AsciiLineReader}!\_NextLine@{\_NextLine}}
+\index{\_NextLine@{\_NextLine}!Libdas::AsciiLineReader@{Libdas::AsciiLineReader}}
+\doxysubsubsection{\texorpdfstring{\_NextLine()}{\_NextLine()}}
+{\footnotesize\ttfamily bool Libdas\+::\+Ascii\+Line\+Reader\+::\+\_\+\+Next\+Line (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
+
+Read new line from buffer \begin{DoxyReturn}{Returns}
+True if newline was found, false otherwise 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classLibdas_1_1AsciiLineReader_a4f3cbe722a8dec6fedb3b229e34abe90}\label{classLibdas_1_1AsciiLineReader_a4f3cbe722a8dec6fedb3b229e34abe90}} 
+\index{Libdas::AsciiLineReader@{Libdas::AsciiLineReader}!\_ReadStatementArgs@{\_ReadStatementArgs}}
+\index{\_ReadStatementArgs@{\_ReadStatementArgs}!Libdas::AsciiLineReader@{Libdas::AsciiLineReader}}
+\doxysubsubsection{\texorpdfstring{\_ReadStatementArgs()}{\_ReadStatementArgs()}}
+{\footnotesize\ttfamily std\+::vector$<$ std\+::string $>$ Libdas\+::\+Ascii\+Line\+Reader\+::\+\_\+\+Read\+Statement\+Args (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
+
+Read all general statement arguments until the end of line \mbox{\Hypertarget{classLibdas_1_1AsciiLineReader_a4d110a998e48190fc53208bdc8e8142c}\label{classLibdas_1_1AsciiLineReader_a4d110a998e48190fc53208bdc8e8142c}} 
+\index{Libdas::AsciiLineReader@{Libdas::AsciiLineReader}!\_SetLineBounds@{\_SetLineBounds}}
+\index{\_SetLineBounds@{\_SetLineBounds}!Libdas::AsciiLineReader@{Libdas::AsciiLineReader}}
+\doxysubsubsection{\texorpdfstring{\_SetLineBounds()}{\_SetLineBounds()}}
+{\footnotesize\ttfamily void Libdas\+::\+Ascii\+Line\+Reader\+::\+\_\+\+Set\+Line\+Bounds (\begin{DoxyParamCaption}\item[{const std\+::pair$<$ char $\ast$, char $\ast$ $>$ \&}]{\+\_\+bounds }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
+
+Explicitly set the line bounds 
+\begin{DoxyParams}{Parameters}
+{\em \+\_\+bounds} & is a std\+::pair value, where the first element states line beginning and second element states the line ending \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classLibdas_1_1AsciiLineReader_a1d940618614359dcbdd7224c4e206a83}\label{classLibdas_1_1AsciiLineReader_a1d940618614359dcbdd7224c4e206a83}} 
+\index{Libdas::AsciiLineReader@{Libdas::AsciiLineReader}!\_SetReadPtr@{\_SetReadPtr}}
+\index{\_SetReadPtr@{\_SetReadPtr}!Libdas::AsciiLineReader@{Libdas::AsciiLineReader}}
+\doxysubsubsection{\texorpdfstring{\_SetReadPtr()}{\_SetReadPtr()}}
+{\footnotesize\ttfamily void Libdas\+::\+Ascii\+Line\+Reader\+::\+\_\+\+Set\+Read\+Ptr (\begin{DoxyParamCaption}\item[{char $\ast$}]{\+\_\+ptr }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
+
+Explicitly set the new m\+\_\+rd\+\_\+ptr value 
+\begin{DoxyParams}{Parameters}
+{\em \+\_\+ptr,new} & m\+\_\+rd\+\_\+ptr value \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classLibdas_1_1AsciiLineReader_a3d0216a09533f20c0fe6005a83e9f8d0}\label{classLibdas_1_1AsciiLineReader_a3d0216a09533f20c0fe6005a83e9f8d0}} 
+\index{Libdas::AsciiLineReader@{Libdas::AsciiLineReader}!\_SkipData@{\_SkipData}}
+\index{\_SkipData@{\_SkipData}!Libdas::AsciiLineReader@{Libdas::AsciiLineReader}}
+\doxysubsubsection{\texorpdfstring{\_SkipData()}{\_SkipData()}}
+{\footnotesize\ttfamily void Libdas\+::\+Ascii\+Line\+Reader\+::\+\_\+\+Skip\+Data (\begin{DoxyParamCaption}\item[{const size\+\_\+t}]{\+\_\+skip\+\_\+val }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
+
+Skip the reading pointer by specified amount 
+\begin{DoxyParams}{Parameters}
+{\em \+\_\+skip\+\_\+val} & is a size\+\_\+t value that specifies the read\+\_\+ptr offset in bytes \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classLibdas_1_1AsciiLineReader_af274b475ee8805d699bb4a11e79a1ae4}\label{classLibdas_1_1AsciiLineReader_af274b475ee8805d699bb4a11e79a1ae4}} 
+\index{Libdas::AsciiLineReader@{Libdas::AsciiLineReader}!\_SkipSkippableCharacters@{\_SkipSkippableCharacters}}
+\index{\_SkipSkippableCharacters@{\_SkipSkippableCharacters}!Libdas::AsciiLineReader@{Libdas::AsciiLineReader}}
+\doxysubsubsection{\texorpdfstring{\_SkipSkippableCharacters()}{\_SkipSkippableCharacters()}}
+{\footnotesize\ttfamily void Libdas\+::\+Ascii\+Line\+Reader\+::\+\_\+\+Skip\+Skippable\+Characters (\begin{DoxyParamCaption}\item[{bool}]{\+\_\+skip\+\_\+nl = {\ttfamily false} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
+
+Skip all skippable characters (\textquotesingle{} \textquotesingle{}, 0x00, \textquotesingle{}\textbackslash{}t\textquotesingle{}, \textquotesingle{}\textbackslash{}d\textquotesingle{} and or \textquotesingle{}~\newline
+\textquotesingle{}) 
+\begin{DoxyParams}{Parameters}
+{\em \+\_\+skip\+\_\+nl} & is a boolean flag indicating newline skipping \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classLibdas_1_1AsciiLineReader_a92d1f9c8d2e4020f515a8aee78e011ea}\label{classLibdas_1_1AsciiLineReader_a92d1f9c8d2e4020f515a8aee78e011ea}} 
+\index{Libdas::AsciiLineReader@{Libdas::AsciiLineReader}!GetFileName@{GetFileName}}
+\index{GetFileName@{GetFileName}!Libdas::AsciiLineReader@{Libdas::AsciiLineReader}}
+\doxysubsubsection{\texorpdfstring{GetFileName()}{GetFileName()}}
+{\footnotesize\ttfamily std\+::string Libdas\+::\+Ascii\+Line\+Reader\+::\+Get\+File\+Name (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+Get the current file name that is being read \begin{DoxyReturn}{Returns}
+file name in std\+::string class format 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+include/Ascii\+Line\+Reader.\+h\end{DoxyCompactItemize}

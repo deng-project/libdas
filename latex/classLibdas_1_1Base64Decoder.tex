@@ -1,0 +1,61 @@
+\hypertarget{classLibdas_1_1Base64Decoder}{}\doxysection{Libdas\+::Base64\+Decoder Class Reference}
+\label{classLibdas_1_1Base64Decoder}\index{Libdas::Base64Decoder@{Libdas::Base64Decoder}}
+
+
+Inheritance diagram for Libdas\+::Base64\+Decoder\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=201pt]{classLibdas_1_1Base64Decoder__inherit__graph}
+\end{center}
+\end{figure}
+
+
+Collaboration diagram for Libdas\+::Base64\+Decoder\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=201pt]{classLibdas_1_1Base64Decoder__coll__graph}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classLibdas_1_1Base64Decoder_ae3b46d512028811081b3f160de9c0874}\label{classLibdas_1_1Base64Decoder_ae3b46d512028811081b3f160de9c0874}} 
+{\bfseries Base64\+Decoder} (const std\+::string \&\+\_\+base64\+\_\+str=\char`\"{}\char`\"{})
+\item 
+std\+::vector$<$ char $>$ \mbox{\hyperlink{classLibdas_1_1Base64Decoder_ad2a52082e410cfac0508e5185807182c}{Decode}} (const std\+::string \&\+\_\+base64\+\_\+str=\char`\"{}\char`\"{})
+\end{DoxyCompactItemize}
+\doxysubsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classLibdas_1_1Base64Decoder_a9284d8a1f546ecbf00caaa4234311f5b}\label{classLibdas_1_1Base64Decoder_a9284d8a1f546ecbf00caaa4234311f5b}} 
+std\+::string {\bfseries m\+\_\+base64\+\_\+str}
+\item 
+\mbox{\Hypertarget{classLibdas_1_1Base64Decoder_a1851ce927deb17a21a362fc2249b5321}\label{classLibdas_1_1Base64Decoder_a1851ce927deb17a21a362fc2249b5321}} 
+uint8\+\_\+t {\bfseries m\+\_\+base64\+\_\+table} \mbox{[}LIBDAS\+\_\+\+ASCII\+\_\+\+ALPHABET\+\_\+\+SIZE\mbox{]} = \{0\}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classLibdas_1_1Base64Decoder_ad2a52082e410cfac0508e5185807182c}\label{classLibdas_1_1Base64Decoder_ad2a52082e410cfac0508e5185807182c}} 
+\index{Libdas::Base64Decoder@{Libdas::Base64Decoder}!Decode@{Decode}}
+\index{Decode@{Decode}!Libdas::Base64Decoder@{Libdas::Base64Decoder}}
+\doxysubsubsection{\texorpdfstring{Decode()}{Decode()}}
+{\footnotesize\ttfamily std\+::vector$<$ char $>$ Libdas\+::\+Base64\+Decoder\+::\+Decode (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{\+\_\+base64\+\_\+str = {\ttfamily \char`\"{}\char`\"{}} }\end{DoxyParamCaption})}
+
+Decode base64 encoded string into char array 
+\begin{DoxyParams}{Parameters}
+{\em \+\_\+base64\+\_\+str} & optionally specifies the base64 string to decode \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+std\+::vector instance containing decoded data 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+include/Base64\+Decoder.\+h\end{DoxyCompactItemize}

@@ -1,0 +1,80 @@
+\hypertarget{classLibdas_1_1MatrixIterator}{}\doxysection{Libdas\+::Matrix\+Iterator\texorpdfstring{$<$}{<} Val\+\_\+t \texorpdfstring{$>$}{>} Class Template Reference}
+\label{classLibdas_1_1MatrixIterator}\index{Libdas::MatrixIterator$<$ Val\_t $>$@{Libdas::MatrixIterator$<$ Val\_t $>$}}
+
+
+{\ttfamily \#include $<$Iterators.\+h$>$}
+
+
+
+Collaboration diagram for Libdas\+::Matrix\+Iterator\texorpdfstring{$<$}{<} Val\+\_\+t \texorpdfstring{$>$}{>}\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=189pt]{classLibdas_1_1MatrixIterator__coll__graph}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classLibdas_1_1MatrixIterator_a1e388d953746f397d747d9ae77b5d154}\label{classLibdas_1_1MatrixIterator_a1e388d953746f397d747d9ae77b5d154}} 
+{\bfseries Matrix\+Iterator} (pointer \+\_\+data, size\+\_\+t \+\_\+mat\+\_\+size, bool \+\_\+is\+\_\+row\+\_\+major=true)
+\item 
+\mbox{\Hypertarget{classLibdas_1_1MatrixIterator_a63c9a5376dc2c27d6f1874186868dd18}\label{classLibdas_1_1MatrixIterator_a63c9a5376dc2c27d6f1874186868dd18}} 
+void {\bfseries operator++} (int)
+\item 
+\mbox{\Hypertarget{classLibdas_1_1MatrixIterator_aef84e82cfa7445fe7622fe4973a44ef6}\label{classLibdas_1_1MatrixIterator_aef84e82cfa7445fe7622fe4973a44ef6}} 
+bool {\bfseries operator!=} (const \mbox{\hyperlink{classLibdas_1_1MatrixIterator}{Matrix\+Iterator}} \&\+\_\+it)
+\item 
+\mbox{\Hypertarget{classLibdas_1_1MatrixIterator_a37cc7fcbc699d4404e2677684c8db1a6}\label{classLibdas_1_1MatrixIterator_a37cc7fcbc699d4404e2677684c8db1a6}} 
+bool {\bfseries operator==} (const \mbox{\hyperlink{classLibdas_1_1MatrixIterator}{Matrix\+Iterator}} \&\+\_\+it)
+\item 
+\mbox{\Hypertarget{classLibdas_1_1MatrixIterator_a450adda8b7403547b02ba5e70bdb4fba}\label{classLibdas_1_1MatrixIterator_a450adda8b7403547b02ba5e70bdb4fba}} 
+reference {\bfseries operator$\ast$} () const
+\item 
+\mbox{\Hypertarget{classLibdas_1_1MatrixIterator_a5bd89edc0fdc22bef62ed5c90bbeb066}\label{classLibdas_1_1MatrixIterator_a5bd89edc0fdc22bef62ed5c90bbeb066}} 
+pointer {\bfseries operator-\/$>$} ()
+\item 
+\mbox{\Hypertarget{classLibdas_1_1MatrixIterator_a107e026d593420f84fadd8a51d41c0e9}\label{classLibdas_1_1MatrixIterator_a107e026d593420f84fadd8a51d41c0e9}} 
+pointer {\bfseries Get\+Data} ()
+\end{DoxyCompactItemize}
+\doxysubsection*{Private Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classLibdas_1_1MatrixIterator_a5786706b0c503d9576d897a78647af65}\label{classLibdas_1_1MatrixIterator_a5786706b0c503d9576d897a78647af65}} 
+using {\bfseries pointer} = Val\+\_\+t $\ast$
+\item 
+\mbox{\Hypertarget{classLibdas_1_1MatrixIterator_a54ca7d9f285f7cfd5573a8e8d46ab724}\label{classLibdas_1_1MatrixIterator_a54ca7d9f285f7cfd5573a8e8d46ab724}} 
+using {\bfseries reference} = Val\+\_\+t \&
+\end{DoxyCompactItemize}
+\doxysubsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classLibdas_1_1MatrixIterator_a4f999281c97dbf505e0eec8c5f49f13d}\label{classLibdas_1_1MatrixIterator_a4f999281c97dbf505e0eec8c5f49f13d}} 
+size\+\_\+t {\bfseries m\+\_\+mat\+\_\+size}
+\item 
+\mbox{\Hypertarget{classLibdas_1_1MatrixIterator_ab0399a309d320501853b74efd0acfc7a}\label{classLibdas_1_1MatrixIterator_ab0399a309d320501853b74efd0acfc7a}} 
+bool {\bfseries m\+\_\+is\+\_\+row\+\_\+major}
+\item 
+\mbox{\Hypertarget{classLibdas_1_1MatrixIterator_abd0338fe62b1c10fa7fdf37ca19dd1fd}\label{classLibdas_1_1MatrixIterator_abd0338fe62b1c10fa7fdf37ca19dd1fd}} 
+size\+\_\+t {\bfseries m\+\_\+index} = 0
+\item 
+\mbox{\Hypertarget{classLibdas_1_1MatrixIterator_af81e353e6842f5d2d06156359e909f0f}\label{classLibdas_1_1MatrixIterator_af81e353e6842f5d2d06156359e909f0f}} 
+pointer {\bfseries m\+\_\+data}
+\item 
+\mbox{\Hypertarget{classLibdas_1_1MatrixIterator_a4f8fc439532266fe6706dbbcad34651c}\label{classLibdas_1_1MatrixIterator_a4f8fc439532266fe6706dbbcad34651c}} 
+int {\bfseries i}
+\item 
+\mbox{\Hypertarget{classLibdas_1_1MatrixIterator_a7e0924dbcfea39ced662b8b2ae9702e8}\label{classLibdas_1_1MatrixIterator_a7e0924dbcfea39ced662b8b2ae9702e8}} 
+int {\bfseries j}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$typename Val\+\_\+t$>$\newline
+class Libdas\+::\+Matrix\+Iterator$<$ Val\+\_\+t $>$}
+Iterator class for matrices 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+include/Iterators.\+h\end{DoxyCompactItemize}

@@ -1,0 +1,10 @@
+<map id="Libdas::GLTFParser" name="Libdas::GLTFParser">
+<area shape="rect" id="node1" title=" " alt="" coords="431,769,645,1081"/>
+<area shape="rect" id="node2" href="$classLibdas_1_1JSONParser.html" title=" " alt="" coords="259,336,462,707"/>
+<area shape="rect" id="node3" href="$classLibdas_1_1AsciiStreamReader.html" title=" " alt="" coords="241,5,422,259"/>
+<area shape="rect" id="node4" href="$classLibdas_1_1AsciiFormatErrorHandler.html" title="Error handling class for ASCII formats." alt="" coords="446,35,630,229"/>
+<area shape="rect" id="node5" href="$structLibdas_1_1JSONNode.html" title=" " alt="" coords="5,49,143,215"/>
+<area shape="rect" id="node6" href="$structLibdas_1_1GLTFRoot.html" title=" " alt="" coords="647,409,797,633"/>
+<area shape="rect" id="node7" href="$structLibdas_1_1GLTFAsset.html" title=" " alt="" coords="655,57,789,207"/>
+<area shape="rect" id="node8" href="$structLibdas_1_1GLTFScene.html" title=" " alt="" coords="814,71,953,193"/>
+</map>

@@ -1,0 +1,325 @@
+\hypertarget{GLTFParser_8h_source}{}\doxysection{GLTFParser.\+h}
+\label{GLTFParser_8h_source}\index{include/GLTFParser.h@{include/GLTFParser.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{comment}{/// libdas: DENG asset handling management library}\textcolor{comment}{}}
+\DoxyCodeLine{2 \textcolor{comment}{/// licence: Apache, see LICENCE file}}
+\DoxyCodeLine{3 \textcolor{comment}{/// file: GLTFParser.h -\/ GLTF format parsing class header}}
+\DoxyCodeLine{4 \textcolor{comment}{/// author: Karl-\/Mihkel Ott}}
+\DoxyCodeLine{5 \textcolor{comment}{}}
+\DoxyCodeLine{6 \textcolor{preprocessor}{\#ifndef GLTF\_PARSER\_H}}
+\DoxyCodeLine{7 \textcolor{preprocessor}{\#define GLTF\_PARSER\_H}}
+\DoxyCodeLine{8 }
+\DoxyCodeLine{9 }
+\DoxyCodeLine{10 \textcolor{preprocessor}{\#ifdef GLTF\_PARSER\_CPP}}
+\DoxyCodeLine{11 \textcolor{preprocessor}{    \#include <any>}}
+\DoxyCodeLine{12 \textcolor{preprocessor}{    \#include <variant>}}
+\DoxyCodeLine{13 \textcolor{preprocessor}{    \#include <map>}}
+\DoxyCodeLine{14 \textcolor{preprocessor}{    \#include <memory>}}
+\DoxyCodeLine{15 \textcolor{preprocessor}{    \#include <fstream>}}
+\DoxyCodeLine{16 \textcolor{preprocessor}{\#ifdef \_DEBUG}}
+\DoxyCodeLine{17 \textcolor{preprocessor}{    \#include <iostream>}}
+\DoxyCodeLine{18 \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{19 \textcolor{preprocessor}{    \#include <string>}}
+\DoxyCodeLine{20 \textcolor{preprocessor}{    \#include <cstring>}}
+\DoxyCodeLine{21 \textcolor{preprocessor}{    \#include <unordered\_map>}}
+\DoxyCodeLine{22 \textcolor{preprocessor}{    \#include <vector>}}
+\DoxyCodeLine{23 \textcolor{preprocessor}{    \#include <cfloat>}}
+\DoxyCodeLine{24 }
+\DoxyCodeLine{25 \textcolor{preprocessor}{    \#include <Iterators.h>}}
+\DoxyCodeLine{26 \textcolor{preprocessor}{    \#include <Points.h>}}
+\DoxyCodeLine{27 \textcolor{preprocessor}{    \#include <Vector.h>}}
+\DoxyCodeLine{28 \textcolor{preprocessor}{    \#include <Matrix.h>}}
+\DoxyCodeLine{29 \textcolor{preprocessor}{    \#include <FileNameString.h>}}
+\DoxyCodeLine{30 \textcolor{preprocessor}{    \#include <LibdasAssert.h>}}
+\DoxyCodeLine{31 \textcolor{preprocessor}{    \#include <ErrorHandlers.h>}}
+\DoxyCodeLine{32 \textcolor{preprocessor}{\#define LIBDAS\_DEFS\_ONLY}}
+\DoxyCodeLine{33 \textcolor{preprocessor}{    \#include <HuffmanCompression.h>}}
+\DoxyCodeLine{34 \textcolor{preprocessor}{\#undef LIBDAS\_DEFS\_ONLY}}
+\DoxyCodeLine{35 \textcolor{preprocessor}{    \#include <AsciiStreamReader.h>}}
+\DoxyCodeLine{36 \textcolor{preprocessor}{    \#include <JSONParser.h>}}
+\DoxyCodeLine{37 \textcolor{preprocessor}{    \#include <GLTFStructures.h>}}
+\DoxyCodeLine{38 \textcolor{preprocessor}{    \#include <Base64Decoder.h>}}
+\DoxyCodeLine{39 \textcolor{preprocessor}{    \#include <URIResolver.h>}}
+\DoxyCodeLine{40 \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{41 }
+\DoxyCodeLine{42 }
+\DoxyCodeLine{43 \textcolor{keyword}{namespace }\mbox{\hyperlink{namespaceLibdas}{Libdas}} \{}
+\DoxyCodeLine{44 \textcolor{comment}{}}
+\DoxyCodeLine{45 \textcolor{comment}{    /**}}
+\DoxyCodeLine{46 \textcolor{comment}{     * Enumeral for easy GLTF object type identification with map}}
+\DoxyCodeLine{47 \textcolor{comment}{     */}}
+\DoxyCodeLine{48     \textcolor{keyword}{enum} \mbox{\hyperlink{namespaceLibdas_af5b3b2766fc788787db13adec9adde38}{GLTFObjectType}} \{}
+\DoxyCodeLine{49         GLTF\_OBJECT\_ACCESSORS,}
+\DoxyCodeLine{50         GLTF\_OBJECT\_ACCESSOR\_SPARSE,}
+\DoxyCodeLine{51         GLTF\_OBJECT\_ACCESSOR\_SPARSE\_INDICES,}
+\DoxyCodeLine{52         GLTF\_OBJECT\_ACCESSOR\_SPARSE\_VALUES,}
+\DoxyCodeLine{53         GLTF\_OBJECT\_ANIMATIONS,}
+\DoxyCodeLine{54         GLTF\_OBJECT\_ANIMATION\_CHANNEL,}
+\DoxyCodeLine{55         GLTF\_OBJECT\_ANIMATION\_CHANNEL\_TARGET,}
+\DoxyCodeLine{56         GLTF\_OBJECT\_ANIMATION\_SAMPLER,}
+\DoxyCodeLine{57         GLTF\_OBJECT\_ANIMATION\_SAMPLERS,}
+\DoxyCodeLine{58         GLTF\_OBJECT\_ASSET,}
+\DoxyCodeLine{59         GLTF\_OBJECT\_BUFFERS,}
+\DoxyCodeLine{60         GLTF\_OBJECT\_BUFFERVIEWS,}
+\DoxyCodeLine{61         GLTF\_OBJECT\_CAMERAS,}
+\DoxyCodeLine{62         GLTF\_OBJECT\_CAMERA\_ORTHOGRAPHIC,}
+\DoxyCodeLine{63         GLTF\_OBJECT\_CAMERA\_PERSPECTIVE,}
+\DoxyCodeLine{64         GLTF\_OBJECT\_EXTENSIONS,}
+\DoxyCodeLine{65         GLTF\_OBJECT\_EXTRAS,}
+\DoxyCodeLine{66         GLTF\_OBJECT\_IMAGES,}
+\DoxyCodeLine{67         GLTF\_OBJECT\_MATERIALS,}
+\DoxyCodeLine{68         GLTF\_OBJECT\_MATERIAL\_NORMAL\_TEXTURE\_INFO,}
+\DoxyCodeLine{69         GLTF\_OBJECT\_MATERIAL\_OCCLUSION\_TEXTURE\_INFO,}
+\DoxyCodeLine{70         GLTF\_OBJECT\_MATERIAL\_PBR\_METALLIC\_ROUGHNESS,}
+\DoxyCodeLine{71         GLTF\_OBJECT\_MESHES,}
+\DoxyCodeLine{72         GLTF\_OBJECT\_MESH\_PRIMITIVES,}
+\DoxyCodeLine{73         GLTF\_OBJECT\_NODES,}
+\DoxyCodeLine{74         GLTF\_OBJECT\_SAMPLERS,}
+\DoxyCodeLine{75         GLTF\_OBJECT\_SCENE,}
+\DoxyCodeLine{76         GLTF\_OBJECT\_SCENES,}
+\DoxyCodeLine{77         GLTF\_OBJECT\_SKINS,}
+\DoxyCodeLine{78         GLTF\_OBJECT\_TEXTURES,}
+\DoxyCodeLine{79         GLTF\_OBJECT\_TEXTURE\_INFO,}
+\DoxyCodeLine{80         GLTF\_OBJECT\_ROOT}
+\DoxyCodeLine{81     \};}
+\DoxyCodeLine{82 }
+\DoxyCodeLine{83 \textcolor{comment}{}}
+\DoxyCodeLine{84 \textcolor{comment}{    /**}}
+\DoxyCodeLine{85 \textcolor{comment}{     * Enumeral containing all possible GLTF object value types}}
+\DoxyCodeLine{86 \textcolor{comment}{     * This differs somewhat from JSON data types, since GLTF has arrays that}}
+\DoxyCodeLine{87 \textcolor{comment}{     * contain only single types of data and custom subnode types as well}}
+\DoxyCodeLine{88 \textcolor{comment}{     */}}
+\DoxyCodeLine{89     \textcolor{keyword}{enum} \mbox{\hyperlink{namespaceLibdas_a2536906895ad2187ad2a83afe35f79aa}{GLTFType}} \{}
+\DoxyCodeLine{90         GLTF\_TYPE\_STRING,}
+\DoxyCodeLine{91         GLTF\_TYPE\_INTEGER,}
+\DoxyCodeLine{92         GLTF\_TYPE\_FLOAT,}
+\DoxyCodeLine{93         GLTF\_TYPE\_BOOLEAN,}
+\DoxyCodeLine{94         GLTF\_TYPE\_STRING\_ARRAY,}
+\DoxyCodeLine{95         GLTF\_TYPE\_INTEGER\_ARRAY,}
+\DoxyCodeLine{96         GLTF\_TYPE\_FLOAT\_ARRAY,}
+\DoxyCodeLine{97 \textcolor{comment}{}}
+\DoxyCodeLine{98 \textcolor{comment}{        /////////////////////////////////////////////////////////////////////////////}}
+\DoxyCodeLine{99 \textcolor{comment}{}        \textcolor{comment}{// ***** This is where all GLTF specific data types are written into ***** //}\textcolor{comment}{}}
+\DoxyCodeLine{100 \textcolor{comment}{        /////////////////////////////////////////////////////////////////////////////}}
+\DoxyCodeLine{101 \textcolor{comment}{}        }
+\DoxyCodeLine{102         \textcolor{comment}{// accessors.sparse}}
+\DoxyCodeLine{103         GLTF\_TYPE\_ACCESSOR\_SPARSE,}
+\DoxyCodeLine{104         GLTF\_TYPE\_ACCESSOR\_SPARSE\_INDICES,}
+\DoxyCodeLine{105         GLTF\_TYPE\_ACCESSOR\_SPARSE\_VALUES,}
+\DoxyCodeLine{106 }
+\DoxyCodeLine{107         \textcolor{comment}{// animation.*}}
+\DoxyCodeLine{108         GLTF\_TYPE\_ANIMATION\_CHANNELS,       \textcolor{comment}{// animation.channels must be an array}}
+\DoxyCodeLine{109         GLTF\_TYPE\_ANIMATION\_CHANNEL\_TARGET,}
+\DoxyCodeLine{110         GLTF\_TYPE\_ANIMATION\_SAMPLERS,       \textcolor{comment}{// animation.samplers must be an array}}
+\DoxyCodeLine{111 }
+\DoxyCodeLine{112         \textcolor{comment}{// camera.*}}
+\DoxyCodeLine{113         GLTF\_TYPE\_CAMERA\_ORTHOGRAPHIC,}
+\DoxyCodeLine{114         GLTF\_TYPE\_CAMERA\_PERSPECTIVE,}
+\DoxyCodeLine{115 }
+\DoxyCodeLine{116         \textcolor{comment}{// material.*}}
+\DoxyCodeLine{117         GLTF\_TYPE\_MATERIAL\_PBR\_METALLIC\_ROUGHNESS,}
+\DoxyCodeLine{118         GLTF\_TYPE\_MATERIAL\_NORMAL\_TEXTURE,}
+\DoxyCodeLine{119         GLTF\_TYPE\_MATERIAL\_OCCLUSION\_TEXTURE,}
+\DoxyCodeLine{120         GLTF\_TYPE\_MATERIAL\_TEXTURE\_INFO,}
+\DoxyCodeLine{121 }
+\DoxyCodeLine{122         \textcolor{comment}{// mesh.primitive*}}
+\DoxyCodeLine{123         GLTF\_TYPE\_MESH\_PRIMITIVES,}
+\DoxyCodeLine{124         GLTF\_TYPE\_MESH\_PRIMITIVE\_ATTRIBUTES,            \textcolor{comment}{// some unspecified JSON object}}
+\DoxyCodeLine{125 }
+\DoxyCodeLine{126 }
+\DoxyCodeLine{127         \textcolor{comment}{// extensions and extras}}
+\DoxyCodeLine{128         GLTF\_TYPE\_EXTRAS\_OR\_EXTENSIONS,}
+\DoxyCodeLine{129     \};}
+\DoxyCodeLine{130 }
+\DoxyCodeLine{131 \textcolor{comment}{}}
+\DoxyCodeLine{132 \textcolor{comment}{    /**}}
+\DoxyCodeLine{133 \textcolor{comment}{     * Universal structure containing pointer to scope and type declaration}}
+\DoxyCodeLine{134 \textcolor{comment}{     */}}
+\DoxyCodeLine{135     \textcolor{keyword}{struct }\mbox{\hyperlink{structLibdas_1_1GLTFUniversalScopeValue}{GLTFUniversalScopeValue}} \{}
+\DoxyCodeLine{136         \textcolor{keywordtype}{void} *val\_ptr;       \textcolor{comment}{// this structure is meant to be used for value pointers only}}
+\DoxyCodeLine{137         \mbox{\hyperlink{namespaceLibdas_a2536906895ad2187ad2a83afe35f79aa}{GLTFType}} type;          \textcolor{comment}{// type specifier for more elegant data casting}}
+\DoxyCodeLine{138     \};}
+\DoxyCodeLine{139 }
+\DoxyCodeLine{140     \textcolor{comment}{}}
+\DoxyCodeLine{141 \textcolor{comment}{    /**}}
+\DoxyCodeLine{142 \textcolor{comment}{     * GLTF file format parser class}}
+\DoxyCodeLine{143 \textcolor{comment}{     */}}
+\DoxyCodeLine{144     \textcolor{keyword}{class }\mbox{\hyperlink{classLibdas_1_1GLTFParser}{GLTFParser}} : \textcolor{keyword}{public} \mbox{\hyperlink{classLibdas_1_1JSONParser}{JSONParser}} \{}
+\DoxyCodeLine{145         \textcolor{keyword}{private}:}
+\DoxyCodeLine{146             std::ifstream m\_ext\_reader;}
+\DoxyCodeLine{147             \mbox{\hyperlink{classLibdas_1_1AsciiFormatErrorHandler}{AsciiFormatErrorHandler}} m\_error;}
+\DoxyCodeLine{148             \mbox{\hyperlink{structLibdas_1_1GLTFRoot}{GLTFRoot}} m\_root;}
+\DoxyCodeLine{149             std::unordered\_map<std::string, GLTFObjectType> m\_root\_objects;}
+\DoxyCodeLine{150 }
+\DoxyCodeLine{151         \textcolor{keyword}{private}:\textcolor{comment}{}}
+\DoxyCodeLine{152 \textcolor{comment}{            /**}}
+\DoxyCodeLine{153 \textcolor{comment}{             * Create correct key value map for identifying the root object type}}
+\DoxyCodeLine{154 \textcolor{comment}{             */}}
+\DoxyCodeLine{155             \textcolor{keywordtype}{void} \mbox{\hyperlink{classLibdas_1_1GLTFParser_ad004bcb28999c6a439196370a6abe6da}{\_InitialiseRootObjectTypeMap}}();\textcolor{comment}{}}
+\DoxyCodeLine{156 \textcolor{comment}{            /**}}
+\DoxyCodeLine{157 \textcolor{comment}{             * Find the object type from string with correct error handling}}
+\DoxyCodeLine{158 \textcolor{comment}{             * @param \_obj\_str specifies the key string used for certain object}}
+\DoxyCodeLine{159 \textcolor{comment}{             * @param \_line specifies the JSON line, where the key was read}}
+\DoxyCodeLine{160 \textcolor{comment}{             */}}
+\DoxyCodeLine{161             \mbox{\hyperlink{namespaceLibdas_af5b3b2766fc788787db13adec9adde38}{GLTFObjectType}} \mbox{\hyperlink{classLibdas_1_1GLTFParser_ac6da4ab5f923ae848e472b6d34fe780f}{\_FindRootObjectType}}(\textcolor{keyword}{const} std::string \&\_obj\_str, uint32\_t \_line);\textcolor{comment}{}}
+\DoxyCodeLine{162 \textcolor{comment}{            /**}}
+\DoxyCodeLine{163 \textcolor{comment}{             * Verify source data that is submitted to \_CopyJSONDataToGLTFRoot according to the }}
+\DoxyCodeLine{164 \textcolor{comment}{             * required destination type}}
+\DoxyCodeLine{165 \textcolor{comment}{             * @param \_node is a reference to JSONNode that specifies the node whose values would be verified}}
+\DoxyCodeLine{166 \textcolor{comment}{             * @param \_supported\_type specifies the supported source type }}
+\DoxyCodeLine{167 \textcolor{comment}{             * @param \_is\_array specifies if the given destination format supports array type}}
+\DoxyCodeLine{168 \textcolor{comment}{             */}}
+\DoxyCodeLine{169             \textcolor{keywordtype}{void} \mbox{\hyperlink{classLibdas_1_1GLTFParser_abff7ed3471bf86dc2b06c724a8fcbf2d}{\_VerifySourceData}}(\mbox{\hyperlink{structLibdas_1_1JSONNode}{JSONNode}} *\_node, JSONType \_supported\_type, \textcolor{keywordtype}{bool} \_is\_array);\textcolor{comment}{}}
+\DoxyCodeLine{170 \textcolor{comment}{            /**}}
+\DoxyCodeLine{171 \textcolor{comment}{             * Helper method to add data into correct data structure according to specified type,}}
+\DoxyCodeLine{172 \textcolor{comment}{             * @param \_src specifies a valid pointer to JSONNode instance, where parsed values are stored}}
+\DoxyCodeLine{173 \textcolor{comment}{             * @param \_dst specifies a reference to universal scope structure, where all data }}
+\DoxyCodeLine{174 \textcolor{comment}{             * should be copied to}}
+\DoxyCodeLine{175 \textcolor{comment}{             * @param \_root optionally specifies a reference to std::any object that can contain the destination}}
+\DoxyCodeLine{176 \textcolor{comment}{             * root object}}
+\DoxyCodeLine{177 \textcolor{comment}{             */}}
+\DoxyCodeLine{178             \textcolor{keywordtype}{void} \mbox{\hyperlink{classLibdas_1_1GLTFParser_ae0bc144bd3bad4463e6532cc6c712cc9}{\_CopyJSONDataToGLTFRoot}}(\mbox{\hyperlink{structLibdas_1_1JSONNode}{JSONNode}} *\_src, \mbox{\hyperlink{structLibdas_1_1GLTFUniversalScopeValue}{GLTFUniversalScopeValue}} \&\_dst);\textcolor{comment}{}}
+\DoxyCodeLine{179 \textcolor{comment}{            /**}}
+\DoxyCodeLine{180 \textcolor{comment}{             * Helper method to iterate through all sub nodes of a node}}
+\DoxyCodeLine{181 \textcolor{comment}{             * @param \_node specifies the pointer to a node use for iteratation}}
+\DoxyCodeLine{182 \textcolor{comment}{             * @param \_val\_map specifies the value map, where all string values are stored as keys and}}
+\DoxyCodeLine{183 \textcolor{comment}{             * values represent GLTFUniversalScopeValue object that specifies the value pointer with its type}}
+\DoxyCodeLine{184 \textcolor{comment}{             */}}
+\DoxyCodeLine{185             \textcolor{keywordtype}{void} \mbox{\hyperlink{classLibdas_1_1GLTFParser_af3ba3160e6ace5c7f1cf72089c46916c}{\_IterateSubNodes}}(\mbox{\hyperlink{structLibdas_1_1JSONNode}{JSONNode}} *\_node, std::unordered\_map<std::string, GLTFUniversalScopeValue> \&\_val\_map);\textcolor{comment}{}}
+\DoxyCodeLine{186 \textcolor{comment}{            /**}}
+\DoxyCodeLine{187 \textcolor{comment}{             * Helper method to iterate through value objects and and their sub nodes}}
+\DoxyCodeLine{188 \textcolor{comment}{             * @tparam T specifies the correct GLTF structure to use }}
+\DoxyCodeLine{189 \textcolor{comment}{             * @param \_node specifies the root node of the values that will be iterated}}
+\DoxyCodeLine{190 \textcolor{comment}{             * @param \_val\_map specifies key/value pairs where key is string key and value is a GLTFUniversalScopeValue instance, where }}
+\DoxyCodeLine{191 \textcolor{comment}{             * correct data pointers are stored for parsing sub\_nodes }}
+\DoxyCodeLine{192 \textcolor{comment}{             * @param \_dst\_item specifies the destination item, where data is written to}}
+\DoxyCodeLine{193 \textcolor{comment}{             * @param \_dst\_vecto specifies a vector that points to some vector instace from the root object}}
+\DoxyCodeLine{194 \textcolor{comment}{             */}}
+\DoxyCodeLine{195             \textcolor{keyword}{template}<\textcolor{keyword}{typename} T>}
+\DoxyCodeLine{196             \textcolor{keywordtype}{void} \mbox{\hyperlink{classLibdas_1_1GLTFParser_a532004708a67347c02eeb23679947fa9}{\_IterateValueObjects}}(\mbox{\hyperlink{structLibdas_1_1JSONNode}{JSONNode}} *\_node, std::unordered\_map<std::string, GLTFUniversalScopeValue> \&\_val\_map, T \&\_dst\_item, std::vector<T> \&\_dst\_vector) \{}
+\DoxyCodeLine{197                 \textcolor{comment}{// for each element in values}}
+\DoxyCodeLine{198                 \textcolor{keywordflow}{for}(\textcolor{keywordtype}{size\_t} i = 0; i < \_node-\/>values.size(); i++) \{}
+\DoxyCodeLine{199                     \textcolor{comment}{// error: invalid element type, only JSON objects are supported}}
+\DoxyCodeLine{200                     \textcolor{keywordflow}{if}(\_node-\/>values[i].first != JSON\_TYPE\_OBJECT)}
+\DoxyCodeLine{201                         m\_error.\mbox{\hyperlink{classLibdas_1_1AsciiFormatErrorHandler_a05cc65f9c71cb0a3c7c13fb33f9b6815}{Error}}(LIBDAS\_ERROR\_INVALID\_TYPE, \_node-\/>key\_val\_decl\_line, \_node-\/>name, \textcolor{stringliteral}{"{}JSON object"{}});}
+\DoxyCodeLine{202 }
+\DoxyCodeLine{203                     \mbox{\hyperlink{classLibdas_1_1GLTFParser_af3ba3160e6ace5c7f1cf72089c46916c}{\_IterateSubNodes}}(std::any\_cast<JSONNode>(\&\_node-\/>values[i].second), \_val\_map);}
+\DoxyCodeLine{204                     \_dst\_vector.push\_back(\_dst\_item);}
+\DoxyCodeLine{205                     \_dst\_item = T();}
+\DoxyCodeLine{206                 \}}
+\DoxyCodeLine{207             \}\textcolor{comment}{}}
+\DoxyCodeLine{208 \textcolor{comment}{            /**}}
+\DoxyCodeLine{209 \textcolor{comment}{             * Create an object vector from JSONValues vector without checking the type}}
+\DoxyCodeLine{210 \textcolor{comment}{             * of each element}}
+\DoxyCodeLine{211 \textcolor{comment}{             * @param \_val is a reference to JSONValues instance where original JSONData is }}
+\DoxyCodeLine{212 \textcolor{comment}{             * stored}}
+\DoxyCodeLine{213 \textcolor{comment}{             */}}
+\DoxyCodeLine{214             \textcolor{keyword}{template}<\textcolor{keyword}{typename} T>}
+\DoxyCodeLine{215             std::vector<T> \mbox{\hyperlink{classLibdas_1_1GLTFParser_ac32dfa1bb8440cb94f7e158bb1f496cf}{\_JsonValueToVectorCast}}(JSONValues \&\_val) \{}
+\DoxyCodeLine{216                 std::vector<T> out;}
+\DoxyCodeLine{217                 out.reserve(\_val.size());}
+\DoxyCodeLine{218                 \textcolor{keywordflow}{for}(\textcolor{keywordtype}{size\_t} i = 0; i < \_val.size(); i++)}
+\DoxyCodeLine{219                     out.push\_back(std::any\_cast<T>(\_val[i].second));}
+\DoxyCodeLine{220 }
+\DoxyCodeLine{221                 \textcolor{keywordflow}{return} out;}
+\DoxyCodeLine{222             \}\textcolor{comment}{}}
+\DoxyCodeLine{223 \textcolor{comment}{            /**}}
+\DoxyCodeLine{224 \textcolor{comment}{             * Create an object vector from non-\/numerical JSONValues vector without checking the type}}
+\DoxyCodeLine{225 \textcolor{comment}{             * of each element}}
+\DoxyCodeLine{226 \textcolor{comment}{             * @param \_val is a reference to JSONValues instance, where original JSONData is stored}}
+\DoxyCodeLine{227 \textcolor{comment}{             */}}
+\DoxyCodeLine{228             \textcolor{keyword}{template} <\textcolor{keyword}{typename} T>}
+\DoxyCodeLine{229             std::vector<T> \mbox{\hyperlink{classLibdas_1_1GLTFParser_af0cb17150d252147698715c5f42e05f4}{\_NumericalJsonValueToVectorCast}}(JSONValues \&\_val) \{}
+\DoxyCodeLine{230                 std::vector<T> out;}
+\DoxyCodeLine{231                 out.reserve(\_val.size());}
+\DoxyCodeLine{232                 \textcolor{keywordflow}{for}(\textcolor{keywordtype}{size\_t} i = 0; i < \_val.size(); i++) \{}
+\DoxyCodeLine{233                     \textcolor{keywordflow}{if}(!std::is\_floating\_point<T>::value)}
+\DoxyCodeLine{234                         out.push\_back(\_CastVariantNumber<T, JSONNumber>(std::any\_cast<std::variant<JSONInteger, JSONNumber>>(\_val[i].second)));}
+\DoxyCodeLine{235                     \textcolor{keywordflow}{else} out.push\_back(\_CastVariantNumber<T, JSONInteger>(std::any\_cast<std::variant<JSONInteger, JSONNumber>>(\_val[i].second)));}
+\DoxyCodeLine{236                 \}}
+\DoxyCodeLine{237 }
+\DoxyCodeLine{238                 \textcolor{keywordflow}{return} out;}
+\DoxyCodeLine{239             \}\textcolor{comment}{}}
+\DoxyCodeLine{240 \textcolor{comment}{            /**}}
+\DoxyCodeLine{241 \textcolor{comment}{             * Helper method to cast variant numbers into correct types}}
+\DoxyCodeLine{242 \textcolor{comment}{             * @tparam Primary specifies the destination type to cast into, supported: JSONInteger and JSONNumber}}
+\DoxyCodeLine{243 \textcolor{comment}{             * @tparam Secondary specifies the secondary type that can be used in variant as well (opposite of }}
+\DoxyCodeLine{244 \textcolor{comment}{             * Primary in this regard)}}
+\DoxyCodeLine{245 \textcolor{comment}{             * @param \_var\_num is a const reference to std::variant<JSONInteger, JSONNumber> }}
+\DoxyCodeLine{246 \textcolor{comment}{             * that specifies the variant type to be casted}}
+\DoxyCodeLine{247 \textcolor{comment}{             */}}
+\DoxyCodeLine{248             \textcolor{keyword}{template}<\textcolor{keyword}{typename} Primary, \textcolor{keyword}{typename} Secondary>}
+\DoxyCodeLine{249             Primary \mbox{\hyperlink{classLibdas_1_1GLTFParser_a3f93dc3f82c9da1a667020e2c9da4b84}{\_CastVariantNumber}}(\textcolor{keyword}{const} std::variant<JSONInteger, JSONNumber> \&\_var\_num) \{}
+\DoxyCodeLine{250                 \textcolor{comment}{// attempt to cast directly}}
+\DoxyCodeLine{251                 \textcolor{keywordflow}{try} \{}
+\DoxyCodeLine{252                     \textcolor{keywordflow}{return} std::get<Primary>(\_var\_num);}
+\DoxyCodeLine{253                 \} \textcolor{keywordflow}{catch} (\textcolor{keyword}{const} std::bad\_variant\_access\& ex) \{}
+\DoxyCodeLine{254                     \textcolor{keywordflow}{return} std::get<Secondary>(\_var\_num);}
+\DoxyCodeLine{255                 \}}
+\DoxyCodeLine{256             \}}
+\DoxyCodeLine{257 \textcolor{comment}{}}
+\DoxyCodeLine{258 \textcolor{comment}{            /////////////////////////////////////////////}}
+\DoxyCodeLine{259 \textcolor{comment}{}            \textcolor{comment}{// ***** Node object parsing methods ***** //}\textcolor{comment}{}}
+\DoxyCodeLine{260 \textcolor{comment}{            /////////////////////////////////////////////}}
+\DoxyCodeLine{261 \textcolor{comment}{}            }
+\DoxyCodeLine{262             \textcolor{keywordtype}{void} \_ReadAccessors(\mbox{\hyperlink{structLibdas_1_1JSONNode}{JSONNode}} *\_node);}
+\DoxyCodeLine{263             \textcolor{keywordtype}{void} \_ReadAccessorSparse(\mbox{\hyperlink{structLibdas_1_1JSONNode}{JSONNode}} *\_node, \mbox{\hyperlink{structLibdas_1_1GLTFAccessorSparse}{GLTFAccessorSparse}} \&\_root);}
+\DoxyCodeLine{264             \textcolor{keywordtype}{void} \_ReadAccessorSparseIndices(\mbox{\hyperlink{structLibdas_1_1JSONNode}{JSONNode}} *\_node, \mbox{\hyperlink{structLibdas_1_1GLTFAccessorSparseIndices}{GLTFAccessorSparseIndices}} \&\_root);}
+\DoxyCodeLine{265             \textcolor{keywordtype}{void} \_ReadAccessorSparseValues(\mbox{\hyperlink{structLibdas_1_1JSONNode}{JSONNode}} *\_node, \mbox{\hyperlink{structLibdas_1_1GLTFAccessorSparseValues}{GLTFAccessorSparseValues}} \&\_root);}
+\DoxyCodeLine{266             \textcolor{keywordtype}{void} \_ReadAnimations(\mbox{\hyperlink{structLibdas_1_1JSONNode}{JSONNode}} *\_node);}
+\DoxyCodeLine{267             \textcolor{keywordtype}{void} \_ReadAnimationChannels(\mbox{\hyperlink{structLibdas_1_1JSONNode}{JSONNode}} *\_node, std::vector<GLTFAnimationChannel> \&\_root);}
+\DoxyCodeLine{268             \textcolor{keywordtype}{void} \_ReadAnimationChannelTarget(\mbox{\hyperlink{structLibdas_1_1JSONNode}{JSONNode}} *\_node, \mbox{\hyperlink{structLibdas_1_1GLTFAnimationChannelTarget}{GLTFAnimationChannelTarget}} \&\_root);}
+\DoxyCodeLine{269             \textcolor{keywordtype}{void} \_ReadAnimationSamplers(\mbox{\hyperlink{structLibdas_1_1JSONNode}{JSONNode}} *\_node, std::vector<GLTFAnimationSampler> \&\_root);}
+\DoxyCodeLine{270             \textcolor{keywordtype}{void} \_ReadAsset(\mbox{\hyperlink{structLibdas_1_1JSONNode}{JSONNode}} *\_node);}
+\DoxyCodeLine{271             \textcolor{keywordtype}{void} \_ReadBuffers(\mbox{\hyperlink{structLibdas_1_1JSONNode}{JSONNode}} *\_node);}
+\DoxyCodeLine{272             \textcolor{keywordtype}{void} \_ReadBufferviews(\mbox{\hyperlink{structLibdas_1_1JSONNode}{JSONNode}} *\_node);}
+\DoxyCodeLine{273             \textcolor{keywordtype}{void} \_ReadCameras(\mbox{\hyperlink{structLibdas_1_1JSONNode}{JSONNode}} *\_node);}
+\DoxyCodeLine{274             \textcolor{keywordtype}{void} \_ReadCameraOrthographic(\mbox{\hyperlink{structLibdas_1_1JSONNode}{JSONNode}} *\_node, \mbox{\hyperlink{structLibdas_1_1GLTFCameraOrthographic}{GLTFCameraOrthographic}} \&\_root);}
+\DoxyCodeLine{275             \textcolor{keywordtype}{void} \_ReadCameraPerspective(\mbox{\hyperlink{structLibdas_1_1JSONNode}{JSONNode}} *\_node, \mbox{\hyperlink{structLibdas_1_1GLTFCameraPerspective}{GLTFCameraPerspective}} \&\_root);}
+\DoxyCodeLine{276             \textcolor{keywordtype}{void} \_ReadImages(\mbox{\hyperlink{structLibdas_1_1JSONNode}{JSONNode}} *\_node);}
+\DoxyCodeLine{277             \textcolor{keywordtype}{void} \_ReadMaterials(\mbox{\hyperlink{structLibdas_1_1JSONNode}{JSONNode}} *\_node);}
+\DoxyCodeLine{278             \textcolor{keywordtype}{void} \_ReadMaterialPbrMetallicRoughness(\mbox{\hyperlink{structLibdas_1_1JSONNode}{JSONNode}} *\_node, \mbox{\hyperlink{structLibdas_1_1GLTFpbrMetallicRoughness}{GLTFpbrMetallicRoughness}} \&\_root);}
+\DoxyCodeLine{279             \textcolor{keywordtype}{void} \_ReadMaterialNormalTexture(\mbox{\hyperlink{structLibdas_1_1JSONNode}{JSONNode}} *\_node, \mbox{\hyperlink{structLibdas_1_1GLTFNormalTextureInfo}{GLTFNormalTextureInfo}} \&\_root);}
+\DoxyCodeLine{280             \textcolor{keywordtype}{void} \_ReadMaterialOcclusionTexture(\mbox{\hyperlink{structLibdas_1_1JSONNode}{JSONNode}} *\_node, \mbox{\hyperlink{structLibdas_1_1GLTFOcclusionTextureInfo}{GLTFOcclusionTextureInfo}} \&\_root);}
+\DoxyCodeLine{281             \textcolor{keywordtype}{void} \_ReadMaterialTextureInfo(\mbox{\hyperlink{structLibdas_1_1JSONNode}{JSONNode}} *\_node, \mbox{\hyperlink{structLibdas_1_1GLTFTextureInfo}{GLTFTextureInfo}} \&\_root); \textcolor{comment}{// emissiveTexture}}
+\DoxyCodeLine{282             \textcolor{keywordtype}{void} \_ReadMeshes(\mbox{\hyperlink{structLibdas_1_1JSONNode}{JSONNode}} *\_node);}
+\DoxyCodeLine{283             \textcolor{keywordtype}{void} \_ReadMeshPrimitives(\mbox{\hyperlink{structLibdas_1_1JSONNode}{JSONNode}} *\_node, std::vector<GLTFMeshPrimitive> \&\_root);}
+\DoxyCodeLine{284             \textcolor{keywordtype}{void} \_ReadMeshPrimitiveAttributes(\mbox{\hyperlink{structLibdas_1_1JSONNode}{JSONNode}} *\_node, GLTFMeshPrimitive::AttributesType \&\_attrs);}
+\DoxyCodeLine{285             \textcolor{keywordtype}{void} \_ReadNodes(\mbox{\hyperlink{structLibdas_1_1JSONNode}{JSONNode}} *\_node);}
+\DoxyCodeLine{286             \textcolor{keywordtype}{void} \_ReadSamplers(\mbox{\hyperlink{structLibdas_1_1JSONNode}{JSONNode}} *\_node);}
+\DoxyCodeLine{287             \textcolor{keywordtype}{void} \_ReadScenes(\mbox{\hyperlink{structLibdas_1_1JSONNode}{JSONNode}} *\_node, \textcolor{keywordtype}{bool} is\_root);}
+\DoxyCodeLine{288             \textcolor{keywordtype}{void} \_ReadSkins(\mbox{\hyperlink{structLibdas_1_1JSONNode}{JSONNode}} *\_node);}
+\DoxyCodeLine{289             \textcolor{keywordtype}{void} \_ReadTextures(\mbox{\hyperlink{structLibdas_1_1JSONNode}{JSONNode}} *\_node);}
+\DoxyCodeLine{290 }
+\DoxyCodeLine{291 \textcolor{comment}{}}
+\DoxyCodeLine{292 \textcolor{comment}{            /**}}
+\DoxyCodeLine{293 \textcolor{comment}{             * Call appropriate parsing method for certain root object}}
+\DoxyCodeLine{294 \textcolor{comment}{             * @param \_type is a GLTFObjectType value specifying the requested type that will be read }}
+\DoxyCodeLine{295 \textcolor{comment}{             * @param \_node is a valid pointer to JSONNode instance, that specifies the current subnode that will be parsed}}
+\DoxyCodeLine{296 \textcolor{comment}{             */}}
+\DoxyCodeLine{297             \textcolor{keywordtype}{void} \mbox{\hyperlink{classLibdas_1_1GLTFParser_a08c50ed11d1fc638255c96dfda19c7c4}{\_RootObjectParserCaller}}(\mbox{\hyperlink{namespaceLibdas_af5b3b2766fc788787db13adec9adde38}{GLTFObjectType}} \_type, \mbox{\hyperlink{structLibdas_1_1JSONNode}{JSONNode}} *\_node);\textcolor{comment}{}}
+\DoxyCodeLine{298 \textcolor{comment}{            /**}}
+\DoxyCodeLine{299 \textcolor{comment}{             * Resolve all buffer uris and create appropriate map entries for them into GLTFRoot::resources}}
+\DoxyCodeLine{300 \textcolor{comment}{             * @param \_file\_name specifies the current gltf file name in order to extract root path from it}}
+\DoxyCodeLine{301 \textcolor{comment}{             */}}
+\DoxyCodeLine{302             \textcolor{keywordtype}{void} \mbox{\hyperlink{classLibdas_1_1GLTFParser_a77ced15b8dc6bc514f6dc8645464d049}{\_ResolveBufferUris}}(\textcolor{keyword}{const} std::string \&\_file\_name);}
+\DoxyCodeLine{303 }
+\DoxyCodeLine{304         \textcolor{keyword}{public}:}
+\DoxyCodeLine{305             \mbox{\hyperlink{classLibdas_1_1GLTFParser}{GLTFParser}}(\textcolor{keyword}{const} std::string \&\_file\_name = \textcolor{stringliteral}{"{}"{}});\textcolor{comment}{}}
+\DoxyCodeLine{306 \textcolor{comment}{            /**}}
+\DoxyCodeLine{307 \textcolor{comment}{             * Parse GLTF file into appropriate structures}}
+\DoxyCodeLine{308 \textcolor{comment}{             * @param \_file\_name specifies the file name to read for parsing}}
+\DoxyCodeLine{309 \textcolor{comment}{             */}}
+\DoxyCodeLine{310             \textcolor{keywordtype}{void} \mbox{\hyperlink{classLibdas_1_1GLTFParser_a2f9b3c97b9243606e5621869bec566f6}{Parse}}(\textcolor{keyword}{const} std::string \&\_file\_name = \textcolor{stringliteral}{"{}"{}});\textcolor{comment}{}}
+\DoxyCodeLine{311 \textcolor{comment}{            /**}}
+\DoxyCodeLine{312 \textcolor{comment}{             * Get the parsed root object }}
+\DoxyCodeLine{313 \textcolor{comment}{             * @return reference to GLTFRoot structure}}
+\DoxyCodeLine{314 \textcolor{comment}{             */}}
+\DoxyCodeLine{315             \mbox{\hyperlink{structLibdas_1_1GLTFRoot}{GLTFRoot}} \&\mbox{\hyperlink{classLibdas_1_1GLTFParser_a743dc1b0fc3be91757b71550397f145b}{GetRootObject}}();}
+\DoxyCodeLine{316     \};}
+\DoxyCodeLine{317 \}}
+\DoxyCodeLine{318 }
+\DoxyCodeLine{319 \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

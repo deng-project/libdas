@@ -50,6 +50,8 @@ typedef uint16_t ErrorType;
 #define LIBDAS_WARNING_UNUSED_STATEMENT             17  // statement warning
 #define LIBDAS_WARNING_MULTIPLE_OBJECTS             18  // non-statement warning
 
+// no LIBDAS_DEFS_ONLY
+#ifndef LIBDAS_DEFS_ONLY
 
 namespace Libdas {
 
@@ -70,6 +72,10 @@ namespace Libdas {
     };
 
 
+    /////////////////////////////////////////////////
+    // **** Warnings are pretty much useless ***** //
+    /////////////////////////////////////////////////
+    
     /// Data structure for displaying warnings
     struct WarningElement {
         std::string name;
@@ -150,4 +156,5 @@ namespace Libdas {
     };
 }
 
+#endif
 #endif

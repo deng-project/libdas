@@ -1,7 +1,7 @@
-/// libdas: DENG asset handling management library
-/// licence: Apache, see LICENCE file
-/// file: FileNameString.h - File name string handling functions header
-/// author: Karl-Mihkel Ott
+// libdas: DENG asset handling management library
+// licence: Apache, see LICENCE file
+// file: FileNameString.h - File name string handling functions header
+// author: Karl-Mihkel Ott
 
 #ifndef FILE_NAME_STRING_H
 #define FILE_NAME_STRING_H
@@ -63,6 +63,12 @@ namespace Libdas {
          *         for the file
          */
         std::string ExtractFileExtension(const std::string &_file_name);
+        /**
+         * Extract root path from given file name
+         * @param _file_name is given file name
+         * @return Extracted std::string instance that specifies the root path used for the file
+         */
+        std::string ExtractRootPath(const std::string &_file_name);
     }
 }
 

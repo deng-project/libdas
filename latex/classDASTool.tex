@@ -1,0 +1,310 @@
+\hypertarget{classDASTool}{}\doxysection{DASTool Class Reference}
+\label{classDASTool}\index{DASTool@{DASTool}}
+
+
+Collaboration diagram for DASTool\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=550pt]{classDASTool__coll__graph}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{classDASTool_a98941a8b18b34be7da6871164ed0bd24}{Convert}} (const std\+::string \&\+\_\+input\+\_\+file, const std\+::vector$<$ std\+::string $>$ \&\+\_\+opts)
+\item 
+void \mbox{\hyperlink{classDASTool_ae7f28bf802e0fec2275b2cb2e4c3eb48}{List}} (const std\+::string \&\+\_\+input\+\_\+file, const std\+::vector$<$ std\+::string $>$ \&\+\_\+opts)
+\item 
+const std\+::string \& \mbox{\hyperlink{classDASTool_a28d0f104282a619cebe9ae0b77cfbde1}{Get\+Help\+Text}} ()
+\end{DoxyCompactItemize}
+\doxysubsection*{Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{classDASTool_aeb83d13c8cc8181d217334c7923ae953}{\+\_\+\+Convert\+STL}} (const std\+::string \&\+\_\+input\+\_\+file)
+\item 
+void \mbox{\hyperlink{classDASTool_ab1138e7143d64495b43255f83e0e05ec}{\+\_\+\+Convert\+Wavefront\+Obj}} (const std\+::string \&\+\_\+input\+\_\+file)
+\item 
+void \mbox{\hyperlink{classDASTool_a912c307d114eb14045b4aab33fa9934d}{\+\_\+\+Convert\+GLTF}} (const std\+::string \&\+\_\+input\+\_\+file)
+\item 
+void \mbox{\hyperlink{classDASTool_a08740ca8a7a05155f561d104edda1be5}{\+\_\+\+Convert\+GLB}} (const std\+::string \&\+\_\+input\+\_\+file)
+\item 
+void \mbox{\hyperlink{classDASTool_a98b79dffbbf6f7c54c183143cf1ead7f}{\+\_\+\+List\+Wavefront\+Obj\+Render\+Attributes}} (const \mbox{\hyperlink{structLibdas_1_1WavefrontObjGroup}{Libdas\+::\+Wavefront\+Obj\+Group}} \&\+\_\+group)
+\item 
+void \mbox{\hyperlink{classDASTool_a44c02a92b4422d1670f80aac217de439}{\+\_\+\+List\+STL}} (const std\+::string \&\+\_\+input\+\_\+file)
+\item 
+void \mbox{\hyperlink{classDASTool_a773825e761c3502d9eb2c3fd3b371bb0}{\+\_\+\+List\+Wavefront\+Obj}} (const std\+::string \&\+\_\+input\+\_\+file)
+\item 
+void \mbox{\hyperlink{classDASTool_ae038ece75480adac1658c19e7217f7ae}{\+\_\+\+List\+GLTF}} (const std\+::string \&\+\_\+input\+\_\+file)
+\item 
+void \mbox{\hyperlink{classDASTool_add3314f5a8e2048d57a078f91c7e2b6e}{\+\_\+\+List\+GLB}} (const std\+::string \&\+\_\+input\+\_\+file)
+\item 
+void \mbox{\hyperlink{classDASTool_a2bd821a68f90a0f78af2091bf0ae74d3}{\+\_\+\+List\+Das\+Scenes}} (const std\+::vector$<$ \mbox{\hyperlink{structLibdas_1_1DasScene}{Libdas\+::\+Das\+Scene}} $>$ \&\+\_\+scenes)
+\item 
+void \mbox{\hyperlink{classDASTool_ad1a0e68a0aa3c91774c669778fe7bf2e}{\+\_\+\+List\+Das\+Models}} (\mbox{\hyperlink{classLibdas_1_1DasParser}{Libdas\+::\+Das\+Parser}} \&\+\_\+parser)
+\item 
+void \mbox{\hyperlink{classDASTool_a845ea19d7bcb39d6883e056bcf8aa696}{\+\_\+\+List\+Das\+Animations}} (\mbox{\hyperlink{classLibdas_1_1DasParser}{Libdas\+::\+Das\+Parser}} \&\+\_\+parser)
+\item 
+void \mbox{\hyperlink{classDASTool_a35e979842fbf7f00ee4436f86f2bfd01}{\+\_\+\+List\+Das}} (const std\+::string \&\+\_\+input\+\_\+file)
+\item 
+void \mbox{\hyperlink{classDASTool_ab60484c671579bb65977f4c1ed73421b}{\+\_\+\+Parse\+Flags}} (const std\+::vector$<$ std\+::string $>$ \&\+\_\+opts)
+\item 
+void \mbox{\hyperlink{classDASTool_a3edca1c8e3be71bbb227fb2423e0f0a5}{\+\_\+\+Exclude\+Flags}} (bool \+\_\+is\+\_\+convert)
+\end{DoxyCompactItemize}
+\doxysubsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classDASTool_a2731c120a101756cd127a80e085d90aa}\label{classDASTool_a2731c120a101756cd127a80e085d90aa}} 
+const std\+::string {\bfseries m\+\_\+help\+\_\+text} = \char`\"{}Usage\+: \mbox{\hyperlink{classDASTool}{DASTool}} convert$\vert$list $<$input file$>$ \mbox{[}output options\mbox{]}\textbackslash{}n\char`\"{}
+\item 
+std\+::unordered\+\_\+map$<$ std\+::string, Flag\+Type $>$ \mbox{\hyperlink{classDASTool_a8ba20f56010c97c15ef945416486914b}{m\+\_\+flag\+\_\+map}}
+\item 
+\mbox{\Hypertarget{classDASTool_a31451a6e40a212191108525c98677635}\label{classDASTool_a31451a6e40a212191108525c98677635}} 
+Flag\+Type {\bfseries m\+\_\+flags} = 0
+\item 
+\mbox{\Hypertarget{classDASTool_a52c08cfbf87bf1ac12b8f6a3ee08acde}\label{classDASTool_a52c08cfbf87bf1ac12b8f6a3ee08acde}} 
+\mbox{\hyperlink{structLibdas_1_1DasProperties}{Libdas\+::\+Das\+Properties}} {\bfseries m\+\_\+props}
+\item 
+\mbox{\Hypertarget{classDASTool_a95dafdade4a5f940f3f60823eb6ceb24}\label{classDASTool_a95dafdade4a5f940f3f60823eb6ceb24}} 
+std\+::string {\bfseries m\+\_\+author} = std\+::string(\char`\"{}DASTool v\char`\"{}) + std\+::to\+\_\+string(VERSION\+\_\+\+MAJOR) + std\+::string(\char`\"{}.\char`\"{}) + std\+::to\+\_\+string(VERSION\+\_\+\+MINOR)
+\item 
+\mbox{\Hypertarget{classDASTool_aa7b45302baf0033f7f45127777f64294}\label{classDASTool_aa7b45302baf0033f7f45127777f64294}} 
+std\+::string {\bfseries m\+\_\+model} = \char`\"{}\char`\"{}
+\item 
+\mbox{\Hypertarget{classDASTool_a745104e96b9c30a146d5709c2eedb045}\label{classDASTool_a745104e96b9c30a146d5709c2eedb045}} 
+std\+::string {\bfseries m\+\_\+copyright} = \char`\"{}\char`\"{}
+\item 
+\mbox{\Hypertarget{classDASTool_a21e7e8e3d892f7edc265d86fe7dfe785}\label{classDASTool_a21e7e8e3d892f7edc265d86fe7dfe785}} 
+std\+::string {\bfseries m\+\_\+out\+\_\+file}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classDASTool_a08740ca8a7a05155f561d104edda1be5}\label{classDASTool_a08740ca8a7a05155f561d104edda1be5}} 
+\index{DASTool@{DASTool}!\_ConvertGLB@{\_ConvertGLB}}
+\index{\_ConvertGLB@{\_ConvertGLB}!DASTool@{DASTool}}
+\doxysubsubsection{\texorpdfstring{\_ConvertGLB()}{\_ConvertGLB()}}
+{\footnotesize\ttfamily void DASTool\+::\+\_\+\+Convert\+GLB (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{\+\_\+input\+\_\+file }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+Convert GLB file into DAS file. Output file will be either provided output file or input file name with das extension 
+\begin{DoxyParams}{Parameters}
+{\em \+\_\+input\+\_\+file} & is specified GLB file to read from \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classDASTool_a912c307d114eb14045b4aab33fa9934d}\label{classDASTool_a912c307d114eb14045b4aab33fa9934d}} 
+\index{DASTool@{DASTool}!\_ConvertGLTF@{\_ConvertGLTF}}
+\index{\_ConvertGLTF@{\_ConvertGLTF}!DASTool@{DASTool}}
+\doxysubsubsection{\texorpdfstring{\_ConvertGLTF()}{\_ConvertGLTF()}}
+{\footnotesize\ttfamily void DASTool\+::\+\_\+\+Convert\+GLTF (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{\+\_\+input\+\_\+file }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+Convert GLTF file into DAS file. Output file will be either provided output file or input file name with das extension 
+\begin{DoxyParams}{Parameters}
+{\em \+\_\+input\+\_\+file} & is specified GLTF file to read from \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classDASTool_aeb83d13c8cc8181d217334c7923ae953}\label{classDASTool_aeb83d13c8cc8181d217334c7923ae953}} 
+\index{DASTool@{DASTool}!\_ConvertSTL@{\_ConvertSTL}}
+\index{\_ConvertSTL@{\_ConvertSTL}!DASTool@{DASTool}}
+\doxysubsubsection{\texorpdfstring{\_ConvertSTL()}{\_ConvertSTL()}}
+{\footnotesize\ttfamily void DASTool\+::\+\_\+\+Convert\+STL (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{\+\_\+input\+\_\+file }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+Convert STL file into DAS file. Output file will be either provided output file or input file name with das extension 
+\begin{DoxyParams}{Parameters}
+{\em \+\_\+input\+\_\+file} & is specified STL file to read from \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classDASTool_ab1138e7143d64495b43255f83e0e05ec}\label{classDASTool_ab1138e7143d64495b43255f83e0e05ec}} 
+\index{DASTool@{DASTool}!\_ConvertWavefrontObj@{\_ConvertWavefrontObj}}
+\index{\_ConvertWavefrontObj@{\_ConvertWavefrontObj}!DASTool@{DASTool}}
+\doxysubsubsection{\texorpdfstring{\_ConvertWavefrontObj()}{\_ConvertWavefrontObj()}}
+{\footnotesize\ttfamily void DASTool\+::\+\_\+\+Convert\+Wavefront\+Obj (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{\+\_\+input\+\_\+file }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+Convert Wavefront Obj file into DAS file. Output file will be either provided output file or input file name with das extension 
+\begin{DoxyParams}{Parameters}
+{\em \+\_\+input\+\_\+file} & is specified Wavefront Obj file to read from \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classDASTool_a3edca1c8e3be71bbb227fb2423e0f0a5}\label{classDASTool_a3edca1c8e3be71bbb227fb2423e0f0a5}} 
+\index{DASTool@{DASTool}!\_ExcludeFlags@{\_ExcludeFlags}}
+\index{\_ExcludeFlags@{\_ExcludeFlags}!DASTool@{DASTool}}
+\doxysubsubsection{\texorpdfstring{\_ExcludeFlags()}{\_ExcludeFlags()}}
+{\footnotesize\ttfamily void DASTool\+::\+\_\+\+Exclude\+Flags (\begin{DoxyParamCaption}\item[{bool}]{\+\_\+is\+\_\+convert }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+Exclude all invalid options according to the specified mode 
+\begin{DoxyParams}{Parameters}
+{\em \+\_\+is\+\_\+convert} & is true if the convertion mode was requested \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classDASTool_a35e979842fbf7f00ee4436f86f2bfd01}\label{classDASTool_a35e979842fbf7f00ee4436f86f2bfd01}} 
+\index{DASTool@{DASTool}!\_ListDas@{\_ListDas}}
+\index{\_ListDas@{\_ListDas}!DASTool@{DASTool}}
+\doxysubsubsection{\texorpdfstring{\_ListDas()}{\_ListDas()}}
+{\footnotesize\ttfamily void DASTool\+::\+\_\+\+List\+Das (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{\+\_\+input\+\_\+file }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+List data from DAS file to stdout 
+\begin{DoxyParams}{Parameters}
+{\em \+\_\+input\+\_\+file} & specifies the DAS file to read \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classDASTool_a845ea19d7bcb39d6883e056bcf8aa696}\label{classDASTool_a845ea19d7bcb39d6883e056bcf8aa696}} 
+\index{DASTool@{DASTool}!\_ListDasAnimations@{\_ListDasAnimations}}
+\index{\_ListDasAnimations@{\_ListDasAnimations}!DASTool@{DASTool}}
+\doxysubsubsection{\texorpdfstring{\_ListDasAnimations()}{\_ListDasAnimations()}}
+{\footnotesize\ttfamily void DASTool\+::\+\_\+\+List\+Das\+Animations (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classLibdas_1_1DasParser}{Libdas\+::\+Das\+Parser}} \&}]{\+\_\+parser }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+List all data about all animations that were parsed 
+\begin{DoxyParams}{Parameters}
+{\em \+\_\+parser} & is a reference to Das\+Parser instance that specifies the parser used \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classDASTool_ad1a0e68a0aa3c91774c669778fe7bf2e}\label{classDASTool_ad1a0e68a0aa3c91774c669778fe7bf2e}} 
+\index{DASTool@{DASTool}!\_ListDasModels@{\_ListDasModels}}
+\index{\_ListDasModels@{\_ListDasModels}!DASTool@{DASTool}}
+\doxysubsubsection{\texorpdfstring{\_ListDasModels()}{\_ListDasModels()}}
+{\footnotesize\ttfamily void DASTool\+::\+\_\+\+List\+Das\+Models (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classLibdas_1_1DasParser}{Libdas\+::\+Das\+Parser}} \&}]{\+\_\+parser }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+List all data about all models that were parsed 
+\begin{DoxyParams}{Parameters}
+{\em \+\_\+parser} & is a reference to Das\+Parser instance that specifies the parser used \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classDASTool_a2bd821a68f90a0f78af2091bf0ae74d3}\label{classDASTool_a2bd821a68f90a0f78af2091bf0ae74d3}} 
+\index{DASTool@{DASTool}!\_ListDasScenes@{\_ListDasScenes}}
+\index{\_ListDasScenes@{\_ListDasScenes}!DASTool@{DASTool}}
+\doxysubsubsection{\texorpdfstring{\_ListDasScenes()}{\_ListDasScenes()}}
+{\footnotesize\ttfamily void DASTool\+::\+\_\+\+List\+Das\+Scenes (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ \mbox{\hyperlink{structLibdas_1_1DasScene}{Libdas\+::\+Das\+Scene}} $>$ \&}]{\+\_\+scenes }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+List all data about scenes to stdout 
+\begin{DoxyParams}{Parameters}
+{\em \+\_\+scenes} & specifies all scenes that are used \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classDASTool_add3314f5a8e2048d57a078f91c7e2b6e}\label{classDASTool_add3314f5a8e2048d57a078f91c7e2b6e}} 
+\index{DASTool@{DASTool}!\_ListGLB@{\_ListGLB}}
+\index{\_ListGLB@{\_ListGLB}!DASTool@{DASTool}}
+\doxysubsubsection{\texorpdfstring{\_ListGLB()}{\_ListGLB()}}
+{\footnotesize\ttfamily void DASTool\+::\+\_\+\+List\+GLB (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{\+\_\+input\+\_\+file }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+List data from GLB file to stdout 
+\begin{DoxyParams}{Parameters}
+{\em \+\_\+input\+\_\+file} & specifies the GLB file to read \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classDASTool_ae038ece75480adac1658c19e7217f7ae}\label{classDASTool_ae038ece75480adac1658c19e7217f7ae}} 
+\index{DASTool@{DASTool}!\_ListGLTF@{\_ListGLTF}}
+\index{\_ListGLTF@{\_ListGLTF}!DASTool@{DASTool}}
+\doxysubsubsection{\texorpdfstring{\_ListGLTF()}{\_ListGLTF()}}
+{\footnotesize\ttfamily void DASTool\+::\+\_\+\+List\+GLTF (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{\+\_\+input\+\_\+file }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+List data from GLTF file to stdout 
+\begin{DoxyParams}{Parameters}
+{\em \+\_\+input\+\_\+file} & specifies the GLTF file to read \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classDASTool_a44c02a92b4422d1670f80aac217de439}\label{classDASTool_a44c02a92b4422d1670f80aac217de439}} 
+\index{DASTool@{DASTool}!\_ListSTL@{\_ListSTL}}
+\index{\_ListSTL@{\_ListSTL}!DASTool@{DASTool}}
+\doxysubsubsection{\texorpdfstring{\_ListSTL()}{\_ListSTL()}}
+{\footnotesize\ttfamily void DASTool\+::\+\_\+\+List\+STL (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{\+\_\+input\+\_\+file }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+List data from STL file to stdout 
+\begin{DoxyParams}{Parameters}
+{\em \+\_\+input\+\_\+file} & specifies the STL file to read \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classDASTool_a773825e761c3502d9eb2c3fd3b371bb0}\label{classDASTool_a773825e761c3502d9eb2c3fd3b371bb0}} 
+\index{DASTool@{DASTool}!\_ListWavefrontObj@{\_ListWavefrontObj}}
+\index{\_ListWavefrontObj@{\_ListWavefrontObj}!DASTool@{DASTool}}
+\doxysubsubsection{\texorpdfstring{\_ListWavefrontObj()}{\_ListWavefrontObj()}}
+{\footnotesize\ttfamily void DASTool\+::\+\_\+\+List\+Wavefront\+Obj (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{\+\_\+input\+\_\+file }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+List data from Wavefront Obj file to stdout 
+\begin{DoxyParams}{Parameters}
+{\em \+\_\+input\+\_\+file} & specifies the Wavefront Obj file to read \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classDASTool_a98b79dffbbf6f7c54c183143cf1ead7f}\label{classDASTool_a98b79dffbbf6f7c54c183143cf1ead7f}} 
+\index{DASTool@{DASTool}!\_ListWavefrontObjRenderAttributes@{\_ListWavefrontObjRenderAttributes}}
+\index{\_ListWavefrontObjRenderAttributes@{\_ListWavefrontObjRenderAttributes}!DASTool@{DASTool}}
+\doxysubsubsection{\texorpdfstring{\_ListWavefrontObjRenderAttributes()}{\_ListWavefrontObjRenderAttributes()}}
+{\footnotesize\ttfamily void DASTool\+::\+\_\+\+List\+Wavefront\+Obj\+Render\+Attributes (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{structLibdas_1_1WavefrontObjGroup}{Libdas\+::\+Wavefront\+Obj\+Group}} \&}]{\+\_\+group }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+List render attributes of given Wavefront Obj group 
+\begin{DoxyParams}{Parameters}
+{\em \+\_\+group} & is a reference to Wavefront\+Obj\+Group where render attributes are read \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classDASTool_ab60484c671579bb65977f4c1ed73421b}\label{classDASTool_ab60484c671579bb65977f4c1ed73421b}} 
+\index{DASTool@{DASTool}!\_ParseFlags@{\_ParseFlags}}
+\index{\_ParseFlags@{\_ParseFlags}!DASTool@{DASTool}}
+\doxysubsubsection{\texorpdfstring{\_ParseFlags()}{\_ParseFlags()}}
+{\footnotesize\ttfamily void DASTool\+::\+\_\+\+Parse\+Flags (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ std\+::string $>$ \&}]{\+\_\+opts }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+Parse all string output flags into bitmask values 
+\begin{DoxyParams}{Parameters}
+{\em \+\_\+opts} & is a const std\+::vector reference that holds all string flags \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classDASTool_a98941a8b18b34be7da6871164ed0bd24}\label{classDASTool_a98941a8b18b34be7da6871164ed0bd24}} 
+\index{DASTool@{DASTool}!Convert@{Convert}}
+\index{Convert@{Convert}!DASTool@{DASTool}}
+\doxysubsubsection{\texorpdfstring{Convert()}{Convert()}}
+{\footnotesize\ttfamily void DASTool\+::\+Convert (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{\+\_\+input\+\_\+file,  }\item[{const std\+::vector$<$ std\+::string $>$ \&}]{\+\_\+opts }\end{DoxyParamCaption})}
+
+Convert from specified file to DAS file format 
+\begin{DoxyParams}{Parameters}
+{\em \+\_\+input\+\_\+file} & specifies the input file used for conversion to DAS format \\
+\hline
+{\em \+\_\+opts} & specifies output options \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classDASTool_a28d0f104282a619cebe9ae0b77cfbde1}\label{classDASTool_a28d0f104282a619cebe9ae0b77cfbde1}} 
+\index{DASTool@{DASTool}!GetHelpText@{GetHelpText}}
+\index{GetHelpText@{GetHelpText}!DASTool@{DASTool}}
+\doxysubsubsection{\texorpdfstring{GetHelpText()}{GetHelpText()}}
+{\footnotesize\ttfamily const std\+::string \& DASTool\+::\+Get\+Help\+Text (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+Get \mbox{\hyperlink{classDASTool}{DASTool}} help text \mbox{\Hypertarget{classDASTool_ae7f28bf802e0fec2275b2cb2e4c3eb48}\label{classDASTool_ae7f28bf802e0fec2275b2cb2e4c3eb48}} 
+\index{DASTool@{DASTool}!List@{List}}
+\index{List@{List}!DASTool@{DASTool}}
+\doxysubsubsection{\texorpdfstring{List()}{List()}}
+{\footnotesize\ttfamily void DASTool\+::\+List (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{\+\_\+input\+\_\+file,  }\item[{const std\+::vector$<$ std\+::string $>$ \&}]{\+\_\+opts }\end{DoxyParamCaption})}
+
+List all information about current file 
+\begin{DoxyParams}{Parameters}
+{\em \+\_\+input\+\_\+file} & specifies the input file used for reading \\
+\hline
+{\em \+\_\+opts} & specifies output options \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{classDASTool_a8ba20f56010c97c15ef945416486914b}\label{classDASTool_a8ba20f56010c97c15ef945416486914b}} 
+\index{DASTool@{DASTool}!m\_flag\_map@{m\_flag\_map}}
+\index{m\_flag\_map@{m\_flag\_map}!DASTool@{DASTool}}
+\doxysubsubsection{\texorpdfstring{m\_flag\_map}{m\_flag\_map}}
+{\footnotesize\ttfamily std\+::unordered\+\_\+map$<$std\+::string, Flag\+Type$>$ DASTool\+::m\+\_\+flag\+\_\+map\hspace{0.3cm}{\ttfamily [private]}}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{= \{}
+\DoxyCodeLine{            std::make\_pair(\textcolor{stringliteral}{"{}-\/c"{}}, OUTPUT\_FLAG\_COMPRESSED),}
+\DoxyCodeLine{            std::make\_pair(\textcolor{stringliteral}{"{}-\/-\/compressed"{}}, OUTPUT\_FLAG\_COMPRESSED),}
+\DoxyCodeLine{            std::make\_pair(\textcolor{stringliteral}{"{}-\/-\/no-\/curves"{}}, OUTPUT\_FLAG\_NO\_CURVES),}
+\DoxyCodeLine{            std::make\_pair(\textcolor{stringliteral}{"{}-\/-\/author"{}}, OUTPUT\_FLAG\_AUTHOR),}
+\DoxyCodeLine{            std::make\_pair(\textcolor{stringliteral}{"{}-\/-\/copyright"{}}, OUTPUT\_FLAG\_COPYRIGHT),}
+\DoxyCodeLine{            std::make\_pair(\textcolor{stringliteral}{"{}-\/-\/model"{}}, OUTPUT\_FLAG\_MODEL),}
+\DoxyCodeLine{            std::make\_pair(\textcolor{stringliteral}{"{}-\/v"{}}, OUTPUT\_FLAG\_VERBOSE),}
+\DoxyCodeLine{            std::make\_pair(\textcolor{stringliteral}{"{}-\/-\/verbose"{}}, OUTPUT\_FLAG\_VERBOSE),}
+\DoxyCodeLine{            std::make\_pair(\textcolor{stringliteral}{"{}-\/o"{}}, OUTPUT\_FLAG\_OUT\_FILE),}
+\DoxyCodeLine{            std::make\_pair(\textcolor{stringliteral}{"{}-\/-\/output"{}}, OUTPUT\_FLAG\_OUT\_FILE)}
+\DoxyCodeLine{        \}}
+
+\end{DoxyCode}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+include/DASTool.\+h\end{DoxyCompactItemize}

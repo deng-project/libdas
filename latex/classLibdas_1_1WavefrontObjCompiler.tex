@@ -1,0 +1,107 @@
+\hypertarget{classLibdas_1_1WavefrontObjCompiler}{}\doxysection{Libdas\+::Wavefront\+Obj\+Compiler Class Reference}
+\label{classLibdas_1_1WavefrontObjCompiler}\index{Libdas::WavefrontObjCompiler@{Libdas::WavefrontObjCompiler}}
+
+
+{\ttfamily \#include $<$Wavefront\+Obj\+Compiler.\+h$>$}
+
+
+
+Inheritance diagram for Libdas\+::Wavefront\+Obj\+Compiler\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=236pt]{classLibdas_1_1WavefrontObjCompiler__inherit__graph}
+\end{center}
+\end{figure}
+
+
+Collaboration diagram for Libdas\+::Wavefront\+Obj\+Compiler\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=236pt]{classLibdas_1_1WavefrontObjCompiler__coll__graph}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classLibdas_1_1WavefrontObjCompiler_a8b2fae0c37dc43b959fe194d5104fc0b}\label{classLibdas_1_1WavefrontObjCompiler_a8b2fae0c37dc43b959fe194d5104fc0b}} 
+{\bfseries Wavefront\+Obj\+Compiler} (const std\+::string \&\+\_\+out\+\_\+file=\char`\"{}\char`\"{})
+\item 
+\mbox{\Hypertarget{classLibdas_1_1WavefrontObjCompiler_abb1d58d0d8103f5a572887323049e9c0}\label{classLibdas_1_1WavefrontObjCompiler_abb1d58d0d8103f5a572887323049e9c0}} 
+{\bfseries Wavefront\+Obj\+Compiler} (const std\+::vector$<$ \mbox{\hyperlink{structLibdas_1_1WavefrontObjGroup}{Wavefront\+Obj\+Group}} $>$ \&\+\_\+groups, const \mbox{\hyperlink{structLibdas_1_1DasProperties}{Das\+Properties}} \&\+\_\+props, const std\+::string \&\+\_\+out\+\_\+file)
+\item 
+void \mbox{\hyperlink{classLibdas_1_1WavefrontObjCompiler_aa3b2b7de8a7fd7ef1b21aa315368e9ec}{Compile}} (const std\+::vector$<$ \mbox{\hyperlink{structLibdas_1_1WavefrontObjGroup}{Wavefront\+Obj\+Group}} $>$ \&\+\_\+groups, const \mbox{\hyperlink{structLibdas_1_1DasProperties}{Das\+Properties}} \&\+\_\+props, const std\+::string \&\+\_\+out\+\_\+file=\char`\"{}\char`\"{})
+\end{DoxyCompactItemize}
+\doxysubsection*{Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+std\+::vector$<$ \mbox{\hyperlink{structLibdas_1_1DasBuffer}{Das\+Buffer}} $>$ \mbox{\hyperlink{classLibdas_1_1WavefrontObjCompiler_a192c2903edd023d653602e3733e81eb6}{\+\_\+\+Create\+Buffers}} (const std\+::vector$<$ \mbox{\hyperlink{structLibdas_1_1WavefrontObjGroup}{Wavefront\+Obj\+Group}} $>$ \&\+\_\+groups)
+\item 
+std\+::vector$<$ \mbox{\hyperlink{structLibdas_1_1DasModel}{Das\+Model}} $>$ \mbox{\hyperlink{classLibdas_1_1WavefrontObjCompiler_af5ca3f3204bc2cea153837dcd44d70d3}{\+\_\+\+Create\+Models}} (const std\+::vector$<$ \mbox{\hyperlink{structLibdas_1_1WavefrontObjGroup}{Wavefront\+Obj\+Group}} $>$ \&\+\_\+groups)
+\item 
+void \mbox{\hyperlink{classLibdas_1_1WavefrontObjCompiler_a60448b9ce82a743bfbd78968cd256b33}{\+\_\+\+Huffman\+Encode}} ()
+\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Detailed Description}
+Compiler class that uses Wavefront OBJ files as source files and outputs DAS file. 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classLibdas_1_1WavefrontObjCompiler_a192c2903edd023d653602e3733e81eb6}\label{classLibdas_1_1WavefrontObjCompiler_a192c2903edd023d653602e3733e81eb6}} 
+\index{Libdas::WavefrontObjCompiler@{Libdas::WavefrontObjCompiler}!\_CreateBuffers@{\_CreateBuffers}}
+\index{\_CreateBuffers@{\_CreateBuffers}!Libdas::WavefrontObjCompiler@{Libdas::WavefrontObjCompiler}}
+\doxysubsubsection{\texorpdfstring{\_CreateBuffers()}{\_CreateBuffers()}}
+{\footnotesize\ttfamily std\+::vector$<$ \mbox{\hyperlink{structLibdas_1_1DasBuffer}{Das\+Buffer}} $>$ Libdas\+::\+Wavefront\+Obj\+Compiler\+::\+\_\+\+Create\+Buffers (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ \mbox{\hyperlink{structLibdas_1_1WavefrontObjGroup}{Wavefront\+Obj\+Group}} $>$ \&}]{\+\_\+groups }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+Look into Wavefront\+Obj\+Groups and create buffer structures out of them 
+\begin{DoxyParams}{Parameters}
+{\em \+\_\+groups} & is a reference to std\+::vector$<$\+Wavefront\+Obj\+Group$>$ instance that contains all parsed Wavefront OBJ groups \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+std\+::vector$<$\+Das\+Buffer$>$ instance that has all buffer memory area pointers that should be written 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classLibdas_1_1WavefrontObjCompiler_af5ca3f3204bc2cea153837dcd44d70d3}\label{classLibdas_1_1WavefrontObjCompiler_af5ca3f3204bc2cea153837dcd44d70d3}} 
+\index{Libdas::WavefrontObjCompiler@{Libdas::WavefrontObjCompiler}!\_CreateModels@{\_CreateModels}}
+\index{\_CreateModels@{\_CreateModels}!Libdas::WavefrontObjCompiler@{Libdas::WavefrontObjCompiler}}
+\doxysubsubsection{\texorpdfstring{\_CreateModels()}{\_CreateModels()}}
+{\footnotesize\ttfamily std\+::vector$<$ \mbox{\hyperlink{structLibdas_1_1DasModel}{Das\+Model}} $>$ Libdas\+::\+Wavefront\+Obj\+Compiler\+::\+\_\+\+Create\+Models (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ \mbox{\hyperlink{structLibdas_1_1WavefrontObjGroup}{Wavefront\+Obj\+Group}} $>$ \&}]{\+\_\+groups }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+Look into Wavefront\+Obj\+Groups and determine all models with correct buffer offset values 
+\begin{DoxyParams}{Parameters}
+{\em \+\_\+groups} & is a reference to std\+::vector$<$\+Wavefront\+Obj\+Group$>$ instance that contains all parsed Wavefront OBJ groups \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+std\+::vector$<$\+Das\+Model$>$ instance that has contains all information about models and their correct buffer offsets 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classLibdas_1_1WavefrontObjCompiler_a60448b9ce82a743bfbd78968cd256b33}\label{classLibdas_1_1WavefrontObjCompiler_a60448b9ce82a743bfbd78968cd256b33}} 
+\index{Libdas::WavefrontObjCompiler@{Libdas::WavefrontObjCompiler}!\_HuffmanEncode@{\_HuffmanEncode}}
+\index{\_HuffmanEncode@{\_HuffmanEncode}!Libdas::WavefrontObjCompiler@{Libdas::WavefrontObjCompiler}}
+\doxysubsubsection{\texorpdfstring{\_HuffmanEncode()}{\_HuffmanEncode()}}
+{\footnotesize\ttfamily void Libdas\+::\+Wavefront\+Obj\+Compiler\+::\+\_\+\+Huffman\+Encode (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+Perform Huffman encoding on the written file to finalise compilation \mbox{\Hypertarget{classLibdas_1_1WavefrontObjCompiler_aa3b2b7de8a7fd7ef1b21aa315368e9ec}\label{classLibdas_1_1WavefrontObjCompiler_aa3b2b7de8a7fd7ef1b21aa315368e9ec}} 
+\index{Libdas::WavefrontObjCompiler@{Libdas::WavefrontObjCompiler}!Compile@{Compile}}
+\index{Compile@{Compile}!Libdas::WavefrontObjCompiler@{Libdas::WavefrontObjCompiler}}
+\doxysubsubsection{\texorpdfstring{Compile()}{Compile()}}
+{\footnotesize\ttfamily void Libdas\+::\+Wavefront\+Obj\+Compiler\+::\+Compile (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ \mbox{\hyperlink{structLibdas_1_1WavefrontObjGroup}{Wavefront\+Obj\+Group}} $>$ \&}]{\+\_\+groups,  }\item[{const \mbox{\hyperlink{structLibdas_1_1DasProperties}{Das\+Properties}} \&}]{\+\_\+props,  }\item[{const std\+::string \&}]{\+\_\+out\+\_\+file = {\ttfamily \char`\"{}\char`\"{}} }\end{DoxyParamCaption})}
+
+Compile the DAS file from given \mbox{\hyperlink{structLibdas_1_1WavefrontObjGroup}{Wavefront\+Obj\+Group}} objects. 
+\begin{DoxyParams}{Parameters}
+{\em \+\_\+groups} & is a reference to std\+::queue object that contains all given Wavfront\+Obj\+Group objects \\
+\hline
+{\em \+\_\+props} & is a reference to \mbox{\hyperlink{structLibdas_1_1DasProperties}{Das\+Properties}} object that contains all properties to write \\
+\hline
+{\em \+\_\+out\+\_\+file} & is an optional file name that can be given as a parameter \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+include/Wavefront\+Obj\+Compiler.\+h\end{DoxyCompactItemize}

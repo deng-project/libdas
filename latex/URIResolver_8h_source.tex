@@ -1,0 +1,70 @@
+\hypertarget{URIResolver_8h_source}{}\doxysection{URIResolver.\+h}
+\label{URIResolver_8h_source}\index{include/URIResolver.h@{include/URIResolver.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{comment}{// libdas: DENG asset handling management library}}
+\DoxyCodeLine{2 \textcolor{comment}{// licence: Apache, see LICENCE file}}
+\DoxyCodeLine{3 \textcolor{comment}{// file: URIResolver.h -\/ URI resolving and its data retrieving class header}}
+\DoxyCodeLine{4 \textcolor{comment}{// author: Karl-\/Mihkel Ott}}
+\DoxyCodeLine{5 }
+\DoxyCodeLine{6 \textcolor{preprocessor}{\#ifndef URI\_RESOLVER\_H}}
+\DoxyCodeLine{7 \textcolor{preprocessor}{\#define URI\_RESOLVER\_H}}
+\DoxyCodeLine{8 }
+\DoxyCodeLine{9 }
+\DoxyCodeLine{10 \textcolor{preprocessor}{\#ifdef URI\_RESOLVER\_CPP}}
+\DoxyCodeLine{11 \textcolor{preprocessor}{    \#include <vector>}}
+\DoxyCodeLine{12 \textcolor{preprocessor}{    \#include <string>}}
+\DoxyCodeLine{13 \textcolor{preprocessor}{    \#include <fstream>}}
+\DoxyCodeLine{14 \textcolor{preprocessor}{    \#include <iostream>}}
+\DoxyCodeLine{15 }
+\DoxyCodeLine{16 \textcolor{preprocessor}{\#define LIBDAS\_DEFS\_ONLY}}
+\DoxyCodeLine{17 \textcolor{preprocessor}{    \#include <ErrorHandlers.h>}}
+\DoxyCodeLine{18 \textcolor{preprocessor}{    \#include <HuffmanCompression.h>}}
+\DoxyCodeLine{19 \textcolor{preprocessor}{\#undef LIBDAS\_DEFS\_ONLY}}
+\DoxyCodeLine{20 }
+\DoxyCodeLine{21 \textcolor{preprocessor}{    \#include <Base64Decoder.h>}}
+\DoxyCodeLine{22 \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{23 }
+\DoxyCodeLine{24 }
+\DoxyCodeLine{25 \textcolor{keyword}{namespace }\mbox{\hyperlink{namespaceLibdas}{Libdas}} \{}
+\DoxyCodeLine{26 \textcolor{comment}{}}
+\DoxyCodeLine{27 \textcolor{comment}{    /**}}
+\DoxyCodeLine{28 \textcolor{comment}{     * Class interface for reading data from given uri.}}
+\DoxyCodeLine{29 \textcolor{comment}{     * Supported uri types for now are base64 and file}}
+\DoxyCodeLine{30 \textcolor{comment}{     */}}
+\DoxyCodeLine{31     \textcolor{keyword}{class }\mbox{\hyperlink{classLibdas_1_1URIResolver}{URIResolver}} : \textcolor{keyword}{private} \mbox{\hyperlink{classLibdas_1_1Base64Decoder}{Base64Decoder}} \{}
+\DoxyCodeLine{32         \textcolor{keyword}{private}:}
+\DoxyCodeLine{33             std::string m\_uri;}
+\DoxyCodeLine{34             std::string m\_root\_path;}
+\DoxyCodeLine{35 }
+\DoxyCodeLine{36             \textcolor{comment}{// buffer storage}}
+\DoxyCodeLine{37             std::vector<char> m\_buffer;}
+\DoxyCodeLine{38 }
+\DoxyCodeLine{39             \textcolor{comment}{// file stream}}
+\DoxyCodeLine{40             std::ifstream m\_stream;}
+\DoxyCodeLine{41 }
+\DoxyCodeLine{42         \textcolor{keyword}{private}:\textcolor{comment}{}}
+\DoxyCodeLine{43 \textcolor{comment}{            /**}}
+\DoxyCodeLine{44 \textcolor{comment}{             * Resolve file:// URI}}
+\DoxyCodeLine{45 \textcolor{comment}{             */}}
+\DoxyCodeLine{46             \textcolor{keywordtype}{void} \mbox{\hyperlink{classLibdas_1_1URIResolver_a4ff69601129eb83ca8f3afc1971fc14b}{\_ResolveFileURI}}();}
+\DoxyCodeLine{47 }
+\DoxyCodeLine{48         \textcolor{keyword}{public}:}
+\DoxyCodeLine{49             \mbox{\hyperlink{classLibdas_1_1URIResolver}{URIResolver}}(\textcolor{keyword}{const} std::string \&\_uri = \textcolor{stringliteral}{"{}"{}}, \textcolor{keyword}{const} std::string \&\_root\_path = \textcolor{stringliteral}{"{}"{}});\textcolor{comment}{}}
+\DoxyCodeLine{50 \textcolor{comment}{            /**}}
+\DoxyCodeLine{51 \textcolor{comment}{             * Resolve the uri and read data into URI data buffer}}
+\DoxyCodeLine{52 \textcolor{comment}{             * @param \_uri optionally specifies the given uri to read data from}}
+\DoxyCodeLine{53 \textcolor{comment}{             * @param \_root\_path optionally specifies }}
+\DoxyCodeLine{54 \textcolor{comment}{             */}}
+\DoxyCodeLine{55             \textcolor{keywordtype}{void} \mbox{\hyperlink{classLibdas_1_1URIResolver_a42ad3fb64b33378875f29e762c0d6f2c}{Resolve}}(\textcolor{keyword}{const} std::string \&\_uri = \textcolor{stringliteral}{"{}"{}}, \textcolor{keyword}{const} std::string \&\_root\_path = \textcolor{stringliteral}{"{}"{}});\textcolor{comment}{}}
+\DoxyCodeLine{56 \textcolor{comment}{            /**}}
+\DoxyCodeLine{57 \textcolor{comment}{             * Get moveable reference of the buffer containing data found on the resouce}}
+\DoxyCodeLine{58 \textcolor{comment}{             * @return std::pair moveable object containing buffer pointer and its size}}
+\DoxyCodeLine{59 \textcolor{comment}{             */}}
+\DoxyCodeLine{60             std::vector<char> \&\&\mbox{\hyperlink{classLibdas_1_1URIResolver_a8d31b68e85d9c30a0b50ecacb9bda925}{MoveBuffer}}();}
+\DoxyCodeLine{61     \};}
+\DoxyCodeLine{62 \}}
+\DoxyCodeLine{63 }
+\DoxyCodeLine{64 \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

@@ -136,5 +136,18 @@ namespace Libdas {
 
             return ext;
         }
+
+
+        std::string ExtractRootPath(const std::string &_file_name) {
+            std::string root = ".";
+            for(int i = static_cast<int>(_file_name.size()) - 1; i >= 0; i--) {
+                if(_file_name[i] == '/') {
+                    root = _file_name.substr(0, i);
+                    break;
+                }
+            }
+
+            return root;
+        }
     }
 }

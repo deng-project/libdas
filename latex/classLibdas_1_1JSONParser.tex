@@ -1,0 +1,161 @@
+\hypertarget{classLibdas_1_1JSONParser}{}\doxysection{Libdas\+::JSONParser Class Reference}
+\label{classLibdas_1_1JSONParser}\index{Libdas::JSONParser@{Libdas::JSONParser}}
+
+
+Inheritance diagram for Libdas\+::JSONParser\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=550pt]{classLibdas_1_1JSONParser__inherit__graph}
+\end{center}
+\end{figure}
+
+
+Collaboration diagram for Libdas\+::JSONParser\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{classLibdas_1_1JSONParser__coll__graph}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classLibdas_1_1JSONParser_ae3cccf325fc823d75069482c30cfa09d}\label{classLibdas_1_1JSONParser_ae3cccf325fc823d75069482c30cfa09d}} 
+{\bfseries JSONParser} (Model\+Format \+\_\+format, const std\+::string \&\+\_\+file\+\_\+name=\char`\"{}\char`\"{})
+\item 
+void \mbox{\hyperlink{classLibdas_1_1JSONParser_a2091fcbc79c9823d24d5d4269012c23d}{Parse}} (const std\+::string \&\+\_\+file\+\_\+name=\char`\"{}\char`\"{})
+\item 
+\mbox{\hyperlink{structLibdas_1_1JSONNode}{JSONNode}} \& \mbox{\hyperlink{classLibdas_1_1JSONParser_ab1a68e5c46ecd220a43ff4de9aea7b67}{Get\+Root\+Node}} ()
+\end{DoxyCompactItemize}
+\doxysubsection*{Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classLibdas_1_1JSONParser_aa00e07778199046e42a5998ea050865e}\label{classLibdas_1_1JSONParser_aa00e07778199046e42a5998ea050865e}} 
+void {\bfseries \+\_\+\+Handle\+Scope\+Start\+Token} ()
+\item 
+\mbox{\Hypertarget{classLibdas_1_1JSONParser_a45b3bf901f6f0eca85196fa39664d526}\label{classLibdas_1_1JSONParser_a45b3bf901f6f0eca85196fa39664d526}} 
+void {\bfseries \+\_\+\+Handle\+Scope\+End\+Token} ()
+\item 
+\mbox{\Hypertarget{classLibdas_1_1JSONParser_aacd4186bbecb06bab16b97a25a481790}\label{classLibdas_1_1JSONParser_aacd4186bbecb06bab16b97a25a481790}} 
+void {\bfseries \+\_\+\+Handle\+Array\+Start\+Token} ()
+\item 
+\mbox{\Hypertarget{classLibdas_1_1JSONParser_aea7b5b44f995898af267319b1e535283}\label{classLibdas_1_1JSONParser_aea7b5b44f995898af267319b1e535283}} 
+void {\bfseries \+\_\+\+Handle\+Array\+End\+Token} ()
+\item 
+\mbox{\Hypertarget{classLibdas_1_1JSONParser_a990fe665451e098e7722873e672281ae}\label{classLibdas_1_1JSONParser_a990fe665451e098e7722873e672281ae}} 
+void {\bfseries \+\_\+\+Handle\+String\+Token} ()
+\item 
+\mbox{\Hypertarget{classLibdas_1_1JSONParser_a9bfd244c7e1826209b0f776746c2092b}\label{classLibdas_1_1JSONParser_a9bfd244c7e1826209b0f776746c2092b}} 
+void {\bfseries \+\_\+\+Handle\+Boolean\+Token} ()
+\item 
+\mbox{\Hypertarget{classLibdas_1_1JSONParser_aa680cc6772a0aff8f22f8b245f9b0fb9}\label{classLibdas_1_1JSONParser_aa680cc6772a0aff8f22f8b245f9b0fb9}} 
+void {\bfseries \+\_\+\+Handle\+Numerical\+Token} ()
+\item 
+\mbox{\Hypertarget{classLibdas_1_1JSONParser_a5418dbc71993ce3b3e1276b87e3491e4}\label{classLibdas_1_1JSONParser_a5418dbc71993ce3b3e1276b87e3491e4}} 
+void {\bfseries \+\_\+\+Handle\+Next\+Element\+Token} ()
+\item 
+\mbox{\Hypertarget{classLibdas_1_1JSONParser_a9e17770823449b13486209fda0334b0b}\label{classLibdas_1_1JSONParser_a9e17770823449b13486209fda0334b0b}} 
+void {\bfseries \+\_\+\+Handle\+Key\+Value\+Decl\+Token} ()
+\item 
+JSONToken \mbox{\hyperlink{classLibdas_1_1JSONParser_a94ff727335ff0a27cb676151b50c694c}{\+\_\+\+Check\+For\+Token}} ()
+\item 
+void \mbox{\hyperlink{classLibdas_1_1JSONParser_a792fe74ab98bfada9919dbfbb4ef331d}{\+\_\+\+Check\+Token\+Action}} (JSONToken \+\_\+token)
+\item 
+void \mbox{\hyperlink{classLibdas_1_1JSONParser_aa73d7257193dee95bce61489817b44d0}{\+\_\+\+Skip\+Skippable\+Characters}} (bool \+\_\+no\+\_\+nl=false)
+\end{DoxyCompactItemize}
+\doxysubsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classLibdas_1_1JSONParser_ad3c1e0eabedec16e60409722dda14bcc}\label{classLibdas_1_1JSONParser_ad3c1e0eabedec16e60409722dda14bcc}} 
+\mbox{\hyperlink{classLibdas_1_1AsciiFormatErrorHandler}{Ascii\+Format\+Error\+Handler}} {\bfseries m\+\_\+error}
+\item 
+\mbox{\Hypertarget{classLibdas_1_1JSONParser_a3f323bc8b1905f78e0db3df8eadf7d7b}\label{classLibdas_1_1JSONParser_a3f323bc8b1905f78e0db3df8eadf7d7b}} 
+\mbox{\hyperlink{structLibdas_1_1JSONNode}{JSONNode}} {\bfseries m\+\_\+root\+\_\+node}
+\item 
+\mbox{\Hypertarget{classLibdas_1_1JSONParser_adc6186f74c4acfb815dd53cf92a16a9d}\label{classLibdas_1_1JSONParser_adc6186f74c4acfb815dd53cf92a16a9d}} 
+\mbox{\hyperlink{structLibdas_1_1JSONNode}{JSONNode}} $\ast$ {\bfseries m\+\_\+active\+\_\+node} = \&m\+\_\+root\+\_\+node
+\item 
+\mbox{\Hypertarget{classLibdas_1_1JSONParser_a9d90e41f601ef4142b866f9cbf445e23}\label{classLibdas_1_1JSONParser_a9d90e41f601ef4142b866f9cbf445e23}} 
+std\+::string {\bfseries m\+\_\+file\+\_\+name}
+\item 
+\mbox{\Hypertarget{classLibdas_1_1JSONParser_a5d0298c7f79a39fd754e7945b1818b02}\label{classLibdas_1_1JSONParser_a5d0298c7f79a39fd754e7945b1818b02}} 
+char $\ast$ {\bfseries m\+\_\+rd\+\_\+ptr} = m\+\_\+buffer
+\item 
+\mbox{\Hypertarget{classLibdas_1_1JSONParser_a7762377f5a0bc667fbec8f7b5d5bcd6c}\label{classLibdas_1_1JSONParser_a7762377f5a0bc667fbec8f7b5d5bcd6c}} 
+char {\bfseries m\+\_\+str\+\_\+statement\+\_\+beg} = 0
+\item 
+\mbox{\Hypertarget{classLibdas_1_1JSONParser_ad3a00ad5cd2a32e9c9ca30257ab46834}\label{classLibdas_1_1JSONParser_ad3a00ad5cd2a32e9c9ca30257ab46834}} 
+bool {\bfseries m\+\_\+allow\+\_\+next\+\_\+element} = true
+\item 
+\mbox{\Hypertarget{classLibdas_1_1JSONParser_a221e4c04e26f357e66ef8abfbfe91a44}\label{classLibdas_1_1JSONParser_a221e4c04e26f357e66ef8abfbfe91a44}} 
+std\+::string {\bfseries m\+\_\+loose\+\_\+string} = \char`\"{}\char`\"{}
+\item 
+\mbox{\Hypertarget{classLibdas_1_1JSONParser_a8d815d7af91a2f569329eb765772202e}\label{classLibdas_1_1JSONParser_a8d815d7af91a2f569329eb765772202e}} 
+size\+\_\+t {\bfseries m\+\_\+line\+\_\+nr} = 1
+\item 
+\mbox{\Hypertarget{classLibdas_1_1JSONParser_a5999ea204d1f759acfa377f3ec4220b0}\label{classLibdas_1_1JSONParser_a5999ea204d1f759acfa377f3ec4220b0}} 
+bool {\bfseries m\+\_\+prev\+\_\+decl} = false
+\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classLibdas_1_1JSONParser_a94ff727335ff0a27cb676151b50c694c}\label{classLibdas_1_1JSONParser_a94ff727335ff0a27cb676151b50c694c}} 
+\index{Libdas::JSONParser@{Libdas::JSONParser}!\_CheckForToken@{\_CheckForToken}}
+\index{\_CheckForToken@{\_CheckForToken}!Libdas::JSONParser@{Libdas::JSONParser}}
+\doxysubsubsection{\texorpdfstring{\_CheckForToken()}{\_CheckForToken()}}
+{\footnotesize\ttfamily JSONToken Libdas\+::\+JSONParser\+::\+\_\+\+Check\+For\+Token (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+Check the current char and idenitfy possible token value \begin{DoxyReturn}{Returns}
+JSONToken value specifying the identified token 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classLibdas_1_1JSONParser_a792fe74ab98bfada9919dbfbb4ef331d}\label{classLibdas_1_1JSONParser_a792fe74ab98bfada9919dbfbb4ef331d}} 
+\index{Libdas::JSONParser@{Libdas::JSONParser}!\_CheckTokenAction@{\_CheckTokenAction}}
+\index{\_CheckTokenAction@{\_CheckTokenAction}!Libdas::JSONParser@{Libdas::JSONParser}}
+\doxysubsubsection{\texorpdfstring{\_CheckTokenAction()}{\_CheckTokenAction()}}
+{\footnotesize\ttfamily void Libdas\+::\+JSONParser\+::\+\_\+\+Check\+Token\+Action (\begin{DoxyParamCaption}\item[{JSONToken}]{\+\_\+token }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+Check which action to take according to the specified token 
+\begin{DoxyParams}{Parameters}
+{\em \+\_\+token} & specifies the token which determines the action to be taken \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classLibdas_1_1JSONParser_aa73d7257193dee95bce61489817b44d0}\label{classLibdas_1_1JSONParser_aa73d7257193dee95bce61489817b44d0}} 
+\index{Libdas::JSONParser@{Libdas::JSONParser}!\_SkipSkippableCharacters@{\_SkipSkippableCharacters}}
+\index{\_SkipSkippableCharacters@{\_SkipSkippableCharacters}!Libdas::JSONParser@{Libdas::JSONParser}}
+\doxysubsubsection{\texorpdfstring{\_SkipSkippableCharacters()}{\_SkipSkippableCharacters()}}
+{\footnotesize\ttfamily void Libdas\+::\+JSONParser\+::\+\_\+\+Skip\+Skippable\+Characters (\begin{DoxyParamCaption}\item[{bool}]{\+\_\+no\+\_\+nl = {\ttfamily false} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [private]}}
+
+Skip all whitespaces and other skippable characters 
+\begin{DoxyParams}{Parameters}
+{\em \+\_\+no\+\_\+nl} & is a boolean value that specifies, if true, that no newlines would be skipped \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classLibdas_1_1JSONParser_ab1a68e5c46ecd220a43ff4de9aea7b67}\label{classLibdas_1_1JSONParser_ab1a68e5c46ecd220a43ff4de9aea7b67}} 
+\index{Libdas::JSONParser@{Libdas::JSONParser}!GetRootNode@{GetRootNode}}
+\index{GetRootNode@{GetRootNode}!Libdas::JSONParser@{Libdas::JSONParser}}
+\doxysubsubsection{\texorpdfstring{GetRootNode()}{GetRootNode()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{structLibdas_1_1JSONNode}{JSONNode}} \& Libdas\+::\+JSONParser\+::\+Get\+Root\+Node (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+Get the root node of parsed JSON nodes \begin{DoxyReturn}{Returns}
+reference to \mbox{\hyperlink{structLibdas_1_1JSONNode}{JSONNode}} object that is the root of all other objects 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classLibdas_1_1JSONParser_a2091fcbc79c9823d24d5d4269012c23d}\label{classLibdas_1_1JSONParser_a2091fcbc79c9823d24d5d4269012c23d}} 
+\index{Libdas::JSONParser@{Libdas::JSONParser}!Parse@{Parse}}
+\index{Parse@{Parse}!Libdas::JSONParser@{Libdas::JSONParser}}
+\doxysubsubsection{\texorpdfstring{Parse()}{Parse()}}
+{\footnotesize\ttfamily void Libdas\+::\+JSONParser\+::\+Parse (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{\+\_\+file\+\_\+name = {\ttfamily \char`\"{}\char`\"{}} }\end{DoxyParamCaption})}
+
+Parse the JSON file and create appropriate maps for each node 
+\begin{DoxyParams}{Parameters}
+{\em \+\_\+file\+\_\+name} & optionally specifies the JSON file name to use, can be ignored if the file name was provided in constructor \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+include/JSONParser.\+h\end{DoxyCompactItemize}

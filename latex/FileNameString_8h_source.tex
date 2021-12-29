@@ -1,0 +1,81 @@
+\hypertarget{FileNameString_8h_source}{}\doxysection{File\+Name\+String.\+h}
+\label{FileNameString_8h_source}\index{include/FileNameString.h@{include/FileNameString.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{comment}{// libdas: DENG asset handling management library}}
+\DoxyCodeLine{2 \textcolor{comment}{// licence: Apache, see LICENCE file}}
+\DoxyCodeLine{3 \textcolor{comment}{// file: FileNameString.h -\/ File name string handling functions header}}
+\DoxyCodeLine{4 \textcolor{comment}{// author: Karl-\/Mihkel Ott}}
+\DoxyCodeLine{5 }
+\DoxyCodeLine{6 \textcolor{preprocessor}{\#ifndef FILE\_NAME\_STRING\_H}}
+\DoxyCodeLine{7 \textcolor{preprocessor}{\#define FILE\_NAME\_STRING\_H}}
+\DoxyCodeLine{8 }
+\DoxyCodeLine{9 \textcolor{preprocessor}{\#ifdef FILE\_NAME\_STRING\_CPP}}
+\DoxyCodeLine{10 \textcolor{preprocessor}{    \#include <string>}}
+\DoxyCodeLine{11 \textcolor{preprocessor}{    \#include <vector>}}
+\DoxyCodeLine{12 \textcolor{preprocessor}{    \#include <climits>}}
+\DoxyCodeLine{13 \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{14 }
+\DoxyCodeLine{15 }
+\DoxyCodeLine{16 \textcolor{keyword}{namespace }\mbox{\hyperlink{namespaceLibdas}{Libdas}} \{}
+\DoxyCodeLine{17 }
+\DoxyCodeLine{18     \textcolor{keyword}{namespace }String \{}
+\DoxyCodeLine{19 \textcolor{comment}{}}
+\DoxyCodeLine{20 \textcolor{comment}{        /**}}
+\DoxyCodeLine{21 \textcolor{comment}{         * Replace file extension from input file with specified new one}}
+\DoxyCodeLine{22 \textcolor{comment}{         * @param \_input\_file is a file name that needs to have its extension replaced}}
+\DoxyCodeLine{23 \textcolor{comment}{         * @param \_ext is a supplement extension to be used}}
+\DoxyCodeLine{24 \textcolor{comment}{         * @return std::string instance specifying the new file name with new extension}}
+\DoxyCodeLine{25 \textcolor{comment}{         */}}
+\DoxyCodeLine{26         std::string ReplaceFileExtension(\textcolor{keyword}{const} std::string \&\_input\_file, \textcolor{keyword}{const} std::string \&\_ext);\textcolor{comment}{}}
+\DoxyCodeLine{27 \textcolor{comment}{        /**}}
+\DoxyCodeLine{28 \textcolor{comment}{         * Create Knutt-\/Morris-\/Pratt LSP array}}
+\DoxyCodeLine{29 \textcolor{comment}{         * @param \_keyword is a string to use for LSP array generation}}
+\DoxyCodeLine{30 \textcolor{comment}{         * @return std::vector value specifying the LSP array}}
+\DoxyCodeLine{31 \textcolor{comment}{         */}}
+\DoxyCodeLine{32         std::vector<size\_t> CreateLSPArray(\textcolor{keyword}{const} std::string \&\_keyword);\textcolor{comment}{}}
+\DoxyCodeLine{33 \textcolor{comment}{        /**}}
+\DoxyCodeLine{34 \textcolor{comment}{         * Find all substring instances from specified string}}
+\DoxyCodeLine{35 \textcolor{comment}{         * @param \_str is the main substring where substring sequence data is searched from}}
+\DoxyCodeLine{36 \textcolor{comment}{         * @param \_keyword is the substring that is searched}}
+\DoxyCodeLine{37 \textcolor{comment}{         */}}
+\DoxyCodeLine{38         std::vector<size\_t> FindSubstringInstances(\textcolor{keyword}{const} std::string \&\_str, \textcolor{keyword}{const} std::string \&\_keyword);\textcolor{comment}{}}
+\DoxyCodeLine{39 \textcolor{comment}{        /**}}
+\DoxyCodeLine{40 \textcolor{comment}{         * Find all substring instances from specified string}}
+\DoxyCodeLine{41 \textcolor{comment}{         * @param \_str is the main substring in char* format where substring sequence data is searched from}}
+\DoxyCodeLine{42 \textcolor{comment}{         * @param \_str\_len specifies the length of buffer \_str}}
+\DoxyCodeLine{43 \textcolor{comment}{         * @param \_keyword is the substring that is searched}}
+\DoxyCodeLine{44 \textcolor{comment}{         */}}
+\DoxyCodeLine{45         std::vector<size\_t> FindSubstringInstances(\textcolor{keyword}{const} \textcolor{keywordtype}{char} *\_str, \textcolor{keywordtype}{size\_t} \_str\_len, \textcolor{keyword}{const} std::string \&\_keyword);\textcolor{comment}{}}
+\DoxyCodeLine{46 \textcolor{comment}{        /**}}
+\DoxyCodeLine{47 \textcolor{comment}{         * Concatenate name args into single name string}}
+\DoxyCodeLine{48 \textcolor{comment}{         * @param \_names reference to std::vector<std::string> that contains all name strings to concatenate}}
+\DoxyCodeLine{49 \textcolor{comment}{         * @return std::string object that is essentially the concatenated name string}}
+\DoxyCodeLine{50 \textcolor{comment}{         */}}
+\DoxyCodeLine{51         std::string ConcatenateNameArgs(\textcolor{keyword}{const} std::vector<std::string> \&\_names);\textcolor{comment}{}}
+\DoxyCodeLine{52 \textcolor{comment}{        /**}}
+\DoxyCodeLine{53 \textcolor{comment}{         * Extract pure file name from given file path string}}
+\DoxyCodeLine{54 \textcolor{comment}{         * @param \_path is the given file path}}
+\DoxyCodeLine{55 \textcolor{comment}{         * @return std::string instance that contains file name only without path}}
+\DoxyCodeLine{56 \textcolor{comment}{         */}}
+\DoxyCodeLine{57         std::string ExtractFileName(\textcolor{keyword}{const} std::string \&\_path);\textcolor{comment}{}}
+\DoxyCodeLine{58 \textcolor{comment}{        /**}}
+\DoxyCodeLine{59 \textcolor{comment}{         * Extract file extension from given file name}}
+\DoxyCodeLine{60 \textcolor{comment}{         * @param \_file\_name is a given file name}}
+\DoxyCodeLine{61 \textcolor{comment}{         * @return Extracted std::string instance that defines the file extension name.}}
+\DoxyCodeLine{62 \textcolor{comment}{         *         If the extracted string is empty, then it means that no extension could be found }}
+\DoxyCodeLine{63 \textcolor{comment}{         *         for the file}}
+\DoxyCodeLine{64 \textcolor{comment}{         */}}
+\DoxyCodeLine{65         std::string ExtractFileExtension(\textcolor{keyword}{const} std::string \&\_file\_name);\textcolor{comment}{}}
+\DoxyCodeLine{66 \textcolor{comment}{        /**}}
+\DoxyCodeLine{67 \textcolor{comment}{         * Extract root path from given file name}}
+\DoxyCodeLine{68 \textcolor{comment}{         * @param \_file\_name is given file name}}
+\DoxyCodeLine{69 \textcolor{comment}{         * @return Extracted std::string instance that specifies the root path used for the file}}
+\DoxyCodeLine{70 \textcolor{comment}{         */}}
+\DoxyCodeLine{71         std::string ExtractRootPath(\textcolor{keyword}{const} std::string \&\_file\_name);}
+\DoxyCodeLine{72     \}}
+\DoxyCodeLine{73 \}}
+\DoxyCodeLine{74 }
+\DoxyCodeLine{75 \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

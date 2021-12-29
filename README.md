@@ -26,7 +26,5 @@ Additionally manual tests can be built using `--test` switch on premake5 command
 
 ## Generating documentation
 
-The source code is commented using doxygen notation. In order to generate Libdas reference documentation use following commands:  
-`mkdir doxygen`  
-`cd doxygen`  
-`doxygen ../doxygen.conf`  
+The source code is commented using doxygen notation. In order to generate Libdas reference documentation use following command:  
+`doxygen doxygen.conf`  

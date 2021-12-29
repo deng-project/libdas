@@ -1,6 +1,0 @@
-<map id="Libdas::DasReaderCore" name="Libdas::DasReaderCore">
-<area shape="rect" id="node1" title=" " alt="" coords="109,668,315,1009"/>
-<area shape="rect" id="node2" href="$classLibdas_1_1AsciiLineReader.html" title=" " alt="" coords="5,308,200,605"/>
-<area shape="rect" id="node3" href="$classLibdas_1_1AsciiStreamReader.html" title=" " alt="" coords="12,5,193,259"/>
-<area shape="rect" id="node4" href="$classLibdas_1_1BinaryFormatErrorHandler.html" title="Error handling class for binary formats." alt="" coords="225,396,418,517"/>
-</map>

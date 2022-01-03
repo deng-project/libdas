@@ -21,6 +21,7 @@
     #include <vector>
     #include <cfloat>
 
+    #include <Api.h>
     #include <Iterators.h>
     #include <Points.h>
     #include <Vector.h>
@@ -140,7 +141,7 @@ namespace Libdas {
     /**
      * GLTF file format parser class
      */
-    class GLTFParser : public JSONParser {
+    class LIBDAS_API GLTFParser : public JSONParser {
         private:
             std::ifstream m_ext_reader;
             AsciiFormatErrorHandler m_error;

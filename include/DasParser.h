@@ -15,24 +15,20 @@
     #include <iostream>
     #include <unordered_map>
 
+    #include <Api.h>
     #include <Vector.h>
     #include <Matrix.h>
     #include <Quaternion.h>
     #include <ErrorHandlers.h>
     #include <AsciiStreamReader.h>
     #include <AsciiLineReader.h>
-#endif
-
-/// Import all structure definitions
-#include <DasStructures.h>
-
-#ifdef DAS_PARSER_CPP
+    #include <DasStructures.h>
     #include <DasReaderCore.h>
 #endif
 
 namespace Libdas {
 
-    class DasParser : private DasReaderCore {
+    class LIBDAS_API DasParser : private DasReaderCore {
         private:
             DasProperties m_props;
             std::vector<DasBuffer> m_buffers;

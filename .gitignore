@@ -1,4 +1,5 @@
 tags
+.vs/
 doxygen/
 compile_commands.json
 *.o
@@ -28,3 +29,5 @@ build
 obj
 *.make
 Makefile
+*.vcxproj*
+*.sln

@@ -5,6 +5,7 @@
 #include <fstream>
 typedef std::size_t size_t;
 
+#include <Api.h>
 #include <HuffmanCompression.h>
 
 int main(int argc, char *argv[]) {

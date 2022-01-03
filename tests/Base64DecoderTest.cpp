@@ -2,8 +2,10 @@
 #include <vector>
 #include <iostream>
 
+#include <Api.h>
 #define LIBDAS_DEFS_ONLY
 #include <HuffmanCompression.h>
+#undef LIBDAS_DEFS_ONLY
 
 #include <Base64Decoder.h>
 

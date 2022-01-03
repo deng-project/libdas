@@ -9,6 +9,7 @@
     #include <cfloat>
     #include <unordered_map>
 
+    #include <Api.h>
     #include <Points.h>
     #include <Vector.h>
     #include <Matrix.h>
@@ -20,7 +21,7 @@
 
 namespace Libdas {
 
-    class GLTFCompiler : private DasWriterCore {
+    class LIBDAS_API GLTFCompiler : private DasWriterCore {
         private:
             /**
              * Check if any properties are empty and if they are, supplement values from GLTFRoot::asset into it

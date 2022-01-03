@@ -17,7 +17,8 @@
     #include <vector>
     #include <queue>
     #include <unordered_map>
-
+    
+    #include <Api.h>
     #include <Points.h>
     #include <Vector.h>
     #include <Matrix.h>
@@ -39,7 +40,7 @@ namespace Libdas {
     /**
      * Compiler class that uses Wavefront OBJ files as source files and outputs DAS file.
      */
-    class WavefrontObjCompiler : private DasWriterCore {
+    class LIBDAS_API WavefrontObjCompiler : private DasWriterCore {
         private:
             //std::vector<DasBuffer> _ReadImages();
             

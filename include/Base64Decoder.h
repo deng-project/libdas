@@ -14,6 +14,7 @@
     #include <utility>
     #include <algorithm>
 
+    #include <Api.h>
     #define LIBDAS_DEFS_ONLY
     #include <HuffmanCompression.h>
     #undef LIBDAS_DEFS_ONLY
@@ -21,7 +22,7 @@
 
 namespace Libdas {
 
-    class Base64Decoder {
+    class LIBDAS_API Base64Decoder {
         private:
             std::string m_base64_str;
             uint8_t m_base64_table[LIBDAS_ASCII_ALPHABET_SIZE] = {0};

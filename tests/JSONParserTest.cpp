@@ -7,6 +7,7 @@
 #include <vector>
 #include <iostream>
 
+#include <Api.h>
 #include <ErrorHandlers.h>
 #include <AsciiStreamReader.h>
 #include <JSONParser.h>

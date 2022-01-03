@@ -8,6 +8,7 @@
 #include <cfloat>
 #include <fstream>
 
+#include <Api.h>
 #include <Points.h>
 #include <Vector.h>
 #include <Matrix.h>

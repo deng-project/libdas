@@ -10,12 +10,14 @@
 #ifdef WAVEFRONT_OBJ_STRUCTURES_CPP
     #include <vector>
     #include <string>
+    #include <array>
     #include <queue>
     #include <cstdint>
     #include <cstdlib>
     #include <cmath>
     #include <unordered_map>
     
+    #include <Api.h>
     #include <ErrorHandlers.h>
     #include <Points.h>
 #endif
@@ -180,7 +182,7 @@ namespace Libdas {
          * @param _line is the current statement line
          * @return Point2D instance, which contains parsed double indicies
          */
-        Point2D<uint32_t> _DoubleIndexBlockCallback(AsciiFormatErrorHandler &_error, const std::string &_block, 
+        LIBDAS_API Point2D<uint32_t> _DoubleIndexBlockCallback(AsciiFormatErrorHandler &_error, const std::string &_block,
                                                  const std::string &_keyword, const uint32_t _line);
         /** 
          * Parse index block that contains maximum 3 indices
@@ -190,45 +192,45 @@ namespace Libdas {
          * @param _line is the current statement line
          * @return Point3D instance, which contains parsed triple indicies
          */
-        Point3D<uint32_t> _TripleIndexBlockCallback(AsciiFormatErrorHandler &_error, const std::string &_block, 
+        LIBDAS_API Point3D<uint32_t> _TripleIndexBlockCallback(AsciiFormatErrorHandler &_error, const std::string &_block,
                                                  const std::string &_keyword, const uint32_t _line);
 
         /// Functions to use as parsing function pointer
-        void VertexKeywordArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        void PointKeywordArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        void VertexNormalKeywordArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        void TextureVertexKeywordArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        void CSTypeArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        void PolynomialDegreeArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        void BasisMatrixArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        void CSStepArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        void PointsArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        //void LineArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        void FaceArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        //void CurveArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        //void 2DCurveArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        //void SurfaceArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        //void ParameterArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        //void TrimmingCurveArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        //void HoleCurveArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        //void SpecialCurveArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        //void SpecialPointArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        void GroupArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        //void ShadingGroupCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        //void MergeGroupCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        void ObjectNameCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        //void BevelInterpolationArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        //void ColorInterpolationArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        //void DiffuseInterpolationArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        //void LevelOfDetailArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        //void UseMapArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        //void MapLibraryArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        //void UseMaterialArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        //void MaterialLibraryArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        //void ShadowObjectArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        //void RayTracingObjectArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        //void CurveTechniqueArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        //void SurfaceTechniqueArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        LIBDAS_API void VertexKeywordArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        LIBDAS_API void PointKeywordArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        LIBDAS_API void VertexNormalKeywordArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        LIBDAS_API void TextureVertexKeywordArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        LIBDAS_API void CSTypeArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        LIBDAS_API void PolynomialDegreeArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        LIBDAS_API void BasisMatrixArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        LIBDAS_API void CSStepArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        LIBDAS_API void PointsArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        //LIBDAS_API void LineArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        LIBDAS_API void FaceArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        //LIBDAS_API void CurveArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        //LIBDAS_API void 2DCurveArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        //LIBDAS_API void SurfaceArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        //LIBDAS_API void ParameterArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        //LIBDAS_API void TrimmingCurveArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        //LIBDAS_API void HoleCurveArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        //LIBDAS_API void SpecialCurveArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        //LIBDAS_API void SpecialPointArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        LIBDAS_API void GroupArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        //LIBDAS_API void ShadingGroupCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        //LIBDAS_API void MergeGroupCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        LIBDAS_API void ObjectNameCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        //LIBDAS_API void BevelInterpolationArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        //LIBDAS_API void ColorInterpolationArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        //LIBDAS_API void DiffuseInterpolationArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        //LIBDAS_API void LevelOfDetailArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        //LIBDAS_API void UseMapArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        //LIBDAS_API void MapLibraryArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        //LIBDAS_API void UseMaterialArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        //LIBDAS_API void MaterialLibraryArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        //LIBDAS_API void ShadowObjectArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        //LIBDAS_API void RayTracingObjectArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        //LIBDAS_API void CurveTechniqueArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        //LIBDAS_API void SurfaceTechniqueArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
     }
 }
 

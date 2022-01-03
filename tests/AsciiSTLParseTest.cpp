@@ -6,6 +6,7 @@
 #include <queue>
 #include <array>
 
+#include <Api.h>
 #include <Points.h>
 #include <ErrorHandlers.h>
 #include <AsciiStreamReader.h>

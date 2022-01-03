@@ -16,6 +16,7 @@
     #include <iostream>
     #include <chrono>
 
+    #include <Api.h>
     #include <LibdasAssert.h>
     #include <ErrorHandlers.h>
     #include <Iterators.h>
@@ -36,7 +37,7 @@
 
 namespace Libdas {
 
-    class DasWriterCore {
+    class LIBDAS_API DasWriterCore {
         private:
             std::ofstream m_out_stream;
             bool m_use_compression = false;

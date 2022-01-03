@@ -17,6 +17,7 @@
     #include <unordered_map>
     #include <array>
 
+    #include <Api.h>
     #include <Iterators.h>
     #include <Points.h>
     #include <Vector.h>
@@ -41,7 +42,7 @@ namespace Libdas {
     /**
      * Compiler class that uses STL files as source and outputs DAS file
      */
-    class STLCompiler : private DasWriterCore {
+    class LIBDAS_API STLCompiler : private DasWriterCore {
         private:
             std::vector<Point4D<float>> m_unique_verts;
             std::vector<Point3D<float>> m_unique_normals;

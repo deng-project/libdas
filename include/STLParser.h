@@ -12,9 +12,11 @@
     #include <string>
     #include <iostream>
     #include <vector>
+    #include <array>
     #include <fstream>
     #include <unordered_map>
 
+    #include <Api.h>
     #include <Points.h>
     #include <LibdasAssert.h>
     #include <ErrorHandlers.h>
@@ -28,7 +30,7 @@
 
 namespace Libdas {
 
-    enum AsciiSTLStatementType {
+    enum LIBDAS_API AsciiSTLStatementType {
         ASCII_STL_STATEMENT_NONE,                       // special value to define empty newline
         ASCII_STL_STATEMENT_SOLID,                      // solid
         ASCII_STL_STATEMENT_FACET,                      // facet
@@ -40,7 +42,7 @@ namespace Libdas {
     };
 
 
-    struct AsciiSTLStatementCallback {
+    struct LIBDAS_API AsciiSTLStatementCallback {
         AsciiSTLStatementType type;
         STLFunctions::PTR_KeywordCallback keyword_callback; 
 
@@ -51,7 +53,7 @@ namespace Libdas {
     };
 
 
-    class AsciiSTLParser : private AsciiLineReader {
+    class LIBDAS_API AsciiSTLParser : private AsciiLineReader {
         private:
             AsciiFormatErrorHandler m_error;
             std::unordered_map<std::string, AsciiSTLStatementCallback> m_tokens;
@@ -108,7 +110,7 @@ namespace Libdas {
      * Binary STL file header data structure
      */
 #pragma pack(push, 1)
-    struct BinarySTLHeader {
+    struct LIBDAS_API BinarySTLHeader {
         char signature[80];
         uint32_t facet_c;
 
@@ -119,7 +121,7 @@ namespace Libdas {
 #pragma pack(pop)
 
 
-    class BinarySTLParser {
+    class LIBDAS_API BinarySTLParser {
         private:
             BinarySTLHeader m_header;
             BinaryFormatErrorHandler m_error;

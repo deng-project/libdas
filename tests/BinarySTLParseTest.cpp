@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <queue>
 
+#include <Api.h>
 #include <Points.h>
 #include <ErrorHandlers.h>
 #include <AsciiStreamReader.h>

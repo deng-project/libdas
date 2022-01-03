@@ -18,6 +18,7 @@
     #include <cstring>
     #include <utility>
 
+    #include <Api.h>
     #include <ErrorHandlers.h>
     #include <AsciiStreamReader.h>
 #endif
@@ -76,7 +77,7 @@ namespace Libdas {
     };
 
 
-    class JSONParser : public AsciiStreamReader {
+    class LIBDAS_API JSONParser : public AsciiStreamReader {
         private:
             AsciiFormatErrorHandler m_error;
             JSONNode m_root_node;

@@ -14,6 +14,7 @@
 #include <memory>
 #include <unordered_map>
 
+#include <Api.h>
 #include <Points.h>
 #include <LibdasAssert.h>
 #include <ErrorHandlers.h>

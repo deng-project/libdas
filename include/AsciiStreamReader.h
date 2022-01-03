@@ -16,6 +16,7 @@
     #include <iostream>
     #include <algorithm>
 
+    #include <Api.h>
     #include <FileNameString.h>
     #include <LibdasAssert.h>
     #include <ErrorHandlers.h>
@@ -28,7 +29,7 @@ namespace Libdas {
      * Parent class for AsciiLineReader and similar ASCII data parsing classes.
      * The interface allows reading data step by step into specific chunk buffer
      */
-    class AsciiStreamReader {
+    class LIBDAS_API AsciiStreamReader {
         private:
             const std::string m_end;
             std::ifstream m_stream;

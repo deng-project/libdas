@@ -14,6 +14,7 @@
     #include <fstream>
     #include <utility>
 
+    #include <Api.h>
     #include <AsciiStreamReader.h>
 #endif
 
@@ -22,7 +23,7 @@
 
 namespace Libdas {
 
-    class AsciiLineReader : public AsciiStreamReader {
+    class LIBDAS_API AsciiLineReader : public AsciiStreamReader {
         private:
             std::string m_file_name;
             char *m_line_beg = nullptr;

@@ -1,7 +1,7 @@
-/// libdas: DENG asset handling management library
-/// licence: Apache, see LICENCE file
-/// file: DasReaderCoreTest.cpp - DasReaderCore class test application
-/// author: Karl-Mihkel Ott
+// libdas: DENG asset handling management library
+// licence: Apache, see LICENCE file
+// file: DasReaderCoreTest.cpp - DasReaderCore class test application
+// author: Karl-Mihkel Ott
 
 // stl
 #include <any>
@@ -12,6 +12,7 @@
 #include <cstring>
 #include <string>
 
+#include <Api.h>
 #include <Vector.h>
 #include <Matrix.h>
 #include <Quaternion.h>

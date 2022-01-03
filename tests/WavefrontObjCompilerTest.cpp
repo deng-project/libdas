@@ -9,6 +9,7 @@
 #include <memory>
 #include <unordered_map>
 
+#include <Api.h>
 #include <Points.h>
 #include <Vector.h>
 #include <Matrix.h>

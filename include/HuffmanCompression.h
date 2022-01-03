@@ -14,6 +14,7 @@
     #include <iostream>
     #include <queue>
 
+    #include <Api.h>
     #include <LibdasAssert.h>
     #include <ErrorHandlers.h>
 #endif
@@ -28,7 +29,7 @@ namespace Libdas {
     namespace Huffman {
 
         /// Structure for each as ascii node 
-        struct Node {
+        struct LIBDAS_API Node {
             uint16_t ch; 
             Node *left;
             Node *right;
@@ -59,7 +60,7 @@ namespace Libdas {
          * @param _used specifies the amount of used bits  
          * @param _shift specifies the byte shift amount
          */
-        void ShiftBytesLeft(std::pair<char*, size_t> _bytes, int _used, int _shift);
+        LIBDAS_API void ShiftBytesLeft(std::pair<char*, size_t> _bytes, int _used, int _shift);
         /** 
          * Shift bytes in byte array to right
          * NOTE: in bytes left byte means more significant byte and right means less significant byte, 
@@ -68,26 +69,26 @@ namespace Libdas {
          * @param _used specifies the amount of used bits  
          * @param _shift specifies the byte shift amount
          */
-        void ShiftBytesRight(std::pair<char*, size_t> _bytes, int _used, int _shift);
+        LIBDAS_API void ShiftBytesRight(std::pair<char*, size_t> _bytes, int _used, int _shift);
         /**
          * Perform binary shift towards most significant bit across given memory area
          * @param _bytes is a pointer to given memory area
          * @param _len is the size of the given memory area in bytes
          * @param _shift total amount of bits to shift
          */
-        void ShiftToMSB(unsigned char *_bytes, size_t _len, int _shift);
+        LIBDAS_API void ShiftToMSB(unsigned char *_bytes, size_t _len, int _shift);
         /**
          * Perform binary shift towards least significant bit accross given memory area
          * @param _bytes is a pointer to given memory area
          * @param _len is the size of the given memory area in bytes
          * @param _shift total amount of bits to shift
          */
-        void ShiftToLSB(unsigned char *_bytes, size_t _len, int _shift);
+        LIBDAS_API void ShiftToLSB(unsigned char *_bytes, size_t _len, int _shift);
 
 
 #ifdef _DEBUG
         /// Log the encoding table to stdout
-        void LogEntable(BinaryKey *entable);
+        LIBDAS_API void LogEntable(BinaryKey *entable);
 #else 
     #define LogEntable(table)
 #endif
@@ -96,7 +97,7 @@ namespace Libdas {
         /**
          * Huffman tree class that contains all nodes
          */
-        class Tree {
+        class LIBDAS_API Tree {
             private:
                 // comparison class for std::priority_queue
                 class less { 
@@ -129,7 +130,7 @@ namespace Libdas {
         /**
          * Raw data to Huffman encoded bytes encoder
          */
-        class Encoder : public Tree {
+        class LIBDAS_API Encoder : public Tree {
             private:
                 BinaryKey m_entable[LIBDAS_ASCII_ALPHABET_SIZE] = {};
 
@@ -178,7 +179,7 @@ namespace Libdas {
         /**
          * Encoded data to raw data decoder class
          */
-        class Decoder : public Tree {
+        class LIBDAS_API Decoder : public Tree {
             private:
                 char *m_buffer = nullptr;
 

@@ -16,6 +16,7 @@
     #include <LibdasAssert.h>
     #include <ErrorHandlers.h>
     
+    #include <Api.h>
     #include <Vector.h>
     #include <Matrix.h>
     #include <Quaternion.h>
@@ -32,7 +33,7 @@ namespace Libdas {
     /**
      * Interface for reading and handling texture files 
      */
-    class TextureReader {
+    class LIBDAS_API TextureReader {
         private:
             char *m_buffer = nullptr;
             size_t m_buffer_size = 0;

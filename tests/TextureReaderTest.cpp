@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 
+#include <Api.h>
 #include <Vector.h>
 #include <Matrix.h>
 #include <Quaternion.h>

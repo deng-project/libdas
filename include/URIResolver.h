@@ -13,6 +13,7 @@
     #include <fstream>
     #include <iostream>
 
+    #include <Api.h>
 #define LIBDAS_DEFS_ONLY
     #include <ErrorHandlers.h>
     #include <HuffmanCompression.h>
@@ -26,14 +27,14 @@
 namespace Libdas {
     /// Type to specify unresolved URI severity
     typedef uint8_t UnresolvedUriSeverity;
-#define UNRESOLVED_SEVERITY_WARNING 0
-#define UNRESOLVED_SEVERITY_ERROR   1
+    #define UNRESOLVED_SEVERITY_WARNING 0
+    #define UNRESOLVED_SEVERITY_ERROR   1
 
     /**
      * Class interface for reading data from given uri.
      * Supported uri types for now are base64 and file
      */
-    class URIResolver : private Base64Decoder {
+    class LIBDAS_API URIResolver : private Base64Decoder {
         private:
             std::string m_uri;
             std::string m_root_path;

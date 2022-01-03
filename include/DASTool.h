@@ -1,12 +1,14 @@
-/// libdas: DENG asset handling management library
-/// licence: Apache, see LICENCE file
-/// file: DASTool.h - header for CLI tool that manages DAS files and creates new DAS files from other 3D model formats 
-/// author: Karl-Mihkel Ott
+// libdas: DENG asset handling management library
+// licence: Apache, see LICENCE file
+// file: DASTool.h - header for CLI tool that manages DAS files and creates new DAS files from other 3D model formats 
+// author: Karl-Mihkel Ott
+
 #ifndef DAS_TOOL_H
 #define DAS_TOOL_H
 
 #ifdef DAS_TOOL_CPP
     #include <any>
+    #include <array>
     #include <string>
     #include <ctime>
     #include <fstream>
@@ -16,6 +18,7 @@
     #include <stdexcept>
     #include <unordered_map>
     
+    #include <Api.h>
     #include <FileNameString.h>
     #include <LibdasAssert.h>
     #include <ErrorHandlers.h>

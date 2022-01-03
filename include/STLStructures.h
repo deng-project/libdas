@@ -1,7 +1,7 @@
-/// libdas: DENG asset handling management library
-/// licence: Apache, see LICENCE file
-/// file: STLStructures.h - STL parsing functions and structures header
-/// author: Karl-Mihkel Ott
+// libdas: DENG asset handling management library
+// licence: Apache, see LICENCE file
+// file: STLStructures.h - STL parsing functions and structures header
+// author: Karl-Mihkel Ott
 
 #ifndef STL_STRUCTURES_H
 #define STL_STRUCTURES_H
@@ -14,6 +14,7 @@
     #include <fstream>
     #include <array>
 
+    #include <Api.h>
     #include <Points.h>
     #include <ErrorHandlers.h>
 #endif
@@ -21,13 +22,13 @@
 
 namespace Libdas {
 
-    struct STLFacet {
+    struct LIBDAS_API STLFacet {
         Point3D<float> normal;
         std::array<Point3D<float>, 3> vertices;
         size_t vert_index = 0;
     };
 
-    struct STLObject {
+    struct LIBDAS_API STLObject {
         std::string name;
         std::vector<STLFacet> facets;
 
@@ -41,7 +42,7 @@ namespace Libdas {
          * @param _file_name specifies the file name to use
          * @return true is the format is Ascii STL and false otherwards
          */
-        bool Identify(const std::string &_file_name);
+        LIBDAS_API bool Identify(const std::string &_file_name);
 
         typedef std::vector<STLObject> Groups;
         
@@ -54,7 +55,7 @@ namespace Libdas {
         /**
          * Concatenate arguments into single string object
          */
-        std::string _ConcatenateArgs(ArgsType &_args);
+        LIBDAS_API std::string _ConcatenateArgs(ArgsType &_args);
 
         /// Keyword parsing functions 
         /// NOTE: Following functions require custom data
@@ -65,13 +66,13 @@ namespace Libdas {
         ///  * _EndFacetCallback - m_is_facet
         ///  * _EndSolidCallback - m_is_solid
 
-        void _SolidCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args, void *custom);
-        void _FacetCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args, void *custom);
-        void _OuterLoopCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args, void *custom);
-        void _VertexCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args, void *custom);
-        void _EndLoopCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args, void *custom);
-        void _EndFacetCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args, void *custom);
-        void _EndSolidCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args, void *custom);
+        LIBDAS_API void _SolidCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args, void *custom);
+        LIBDAS_API void _FacetCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args, void *custom);
+        LIBDAS_API void _OuterLoopCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args, void *custom);
+        LIBDAS_API void _VertexCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args, void *custom);
+        LIBDAS_API void _EndLoopCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args, void *custom);
+        LIBDAS_API void _EndFacetCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args, void *custom);
+        LIBDAS_API void _EndSolidCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args, void *custom);
     }
 }
 

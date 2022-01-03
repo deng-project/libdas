@@ -19,6 +19,7 @@
     #include <vector>
     #include <unordered_map>
     
+    #include <Api.h>
     #include <Iterators.h>
     #include <Vector.h>
     #include <Matrix.h>
@@ -128,7 +129,7 @@ namespace Libdas {
     /**
      * Parent class to read data from DAS file format
      */
-    class DasReaderCore : public AsciiLineReader {
+    class LIBDAS_API DasReaderCore : public AsciiLineReader {
         private:
             BinaryFormatErrorHandler m_error;
 

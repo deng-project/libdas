@@ -7,6 +7,7 @@ local Libdas = {}
 
 function Libdas.build() 
     project "das"
+        
         kind "SharedLib"
         language "C++"
         cppdialect "C++17"
@@ -22,6 +23,9 @@ function Libdas.build()
             "src/GLTFCompiler.cpp"
             -- This list is incomplete, you can help by expanding it :)))
         }
+
+        configuration "vs2019"
+            defines { "LIBDAS_EXPORT_LIBRARY" }
 
 end
 

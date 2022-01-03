@@ -6,6 +6,7 @@
 #include <array>
 #include <vector>
 
+#include <Api.h>
 #include <Iterators.h>
 #include <Points.h>
 #include <Vector.h>

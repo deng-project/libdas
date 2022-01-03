@@ -20,6 +20,7 @@
     #include <unordered_map>
     #include <memory>
 
+    #include <Api.h>
     #include <Points.h>
     #include <ErrorHandlers.h>
     #include <AsciiStreamReader.h>
@@ -52,7 +53,7 @@ namespace Libdas {
     /**
      * Interface to parse Wavefront OBJ files
      */
-    class WavefrontObjParser : public AsciiLineReader {
+    class LIBDAS_API WavefrontObjParser : public AsciiLineReader {
         private:
             std::unordered_map<std::string, WavefrontObjStatementCallback> m_statement_map;
             //std::vector<std::unique_ptr<AsciiStreamReader>> m_mtl_streams;

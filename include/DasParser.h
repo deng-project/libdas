@@ -17,6 +17,7 @@
 
     #include <Vector.h>
     #include <Matrix.h>
+    #include <Quaternion.h>
     #include <ErrorHandlers.h>
     #include <AsciiStreamReader.h>
     #include <AsciiLineReader.h>
@@ -35,9 +36,12 @@ namespace Libdas {
         private:
             DasProperties m_props;
             std::vector<DasBuffer> m_buffers;
-            std::vector<DasModel> m_models;
-            std::vector<DasAnimation> m_animations;
+            std::vector<DasMesh> m_meshes;
+            std::vector<DasNode> m_nodes;
             std::vector<DasScene> m_scenes;
+            std::vector<DasSkeletonJoint> m_joints;
+            std::vector<DasSkeleton> m_skeletons;
+            std::vector<DasAnimation> m_animations;
 
         private:
             /**
@@ -64,40 +68,119 @@ namespace Libdas {
              * Get all specified file properties
              * @return reference to DasProperties object that specifies all parsed properties
              */
-            DasProperties &GetProperties();
-            /**
-             * Get all parsed scenes
-             * @return reference to std::vector<DasScene> object with all parsed scenes
-             */
-            std::vector<DasScene> &GetScenes();
+            inline DasProperties &GetProperties() { 
+                return m_props; 
+            }
+
             /**
              * Access buffer reference by id
              * @param _id specifies the buffer id to use for accessing
              * @return reference to DasBuffer object, accessed by the id
              */
-            DasBuffer &AccessBuffer(uint32_t _id);
+            inline DasBuffer &AccessBuffer(uint32_t _id) { 
+                return m_buffers[_id % static_cast<uint32_t>(m_buffers.size())];
+            }
+
             /**
-             * Access model reference by id
+             * Access mesh reference by id
              * @param _id specifies the model id to use for accessing
-             * @return reference to DasModel, accessed by the id
+             * @return reference to DasMesh, accessed by the id
              */
-            DasModel &AccessModel(uint32_t _id);
+            inline DasMesh &AccessMesh(uint32_t _id) { 
+                return m_meshes[_id % static_cast<uint32_t>(m_meshes.size())]; 
+            }
+
             /**
              * Access animation reference by id
              * @param _id specifies the animation id to use for accessing
              * @return reference to DasAnimation, accessed by the id
              */
-            DasAnimation &AccessAnimation(uint32_t _id);
+            inline DasAnimation &AccessAnimation(uint32_t _id) { 
+                return m_animations[_id % static_cast<uint32_t>(m_animations.size())]; 
+            }
+
+            /**
+             * Access a scene node by id
+             * @param _id specifies the scene node id to use for accessing
+             * @return reference to DasNode object, accessed by the id
+             */
+            inline DasNode &AccessNode(uint32_t _id) {
+                return m_nodes[_id % static_cast<uint32_t>(m_nodes.size())];
+            }
+
+            /**
+             * Access a skeleton by id
+             * @param _id specifies the skeleton id to use for accessing
+             * @return reference to DasSkeleton object, accessed by the id
+             */
+            inline DasSkeleton &AccessSkeleton(uint32_t _id) {
+                return m_skeletons[_id % static_cast<uint32_t>(m_skeletons.size())];
+            }
+
+            /**
+             * Access a skeleton joint by id
+             * @param _id specifies the skeleton joint id to use for accessing
+             * @return reference to DasSkeletonJoint object, accessed by the id
+             */
+            inline DasSkeletonJoint &AccessSkeletonJoint(uint32_t _id) {
+                return m_joints[_id % static_cast<uint32_t>(m_joints.size())];
+            }
+
+            /**
+             * Get all scenes specified in the file
+             * @return reference to std::vector object containing all scene details
+             */
+            inline std::vector<DasScene> &GetScenes() {
+                return m_scenes;
+            }
+
+            /**
+             * Get the amount of buffers that were parsed 
+             * @return uint32_t value specifying the buffer count
+             */
+            inline uint32_t GetBufferCount() {
+                return static_cast<uint32_t>(m_buffers.size());
+            }
+
             /**
              * Get the amount of models that were parsed
              * @return uint32_t value specifying the model count
              */
-            uint32_t GetModelCount();
+            inline uint32_t GetMeshCount() {
+                return static_cast<uint32_t>(m_meshes.size());
+            }
+
+            /**
+             * Get the amount of nodes that were parsed
+             * @return uint32_t value specifying the node count
+             */
+            inline uint32_t GetNodeCount() {
+                return static_cast<uint32_t>(m_nodes.size());
+            }
+            
+            /**
+             * Get the amount of skeletons that were parsed
+             * @param uint32_t value specifying the skeleton count
+             */
+            inline uint32_t GetSkeletonCount() {
+                return static_cast<uint32_t>(m_skeletons.size());
+            }
+
+            /**
+             * Get the amount of skeleton joints that were parsed
+             * @param uint32_t value specifying the skeleton joint count
+             */
+            inline uint32_t GetSkeletonJointCount() {
+                return static_cast<uint32_t>(m_joints.size());
+            }
+
             /**
              * Get the amount of animations that were parsed
              * @return uint32_t value specifying the animation count
              */
-            uint32_t GetAnimationCount();
+            inline uint32_t GetAnimationCount() {
+                return static_cast<uint32_t>(m_animations.size());
+            }
 
     };
 }

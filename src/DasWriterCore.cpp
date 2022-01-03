@@ -81,48 +81,6 @@ namespace Libdas {
     }
 
 
-    void DasWriterCore::_WriteAnimationKeyframe(const DasKeyframe &_keyframe, const std::string &_scope_name) {
-        _WriteScopeBeginning(_scope_name);
-        _WriteNumericalValue<uint32_t>("TIMESTAMP", _keyframe.timestamp);
-        _WriteNumericalValue<uint32_t>("VERTEXBUFFERID", _keyframe.vertex_buffer_id);
-        _WriteNumericalValue<uint32_t>("VERTEXOFFSET", _keyframe.vertex_buffer_offset);
-
-        // optional values
-        if(_keyframe.texture_map_buffer_id != UINT32_MAX) {
-            _WriteNumericalValue<uint32_t>("TEXTUREMAPBUFFERID", _keyframe.texture_map_buffer_id);
-            _WriteNumericalValue<uint32_t>("TEXTUREMAPVERTICESOFFSET", _keyframe.texture_map_buffer_offset);
-        }
-        if(_keyframe.vertex_normal_buffer_id != UINT32_MAX) {
-            _WriteNumericalValue<uint32_t>("VERTEXNORMALBUFFERID", _keyframe.vertex_normal_buffer_id);
-            _WriteNumericalValue<uint32_t>("VERTEXNORMALOFFSET", _keyframe.vertex_normal_buffer_offset);
-        }
-
-        _EndScope();
-    }
-
-
-    void DasWriterCore::_WriteNode(const DasSceneNode &_node, const std::string &_scope_name) {
-        _WriteScopeBeginning(_scope_name);
-        // all values are optional 
-        if(_node.name != "")
-            _WriteStringValue("NAME", _node.name);
-        if(_node.children_count) {
-            _WriteNumericalValue<uint32_t>("CHILDRENCOUNT", _node.children_count);
-            _WriteArrayValue<uint32_t>("CHILDREN", _node.children_count, _node.children);
-        }
-        if(_node.model_count) {
-            _WriteNumericalValue<uint32_t>("MODELCOUNT", _node.model_count);
-            _WriteArrayValue<uint32_t>("MODELS", _node.model_count, _node.models);
-        }
-        if(_node.animation_count) {
-            _WriteNumericalValue<uint32_t>("ANIMATIONCOUNT", _node.animation_count);
-            _WriteArrayValue<uint32_t>("ANIMATIONS", _node.animation_count, _node.animations);
-        }
-        if(_node.transform != Matrix4<float>())
-            _WriteMatrixValue("TRANSFORM", _node.transform);
-    }
-
-
     void DasWriterCore::_WriteScopeBeginning(const std::string &_scope_name) {
         LIBDAS_ASSERT(m_out_stream.is_open());
         m_out_stream.write(_scope_name.c_str(), _scope_name.size());
@@ -179,6 +137,9 @@ namespace Libdas {
         // write compression value
         _WriteNumericalValue<bool>("COMPRESSION", _properties.compression);
 
+        // write default scene value
+        _WriteNumericalValue<uint32_t>("DEFAULTSCENE", _properties.default_scene);
+
         _EndScope();
     }
 
@@ -214,39 +175,95 @@ namespace Libdas {
     }
 
 
-    void DasWriterCore::WriteModel(const DasModel &_model) {
-        _WriteScopeBeginning("MODEL");
+    void DasWriterCore::WriteMesh(const DasMesh &_mesh) {
+        _WriteScopeBeginning("MESH");
         
         // check if name should be written
-        if(_model.name != "")
-            _WriteStringValue("NAME", _model.name);
+        if(_mesh.name != "")
+            _WriteStringValue("NAME", _mesh.name);
 
         // write numerical buffer related values
-        _WriteNumericalValue<uint32_t>("INDEXBUFFERID", _model.index_buffer_id);
-        _WriteNumericalValue<uint32_t>("INDEXBUFFEROFFSET", _model.index_buffer_offset);
-        _WriteNumericalValue<uint32_t>("INDICESCOUNT", _model.indices_count);
-        _WriteNumericalValue<uint32_t>("VERTEXBUFFERID", _model.vertex_buffer_id);
-        _WriteNumericalValue<uint32_t>("VERTEXBUFFEROFFSET", _model.vertex_buffer_offset);
+        _WriteNumericalValue<uint32_t>("INDEXBUFFERID", _mesh.index_buffer_id);
+        _WriteNumericalValue<uint32_t>("INDEXBUFFEROFFSET", _mesh.index_buffer_offset);
+        _WriteNumericalValue<uint32_t>("INDICESCOUNT", _mesh.indices_count);
+        _WriteNumericalValue<uint32_t>("VERTEXBUFFERID", _mesh.vertex_buffer_id);
+        _WriteNumericalValue<uint32_t>("VERTEXBUFFEROFFSET", _mesh.vertex_buffer_offset);
 
         // write texture buffer id if available
-        if(_model.texture_id != UINT32_MAX)
-            _WriteNumericalValue<uint32_t>("TEXTUREID", _model.texture_id);
+        if(_mesh.texture_id != UINT32_MAX)
+            _WriteNumericalValue<uint32_t>("TEXTUREID", _mesh.texture_id);
 
         // write texture map buffer id if available
-        if(_model.texture_map_buffer_id != UINT32_MAX) {
-            _WriteNumericalValue<uint32_t>("TEXTUREMAPBUFFERID", _model.texture_map_buffer_id);
-            _WriteNumericalValue<uint32_t>("TEXTUREMAPBUFFEROFFSET", _model.texture_map_buffer_offset);
+        if(_mesh.texture_map_buffer_id != UINT32_MAX) {
+            _WriteNumericalValue<uint32_t>("TEXTUREMAPBUFFERID", _mesh.texture_map_buffer_id);
+            _WriteNumericalValue<uint32_t>("TEXTUREMAPBUFFEROFFSET", _mesh.texture_map_buffer_offset);
         }
 
         // write vertex normal buffer id if available
-        if(_model.vertex_normal_buffer_id) {
-            _WriteNumericalValue<uint32_t>("VERTEXNORMALBUFFERID", _model.vertex_normal_buffer_id);
-            _WriteNumericalValue<uint32_t>("VERTEXNORMALBUFFEROFFSET", _model.vertex_normal_buffer_offset);
+        if(_mesh.vertex_normal_buffer_id != UINT32_MAX) {
+            _WriteNumericalValue<uint32_t>("VERTEXNORMALBUFFERID", _mesh.vertex_normal_buffer_id);
+            _WriteNumericalValue<uint32_t>("VERTEXNORMALBUFFEROFFSET", _mesh.vertex_normal_buffer_offset);
         }
 
-        // write transformation matrix value if possible
-        if(_model.transform != Matrix4<float>())
-            _WriteMatrixValue("TRANSFORM", _model.transform);
+        _EndScope();
+    }
+
+
+    void DasWriterCore::WriteNode(const DasNode &_node) {
+        _WriteScopeBeginning("NODE");
+
+        if(_node.name != "") _WriteStringValue("NAME", _node.name);
+        if(_node.children_count) {
+            _WriteNumericalValue<uint32_t>("CHILDRENCOUNT", _node.children_count);
+            _WriteArrayValue<uint32_t>("CHILDREN", _node.children_count, _node.children);
+        }
+        if(_node.mesh_count) {
+            _WriteNumericalValue<uint32_t>("MESHCOUNT", _node.mesh_count);
+            _WriteArrayValue<uint32_t>("MESHES", _node.mesh_count, _node.meshes);
+        }
+        if(_node.animation_count) {
+            _WriteNumericalValue<uint32_t>("ANIMATIONCOUNT", _node.animation_count);
+            _WriteArrayValue<uint32_t>("ANIMATIONS", _node.animation_count, _node.animations);
+        }
+        if(_node.skeleton_count) {
+            _WriteNumericalValue<uint32_t>("SKELETONCOUNT", _node.skeleton_count);
+            _WriteArrayValue<uint32_t>("SKELETONS", _node.skeleton_count, _node.skeletons);
+        }
+        _WriteMatrixValue<float>("TRANSFORM", _node.transform);
+
+        _EndScope();
+    }
+
+
+    void DasWriterCore::WriteScene(const DasScene &_scene) {
+        _WriteScopeBeginning("SCENE");
+        if(_scene.name != "") _WriteStringValue("NAME", _scene.name);
+        _WriteNumericalValue<uint32_t>("NODECOUNT", _scene.node_count);
+        _WriteArrayValue<uint32_t>("NODES", _scene.node_count, _scene.nodes);
+
+        _EndScope();
+    }
+
+
+    void DasWriterCore::WriteSkeleton(const DasSkeleton &_skeleton) {
+        _WriteScopeBeginning("SKELETON");
+        if(_skeleton.name != "") _WriteStringValue("NAME", _skeleton.name);
+        _WriteNumericalValue<uint32_t>("JOINTCOUNT", _skeleton.joint_count);
+        _WriteArrayValue<uint32_t>("JOINTS", _skeleton.joint_count, _skeleton.joints);
+
+        _EndScope();
+    }
+
+
+    void DasWriterCore::WriteSkeletonJoint(const DasSkeletonJoint &_joint) {
+        _WriteScopeBeginning("JOINT");
+        _WriteMatrixValue<float>("INVERSEBINDPOS", _joint.inverse_bind_pos);
+
+        if(_joint.name != "") _WriteStringValue("NAME", _joint.name);
+        _WriteNumericalValue<uint32_t>("PARENT", _joint.parent);
+        _WriteNumericalValue<float>("SCALE", _joint.scale);
+        _WriteGenericDataValue(reinterpret_cast<const char*>(&_joint.rotation), sizeof(Quaternion), true, "ROTATION");
+        _WriteGenericDataValue(reinterpret_cast<const char*>(&_joint.translation), sizeof(Vector3<float>), true, "TRANSLATION");
 
         _EndScope();
     }
@@ -254,38 +271,22 @@ namespace Libdas {
 
     void DasWriterCore::WriteAnimation(const DasAnimation &_animation) {
         _WriteScopeBeginning("ANIMATION");
-        if(_animation.name != "")
-            _WriteStringValue("NAME", _animation.name);
-        _WriteNumericalValue<uint32_t>("MODEL", _animation.model);
-        _WriteNumericalValue<uint32_t>("LENGTH", _animation.length);
-
-        for(const DasKeyframe &kw : _animation.keyframes)
-            _WriteAnimationKeyframe(kw);
-
-        _WriteNumericalValue<InterpolationValue>("INTERPOLATIONVALUE", _animation.interpolation);
-    }
-
-
-    void DasWriterCore::WriteScene(const DasScene &_scene) {
-        _WriteScopeBeginning("SCENE");
-
-        if(_scene.name != "")
-            _WriteStringValue("NAME", _scene.name);
-
-        for(const DasSceneNode &node : _scene.nodes)
-            _WriteNode(node);
+        if(_animation.name != "") _WriteStringValue("NAME", _animation.name);
+        _WriteNumericalValue<uint32_t>("NODEID", _animation.node_id);
+        _WriteNumericalValue<uint32_t>("DURATION", _animation.duration);
+        _WriteNumericalValue<uint32_t>("KEYFRAMECOUNT", _animation.keyframe_count);
+        _WriteArrayValue<float>("KEYFRAMETIMESTAMPS", _animation.keyframe_count, _animation.keyframe_timestamps);
+        _WriteArrayValue<InterpolationType>("INTERPOLATIONTYPES", _animation.keyframe_count, _animation.interpolation_types);
+        _WriteArrayValue<AnimationTarget>("ANIMATIONTYPES", _animation.keyframe_count, _animation.animation_targets);
+        _WriteNumericalValue<uint32_t>("KEYFRAMEBUFFERID", _animation.keyframe_buffer_id);
+        _WriteNumericalValue<uint32_t>("KEYFRAMEBUFFEROFFSET", _animation.keyframe_buffer_offset);
 
         _EndScope();
     }
-    
 
-    void DasWriterCore::CheckAndCompressFile() {
-        if(m_use_compression) {
-            // previous file stream is open, close it
-            if(m_out_stream.is_open())
-                m_out_stream.close();
-            
-            // needs a reader class 
-        }
+
+    void DasWriterCore::CreateDASC(const std::string &_file_name, bool delete_original) {
+        std::cerr << "DASC is not yet implemented :(((" << std::endl;
+        std::exit(1);
     }
 }

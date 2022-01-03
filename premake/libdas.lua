@@ -18,7 +18,8 @@ function Libdas.build()
 
         -- Most of these files are for legacy references --
         removefiles {
-            "src/DASTool.cpp"
+            "src/DASTool.cpp",
+            "src/GLTFCompiler.cpp"
             -- This list is incomplete, you can help by expanding it :)))
         }
 

@@ -21,6 +21,7 @@
     #include <Points.h>
     #include <Vector.h>
     #include <Matrix.h>
+    #include <Quaternion.h>
 
     #include <LibdasAssert.h>
     #include <ErrorHandlers.h>
@@ -63,7 +64,12 @@ namespace Libdas {
              * @param _objects is a reference to std::vector instance that stores all objects to be converted into models
              * @return std::vector instance containing all DasModel instance
              */
-            std::vector<DasModel> _CreateModels(const std::vector<STLObject> &_objects);
+            std::vector<DasMesh> _CreateMeshes(const std::vector<STLObject> &_objects);
+            /**
+             * Create and write main scene with its single node
+             * @param _meshes specifies an std::vector instance containing all converted DasMesh objects
+             */
+            void _CreateDefaultScene(std::vector<DasMesh> &_meshes);
 
         public:
             STLCompiler(const std::string &_out_file = "");

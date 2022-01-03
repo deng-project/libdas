@@ -10,6 +10,7 @@
 #include <Points.h>
 #include <Vector.h>
 #include <Matrix.h>
+#include <Quaternion.h>
 
 #include <LibdasAssert.h>
 #include <FileNameString.h>

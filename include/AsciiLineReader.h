@@ -1,7 +1,7 @@
-/// libdas: DENG asset handling management library
-/// licence: Apache, see LICENCE file
-/// file: WavefrontObjParseTest.h - WavefrontObjParser class testing application
-/// author: Karl-Mihkel Ott
+// libdas: DENG asset handling management library
+// licence: Apache, see LICENCE file
+// file: AsciiLineReader.h - Ascii file reading class header
+// author: Karl-Mihkel Ott
 
 #ifndef ASCII_LINE_READER_H
 #define ASCII_LINE_READER_H
@@ -47,8 +47,9 @@ namespace Libdas {
             /**
              * Skip the reading pointer by specified amount
              * @param _skip_val is a size_t value that specifies the read_ptr offset in bytes
+             * @return true if data skipping was successful, false otherwise
              */
-            void _SkipData(const size_t _skip_val);
+            bool _SkipData(const size_t _skip_val);
             /**
              * Extract word statement, assuming that the starting position character is not skippable
              * @return End position of the word

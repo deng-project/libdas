@@ -81,18 +81,40 @@ namespace Libdas {
     }
 
 
-    std::vector<DasModel> STLCompiler::_CreateModels(const std::vector<STLObject> &_objects) {
-        std::vector<DasModel> models(_objects.size());
+    std::vector<DasMesh> STLCompiler::_CreateMeshes(const std::vector<STLObject> &_objects) {
+        std::vector<DasMesh> meshes(_objects.size());
         for(size_t i = 0; i < _objects.size(); i++) {
-            models[i].name = _objects[i].name;
-            models[i].vertex_buffer_id = VERTICES_ID;
-            models[i].vertex_normal_buffer_id = NORMALS_ID;
-            models[i].index_buffer_id = INDICES_ID;
-            models[i].index_buffer_offset = m_index_offsets[i];
-            models[i].indices_count = i == _objects.size() - 1 ? m_faces.size() - m_index_offsets[i] / sizeof(DasFace) : (m_index_offsets[i + 1] - m_index_offsets[i]) / sizeof(DasFace);
+            meshes[i].name = _objects[i].name;
+            meshes[i].vertex_buffer_id = VERTICES_ID;
+            meshes[i].vertex_normal_buffer_id = NORMALS_ID;
+            meshes[i].index_buffer_id = INDICES_ID;
+            meshes[i].index_buffer_offset = m_index_offsets[i];
+            meshes[i].indices_count = i == _objects.size() - 1 ? m_faces.size() - m_index_offsets[i] / sizeof(DasFace) : (m_index_offsets[i + 1] - m_index_offsets[i]) / sizeof(DasFace);
         }
 
-        return models;
+        return meshes;
+    }
+
+
+    void STLCompiler::_CreateDefaultScene(std::vector<DasMesh> &_meshes) {
+        // create a scene node
+        DasNode node;
+        node.mesh_count = static_cast<uint32_t>(_meshes.size());
+        node.meshes = new uint32_t[node.mesh_count];
+
+        for(uint32_t i = 0; i < node.mesh_count; i++)
+            node.meshes[i] = i;
+
+        WriteNode(node);
+
+        // create a scene
+        DasScene scene;
+        scene.name = "Imported from STL";
+        scene.node_count = 1;
+        scene.nodes = new uint32_t[1];
+        scene.nodes[0] = 0;
+        
+        WriteScene(scene);
     }
 
 
@@ -110,9 +132,13 @@ namespace Libdas {
         for(DasBuffer &buf : buffers)
             WriteBuffer(buf);
 
-        // write all models (objects to the file)
-        std::vector<DasModel> models = _CreateModels(_objects);
-        for(DasModel &model : models)
-            WriteModel(model);
+        // write all mesh objects to the file
+        std::vector<DasMesh> meshes = _CreateMeshes(_objects);
+        for(DasMesh &mesh : meshes)
+            WriteMesh(mesh);
+
+        // generate a default scene if possible
+        if(meshes.size()) 
+            _CreateDefaultScene(meshes);
     }
 }

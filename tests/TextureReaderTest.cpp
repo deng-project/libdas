@@ -6,6 +6,7 @@
 
 #include <Vector.h>
 #include <Matrix.h>
+#include <Quaternion.h>
 #include <ErrorHandlers.h>
 #include <DasStructures.h>
 #include <TextureReader.h>

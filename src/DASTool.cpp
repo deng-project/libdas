@@ -177,117 +177,220 @@ void DASTool::_ListGLB(const std::string &_input_file) {
 }
 
 
-// needs a tree view
-void DASTool::_ListDasScenes(const std::vector<Libdas::DasScene> &_scenes) {
-    if(_scenes.size())
+void DASTool::_ListDasProperties(Libdas::DasProperties &_props) {
+    // output file properties
+    if(_props.model != "")
+        std::cout << "Model: " << _props.model << std::endl;
+    if(_props.author != "")
+        std::cout << "Author: " << _props.author << std::endl;
+    if(_props.copyright != "")
+        std::cout << "Copyright: " << _props.copyright << std::endl;
+
+    const int n = 64;
+    char date_and_time[n] = {};
+
+    // convert unix timestamp into human readable string
+    time_t time = static_cast<time_t>(_props.moddate);
+    std::tm *dt = localtime(&time);
+    strftime(date_and_time, n, "%A %Y-%m-%d %H:%M:%S (UTC)\n", dt);
+    std::cout << "Modification date and time: " << date_and_time;
+    std::cout << "Compression: " << (_props.compression ? "true" : "false") << std::endl;
+}
+
+
+void DASTool::_ListDasScenes(Libdas::DasParser &_parser) {
+    for(size_t i = 0; i < _parser.GetScenes().size(); i++) {
+        Libdas::DasScene &scene = _parser.GetScenes()[i];
+        std::cout << std::endl << "-- Scene nr " << i << " --" << std::endl;
+
+        if(scene.name != "")
+            std::cout << "Scene name: " << scene.name << std::endl;
+
+        std::cout << "Node count: " << scene.node_count << std::endl;
+
+        // output used nodes
+        std::cout << "Nodes: ";
+        for(uint32_t j = 0; j < scene.node_count; j++)
+            std::cout << scene.nodes[j] << " ";
         std::cout << std::endl;
+    }
+}
 
-    for(size_t i = 0; i < _scenes.size(); i++) {
-        std::cout << std::endl;
-        std::cout << "Scene name: " << _scenes[i].name << std::endl;
-        std::cout << "Index: " << i << std::endl;
 
-        for(const Libdas::DasSceneNode &node : _scenes[i].nodes) {
-            std::cout << "-- Node name: " << node.name << std::endl;
-            if(node.children_count) {
-                std::cout << "-- Children: ";
-                for(uint32_t j = 0; j < node.children_count; j++)
-                    std::cout << node.children[j] << " ";
-            }
+void DASTool::_ListDasNodes(Libdas::DasParser &_parser) {
+    for(uint32_t i = 0; i < _parser.GetNodeCount(); i++) {
+        Libdas::DasNode &node = _parser.AccessNode(i);
+        std::cout << std::endl << "-- Node nr " << i << " --" << std::endl;
 
-            if(node.model_count) {
-                std::cout << "-- Used static models: ";
-                for(uint32_t j = 0; j < node.model_count; j++)
-                    std::cout << node.models[j] << " ";
-            }
+        if(node.name != "") std::cout << "Name: " << node.name << std::endl;
+        if(node.children_count) {
+            std::cout << "Children count: " << node.children_count << std::endl;
+            std::cout << "Children: ";
+            for(uint32_t j = 0; j < node.children_count; j++)
+                std::cout << node.children[j] << " ";
+            std::cout << std::endl;
+        }
+        if(node.mesh_count) {
+            std::cout << "Mesh count: " << node.mesh_count << std::endl;
+            std::cout << "Meshes: ";
+            for(uint32_t j = 0; j < node.mesh_count; j++)
+                std::cout << node.meshes[j] << " ";
+            std::cout << std::endl;
+        }
+        if(node.animation_count) {
+            std::cout << "Animation count: " << node.animation_count << std::endl;
+            std::cout << "Animations: ";
+            for(uint32_t j = 0; j < node.animation_count; j++)
+                std::cout << node.animations[j] << " ";
+            std::cout << std::endl;
+        }
+        if(node.skeleton_count) {
+            std::cout << "Skeleton count: " << node.skeleton_count << std::endl;
+            std::cout << "Skeletons: ";
+            for(uint32_t j = 0; j < node.skeleton_count; j++)
+                std::cout << node.skeletons[j] << " ";
+            std::cout << std::endl;
+        }
 
-            if(node.animation_count) {
-                std::cout << "-- Used animations: ";
-                for(uint32_t j = 0; j < node.animation_count; j++)
-                    std::cout << node.animations[j] << " ";
-            }
+        // output transformation matrix
+        std::cout << "Transformation matrix: " << std::endl;
+        for(struct {Libdas::Matrix4<float>::iterator it; uint32_t i; } s = {node.transform.BeginRowMajor(), 0}; s.it != node.transform.EndRowMajor(); s.it++, s.i++) {
+            if(s.i % 4 == 3) 
+                std::cout << *s.it << std::endl;
+            else std::cout << *s.it << " ";
         }
     }
 }
 
 
-void DASTool::_ListDasModels(Libdas::DasParser &_parser) {
-    if(_parser.GetModelCount())
+void DASTool::_ListDasMeshes(Libdas::DasParser &_parser) {
+    for(uint32_t i = 0; i < _parser.GetMeshCount(); i++) {
+        std::cout << std::endl << "-- Mesh nr " << i << " --" << std::endl;
+        Libdas::DasMesh &mesh = _parser.AccessMesh(i);
+        std::cout << "Mesh name: " << mesh.name << std::endl;
+        std::cout << "Used index buffer id: " << mesh.index_buffer_id << std::endl;
+        std::cout << "Used index buffer offset: " << mesh.index_buffer_offset << std::endl;
+        std::cout << "Total indices used: " << mesh.indices_count << std::endl; 
+        std::cout << "Used vertex buffer id: " << mesh.vertex_buffer_id << std::endl;
+        std::cout << "Used vertex buffer offset: " << mesh.vertex_buffer_offset << std::endl;
+
+        if(mesh.texture_id != UINT32_MAX)
+            std::cout << "Used texture id: " << mesh.texture_id << std::endl;
+
+        if(mesh.texture_map_buffer_id != UINT32_MAX)
+            std::cout << "Used texture map buffer id: " << mesh.texture_map_buffer_id << std::endl;
+
+        if(mesh.texture_map_buffer_offset != 0)
+            std::cout << "Used texture map buffer offset: " << mesh.texture_map_buffer_offset << std::endl;
+
+        if(mesh.vertex_normal_buffer_id != UINT32_MAX)
+            std::cout << "Used vertex normal buffer id: " << mesh.vertex_normal_buffer_id << std::endl;
+
+        if(mesh.vertex_normal_buffer_offset != 0)
+            std::cout << "Used vertex normal buffer offset: " << mesh.vertex_normal_buffer_offset << std::endl;
+    }
+}
+
+
+void DASTool::_ListDasSkeletons(Libdas::DasParser &_parser) {
+    for(uint32_t i = 0; i < _parser.GetSkeletonCount(); i++) {
+        std::cout << std::endl << "-- Skeleton nr " << i << " --" << std::endl;
+        Libdas::DasSkeleton &skeleton = _parser.AccessSkeleton(i);
+        if(skeleton.name != "") std::cout << "Name: " << skeleton.name << std::endl;
+        std::cout << "Joint count: " << skeleton.joint_count << std::endl;
+
+        std::cout << "Joints: ";
+        for(uint32_t j = 0; j < skeleton.joint_count; j++)
+            std::cout << skeleton.joints[j] << std::endl;
         std::cout << std::endl;
+    }
+}
 
-    for(uint32_t i = 0; i < _parser.GetModelCount(); i++) {
-        Libdas::DasModel &model = _parser.AccessModel(i);
-        std::cout << "Model name: " << model.name << std::endl;
-        std::cout << "Used index buffer id: " << model.index_buffer_id << std::endl;
-        std::cout << "Used index buffer offset: " << model.index_buffer_offset << std::endl;
-        std::cout << "Total indices used: " << model.indices_count << std::endl; 
-        std::cout << "Used vertex buffer id: " << model.vertex_buffer_id << std::endl;
-        std::cout << "Used vertex buffer offset: " << model.vertex_buffer_offset << std::endl;
 
-        if(model.texture_id != UINT32_MAX)
-            std::cout << "Used texture id: " << model.texture_id << std::endl;
+void DASTool::_ListDasSkeletonJoints(Libdas::DasParser &_parser) {
+    for(uint32_t i = 0; i < _parser.GetSkeletonJointCount(); i++) {
+        std::cout << std::endl << "-- Skeleton joint nr " << i << " --" << std::endl;
+        Libdas::DasSkeletonJoint &joint = _parser.AccessSkeletonJoint(i);
+        // output inverse bind position matrix
+        std::cout << "Inverse bind position matrix: " << std::endl;
+        for(struct {Libdas::Matrix4<float>::iterator it; uint32_t j; } s = {joint.inverse_bind_pos.BeginRowMajor(), 0}; s.it != joint.inverse_bind_pos.EndRowMajor(); s.it++, s.j++) {
+            if(s.j % 4 == 3) std::cout << *s.it << std::endl;
+            else std::cout << *s.it << " ";
+        }
 
-        if(model.texture_map_buffer_id != UINT32_MAX)
-            std::cout << "Used texture map buffer id: " << model.texture_map_buffer_id << std::endl;
-
-        if(model.texture_map_buffer_offset != 0)
-            std::cout << "Used texture map buffer offset: " << model.texture_map_buffer_offset << std::endl;
-
-        if(model.vertex_normal_buffer_id != UINT32_MAX)
-            std::cout << "Used vertex normal buffer id: " << model.vertex_normal_buffer_id << std::endl;
-
-        if(model.vertex_normal_buffer_offset != 0)
-            std::cout << "Used vertex normal buffer offset: " << model.vertex_normal_buffer_offset << std::endl;
+        if(joint.name != "") std::cout << "Name: " << joint.name << std::endl;
+        std::cout << "Parent: " << joint.parent << std::endl;
+        std::cout << "Scale: " << joint.scale << std::endl;
+        std::cout << "Translation: {" << joint.translation.first << ", " << joint.translation.second << ", " << joint.translation.third << "}" << std::endl;
     }
 }
 
 
 void DASTool::_ListDasAnimations(Libdas::DasParser &_parser) {
-    if(_parser.GetAnimationCount())
+    for(uint32_t i = 0; i < _parser.GetAnimationCount(); i++) {
+        std::cout << std::endl << "-- Animation nr " << i << " --" << std::endl;
+        Libdas::DasAnimation &animation = _parser.AccessAnimation(i);
+        if(animation.name != "") std::cout << "Name: " << animation.name << std::endl;
+        std::cout << "Node id: " << animation.node_id << std::endl;
+        std::cout << "Duration: " << animation.duration << "s" << std::endl;
+        std::cout << "Keyframe count: " << animation.keyframe_count << std::endl;
+        
+        // timestamps
+        std::cout << "Keyframe timestamps: ";
+        for(uint32_t j = 0; j < animation.keyframe_count; j++)
+            std::cout << animation.keyframe_timestamps[j] << " ";
         std::cout << std::endl;
 
-    std::string interp = "linear";
+        // interpolation types
+        std::cout << "Interpolation types: ";
+        for(uint32_t j = 0; j < animation.keyframe_count; j++) {
+            switch(animation.interpolation_types[j]) {
+                case LIBDAS_INTERPOLATION_VALUE_LINEAR:
+                    std::cout << "linear ";
+                    break;
 
-    for(uint32_t i = 0; i < _parser.GetAnimationCount(); i++) {
-        Libdas::DasAnimation &animation = _parser.AccessAnimation(i);
+                case LIBDAS_INTERPOLATION_VALUE_STEP:
+                    std::cout << "step ";
+                    break;
+    
+                case LIBDAS_INTERPOLATION_VALUE_CUBICSPLINE:
+                    std::cout << "cubicspline ";
+                    break;
 
-        // check the interpolation method value
-        switch(animation.interpolation) {
-            case LIBDAS_INTERPOLATION_VALUE_STEP:
-                interp = "step";
-                break;
-
-            case LIBDAS_INTERPOLATION_VALUE_CUBICSPLINE:
-                interp = "cubic spline";
-                break;
-
-            default:
-                break;
+                default:
+                    break;
+            }
         }
+        std::cout << std::endl;
 
-        std::cout << "Animation name: " << animation.name << std::endl;
-        std::cout << "Affiliated model: " << animation.model << std::endl;
-        std::cout << "Animation length: " << animation.length / 60 << "m" << animation.length % 60 << "s" << std::endl;
-        std::cout << "Interpolation: " << interp << std::endl;
+        // animation targets
+        std::cout << "Animation targets: ";
+        for(uint32_t j = 0; j < animation.keyframe_count; j++) {
+            switch(animation.animation_targets[j]) {
+                case LIBDAS_ANIMATION_TARGET_WEIGHTS:
+                    std::cout << "weights ";
+                    break;
 
-        for(const Libdas::DasKeyframe &keyframe : animation.keyframes) {
-            std::cout << "Keyframe" << std::endl;
-            std::cout << "-- Timestamp: " << keyframe.timestamp << std::endl;
-            std::cout << "-- Used vertex buffer id: " << keyframe.vertex_buffer_id << std::endl;
-            std::cout << "-- Used vertex buffer offset: " << keyframe.vertex_buffer_offset << std::endl;
+                case LIBDAS_ANIMATION_TARGET_TRANSLATION:
+                    std::cout << "translation ";
+                    break;
 
-            if(keyframe.texture_map_buffer_id != UINT32_MAX)
-                std::cout << "-- Used texture map buffer id: " << keyframe.texture_map_buffer_id << std::endl;
+                case LIBDAS_ANIMATION_TARGET_ROTATION:
+                    std::cout << "rotation ";
+                    break;
 
-            if(keyframe.texture_map_buffer_offset)
-                std::cout << "-- Used texture map buffer offset: " << keyframe.texture_map_buffer_offset << std::endl;
+                case LIBDAS_ANIMATION_TARGET_SCALE:
+                    std::cout << "scale ";
+                    break;
 
-            if(keyframe.vertex_normal_buffer_id != UINT32_MAX)
-                std::cout << "-- Used vertex normal buffer id: " << keyframe.vertex_normal_buffer_id << std::endl;
-
-            if(keyframe.vertex_normal_buffer_offset)
-                std::cout << "-- Used vertex normal buffer offset: " << keyframe.vertex_normal_buffer_offset << std::endl;
+                default:
+                    break;
+            }
         }
+        std::cout << std::endl;
+
+        std::cout << "Keyframe buffer id: " << animation.keyframe_buffer_id << std::endl;
+        std::cout << "Keyframe buffer offset: " << animation.keyframe_buffer_offset << std::endl;
     }
 }
 
@@ -297,33 +400,19 @@ void DASTool::_ListDas(const std::string &_input_file) {
     parser.Parse();
     
     Libdas::DasProperties &props = parser.GetProperties();
-    std::vector<Libdas::DasScene> &scenes = parser.GetScenes();
+    _ListDasProperties(props);
 
-    // output file properties
-    if(props.model != "")
-        std::cout << "Model: " << props.model << std::endl;
-    if(props.author != "")
-        std::cout << "Author: " << props.author << std::endl;
-    if(props.copyright != "")
-        std::cout << "Copyright: " << props.copyright << std::endl;
-
-    const int n = 64; // at least
-    char date_and_time[n] = {};
-
-    // convert unix timestamp into human readable string
-    time_t time = static_cast<time_t>(props.moddate);
-    std::tm *dt = localtime(&time);
-    strftime(date_and_time, n, "%A %Y-%m-%d %H:%M:%S (UTC)\n", dt);
-    std::cout << "Modification date and time: " << date_and_time;
-    std::cout << "Compression: " << (props.compression ? "true" : "false") << std::endl;
 
     // output animation and model data if verbose mode is specified
     if(m_flags & OUTPUT_FLAG_VERBOSE) {
-        _ListDasModels(parser);
+        _ListDasMeshes(parser);
+        _ListDasSkeletons(parser);
+        _ListDasSkeletonJoints(parser);
         _ListDasAnimations(parser);
     }
 
-    _ListDasScenes(parser.GetScenes());
+    _ListDasScenes(parser);
+    _ListDasNodes(parser);
 }
 
 

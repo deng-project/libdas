@@ -9,10 +9,12 @@
 #include <vector>
 #include <fstream>
 #include <iostream>
+#include <cstring>
 #include <string>
 
 #include <Vector.h>
 #include <Matrix.h>
+#include <Quaternion.h>
 #include <AsciiStreamReader.h>
 #include <AsciiLineReader.h>
 #include <ErrorHandlers.h>

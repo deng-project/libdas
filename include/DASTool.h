@@ -21,9 +21,11 @@
     #include <ErrorHandlers.h>
     #include <AsciiStreamReader.h>
     #include <AsciiLineReader.h>
+    #include <Iterators.h>
     #include <Points.h>
     #include <Vector.h>
     #include <Matrix.h>
+    #include <Quaternion.h>
     #include <DasStructures.h>
     #include <DasWriterCore.h>
     #include <DasReaderCore.h>
@@ -121,7 +123,6 @@ class DASTool {
          * @param _group is a reference to WavefrontObjGroup where render attributes are read
          */
         void _ListWavefrontObjRenderAttributes(const Libdas::WavefrontObjGroup &_group);
-        
         /**
          * List data from STL file to stdout
          * @param _input_file specifies the STL file to read
@@ -143,15 +144,35 @@ class DASTool {
          */
         void _ListGLB(const std::string &_input_file);
         /**
-         * List all data about scenes to stdout
-         * @param _scenes specifies all scenes that are used
+         * List data from DasProperties
+         * @param _props specifies a reference to DasProperties object where all properties about file are stored
          */
-        void _ListDasScenes(const std::vector<Libdas::DasScene> &_scenes);
+        void _ListDasProperties(Libdas::DasProperties &_props);
         /**
-         * List all data about all models that were parsed
+         * List all data about all meshes that were parsed
          * @param _parser is a reference to DasParser instance that specifies the parser used
          */
-        void _ListDasModels(Libdas::DasParser &_parser);
+        void _ListDasMeshes(Libdas::DasParser &_parser);
+        /**
+         * List all data about skeltons that were parsed
+         * @param _parser is a reference to DasParser instance that specifies the parser used
+         */
+        void _ListDasSkeletons(Libdas::DasParser &_parser);
+        /**
+         * List all data about skeleton joints that were parsed
+         * @param _parser is a reference to DasParser instance that specifies the parser used
+         */
+        void _ListDasSkeletonJoints(Libdas::DasParser &_parser);
+        /**
+         * List all data about scenes to stdout
+         * @param _parser specifies the parser used for parsing the file
+         */
+        void _ListDasScenes(Libdas::DasParser &_parser);
+        /**
+         * List all data about scene nodes to stdout
+         * @param _parser specifies a reference to parser used for parsing the file
+         */
+        void _ListDasNodes(Libdas::DasParser &_parser);
         /**
          * List all data about all animations that were parsed
          * @param _parser is a reference to DasParser instance that specifies the parser used

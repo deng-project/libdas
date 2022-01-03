@@ -1,7 +1,7 @@
-/// libdas: DENG asset handling management library
-/// licence: Apache, see LICENCE file
-/// file: DASWriterCore.h - DAS writer parent class header
-/// author: Karl-Mihkel Ott
+// libdas: DENG asset handling management library
+// licence: Apache, see LICENCE file
+// file: DASWriterCore.h - DAS writer parent class header
+// author: Karl-Mihkel Ott
 
 #ifndef DAS_WRITER_CORE_H
 #define DAS_WRITER_CORE_H
@@ -16,12 +16,13 @@
     #include <iostream>
     #include <chrono>
 
+    #include <LibdasAssert.h>
     #include <ErrorHandlers.h>
     #include <Iterators.h>
     #include <Vector.h>
     #include <Matrix.h>
+    #include <Quaternion.h>
     #include <DasStructures.h>
-    #include <LibdasAssert.h>
     #include <TextureReader.h>
 #endif
 
@@ -87,6 +88,7 @@ namespace Libdas {
                 m_out_stream.write(_value_name.c_str(), _value_name.size());
                 m_out_stream.write(": ", 2);
                 m_out_stream.write(reinterpret_cast<const char*>(_values), sizeof(T) * _n);
+                m_out_stream.write(LIBDAS_DAS_NEWLINE, strlen(LIBDAS_DAS_NEWLINE));
             }
             /**
              * Write a generic data value to the stream
@@ -115,18 +117,6 @@ namespace Libdas {
 
                 m_out_stream.write(LIBDAS_DAS_NEWLINE, strlen(LIBDAS_DAS_NEWLINE));
             }
-            /**
-             * Write an animation keyframe to the file
-             * @param _keyframe is a reference to DasKeyframe object that is written to the stream
-             * @param _scope_name is an optional argument that is used to define the scope name (default: "KEYFRAME")
-             */
-            void _WriteAnimationKeyframe(const DasKeyframe &_keyframe, const std::string &_scope_name = "KEYFRAME");
-            /**
-             * Write a scene node to the file
-             * @param _node is a reference to the DasSceneNode object 
-             * @param _scope_name is an optional argument that is used to define the scope name (default: "NODE")
-             */
-            void _WriteNode(const DasSceneNode &_node, const std::string &_scope_name = "NODE");
             /**
              * Start a new scope definition
              * @param _scope_name is a specified scope name to use when starting a new scope
@@ -166,24 +156,39 @@ namespace Libdas {
              */
             void WriteTextureBuffer(const std::vector<std::string> &_textures);
             /**
-             * Write a model information to a file
+             * Write a model information to the file
              * @param _model is a reference to DasModel object
              */
-            void WriteModel(const DasModel &_model);
+            void WriteMesh(const DasMesh &_mesh);
+            /**
+             * Write a node scope to the file
+             * @param _node specifies a reference to DasNode object
+             */
+            void WriteNode(const DasNode &_node);
+            /**
+             * Write a scene info to the file
+             * @param _scene is a reference to DasScene object
+             */
+            void WriteScene(const DasScene &_scene);
+            /**
+             * Write skeleton info to the file
+             * @param _skeleton is a reference to DasSkeleton object
+             */
+            void WriteSkeleton(const DasSkeleton &_skeleton);
+            /**
+             * Write skeleton joint info to the file
+             * @param _joint is a reference to DasSkeletonJoint object
+             */
+            void WriteSkeletonJoint(const DasSkeletonJoint &_joint);
             /**
              * Write an animation information to the file
              * @param _animation is a reference to DasAnimation object
              */
             void WriteAnimation(const DasAnimation &_animation);
             /**
-             * Write a scene info to the stream
-             * @param _scene is a reference to DasScene object
-             */
-            void WriteScene(const DasScene &_scene);
-            /**
              * Check if compression is needed and if it is then compress it using Huffman algorithm
              */
-            void CheckAndCompressFile();
+            static void CreateDASC(const std::string &_file_name, bool delete_original = true);
     };
 }
 

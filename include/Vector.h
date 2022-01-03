@@ -54,7 +54,7 @@ namespace Libdas {
         /**
          * Get the total length of the vector (T must be a numeral)
          */
-        const T Length() const;
+        const T Magnitude() const;
         /**
          * Normalise the vector coordinates (T must be a numeral)
          */
@@ -269,7 +269,7 @@ namespace Libdas {
 
 
     template<typename T>
-    const T Vector2<T>::Length() const {
+    const T Vector2<T>::Magnitude() const {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             return (T) sqrt (
                 first * first +
@@ -284,7 +284,7 @@ namespace Libdas {
     template<typename T>
     void Vector2<T>::Normalise() {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
-            T len = Length();
+            T len = Magnitude();
             first /= len;
             second /= len;
         }
@@ -337,7 +337,7 @@ namespace Libdas {
 
 
         /// Get the current length of the vector
-        const T Length() const;
+        const T Magnitude() const;
 
 
         /// Normalise the vector to length 1
@@ -619,7 +619,7 @@ namespace Libdas {
     
 
     template<typename T>
-    const T Vector3<T>::Length() const {
+    const T Vector3<T>::Magnitude() const {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             return (T) sqrt(first * first + second * second + third * third);
         }
@@ -631,7 +631,7 @@ namespace Libdas {
     template<typename T>
     void Vector3<T>::Normalise() {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
-            T len = Length();
+            T len = Magnitude();
             first /= len;
             second /= len;
             third /= len;
@@ -710,7 +710,7 @@ namespace Libdas {
 
 
         /// Get the current length of the vector
-        const T Length() const;
+        const T Magnitude() const;
 
         
         /// Normalise the vector to length 1
@@ -1025,7 +1025,7 @@ namespace Libdas {
 
 
     template<typename T>
-    const T Vector4<T>::Length() const {
+    const T Vector4<T>::Magnitude() const {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             return (T) sqrt (
                 first * first +
@@ -1042,7 +1042,7 @@ namespace Libdas {
     template<typename T>
     void Vector4<T>::Normalise() {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
-            T len = Length();
+            T len = Magnitude();
             first /= len;
             second /= len;
             third /= len;

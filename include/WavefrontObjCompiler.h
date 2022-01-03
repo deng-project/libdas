@@ -21,6 +21,7 @@
     #include <Points.h>
     #include <Vector.h>
     #include <Matrix.h>
+    #include <Quaternion.h>
 
     #include <LibdasAssert.h>
     #include <ErrorHandlers.h>
@@ -56,7 +57,12 @@ namespace Libdas {
              * @return std::vector<DasModel> instance that has contains all information about models and their correct
              * buffer offsets
              */
-            std::vector<DasModel> _CreateModels(const std::vector<WavefrontObjGroup> &_groups);
+            std::vector<DasMesh> _CreateMeshes(const std::vector<WavefrontObjGroup> &_groups);
+            /**
+             * Create a root scene and nodes out of all meshes
+             * @param _meshes specifies a reference to std::vector instance containing information about all meshes
+             */
+            void _CreateRootScene(std::vector<DasMesh> &_meshes);
             /**
              * Perform Huffman encoding on the written file to finalise compilation
              */

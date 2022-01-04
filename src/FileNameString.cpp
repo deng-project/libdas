@@ -149,5 +149,16 @@ namespace Libdas {
 
             return root;
         }
+
+
+        std::string RemoveNumbers(const std::string &_str) {
+            std::string out;
+            for(size_t i = 0; i < _str.size(); i++) {
+                if(_str[i] > '9' || _str[i] < '0')
+                    out += _str[i];
+            }
+
+            return out;
+        }
     }
 }

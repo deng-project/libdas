@@ -402,7 +402,7 @@ namespace Libdas {
      * Structure containing geometry to be rendered with given material
      */
     struct GLTFMeshPrimitive {
-        typedef std::vector<std::pair<std::string, uint32_t>> AttributesType;
+        typedef std::unordered_map<std::string, uint32_t> AttributesType;
         AttributesType attributes;                      // required
         int32_t indices = INT32_MAX;                    // not required
         int32_t material = INT32_MAX;                   // not required
@@ -449,7 +449,7 @@ namespace Libdas {
         std::vector<GLTFNode> nodes;                                        // not required
         std::vector<GLTFSampler> samplers;                                  // not required
         std::vector<GLTFScene> scenes;                                      // not required
-        GLTFScene load_time_scene;                                          // not required
+        int32_t load_time_scene;                                            // not required
         std::vector<GLTFSkin> skins;                                        // not required
         std::vector<GLTFTexture> textures;                                  // not required
         std::vector<std::any> extensions;                                   // ignored

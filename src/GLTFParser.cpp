@@ -541,7 +541,7 @@ namespace Libdas {
         // iterate through each subnode now
         for(auto it = _node->sub_nodes.begin(); it != _node->sub_nodes.end(); it++) {
             _VerifySourceData(it->second.get(), JSON_TYPE_INTEGER, false);
-            _attrs.push_back(std::make_pair(it->first, std::any_cast<uint32_t>(it->second->values.back())));
+            _attrs[it->first] = std::any_cast<uint32_t>(it->second->values.back());
         }
     }
 

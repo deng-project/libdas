@@ -71,6 +71,13 @@ namespace Libdas {
          * @return Extracted std::string instance that specifies the root path used for the file
          */
         LIBDAS_API std::string ExtractRootPath(const std::string &_file_name);
+        /**
+         * Remove all numbers from given string
+         * @complexity O(n)
+         * @param _str is a given string to purge numbers from
+         * @return std::string instance without any numbers
+         */
+        LIBDAS_API std::string RemoveNumbers(const std::string &_str);
     }
 }
 

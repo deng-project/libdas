@@ -27,14 +27,18 @@ typedef uint16_t BufferType;
 #define LIBDAS_BUFFER_TYPE_VERTEX                   0x0001
 #define LIBDAS_BUFFER_TYPE_TEXTURE_MAP              0x0002
 #define LIBDAS_BUFFER_TYPE_VERTEX_NORMAL            0x0004
-#define LIBDAS_BUFFER_TYPE_INDICES                  0x0008
-#define LIBDAS_BUFFER_TYPE_TEXTURE_JPEG             0x0010
-#define LIBDAS_BUFFER_TYPE_TEXTURE_PNG              0x0020
-#define LIBDAS_BUFFER_TYPE_TEXTURE_TGA              0x0040
-#define LIBDAS_BUFFER_TYPE_TEXTURE_BMP              0x0080
-#define LIBDAS_BUFFER_TYPE_TEXTURE_PPM              0x0100
-#define LIBDAS_BUFFER_TYPE_TEXTURE_RAW              0x0200
-#define LIBDAS_BUFFER_TYPE_KEYFRAME                 0x0400
+#define LIBDAS_BUFFER_TYPE_VERTEX_TANGENT           0x0008
+#define LIBDAS_BUFFER_TYPE_INDICES                  0x0010
+#define LIBDAS_BUFFER_TYPE_TEXTURE_JPEG             0x0020
+#define LIBDAS_BUFFER_TYPE_TEXTURE_PNG              0x0040
+#define LIBDAS_BUFFER_TYPE_TEXTURE_TGA              0x0080
+#define LIBDAS_BUFFER_TYPE_TEXTURE_BMP              0x0100
+#define LIBDAS_BUFFER_TYPE_TEXTURE_PPM              0x0200
+#define LIBDAS_BUFFER_TYPE_TEXTURE_RAW              0x0400
+#define LIBDAS_BUFFER_TYPE_KEYFRAME                 0x0800  // can be either morph target keyframe or skinned animation keyframe
+#define LIBDAS_BUFFER_TYPE_COLOR                    0x1000
+#define LIBDAS_BUFFER_TYPE_WEIGHTS                  0x2000
+#define LIBDAS_BUFFER_TYPE_JOINTS                   0x4000
 
 /// Animation interpolation technique definitions 
 typedef uint8_t InterpolationType;
@@ -49,6 +53,7 @@ typedef uint8_t AnimationTarget;
 #define LIBDAS_ANIMATION_TARGET_ROTATION        2
 #define LIBDAS_ANIMATION_TARGET_SCALE           3
 
+#ifndef LIBDAS_DEFS_ONLY
 namespace Libdas {
 
     struct DasSignature {
@@ -286,4 +291,5 @@ namespace Libdas {
 
 }
 
+#endif
 #endif

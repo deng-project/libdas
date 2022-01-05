@@ -130,6 +130,48 @@ namespace Libdas {
                 {0,         0,         0,             1}
             };
         }
+
+
+        static Quaternion MatrixToQuaternion(const Libdas::Matrix4<float> &_mat) {
+            Quaternion q;
+            float diag_sum = _mat.row1.first + _mat.row2.second + _mat.row3.third;
+
+            // diagonal sum is positive
+            if(diag_sum > 0) {
+                q.w = sqrtf(1.0f + diag_sum) / 2;
+                float w4 = 4 * q.w;
+                q.x = (_mat.row3.second - _mat.row2.third) / w4
+                q.y = (_mat.row1.third - _mat.row3.first) / w4;
+                q.z = (_mat.row2.first - _mat.row1.second) / w4;
+            }
+
+            // diagonal sum is negative
+            else if(_mat.row1.first > _mat.row2.second && _mat.row1.first > _mat.row3.third) {
+                float s = sqrtf(1.0f + _mat.row1.first - _mat.row2.second - _mat.row3.third) * 2;
+                q.w = (_mat.row3.second - _mat.row2.third ) / s;
+                q.x = s / 4;
+                q.y = (_mat.row1.second + _mat.row2.first) / s;
+                q.z = (_mat.row1.third + _mat.row3.first) / s;
+            }
+
+            else if(_mat.row2.second > _mat.row3.third) {
+                float s = sqrtf(1.0f + _mat.row2.second - _mat.row1.first - _mat.row3.third) * 2;
+                q.w = (_mat.row1.third - _mat.row3.first) / s;
+                q.x = (_mat.row1.second + _mat.second.first) / s;
+                q.y = s / 4;
+                q.z = (_mat.row2.third + _mat.row3.second) /s;
+            } 
+
+            else {
+                float s = sqrtf(1.0f + _mat.third.third - _mat.first.first - _mat.second.second) * 2;
+                q.w = (_mat.row2.first - _mat.row1.second) / s;
+                q.x = (_mat.row1.third + _mat.third.first) / s;
+                q.y = (_mat.second.third + _mat.third.second) / s;
+                q.z = s / 4;
+            }
+
+            return q;
+        }
 #endif
 
         /**

@@ -6,6 +6,10 @@
 #ifndef VECTOR_H
 #define VECTOR_H
 
+#ifndef USE_SIMD
+    #include <xmmintrin.h>
+#endif
+
 namespace Libdas {
 
     /**
@@ -21,7 +25,7 @@ namespace Libdas {
         Vector2(T &&r1, T &&r2);
         Vector2(const Vector2<T> &val);
         Vector2(Vector2<T>&& val);
-        void operator=(const Vector2<T> &val);
+        inline void operator=(const Vector2<T> &val);
 
         T first, second;
 
@@ -29,36 +33,36 @@ namespace Libdas {
         /***** Operator overloads *****/
         /******************************/
 
-        const Vector2<T> operator+(const Vector2<T> &_vec) const;
-        const Vector2<T> operator+(const T _c) const;
-        const Vector2<T> operator-(const Vector2<T> &_vec) const;
-        const Vector2<T> operator-(const T _c) const;
-        const Vector2<T> operator*(const T _c) const;
-        const T operator*(const Vector2<T> &_vec) const;
-        const Vector2<T> operator/(const T _c) const;
-        void operator*=(const T _c);
+        inline const Vector2<T> operator+(const Vector2<T> &_vec) const;
+        inline const Vector2<T> operator+(const T _c) const;
+        inline const Vector2<T> operator-(const Vector2<T> &_vec) const;
+        inline const Vector2<T> operator-(const T _c) const;
+        inline const Vector2<T> operator*(const T _c) const;
+        inline const T operator*(const Vector2<T> &_vec) const;
+        inline const Vector2<T> operator/(const T _c) const;
+        inline void operator*=(const T _c);
 
 #ifdef MATRIX_H
         void operator*=(const Matrix2<T> &m); // could be problematic
 #endif
-        void operator+=(const Vector2<T> &_vec);
-        void operator+=(const T _c);
-        void operator-=(const Vector2<T> &_vec);
-        void operator-=(const T _c);
-        void operator/=(const T _c);
+        inline void operator+=(const Vector2<T> &_vec);
+        inline void operator+=(const T _c);
+        inline void operator-=(const Vector2<T> &_vec);
+        inline void operator-=(const T _c);
+        inline void operator/=(const T _c);
 
-        bool operator==(const Vector2<T> &_vec) const;
-        bool operator!=(const Vector2<T> &_vec) const;
+        inline bool operator==(const Vector2<T> &_vec) const;
+        inline bool operator!=(const Vector2<T> &_vec) const;
 
 
         /**
          * Get the total length of the vector (T must be a numeral)
          */
-        const T Magnitude() const;
+        inline const T Magnitude() const;
         /**
          * Normalise the vector coordinates (T must be a numeral)
          */
-        void Normalise();
+        inline void Normalise();
 
 #ifdef ITERATORS_H
         /// Iterators
@@ -110,14 +114,14 @@ namespace Libdas {
 
 
     template<typename T>
-    void Vector2<T>::operator=(const Vector2<T> &val) {
+    inline void Vector2<T>::operator=(const Vector2<T> &val) {
         first = val.first;
         second = val.second;
     }
 
 
     template<typename T>
-    const Vector2<T> Vector2<T>::operator+(const Vector2<T> &_vec) const {
+    inline const Vector2<T> Vector2<T>::operator+(const Vector2<T> &_vec) const {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Vector2<T> out = { first + _vec.first, second + _vec.second };
             return out; 
@@ -128,7 +132,7 @@ namespace Libdas {
 
 
     template<typename T>
-    const Vector2<T> Vector2<T>::operator+(const T _c) const {
+    inline const Vector2<T> Vector2<T>::operator+(const T _c) const {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Vector2<T> out = { first + _c, second + _c };
             return out; 
@@ -139,7 +143,7 @@ namespace Libdas {
 
 
     template<typename T>
-    const Vector2<T> Vector2<T>::operator-(const Vector2<T> &_vec) const {
+    inline const Vector2<T> Vector2<T>::operator-(const Vector2<T> &_vec) const {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Vector2<T> out = { first - _vec.first, second - _vec.second };
             return out;
@@ -150,7 +154,7 @@ namespace Libdas {
 
 
     template<typename T>
-    const Vector2<T> Vector2<T>::operator-(const T _c) const {
+    inline const Vector2<T> Vector2<T>::operator-(const T _c) const {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Vector2<T> out = { first - _c, second - _c };
             return out; 
@@ -161,7 +165,7 @@ namespace Libdas {
 
 
     template<typename T>
-    const T Vector2<T>::operator*(const Vector2<T> &_vec) const {
+    inline const T Vector2<T>::operator*(const Vector2<T> &_vec) const {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             T out = (_vec.first * first + _vec.second * second);
             return out;
@@ -172,7 +176,7 @@ namespace Libdas {
 
 
     template<typename T>
-    const Vector2<T> Vector2<T>::operator*(const T _c) const {
+    inline const Vector2<T> Vector2<T>::operator*(const T _c) const {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Vector2<T> out = {
                 _c * first,
@@ -187,7 +191,7 @@ namespace Libdas {
 
 
     template<typename T>
-    const Vector2<T> Vector2<T>::operator/(const T _c) const {
+    inline const Vector2<T> Vector2<T>::operator/(const T _c) const {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Vector2<T> out = {
                 first / _c,
@@ -202,7 +206,7 @@ namespace Libdas {
 
 
     template<typename T>
-    void Vector2<T>::operator*=(const T _c) {
+    inline void Vector2<T>::operator*=(const T _c) {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             first *= _c;
             second *= _c;
@@ -218,7 +222,7 @@ namespace Libdas {
 
 
     template<typename T>
-    void Vector2<T>::operator+=(const Vector2<T> &_vec) {
+    inline void Vector2<T>::operator+=(const Vector2<T> &_vec) {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             first += _vec.first;
             second += _vec.second;
@@ -227,7 +231,7 @@ namespace Libdas {
 
 
     template<typename T>
-    void Vector2<T>::operator+=(const T _c) {
+    inline void Vector2<T>::operator+=(const T _c) {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             first += _c;
             second += _c;
@@ -236,7 +240,7 @@ namespace Libdas {
 
     
     template<typename T>
-    void Vector2<T>::operator-=(const Vector2<T> &_vec) {
+    inline void Vector2<T>::operator-=(const Vector2<T> &_vec) {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             first -= _vec.first;
             second -= _vec.second;
@@ -245,7 +249,7 @@ namespace Libdas {
 
     
     template<typename T>
-    void Vector2<T>::operator-=(const T _c) {
+    inline void Vector2<T>::operator-=(const T _c) {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             first -= _c;
             second -= _c;
@@ -254,7 +258,7 @@ namespace Libdas {
 
 
     template<typename T>
-    void Vector2<T>::operator/=(const T _c) {
+    inline void Vector2<T>::operator/=(const T _c) {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             first /= _c;
             second /= _c;
@@ -263,13 +267,13 @@ namespace Libdas {
 
 
     template<typename T>
-    bool Vector2<T>::operator==(const Vector2<T> &_vec) const {
+    inline bool Vector2<T>::operator==(const Vector2<T> &_vec) const {
         return first == _vec.first && second == _vec.second; 
     }
 
 
     template<typename T>
-    const T Vector2<T>::Magnitude() const {
+    inline const T Vector2<T>::Magnitude() const {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             return (T) sqrt (
                 first * first +
@@ -282,7 +286,7 @@ namespace Libdas {
 
 
     template<typename T>
-    void Vector2<T>::Normalise() {
+    inline void Vector2<T>::Normalise() {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             T len = Magnitude();
             first /= len;
@@ -305,8 +309,7 @@ namespace Libdas {
         Vector3(T &&r1, T &&r2, T &&r3);
         Vector3(const Vector3<T> &val);
         Vector3(Vector3<T>&& val);
-        void operator=(const Vector3<T> &val);
-        //void operator=(Vector3<T> &&val);
+        inline void operator=(const Vector3<T> &val);
 
         T first, second, third;
         
@@ -314,38 +317,38 @@ namespace Libdas {
         /***** Operator overloads *****/
         /******************************/
 
-        const Vector3<T> operator+(const Vector3<T> &_vec) const;
-        const Vector3<T> operator+(const T _c) const;
-        const Vector3<T> operator-(const Vector3<T> &_vec) const;
-        const Vector3<T> operator-(const T _c) const;
-        const T operator*(const Vector3<T> &_vec) const;
-        const Vector3<T> operator*(const T _c) const;
-        const Vector3<T> operator/(const T _c) const;
-        void operator*=(const T _c);
+        inline const Vector3<T> operator+(const Vector3<T> &_vec) const;
+        inline const Vector3<T> operator+(const T _c) const;
+        inline const Vector3<T> operator-(const Vector3<T> &_vec) const;
+        inline const Vector3<T> operator-(const T _c) const;
+        inline const T operator*(const Vector3<T> &_vec) const;
+        inline const Vector3<T> operator*(const T _c) const;
+        inline const Vector3<T> operator/(const T _c) const;
+        inline void operator*=(const T _c);
         //void operator*=(const Matrix3<T> &m);
-        void operator+=(const Vector3<T> &_vec);
-        void operator+=(const T _c);
-        void operator-=(const Vector3<T> &_vec);
-        void operator-=(const T _c);
-        void operator/=(const T _c);
-        void operator=(const Vector2<T> &_vec);
+        inline void operator+=(const Vector3<T> &_vec);
+        inline void operator+=(const T _c);
+        inline void operator-=(const Vector3<T> &_vec);
+        inline void operator-=(const T _c);
+        inline void operator/=(const T _c);
+        inline void operator=(const Vector2<T> &_vec);
 
-        bool operator==(const Vector3<T> &_vec) const;
-        bool operator!=(const Vector3<T> &_vec) const;
-        bool operator==(const Vector2<T> &_vec) const;
-        bool operator!=(const Vector2<T> &_vec) const;
+        inline bool operator==(const Vector3<T> &_vec) const;
+        inline bool operator!=(const Vector3<T> &_vec) const;
+        inline bool operator==(const Vector2<T> &_vec) const;
+        inline bool operator!=(const Vector2<T> &_vec) const;
 
 
         /// Get the current length of the vector
-        const T Magnitude() const;
+        inline const T Magnitude() const;
 
 
         /// Normalise the vector to length 1
-        void Normalise();
+        inline void Normalise();
 
 
         /// Find the crossproduct of two vectors
-        static const Vector3<T> Cross(const Vector3<T> &Vector1, const Vector3<T> &Vector2);
+        inline static const Vector3<T> Cross(const Vector3<T> &Vector1, const Vector3<T> &Vector2);
 
 #ifdef ITERATORS_H
         // iterators
@@ -359,7 +362,6 @@ namespace Libdas {
         }
 #endif
     };
-
 
     /*********************************************/
     /********* Vector3 operators and methods ********/
@@ -414,7 +416,7 @@ namespace Libdas {
 
 
     template<typename T>
-    const Vector3<T> Vector3<T>::operator+(const Vector3<T> &_vec) const {
+    inline const Vector3<T> Vector3<T>::operator+(const Vector3<T> &_vec) const {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Vector3<T> out = {
                 first + _vec.first,
@@ -429,7 +431,7 @@ namespace Libdas {
 
 
     template<typename T>
-    const Vector3<T> Vector3<T>::operator+(const T _c) const {
+    inline const Vector3<T> Vector3<T>::operator+(const T _c) const {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Vector3<T> out = {
                 first + _c,
@@ -445,7 +447,7 @@ namespace Libdas {
 
 
     template<typename T>
-    const Vector3<T> Vector3<T>::operator-(const Vector3<T> &_vec) const {
+    inline const Vector3<T> Vector3<T>::operator-(const Vector3<T> &_vec) const {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Vector3<T> out = {
                 first - _vec.first,
@@ -460,7 +462,7 @@ namespace Libdas {
 
 
     template<typename T>
-    const Vector3<T> Vector3<T>::operator-(const T _c) const {
+    inline const Vector3<T> Vector3<T>::operator-(const T _c) const {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Vector3<T> out = {
                 first - _c,
@@ -475,7 +477,7 @@ namespace Libdas {
 
 
     template<typename T>
-    const T Vector3<T>::operator*(const Vector3<T> &_vec) const {
+    inline const T Vector3<T>::operator*(const Vector3<T> &_vec) const {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             T out = static_cast<T>(
                 first * _vec.first +
@@ -491,7 +493,7 @@ namespace Libdas {
 
 
     template<typename T>
-    const Vector3<T> Vector3<T>::operator*(const T _c) const {
+    inline const Vector3<T> Vector3<T>::operator*(const T _c) const {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Vector3<T> out = {
                 _c * first,
@@ -506,7 +508,7 @@ namespace Libdas {
 
 
     template<typename T>
-    const Vector3<T> Vector3<T>::operator/(const T _c) const {
+    inline const Vector3<T> Vector3<T>::operator/(const T _c) const {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Vector3<T> out = {
                 first / _c,
@@ -521,7 +523,7 @@ namespace Libdas {
 
 
     template<typename T>
-    void Vector3<T>::operator*=(const T _c) {
+    inline void Vector3<T>::operator*=(const T _c) {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             first *= _c;
             second *= _c;
@@ -538,7 +540,7 @@ namespace Libdas {
 
 
     template<typename T>
-    void Vector3<T>::operator+=(const Vector3<T> &_vec) {
+    inline void Vector3<T>::operator+=(const Vector3<T> &_vec) {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             first += _vec.first;
             second += _vec.second;
@@ -548,7 +550,7 @@ namespace Libdas {
 
 
     template<typename T>
-    void Vector3<T>::operator+=(const T _c) {
+    inline void Vector3<T>::operator+=(const T _c) {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             first += _c;
             second += _c;
@@ -558,7 +560,7 @@ namespace Libdas {
 
     
     template<typename T>
-    void Vector3<T>::operator-=(const Vector3<T> &_vec) {
+    inline void Vector3<T>::operator-=(const Vector3<T> &_vec) {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             first -= _vec.first;
             second -= _vec.second;
@@ -568,7 +570,7 @@ namespace Libdas {
 
 
     template<typename T>
-    void Vector3<T>::operator-=(const T _c) {
+    inline void Vector3<T>::operator-=(const T _c) {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             first -= _c;
             second -= _c;
@@ -578,7 +580,7 @@ namespace Libdas {
 
 
     template<typename T>
-    void Vector3<T>::operator/=(const T _c) {
+    inline void Vector3<T>::operator/=(const T _c) {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             first /= _c;
             second /= _c;
@@ -588,38 +590,38 @@ namespace Libdas {
 
 
     template<typename T>
-    bool Vector3<T>::operator==(const Vector3<T> &_vec) const {
+    inline bool Vector3<T>::operator==(const Vector3<T> &_vec) const {
         return first == _vec.first && second == _vec.second && third == _vec.third; 
     }
 
 
     template<typename T>
-    bool Vector3<T>::operator!=(const Vector3<T> &_vec) const {
+    inline bool Vector3<T>::operator!=(const Vector3<T> &_vec) const {
         return first != _vec.first || second != _vec.second || third != _vec.third;
     }
 
 
     template<typename T>
-    bool Vector3<T>::operator==(const Vector2<T> &_vec) const {
+    inline bool Vector3<T>::operator==(const Vector2<T> &_vec) const {
         return first == _vec.first && second == _vec.second;
     }
 
 
     template<typename T>
-    bool Vector3<T>::operator!=(const Vector2<T> &_vec) const {
+    inline bool Vector3<T>::operator!=(const Vector2<T> &_vec) const {
         return first != _vec.first || second != _vec.second;
     }
 
 
     template<typename T>
-    void Vector3<T>::operator=(const Vector2<T> &_vec) {
+    inline void Vector3<T>::operator=(const Vector2<T> &_vec) {
         first = _vec.first;
         second = _vec.second;
     }
     
 
     template<typename T>
-    const T Vector3<T>::Magnitude() const {
+    inline const T Vector3<T>::Magnitude() const {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             return (T) sqrt(first * first + second * second + third * third);
         }
@@ -629,7 +631,7 @@ namespace Libdas {
 
 
     template<typename T>
-    void Vector3<T>::Normalise() {
+    inline void Vector3<T>::Normalise() {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             T len = Magnitude();
             first /= len;
@@ -640,7 +642,7 @@ namespace Libdas {
 
 
     template<typename T>
-    const Vector3<T> Vector3<T>::Cross(const Vector3<T> &Vector1, const Vector3<T> &Vector2) {
+    inline const Vector3<T> Vector3<T>::Cross(const Vector3<T> &Vector1, const Vector3<T> &Vector2) {
         if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Vector3<T> out = Vector3<T>{
                 Vector1.second * Vector2.third -

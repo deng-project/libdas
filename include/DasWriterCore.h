@@ -15,6 +15,7 @@
     #include <vector>
     #include <iostream>
     #include <chrono>
+    #include <cmath>
 
     #include <Api.h>
     #include <LibdasAssert.h>

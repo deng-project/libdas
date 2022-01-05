@@ -632,10 +632,7 @@ namespace Libdas {
 
         if(!is_root) 
             _IterateValueObjects<GLTFScene>(_node, values, scene, m_root.scenes);
-        else {
-            _IterateSubNodes(_node, values);
-            m_root.load_time_scene = scene;
-        }
+        else m_root.load_time_scene = std::any_cast<uint32_t>(_node->values.back());
     }
 
 

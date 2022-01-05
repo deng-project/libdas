@@ -12,6 +12,8 @@
     #include <optional>
     #include <cstdint>
     #include <cfloat>
+    #include <cmath>
+    #include <iostream>
     #include <cstring>
     #include <string>
     #include <vector>

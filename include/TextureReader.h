@@ -12,6 +12,7 @@
     #include <vector>
     #include <iostream>
     #include <cstring>
+    #include <cmath>
 
     #include <LibdasAssert.h>
     #include <ErrorHandlers.h>

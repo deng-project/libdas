@@ -1,6 +1,7 @@
 #include <string>
 #include <fstream>
 #include <cstring>
+#include <cmath>
 #include <iostream>
 #include <unordered_map>
 #include <array>

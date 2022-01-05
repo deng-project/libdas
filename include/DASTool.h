@@ -14,6 +14,7 @@
     #include <fstream>
     #include <iostream>
     #include <cstring>
+    #include <cmath>
     #include <vector>
     #include <stdexcept>
     #include <unordered_map>

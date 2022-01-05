@@ -3,6 +3,7 @@
 #include <climits>
 #include <cstring>
 #include <ctime>
+#include <cmath>
 #include <fstream>
 #include <iostream>
 #include <string>

@@ -11,6 +11,7 @@
     #include <any>
     #include <cstring>
     #include <climits>
+    #include <cmath>
     #include <string>
     #include <fstream>
 #ifdef _DEBUG

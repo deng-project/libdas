@@ -12,6 +12,7 @@
     #include <climits>
     #include <cstring>
     #include <cstdio>
+    #include <cmath>
     #include <iostream>
     #include <fstream>
     #include <vector>

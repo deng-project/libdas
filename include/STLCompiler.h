@@ -10,6 +10,7 @@
     #include <string>
     #include <fstream>
     #include <cstring>
+    #include <cmath>
 #ifdef _DEBUG
     #include <iostream>
 #endif

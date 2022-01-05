@@ -42,7 +42,7 @@ namespace Libdas {
 
         Quaternion(float _x, float _y, float _z, float _w) : x(_x), y(_y), z(_z), w(_w) {}
         Quaternion() : x(0), y(0), z(0), w(0) {}
-        Quaternion(float *_a) : x(_a[0]), y(_a[1]), z(_a[2]), w(_a[3]) {}
+        Quaternion(const float *_a) : x(_a[0]), y(_a[1]), z(_a[2]), w(_a[3]) {}
 
         ////////////////////////////////////
         // ***** Operator overloads ***** //
@@ -77,7 +77,7 @@ namespace Libdas {
             Quaternion out;
             const __m128 c = _mm_set_ps1(1 / _c);
             const __m128 vec = _mm_set_ps(w, z, y, x);
-            _mm_storeu_ps(&out.x _mm_mul_ps(vec, c));
+            _mm_storeu_ps(&out.x, _mm_mul_ps(vec, c));
             return out;
         }
 
@@ -97,9 +97,10 @@ namespace Libdas {
 
 #ifdef VECTOR_H
         inline Vector4<float> operator*(const Vector4<float> &_vec) {
-            Quaternion vq = &_vec.first;
+            Quaternion vq = Quaternion(&_vec.first);
             vq.w = 0;
-            return *this * vq this->Inverse();
+            Quaternion q = *this * vq * this->Inverse();
+            return Vector4<float>(q.x, q.y, q.z, q.w);
         }
 #endif
 
@@ -107,7 +108,7 @@ namespace Libdas {
         // not using simd here for now
         Matrix3<float> ExpandToMatrix3() {
             float dxx = 2 * x * x, dyy = 2 * y * y, dzz = 2 * z * z;
-            float dxy = 2 * x * y, dxz = 2 * x * z, 2xw = 2 * x * w;
+            float dxy = 2 * x * y, dxz = 2 * x * z, dxw = 2 * x * w;
             float dyz = 2 * y * z, dyw = 2 * y * w;
             float dzw = 2 * z * w;
             return Matrix3<float> {
@@ -140,7 +141,7 @@ namespace Libdas {
             if(diag_sum > 0) {
                 q.w = sqrtf(1.0f + diag_sum) / 2;
                 float w4 = 4 * q.w;
-                q.x = (_mat.row3.second - _mat.row2.third) / w4
+                q.x = (_mat.row3.second - _mat.row2.third) / w4;
                 q.y = (_mat.row1.third - _mat.row3.first) / w4;
                 q.z = (_mat.row2.first - _mat.row1.second) / w4;
             }
@@ -157,16 +158,16 @@ namespace Libdas {
             else if(_mat.row2.second > _mat.row3.third) {
                 float s = sqrtf(1.0f + _mat.row2.second - _mat.row1.first - _mat.row3.third) * 2;
                 q.w = (_mat.row1.third - _mat.row3.first) / s;
-                q.x = (_mat.row1.second + _mat.second.first) / s;
+                q.x = (_mat.row1.second + _mat.row2.first) / s;
                 q.y = s / 4;
                 q.z = (_mat.row2.third + _mat.row3.second) /s;
             } 
 
             else {
-                float s = sqrtf(1.0f + _mat.third.third - _mat.first.first - _mat.second.second) * 2;
+                float s = sqrtf(1.0f + _mat.row3.third - _mat.row1.first - _mat.row2.second) * 2;
                 q.w = (_mat.row2.first - _mat.row1.second) / s;
-                q.x = (_mat.row1.third + _mat.third.first) / s;
-                q.y = (_mat.second.third + _mat.third.second) / s;
+                q.x = (_mat.row1.third + _mat.row3.first) / s;
+                q.y = (_mat.row2.third + _mat.row3.second) / s;
                 q.z = s / 4;
             }
 

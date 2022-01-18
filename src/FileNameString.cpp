@@ -20,6 +20,19 @@ namespace Libdas {
         }
 
 
+        std::string RelativePathToAbsolute(const std::string &_rel) {
+            char buf[256] = {};
+            size_t len = sizeof(buf);
+#ifdef _WIN32
+            GetModuleFileNameA(NULL, buf, len);
+            return ExtractRootPath(buf) + "\\" + _rel;
+#else 
+            readlink("/proc/self/exe", buf, len);
+            return ExtractRootPath(buf) + "\\" + _rel;
+#endif
+        }
+
+
         std::vector<size_t> CreateLSPArray(const std::string &_keyword) {
             std::vector<size_t> lsp(_keyword.size());
 
@@ -141,7 +154,7 @@ namespace Libdas {
         std::string ExtractRootPath(const std::string &_file_name) {
             std::string root = ".";
             for(int i = static_cast<int>(_file_name.size()) - 1; i >= 0; i--) {
-                if(_file_name[i] == '/') {
+                if(_file_name[i] == '/' || _file_name[i] == '\\') {
                     root = _file_name.substr(0, i);
                     break;
                 }

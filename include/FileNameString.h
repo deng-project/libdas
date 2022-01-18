@@ -10,13 +10,15 @@
     #include <string>
     #include <vector>
     #include <climits>
-    
     #include <Api.h>
+#ifdef _WIN32
+    #include <Windows.h>
+#endif
+
 #endif
 
 
 namespace Libdas {
-
     namespace String {
 
         /**
@@ -26,6 +28,12 @@ namespace Libdas {
          * @return std::string instance specifying the new file name with new extension
          */
         LIBDAS_API std::string ReplaceFileExtension(const std::string &_input_file, const std::string &_ext);
+        /**
+         * Convert relative path to absolute path
+         * @param _rel specifying the relative path
+         * @return std::string instance containing the generated absolute path
+         */
+        LIBDAS_API std::string RelativePathToAbsolute(const std::string& _rel);
         /**
          * Create Knutt-Morris-Pratt LSP array
          * @param _keyword is a string to use for LSP array generation

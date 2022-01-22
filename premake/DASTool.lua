@@ -3,28 +3,17 @@
 --- file: DASTool.lua - DASTool cli utility build configuration
 --- author: Karl-Mihkel Ott
 
-local DASTool = {}
+project "DASTool"
+	basedir("..")
+    kind "ConsoleApp"
+    language "C++"
+    cppdialect "C++17"
 
-function DASTool.build(use_lib)
-    project "DASTool"
-        kind "ConsoleApp"
-        language "C++"
-        cppdialect "C++17"
+	includedirs { "../include" }
+    files {
+		"../include/*",
+		"../src/DASTool.cpp"
+	}
+	
+	links { "das" }
 
-        if not use_lib then
-            files {
-                "include/*",
-                "src/*.cpp"
-            }
-        else
-            files {
-                "include/*",
-                "src/DASTool.cpp"
-            }
-
-            links { "das" }
-        end
-end
-
-
-return DASTool

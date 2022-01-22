@@ -50,20 +50,10 @@ typedef uint8_t FlagType;
 #define OUTPUT_FLAG_MODEL           0x10
 #define OUTPUT_FLAG_VERBOSE         0x20
 #define OUTPUT_FLAG_OUT_FILE        0x40
+#define OUTPUT_FLAG
 
 #define VERSION_MAJOR       0
 #define VERSION_MINOR       1
-
-// unused
-
-//enum FileType {
-    //FILE_STL,
-    //FILE_WAVEFRONT_OBJ,
-    //FILE_GLTF,
-    //FILE_GLB,
-    //FILE_DAS,
-    //FILE_DASC
-//};
 
 
 class DASTool {

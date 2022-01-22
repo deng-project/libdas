@@ -34,17 +34,7 @@ namespace Libdas {
     }
 
 
-    const char *TextureReader::GetBuffer() {
-        return const_cast<const char*>(m_buffer);
-    }
-
-
-    size_t TextureReader::GetBufferSize() {
-        return m_buffer_size;
-    }
-
-
-    const char *TextureReader::GetRawBuffer(int *_x, int *_y) {
+    const char *TextureReader::GetRawBuffer(int &_x, int &_y, size_t &_len) {
         LIBDAS_ASSERT(m_buffer || m_stream);
 
         // check if cleaning the raw data memory is needed
@@ -58,23 +48,19 @@ namespace Libdas {
         if(!m_stream) {
             int n;
             m_raw_buffer = reinterpret_cast<char*>(stbi_load_from_memory(reinterpret_cast<unsigned char* const>(m_buffer), 
-                                                                         static_cast<int>(m_buffer_size), _x, _y, &n, 4));
-            m_raw_buffer_size = (*_x) * (*_y) * 4;
+                                                                         static_cast<int>(m_buffer_size), &_x, &_y, &n, 4));
+            m_raw_buffer_size = _x * _y * 4;
         }
 
         // stream is present read from it
         else {
             int n;
-            m_raw_buffer = reinterpret_cast<char*>(stbi_load_from_file(m_stream, _x, _y, &n, 4));
-            m_raw_buffer_size = (*_x) * (*_y) * 4;
+            m_raw_buffer = reinterpret_cast<char*>(stbi_load_from_file(m_stream, &_x, &_y, &n, 4));
+            m_raw_buffer_size = _x * _y * 4;
         }
 
+        _len = m_raw_buffer_size;
         return m_raw_buffer;
-    }
-
-
-    size_t TextureReader::GetRawBufferSize() {
-        return m_raw_buffer_size;
     }
 
 

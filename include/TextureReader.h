@@ -52,23 +52,16 @@ namespace Libdas {
              * Allocated heap memory is automatically freed
              * @return const char* pointer to the image file buffer read into memory
              */
-            const char *GetBuffer();
-            /**
-             * Get the current image buffer size
-             * @return size_t value that specifies the buffer size
-             */
-            size_t GetBufferSize();
+            inline const char* GetBuffer(size_t &_len) {
+                _len = m_buffer_size;
+                return m_buffer;
+            }
             /**
              * Read the image stream and return a pointer to raw image data
              * Allocated heap memory is automatically freed
              * @return const char* pointer to the raw image data buffer
              */
-            const char *GetRawBuffer(int *_x, int *_y);
-            /**
-             * Get the currently parsed raw image data buffer size
-             * @return size_t value that specifies the raw buffer size
-             */
-            size_t GetRawBufferSize();
+            const char *GetRawBuffer(int &_x, int &_y, size_t &_len);
             /**
              * Check the file name and get the correct buffer type
              * @return BufferType value that specifies the image buffer type

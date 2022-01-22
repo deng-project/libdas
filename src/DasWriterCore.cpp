@@ -169,8 +169,11 @@ namespace Libdas {
             TextureReader rd = TextureReader(file_name);
             BufferType type = rd.GetImageBufferType();
             _WriteNumericalValue<BufferType>("BUFFERTYPE", type);
-            _WriteNumericalValue<uint32_t>("DATALEN", static_cast<uint32_t>(rd.GetBufferSize()));
-            _WriteGenericDataValue(rd.GetBuffer(), rd.GetBufferSize(), true, "DATA");
+            
+            size_t len = 0;
+            const char *data = rd.GetBuffer(len);
+            _WriteNumericalValue<uint32_t>("DATALEN", static_cast<uint32_t>(len));
+            _WriteGenericDataValue(data, len, true, "DATA");
         }
     }
 

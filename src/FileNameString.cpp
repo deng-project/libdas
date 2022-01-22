@@ -28,7 +28,7 @@ namespace Libdas {
             return ExtractRootPath(buf) + "\\" + _rel;
 #else 
             readlink("/proc/self/exe", buf, len);
-            return ExtractRootPath(buf) + "\\" + _rel;
+            return ExtractRootPath(buf) + "/" + _rel;
 #endif
         }
 

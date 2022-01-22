@@ -11,8 +11,10 @@
     #include <vector>
     #include <climits>
     #include <Api.h>
-#ifdef _WIN32
+#if defined(_WIN32)
     #include <Windows.h>
+#elif defined(__linux__)
+    #include <unistd.h>
 #endif
 
 #endif

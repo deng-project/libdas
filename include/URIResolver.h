@@ -62,10 +62,12 @@ namespace Libdas {
              */
             void Resolve(const std::string &_uri = "", const std::string &_root_path = "");
             /**
-             * Get moveable reference of the buffer containing data found on the resouce
+             * Get a reference of the buffer containing data found on the resouce
              * @return std::pair moveable object containing buffer pointer and its size
              */
-            std::vector<char> &&MoveBuffer();
+            inline std::vector<char> &GetBuffer() {
+                return m_buffer;
+            }
     };
 }
 

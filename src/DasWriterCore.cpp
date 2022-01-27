@@ -112,7 +112,6 @@ namespace Libdas {
 
     void DasWriterCore::InitialiseFile(const DasProperties &_properties) {
         DasSignature sig;
-        m_use_compression = _properties.compression;
         m_out_stream.write(reinterpret_cast<char*>(&sig), sizeof(DasSignature));
 
         _WriteScopeBeginning("PROPERTIES");
@@ -133,9 +132,6 @@ namespace Libdas {
         const auto epoch = std::chrono::system_clock::now().time_since_epoch();
         const auto s = std::chrono::duration_cast<std::chrono::seconds>(epoch);
         _WriteNumericalValue<uint64_t>("MODDATE", static_cast<uint64_t>(s.count()));
-        
-        // write compression value
-        _WriteNumericalValue<bool>("COMPRESSION", _properties.compression);
 
         // write default scene value
         _WriteNumericalValue<uint32_t>("DEFAULTSCENE", _properties.default_scene);
@@ -288,8 +284,34 @@ namespace Libdas {
     }
 
 
-    void DasWriterCore::CreateDASC(const std::string &_file_name, bool delete_original) {
-        std::cerr << "DASC is not yet implemented :(((" << std::endl;
-        std::exit(1);
+    void DasWriterCore::AppendTextures(std::vector<DasBuffer> &_buffers, const std::vector<std::string> &_embedded_textures, bool _use_raw) {
+        m_texture_readers.reserve(_embedded_textures.size());
+        for(const std::string &file_name : _embedded_textures) {
+            m_texture_readers.push_back(std::move(TextureReader(file_name, _use_raw)));
+            
+            DasBuffer buf;
+            buf.type = m_texture_readers.back().GetImageBufferType();
+            size_t len;
+
+            if(!_use_raw) {
+                buf.data_ptrs.push_back(std::make_pair(m_texture_readers.back().GetBuffer(len), len));
+                buf.data_len = static_cast<uint32_t>(len);
+                buf.type = m_texture_readers.back().GetImageBufferType();
+            } 
+            else {
+                int x, y;
+                const char *raw_data = m_texture_readers.back().GetRawBuffer(x, y, len);
+                m_raw_img_header.width = static_cast<uint32_t>(x);
+                m_raw_img_header.height = static_cast<uint32_t>(y);
+                m_raw_img_header.bit_depth = 4;
+
+                buf.data_ptrs.push_back(std::make_pair(reinterpret_cast<const char*>(&m_raw_img_header), sizeof(RawImageDataHeader)));
+                buf.data_len += static_cast<uint32_t>(sizeof(RawImageDataHeader) + len);
+                buf.data_ptrs.push_back(std::make_pair(raw_data, len));
+                buf.type = LIBDAS_BUFFER_TYPE_TEXTURE_RAW;
+            }
+
+            _buffers.push_back(buf);
+        }
     }
 }

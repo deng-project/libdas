@@ -3,20 +3,15 @@
 --- file: WavefrontObjCompiler.lua - WavefrontObjCompiler class test build configuration
 --- author: Karl-Mihkel Ott
 
-local WavefrontObjCompiler = {}
+project "WavefrontObjCompilerTest"
+    basedir("../..")
+    kind "ConsoleApp"
+    language "C++"
+    cppdialect "C++17"
 
-function WavefrontObjCompiler.build()
-    project "WavefrontObjCompilerTest"
-        kind "ConsoleApp"
-        language "C++"
-        cppdialect "C++17"
+    files {
+        "../../include/*",
+        "../../tests/WavefrontObjCompilerTest.cpp"
+    }
 
-        files {
-            "include/*",
-            "tests/WavefrontObjCompilerTest.cpp"
-        }
-
-        links { "das" }
-end
-
-return WavefrontObjCompiler
+    links { "das" }

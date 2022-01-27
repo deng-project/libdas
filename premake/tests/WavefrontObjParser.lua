@@ -3,21 +3,15 @@
 --- file: WavefrontObjParser.lua - WavefrontObjParser class test build configuration
 --- author: Karl-Mihkel Ott
 
-local WavefrontObjParser = {}
+project "WavefrontObjParserTest"
+    basedir("../..")
+    kind "ConsoleApp"
+    language "C++"
+    cppdialect "C++17"
 
-function WavefrontObjParser.build()
-    project "WavefrontObjParserTest"
-        kind "ConsoleApp"
-        language "C++"
-        cppdialect "C++17"
+    files {
+        "../../include/*",
+        "../../tests/WavefrontObjParseTest.cpp"
+    }
 
-        files {
-            "include/*",
-            "tests/WavefrontObjParseTest.cpp"
-        }
-
-        links { "das" }
-end
-
-
-return WavefrontObjParser
+    links { "das" }

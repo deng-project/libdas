@@ -3,8 +3,9 @@
 /// file: StreamReader.h - File stream reader header file that reads chunk by chunk 
 /// author: Karl-Mihkel Ott
 
-#ifndef STREAM_READER_H
-#define STREAM_READER_H
+#ifndef ASCII_STREAM_READER_H
+#define ASCII_STREAM_READER_H
+
 #define DEFAULT_CHUNK   4096
 
 #ifdef STREAM_READER_CPP
@@ -24,6 +25,15 @@
 
 
 namespace Libdas {
+
+    namespace String {
+        /**
+         * Read file contents into std::string instance
+         * @param _file_name specifies the relative file path used for reading
+         * @return std::string instance containing all file contents
+         */
+        std::string ReadFileToString(const std::string &_file_name);
+    }
 
     /**
      * Parent class for AsciiLineReader and similar ASCII data parsing classes.

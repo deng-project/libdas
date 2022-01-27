@@ -3,20 +3,15 @@
 --- file: STLCompiler.lua - STLCompiler class test build configuration
 --- author: Karl-Mihkel Ott
 
-local STLCompiler = {}
+project "STLCompilerTest"
+    basedir("../..")
+    kind "ConsoleApp"
+    language "C++"
+    cppdialect "C++17"
 
-function STLCompiler.build()
-    project "STLCompilerTest"
-        kind "ConsoleApp"
-        language "C++"
-        cppdialect "C++17"
+    files {
+        "../../include/*",
+        "../../tests/STLCompilerTest.cpp"
+    }
 
-        files {
-            "include/*",
-            "tests/STLCompilerTest.cpp"
-        }
-
-        links { "das" }
-end
-
-return STLCompiler
+    links { "das" }

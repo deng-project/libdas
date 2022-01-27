@@ -20,6 +20,7 @@
 #include <AsciiLineReader.h>
 #include <ErrorHandlers.h>
 #include <DasStructures.h>
+#include <TextureReader.h>
 #include <DasWriterCore.h>
 #include <STLStructures.h>
 #include <STLParser.h>
@@ -35,9 +36,8 @@ int main(int argc, char *argv[]) {
 
     // properties to write to out file
     Libdas::DasProperties props;
-    props.author = "Karl-Mihkel Ott";
-    props.compression = false;
-    props.copyright = "idc";
+    props.author = "STLCompilerTest";
+    props.copyright = "Some copyright notice";
     props.moddate = static_cast<uint64_t>(time(NULL));
     props.model = "An example STL model to test";
     

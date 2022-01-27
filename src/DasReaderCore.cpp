@@ -26,8 +26,7 @@ namespace Libdas {
         m_scope_name_map["SCENE"] = LIBDAS_DAS_SCOPE_SCENE;
         m_scope_name_map["JOINT"] = LIBDAS_DAS_SCOPE_SKELETON_JOINT;
         m_scope_name_map["SKELETON"] = LIBDAS_DAS_SCOPE_SKELETON;
-        m_scope_name_map["ANIMATION"] = LIBDAS_DAS_SCOPE_ANIMATION;
-    }
+        m_scope_name_map["ANIMATION"] = LIBDAS_DAS_SCOPE_ANIMATION; }
 
 
     void DasReaderCore::_CreateScopeValueTypeMap() {
@@ -36,7 +35,6 @@ namespace Libdas {
         m_unique_val_map["AUTHOR"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_AUTHOR;
         m_unique_val_map["COPYRIGHT"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_COPYRIGHT;
         m_unique_val_map["MODDATE"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_MODDATE;
-        m_unique_val_map["COMPRESSION"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_COMPRESSION;
         m_unique_val_map["DEFAULTSCENE"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_DEFAULT_SCENE;
 
         // BUFFER
@@ -49,6 +47,14 @@ namespace Libdas {
         m_unique_val_map["INDEXBUFFEROFFSET"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_INDEX_BUFFER_OFFSET;
         m_unique_val_map["INDICESCOUNT"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_INDICES_COUNT;
         m_unique_val_map["TEXTUREID"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_TEXTURE_ID;
+        m_unique_val_map["VERTEXBUFFERID"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_BUFFER_ID;
+        m_unique_val_map["VERTEXBUFFEROFFSET"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_BUFFER_OFFSET;
+        m_unique_val_map["TEXTUREMAPBUFFERID"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_TEXTURE_MAP_BUFFER_ID;
+        m_unique_val_map["TEXTUREMAPBUFFEROFFSET"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_TEXTURE_MAP_BUFFER_OFFSET;
+        m_unique_val_map["VERTEXNORMALBUFFERID"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_NORMAL_BUFFER_ID;
+        m_unique_val_map["VERTEXNORMALBUFFEROFFSET"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_NORMAL_BUFFER_OFFSET;
+        m_unique_val_map["VERTEXTANGENTBUFFERID"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_TANGENT_BUFFER_ID;
+        m_unique_val_map["VERTEXTANGENTBUFFEROFFSET"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_TANGENT_BUFFER_OFFSET;
 
         // NODE
         m_unique_val_map["CHILDRENCOUNT"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_CHILDREN_COUNT;
@@ -88,12 +94,6 @@ namespace Libdas {
         // Not so unique value types, since these values can be present in multiple scopes
         m_unique_val_map["NAME"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_NAME;
         m_unique_val_map["TRANSFORM"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_TRANSFORM;
-        m_unique_val_map["VERTEXBUFFERID"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_BUFFER_ID;
-        m_unique_val_map["VERTEXBUFFEROFFSET"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_BUFFER_OFFSET;
-        m_unique_val_map["TEXTUREMAPBUFFERID"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_TEXTURE_MAP_BUFFER_ID;
-        m_unique_val_map["TEXTUREMAPBUFFEROFFSET"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_TEXTURE_MAP_BUFFER_OFFSET;
-        m_unique_val_map["VERTEXNORMALBUFFERID"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_NORMAL_BUFFER_ID;
-        m_unique_val_map["VERTEXNORMALBUFFEROFFSET"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_NORMAL_BUFFER_OFFSET;
     }
 
 
@@ -123,9 +123,6 @@ namespace Libdas {
 
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_MODDATE:
                         return DasProperties::LIBDAS_PROPERTIES_MODDATE;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_COMPRESSION:
-                        return DasProperties::LIBDAS_PROPERTIES_COMPRESSION;
 
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_DEFAULT_SCENE:
                         return DasProperties::LIBDAS_PROPERTIES_DEFAULT_SCENE;
@@ -185,6 +182,12 @@ namespace Libdas {
 
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_NORMAL_BUFFER_OFFSET:
                         return DasMesh::LIBDAS_MESH_VERTEX_NORMAL_BUFFER_OFFSET;
+
+                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_TANGENT_BUFFER_ID:
+                        return DasMesh::LIBDAS_MESH_VERTEX_TANGENT_BUFFER_ID;
+
+                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_TANGENT_BUFFER_OFFSET:
+                        return DasMesh::LIBDAS_MESH_VERTEX_TANGENT_BUFFER_OFFSET;
 
                     default:
                         return LIBDAS_DAS_UNIQUE_VALUE_TYPE_UNKNOWN;
@@ -333,11 +336,6 @@ namespace Libdas {
             case DasProperties::LIBDAS_PROPERTIES_MODDATE:
                 _props->moddate = *reinterpret_cast<uint64_t*>(_GetReadPtr());
                 _SkipData(sizeof(uint64_t));
-                break;
-
-            case DasProperties::LIBDAS_PROPERTIES_COMPRESSION:
-                _props->compression = reinterpret_cast<bool*>(_GetReadPtr());
-                _SkipData(sizeof(bool));
                 break;
 
             case DasProperties::LIBDAS_PROPERTIES_DEFAULT_SCENE:

@@ -3,20 +3,15 @@
 --- file: TextureReader.lua - TextureReader class test build configuration
 --- author: Karl-Mihkel Ott
 
-local TextureReader = {}
+project "TextureReaderTest"
+    basedir("../..")
+    kind "ConsoleApp"
+    language "C++"
+    cppdialect "C++17"
 
-function TextureReader.build() 
-    project "TextureReaderTest"
-        kind "ConsoleApp"
-        language "C++"
-        cppdialect "C++17"
+    files {
+        "../../include/*",
+        "../../tests/TextureReaderTest.cpp"
+    }
 
-        files {
-            "include/*",
-            "tests/TextureReaderTest.cpp"
-        }
-
-        links { "das" }
-end
-
-return TextureReader
+    links { "das" }

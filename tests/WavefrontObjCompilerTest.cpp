@@ -21,6 +21,7 @@
 #include <LibdasAssert.h>
 #include <FileNameString.h>
 #include <DasStructures.h>
+#include <TextureReader.h>
 #include <DasWriterCore.h>
 #include <WavefrontObjStructures.h>
 #include <WavefrontObjParser.h>
@@ -47,7 +48,6 @@ int main(int argc, char *argv[]) {
 
     Libdas::DasProperties props;
     props.author = "inugami-dev64";
-    props.compression = false;
     props.copyright = "GPL or something like that";
     props.moddate = static_cast<uint64_t>(time(NULL));
     props.model = argv[1];

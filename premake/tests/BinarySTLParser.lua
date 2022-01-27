@@ -3,22 +3,15 @@
 --- file: BinarySTLParser.lua - BinarySTLParser class test build configuration
 --- author: Karl-Mihkel Ott
 
+project "BinarySTLParserTest"
+    basedir("../..")
+    kind "ConsoleApp"
+    language "C++"
+    cppdialect "C++17"
 
-local BinarySTLParser = {}
+    files {
+        "../../include/*",
+        "../../tests/BinarySTLParseTest.cpp"
+    }
 
-function BinarySTLParser.build() 
-    project "BinarySTLParserTest"
-        kind "ConsoleApp"
-        language "C++"
-        cppdialect "C++17"
-
-        files {
-            "include/*",
-            "tests/BinarySTLParseTest.cpp"
-        }
-
-        links { "das" }
-end
-
-
-return BinarySTLParser
+    links { "das" }

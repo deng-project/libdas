@@ -20,37 +20,35 @@ namespace Libdas {
         std::unordered_map<Point3D<float>, uint32_t> pos_map;
         std::unordered_map<Point3D<float>, uint32_t> norm_map;
 
-
         uint32_t max_pos = 0;
         uint32_t max_norm = 0;
         for(const STLObject &obj : _objects) {
-            m_index_offsets.push_back(m_faces.size() * sizeof(DasFace));
             for(size_t i = 0; i < obj.facets.size(); i++) {
-                DasFace face;
+                std::array<uint32_t, 2> index;
 
                 // check if vertex normal key exists in normals hashmap
                 if(norm_map.find(obj.facets[i].normal) != norm_map.end())
-                    face.normal = norm_map[obj.facets[i].normal];
+                    index[1] = norm_map[obj.facets[i].normal];
                 else {
-                    face.normal = max_pos;
+                    index[1] = max_pos;
                     max_pos++;
                     m_unique_normals.push_back(obj.facets[i].normal);
-                    norm_map[obj.facets[i].normal] = face.normal;
+                    norm_map[obj.facets[i].normal] = index[1];
                 }
 
                 // check if the position vertices already exist in the position vertex map
                 for(const Point3D<float> &pos : obj.facets[i].vertices) {
                     if(pos_map.find(pos) != pos_map.end())
-                        face.position = pos_map[pos];
+                        index[0] = pos_map[pos];
                     else {
-                        face.position = max_pos;
+                        index[0] = max_pos;
                         max_pos++;
                         m_unique_verts.push_back(Point4D<float>(pos));
-                        pos_map[pos] = face.position;
+                        pos_map[pos] = index[0];
                     }
                 }
 
-                m_faces.push_back(face);
+                m_indices.push_back(index);
             }
         }
     }
@@ -74,8 +72,8 @@ namespace Libdas {
 
         // create indices buffer
         buffers[2].type = LIBDAS_BUFFER_TYPE_INDICES;
-        buffers[2].data_len = m_faces.size() * sizeof(DasFace);
-        buffers[2].data_ptrs.push_back(std::make_pair(reinterpret_cast<const char*>(m_faces.data()), buffers[2].data_len));
+        buffers[2].data_len = m_indices.size() * sizeof(uint32_t[2]);
+        buffers[2].data_ptrs.push_back(std::make_pair(reinterpret_cast<const char*>(m_indices.data()), buffers[2].data_len));
 
         return buffers;
     }
@@ -83,13 +81,16 @@ namespace Libdas {
 
     std::vector<DasMesh> STLCompiler::_CreateMeshes(const std::vector<STLObject> &_objects) {
         std::vector<DasMesh> meshes(_objects.size());
+        uint32_t m_offset = 0;
         for(size_t i = 0; i < _objects.size(); i++) {
             meshes[i].name = _objects[i].name;
             meshes[i].vertex_buffer_id = VERTICES_ID;
             meshes[i].vertex_normal_buffer_id = NORMALS_ID;
             meshes[i].index_buffer_id = INDICES_ID;
-            meshes[i].index_buffer_offset = m_index_offsets[i];
-            meshes[i].indices_count = i == _objects.size() - 1 ? m_faces.size() - m_index_offsets[i] / sizeof(DasFace) : (m_index_offsets[i + 1] - m_index_offsets[i]) / sizeof(DasFace);
+            meshes[i].index_buffer_offset = m_offset;
+            meshes[i].primitive_attrs = LIBDAS_PRIMITIVE_ATTRIBUTE_VERTEX | LIBDAS_PRIMITIVE_ATTRIBUTE_VERTEX_NORMAL;
+            meshes[i].indices_count = static_cast<uint32_t>(m_indices.size());
+            m_offset += static_cast<uint32_t>(m_indices.size() * sizeof(uint32_t[2]));
         }
 
         return meshes;

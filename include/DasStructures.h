@@ -28,17 +28,25 @@ typedef uint16_t BufferType;
 #define LIBDAS_BUFFER_TYPE_TEXTURE_MAP              0x0002
 #define LIBDAS_BUFFER_TYPE_VERTEX_NORMAL            0x0004
 #define LIBDAS_BUFFER_TYPE_VERTEX_TANGENT           0x0008
-#define LIBDAS_BUFFER_TYPE_INDICES                  0x0010
-#define LIBDAS_BUFFER_TYPE_TEXTURE_JPEG             0x0020
-#define LIBDAS_BUFFER_TYPE_TEXTURE_PNG              0x0040
-#define LIBDAS_BUFFER_TYPE_TEXTURE_TGA              0x0080
-#define LIBDAS_BUFFER_TYPE_TEXTURE_BMP              0x0100
-#define LIBDAS_BUFFER_TYPE_TEXTURE_PPM              0x0200
-#define LIBDAS_BUFFER_TYPE_TEXTURE_RAW              0x0400
-#define LIBDAS_BUFFER_TYPE_KEYFRAME                 0x0800  // can be either morph target keyframe or skinned animation keyframe
-#define LIBDAS_BUFFER_TYPE_COLOR                    0x1000
-#define LIBDAS_BUFFER_TYPE_WEIGHTS                  0x2000
-#define LIBDAS_BUFFER_TYPE_JOINTS                   0x4000
+#define LIBDAS_BUFFER_TYPE_COLOR                    0x0010
+#define LIBDAS_BUFFER_TYPE_JOINTS                   0x0020
+#define LIBDAS_BUFFER_TYPE_WEIGHTS                  0x0040
+#define LIBDAS_BUFFER_TYPE_INDICES                  0x0080
+#define LIBDAS_BUFFER_TYPE_TEXTURE_JPEG             0x0100
+#define LIBDAS_BUFFER_TYPE_TEXTURE_PNG              0x0200
+#define LIBDAS_BUFFER_TYPE_TEXTURE_TGA              0x0400
+#define LIBDAS_BUFFER_TYPE_TEXTURE_BMP              0x0800
+#define LIBDAS_BUFFER_TYPE_TEXTURE_PPM              0x1000
+#define LIBDAS_BUFFER_TYPE_TEXTURE_RAW              0x2000
+#define LIBDAS_BUFFER_TYPE_KEYFRAME                 0x4000  // can be either morph target keyframe or skinned animation keyframe
+#define LIBDAS_BUFFER_TYPE_TIMESTAMPS               0x8000  // used only for identifying timestamp buffers from GLTF format parsing
+
+typedef uint8_t PrimitiveAttribute;
+#define LIBDAS_PRIMITIVE_ATTRIBUTE_UNKNOWN          0x00
+#define LIBDAS_PRIMITIVE_ATTRIBUTE_VERTEX           0x01
+#define LIBDAS_PRIMITIVE_ATTRIBUTE_TEXTURE_MAP      0x02
+#define LIBDAS_PRIMITIVE_ATTRIBUTE_VERTEX_NORMAL    0x04
+#define LIDBAS_PRIMITIVE_ATTRIBUTE_VERTEX_TANGENT   0x08
 
 /// Animation interpolation technique definitions 
 typedef uint8_t InterpolationType;
@@ -69,28 +77,16 @@ namespace Libdas {
         std::string model;
         std::string author = LIBDAS_DAS_DEFAULT_AUTHOR;
         std::string copyright;
-        uint64_t moddate;
+        uint64_t moddate = 0;
         uint32_t default_scene = 0;
-        bool compression;
 
         enum ValueType {
             LIBDAS_PROPERTIES_MODEL,
             LIBDAS_PROPERTIES_AUTHOR,
             LIBDAS_PROPERTIES_COPYRIGHT,
             LIBDAS_PROPERTIES_MODDATE,
-            LIBDAS_PROPERTIES_COMPRESSION,
             LIBDAS_PROPERTIES_DEFAULT_SCENE
         } val_type;
-    };
-
-
-    /**
-     * Data structure for containing indices information (default indices are all -1)
-     */
-    struct DasFace {
-        uint32_t position = UINT32_MAX;
-        uint32_t texture = UINT32_MAX;
-        uint32_t normal = UINT32_MAX;
     };
 
 
@@ -100,7 +96,7 @@ namespace Libdas {
     struct DasBuffer {
         std::vector<std::pair<const char*, size_t>> data_ptrs;
         uint32_t data_len = 0;
-        BufferType type;
+        BufferType type = 0;
 
         enum ValueType {
             LIBDAS_BUFFER_BUFFER_TYPE,
@@ -126,6 +122,9 @@ namespace Libdas {
         uint32_t texture_map_buffer_offset = 0;
         uint32_t vertex_normal_buffer_id = UINT32_MAX;
         uint32_t vertex_normal_buffer_offset = 0;
+        uint32_t vertex_tangent_buffer_id = UINT32_MAX;
+        uint32_t vertex_tangent_buffer_offset = 0;
+        PrimitiveAttribute primitive_attrs = 0;
 
         enum ValueType {
             LIBDAS_MESH_NAME,
@@ -139,6 +138,9 @@ namespace Libdas {
             LIBDAS_MESH_TEXTURE_MAP_BUFFER_OFFSET,
             LIBDAS_MESH_VERTEX_NORMAL_BUFFER_ID,
             LIBDAS_MESH_VERTEX_NORMAL_BUFFER_OFFSET,
+            LIBDAS_MESH_VERTEX_TANGENT_BUFFER_ID,
+            LIBDAS_MESH_VERTEX_TANGENT_BUFFER_OFFSET,
+            LIBDAS_MESH_PRIMITIVE_ATTRIBUTE_FLAG
         } val_type;
     };
 

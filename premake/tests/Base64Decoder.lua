@@ -3,20 +3,15 @@
 --- file: Base64DecoderTest.lua - Base64Decoder class test build configuration
 --- author: Karl-Mihkel Ott
 
-local Base64Decoder = {}
+project "Base64Decoder"
+    basedir("../..")
+    kind "ConsoleApp"
+    language "C++"
+    cppdialect "C++17"
 
-function Base64Decoder.build()
-    project "Base64Decoder"
-        kind "ConsoleApp"
-        language "C++"
-        cppdialect "C++17"
+    files {
+        "../../include/*",
+        "../../tests/Base64DecoderTest.cpp"
+    }
 
-        files {
-            "include/*",
-            "tests/Base64DecoderTest.cpp"
-        }
-
-        links { "das" }
-end
-
-return Base64Decoder
+    links { "das" }

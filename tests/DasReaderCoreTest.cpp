@@ -40,7 +40,6 @@ int main(int argc, char *argv[]) {
         std::cout << "AUTHOR: " << props.author << std::endl;
         std::cout << "COPYRIGHT: " << props.copyright << std::endl;
         std::cout << "MODDATE: " << props.moddate << std::endl;
-        std::cout << "COMPRESSION: " << (props.compression ? "true" : "false") << std::endl; 
     }
     else std::cout << "Invalid or corrupt file " << argv[1] << std::endl;
     return 0;

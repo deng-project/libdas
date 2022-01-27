@@ -3,20 +3,15 @@
 --- file: JSONParser.lua - JSONParser class test build configuration
 --- author: Karl-Mihkel Ott
 
-local JSONParser = {}
+project "JSONParserTest"
+    basedir("../..")
+    kind "ConsoleApp"
+    language "C++"
+    cppdialect "C++17"
 
-function JSONParser.build() 
-    project "JSONParserTest"
-        kind "ConsoleApp"
-        language "C++"
-        cppdialect "C++17"
+    files {
+        "../../include/*",
+        "../../tests/JSONParserTest.cpp"
+    }
 
-        files {
-            "include/*",
-            "tests/JSONParserTest.cpp"
-        }
-
-        links { "das" }
-end
-
-return JSONParser
+    links { "das" }

@@ -54,9 +54,10 @@ namespace Libdas {
              * Parse contents from provided DAS file into scene array.
              * If the file contains no scenes, a default scene will be created that should be considered as a
              * object library.
+             * @param _clean_read is an optional argument when set to true, closes the file stream currently used
              * @param _file_name is an optional argument that specifies new file to use
              */
-            void Parse(const std::string &_file_name = "");
+            void Parse(bool _clean_read = false, const std::string &_file_name = "");
 
             ////////////////////////////////
             // ***** Getter methods ***** //

@@ -8,59 +8,47 @@
 
 namespace Libdas {
 
-    TextureReader::TextureReader(const std::string &_file_name) : m_file_name(_file_name) {
-        m_stream = fopen(_file_name.c_str(), "rb");
+    TextureReader::TextureReader(const std::string &_file_name, bool _use_raw) : m_file_name(_file_name) {
+        std::ifstream file(_file_name, std::ios_base::binary);
 
         // check if error occured, while opening the stream
-        if(!m_stream) {
+        if(file.fail()) {
             std::cerr << "Failed to read texture file " << _file_name << std::endl;
             std::exit(LIBDAS_ERROR_INVALID_FILE);
         }
+
+        // read file data into buffer
+        file.seekg(0, std::ios_base::end);
+        m_buffer_size = file.tellg();
+        file.seekg(0, std::ios_base::beg);
+
+        m_buffer = new char[m_buffer_size];
+        file.read(m_buffer, m_buffer_size);
+
+        if(_use_raw) {
+            int n;
+            m_raw_buffer = reinterpret_cast<char*>(stbi_load_from_memory(reinterpret_cast<unsigned char* const>(m_buffer),
+                                                                         static_cast<int>(m_buffer_size), &m_x, &m_y, &n, 4));
+            m_raw_buffer_size = static_cast<size_t>(m_x * m_y * 4);
+        }
+
+        file.close();
     }
 
 
-    TextureReader::TextureReader(const std::string &_file_name, std::ifstream &_stream, size_t _img_size) :
-        m_buffer_size(_img_size), m_file_name(_file_name)
+    TextureReader::TextureReader(TextureReader &&_mov) : m_buffer(_mov.m_buffer), m_buffer_size(_mov.m_buffer_size),
+        m_raw_buffer(_mov.m_raw_buffer), m_raw_buffer_size(_mov.m_raw_buffer_size), m_file_name(_mov.m_file_name), m_x(_mov.m_x), m_y(_mov.m_y)
     {
-        m_buffer = reinterpret_cast<char*>(malloc(m_buffer_size));
-        _stream.read(m_buffer, m_buffer_size);
+        _mov.m_buffer = nullptr;
+        _mov.m_raw_buffer = nullptr;
     }
 
 
     TextureReader::~TextureReader() {
-        if(m_buffer) free(m_buffer);
-        if(m_raw_buffer) free(m_raw_buffer);
-        if(m_stream) fclose(m_stream);
-    }
-
-
-    const char *TextureReader::GetRawBuffer(int &_x, int &_y, size_t &_len) {
-        LIBDAS_ASSERT(m_buffer || m_stream);
-
-        // check if cleaning the raw data memory is needed
-        if(m_raw_buffer) {
-            free(m_raw_buffer);
-            m_raw_buffer = nullptr;
-            m_raw_buffer_size = 0;
-        }
-
-        // no stream present, read from the buffer
-        if(!m_stream) {
-            int n;
-            m_raw_buffer = reinterpret_cast<char*>(stbi_load_from_memory(reinterpret_cast<unsigned char* const>(m_buffer), 
-                                                                         static_cast<int>(m_buffer_size), &_x, &_y, &n, 4));
-            m_raw_buffer_size = _x * _y * 4;
-        }
-
-        // stream is present read from it
-        else {
-            int n;
-            m_raw_buffer = reinterpret_cast<char*>(stbi_load_from_file(m_stream, &_x, &_y, &n, 4));
-            m_raw_buffer_size = _x * _y * 4;
-        }
-
-        _len = m_raw_buffer_size;
-        return m_raw_buffer;
+        if(m_buffer) 
+            delete [] m_buffer;
+        if(m_raw_buffer) 
+            std::free(m_raw_buffer);
     }
 
 

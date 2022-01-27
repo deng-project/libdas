@@ -62,9 +62,4 @@ namespace Libdas {
         // assume file stream otherwise
         else _ResolveFileURI();
     }
-
-
-    std::vector<char> &&URIResolver::MoveBuffer() {
-        return std::move(m_buffer);
-    }
 }

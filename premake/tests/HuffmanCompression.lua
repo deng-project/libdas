@@ -3,21 +3,15 @@
 --- file: HuffmanCompression.lua - Huffman compression classes test build config
 --- author: Karl-Mihkel Ott
 
-local HuffmanCompression = {}
+project "HuffmanCompressionTest"
+    basedir("../..")
+    kind "ConsoleApp"
+    language "C++"
+    cppdialect "C++17"
 
-function HuffmanCompression.build()
-    project "HuffmanCompressionTest"
-        kind "ConsoleApp"
-        language "C++"
-        cppdialect "C++17"
+    files {
+        "../../include/*",
+        "../../tests/HuffmanCompressionTest.cpp"
+    }
 
-        files {
-            "include/*",
-            "tests/HuffmanCompressionTest.cpp"
-        }
-
-        links { "das" }
-end
-
-
-return HuffmanCompression
+    links { "das" }

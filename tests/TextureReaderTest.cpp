@@ -15,7 +15,7 @@
 
 int main(int argc, char *argv[]) {
     if(argc < 2) {
-        std::cerr << "Please provide a picture file as an argument" << std::endl;
+        std::cerr << "Please provide an image file as an argument" << std::endl;
         std::exit(LIBDAS_ERROR_INVALID_FILE);
     }
 
@@ -31,13 +31,15 @@ int main(int argc, char *argv[]) {
 
     Libdas::TextureReader rd = Libdas::TextureReader(argv[1]);
     std::ofstream cpy(file_name + ".cpy", std::ios_base::binary);
-    cpy.write(rd.GetBuffer(), rd.GetBufferSize());
+    size_t len;
+    const char *buf = rd.GetBuffer(len);
+    cpy.write(buf, len);
     cpy.close();
 
     std::ofstream raw(file_name + ".raw", std::ios_base::binary);
 
     int x, y;
-    raw.write(rd.GetRawBuffer(&x, &y), rd.GetRawBufferSize());
+    raw.write(rd.GetRawBuffer(x, y, len), len);
     raw.close();
 
     BufferType type = rd.GetImageBufferType();

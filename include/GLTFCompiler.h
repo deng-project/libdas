@@ -1,3 +1,8 @@
+// libdas: DENG asset handling management library
+// licence: Apache, see LICENCE file
+// file: GLTFCompiler.h - GLTF format to DAS compiler header
+// author: Karl-Mihkel Ott
+
 #ifndef GLTF_COMPILER_H
 #define GLTF_COMPILER_H
 
@@ -17,9 +22,12 @@
     #include <Matrix.h>
     #include <Quaternion.h>
 
+    #include <ErrorHandlers.h>
     #include <FileNameString.h>
     #include <DasStructures.h>
+    #include <TextureReader.h>
     #include <DasWriterCore.h>
+    #include <TextureReader.h>
     #include <GLTFStructures.h>
     #include <BufferImageTypeResolver.h>
 #endif
@@ -32,8 +40,28 @@ namespace Libdas {
             // images are always appended to the vector after buffers
             size_t m_buffers_size = 0;
             size_t m_images_size = 0;
+            const bool m_use_raw_textures;
+            std::vector<TextureReader> m_tex_readers;
+
+            const std::unordered_map<std::string, BufferType> m_attribute_type_map = {
+                std::make_pair("POSITION", LIBDAS_BUFFER_TYPE_VERTEX),
+                std::make_pair("NORMAL", LIBDAS_BUFFER_TYPE_VERTEX_NORMAL),
+                std::make_pair("TANGENT", LIBDAS_BUFFER_TYPE_VERTEX_TANGENT),
+                std::make_pair("TEXCOORD_", LIBDAS_BUFFER_TYPE_TEXTURE_MAP),
+                std::make_pair("COLOR_", LIBDAS_BUFFER_TYPE_COLOR),
+                std::make_pair("JOINTS_", LIBDAS_BUFFER_TYPE_JOINTS),
+                std::make_pair("WEIGHTS_", LIBDAS_BUFFER_TYPE_WEIGHTS)
+            };
+
+            std::vector<int32_t> m_image_buffer_views;
+
+            struct BufferAccessorData {
+                uint32_t buffer_id;
+                uint32_t buffer_offset;
+            };
 
         private:
+            BufferAccessorData _FindAccessorData(const GLTFRoot &_root, int32_t _accessor_id);
             /**
              * Check if any properties are empty and if they are, supplement values from GLTFRoot::asset into it
              * @param _root specifies a reference to GLTFRoot object, where potentially supplement values are held
@@ -47,17 +75,17 @@ namespace Libdas {
              */
             void _FlagBuffersAccordingToMeshes(const GLTFRoot &_root, std::vector<DasBuffer> &_buffers);
             /**
-             * Give buffers appropriate flags according to images
+             * Give buffers appropriate flags according to animations
              * @param _root specifies a reference to GLTFRoot object
              * @param _buffers specifies a reference to std::vector object, containing all generated buffer instances
              */
-            void _FlagBuffersAccordingToImages(const GLTFRoot &_root, std::vector<DasBuffer> &_buffers);
+            void _FlagBuffersAccordingToAnimations(const GLTFRoot &_root, std::vector<DasBuffer> &_buffers);
             /**
              * Create all buffer objects from given root node
              * @param _root specifies a reference to GLTFRoot object, where all GLTF data is stored
              * @return std::vector instance containing all DasBuffer objects
              */
-            std::vector<DasBuffer> _CreateBuffers(const GLTFRoot &_root);
+            std::vector<DasBuffer> _CreateBuffers(const GLTFRoot &_root, const std::vector<std::string> &_embedded_textures);
             /**
              * Create DasMesh instances from GLTF meshes
              * @param _root specifies a reference to GLTFRoot object, where all GLTF data is stored
@@ -95,8 +123,8 @@ namespace Libdas {
              */
             std::vector<DasAnimation> _CreateAnimations(const GLTFRoot &_root);
         public:
-            GLTFCompiler(const std::string &_out_file = "");
-            GLTFCompiler(const GLTFRoot &_root, const DasProperties &_props, const std::string &_out_file);
+            GLTFCompiler(const std::string &_out_file = "", bool _use_raw_textures = false);
+            GLTFCompiler(const GLTFRoot &_root, const DasProperties &_props, const std::string &_out_file, bool _use_raw_textures = false);
             /**
              * Compile the DAS file from given GLTFRoot structure
              * @param _root specifies a reference to GLTFRoot structure where all GLTF data is contained

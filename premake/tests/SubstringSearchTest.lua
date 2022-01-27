@@ -3,20 +3,15 @@
 --- file: SubstringSearchTest.lua - SubstringSearchTest test program build configuration
 --- author: Karl-Mihkel Ott
 
-local SubstringSearchTest = {}
+project "SubstringSearchTest"
+    basedir("../..")
+    kind "ConsoleApp"
+    language "C++"
+    cppdialect "C++17"
 
-function SubstringSearchTest.build()
-    project "SubstringSearchTest"
-        kind "ConsoleApp"
-        language "C++"
-        cppdialect "C++17"
+    files {
+        "../../include/*",
+        "../../tests/KMP.cpp"
+    }
 
-        files {
-            "include/*",
-            "tests/KMP.cpp"
-        }
-
-        links { "das" }
-end
-
-return SubstringSearchTest
+    links { "das" }

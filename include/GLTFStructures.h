@@ -402,7 +402,7 @@ namespace Libdas {
      * Structure containing geometry to be rendered with given material
      */
     struct GLTFMeshPrimitive {
-        typedef std::unordered_map<std::string, uint32_t> AttributesType;
+        typedef std::vector<std::pair<std::string, uint32_t>> AttributesType;
         AttributesType attributes;                      // required
         int32_t indices = INT32_MAX;                    // not required
         int32_t material = INT32_MAX;                   // not required
@@ -434,7 +434,6 @@ namespace Libdas {
      * Root object for all GLTF objects
      */
     struct GLTFRoot {
-        std::unordered_map<std::string, std::vector<char>> resources;       // custom
         std::vector<std::string> extensions_used;                           // not required
         std::vector<std::string> extensions_required;                       // not required
         std::vector<GLTFAccessor> accessors;                                // not required

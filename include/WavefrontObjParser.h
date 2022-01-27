@@ -25,11 +25,8 @@
     #include <ErrorHandlers.h>
     #include <AsciiStreamReader.h>
     #include <AsciiLineReader.h>
+    #include <WavefrontObjStructures.h>
 #endif
-
-
-/// Import all structures
-#include <WavefrontObjStructures.h>
 
 
 namespace Libdas {

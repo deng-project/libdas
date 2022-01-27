@@ -28,6 +28,7 @@
     #include <LibdasAssert.h>
     #include <ErrorHandlers.h>
     #include <DasStructures.h>
+    #include <TextureReader.h>
     #include <DasWriterCore.h>
 
     #include <STLStructures.h>
@@ -47,8 +48,7 @@ namespace Libdas {
         private:
             std::vector<Point4D<float>> m_unique_verts;
             std::vector<Point3D<float>> m_unique_normals;
-            std::vector<DasFace> m_faces;
-            std::vector<uint32_t> m_index_offsets;
+            std::vector<std::array<uint32_t, 2>> m_indices;
 
         private:
             /**

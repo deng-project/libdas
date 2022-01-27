@@ -3,20 +3,15 @@
 --- file: GLTFParser.lua - GLTFParser class test build configuration
 --- author: Karl-Mihkel Ott
 
-local GLTFParser = {}
+project "GLTFParserTest"
+    basedir("../..")
+    kind "ConsoleApp"
+    language "C++"
+    cppdialect "C++17"
 
-function GLTFParser.build()
-    project "GLTFParserTest"
-        kind "ConsoleApp"
-        language "C++"
-        cppdialect "C++17"
+    files {
+        "../../include/*",
+        "../../tests/GLTFParserTest.cpp"
+    }
 
-        files {
-            "include/*",
-            "tests/GLTFParserTest.cpp"
-        }
-
-        links { "das" }
-end
-
-return GLTFParser
+    links { "das" }

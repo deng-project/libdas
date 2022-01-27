@@ -3,21 +3,15 @@
 --- file: AsciiSTLParser.lua - AsciiSTLParser class test build configuration
 --- author: Karl-Mihkel Ott
 
-local AsciiSTLParser = {}
+project "AsciiSTLParserTest"
+    basedir("../..")
+    kind "ConsoleApp"
+    language "C++"
+    cppdialect "C++17"
 
-function AsciiSTLParser.build()
-    project "AsciiSTLParserTest"
-        kind "ConsoleApp"
-        language "C++"
-        cppdialect "C++17"
+    files {
+        "../../include/*",
+        "../../tests/AsciiSTLParseTest.cpp"
+    }
 
-        files {
-            "include/*",
-            "tests/AsciiSTLParseTest.cpp"
-        }
-
-        links { "das" }
-end
-
-
-return AsciiSTLParser
+    links { "das" }

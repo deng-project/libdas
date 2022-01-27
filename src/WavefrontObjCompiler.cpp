@@ -13,14 +13,15 @@ namespace Libdas {
         DasWriterCore(_out_file) {}
     
 
-    WavefrontObjCompiler::WavefrontObjCompiler(const std::vector<WavefrontObjGroup> &_groups, const DasProperties &_props, const std::string &_out_file) :
+    WavefrontObjCompiler::WavefrontObjCompiler(const std::vector<WavefrontObjGroup> &_groups, const DasProperties &_props, const std::string &_out_file,
+                                               const std::vector<std::string> &_embedded_textures) :
         DasWriterCore(_out_file)
     {
-        Compile(_groups, _props, _out_file);
+        Compile(_groups, _props, _out_file, _embedded_textures);
     }
 
 
-    std::vector<DasBuffer> WavefrontObjCompiler::_CreateBuffers(const std::vector<WavefrontObjGroup> &_groups) {
+    std::vector<DasBuffer> WavefrontObjCompiler::_CreateBuffers(const std::vector<WavefrontObjGroup> &_groups, const std::vector<std::string> &_embedded_textures) {
         // by default initialise following buffer types
         //  * Vertex buffer
         //  * Texture vertices buffer
@@ -31,6 +32,8 @@ namespace Libdas {
         buffers[1].type = LIBDAS_BUFFER_TYPE_TEXTURE_MAP;
         buffers[2].type = LIBDAS_BUFFER_TYPE_VERTEX_NORMAL;
         buffers[3].type = LIBDAS_BUFFER_TYPE_INDICES;
+
+        AppendTextures(buffers, _embedded_textures);
 
         for(const WavefrontObjGroup &group : _groups) {
             const char *data = nullptr;
@@ -76,6 +79,45 @@ namespace Libdas {
             if(!buffers[i].data_len) {
                 buffers.erase(buffers.begin() + i);
                 if(i) i--;
+            } 
+        }
+
+        bool is_tex = false;
+
+        // assign correct buffer ids
+        for(uint32_t i = 0; i < static_cast<uint32_t>(buffers.size()); i++) {
+            switch(buffers[i].type) {
+                case LIBDAS_BUFFER_TYPE_VERTEX:
+                    m_vertex_buffer_id = i;
+                    break;
+
+                case LIBDAS_BUFFER_TYPE_TEXTURE_MAP:
+                    m_texture_map_buffer_id = i;
+                    break;
+
+                case LIBDAS_BUFFER_TYPE_VERTEX_NORMAL:
+                    m_vertex_normal_buffer_id = i;
+                    break;
+
+                case LIBDAS_BUFFER_TYPE_INDICES:
+                    m_indices_buffer_id = i;
+                    break;
+
+                case LIBDAS_BUFFER_TYPE_TEXTURE_RAW:
+                case LIBDAS_BUFFER_TYPE_TEXTURE_PNG:
+                case LIBDAS_BUFFER_TYPE_TEXTURE_JPEG:
+                case LIBDAS_BUFFER_TYPE_TEXTURE_TGA:
+                case LIBDAS_BUFFER_TYPE_TEXTURE_BMP:
+                case LIBDAS_BUFFER_TYPE_TEXTURE_PPM:
+                    if(!is_tex) {
+                        m_texture_id = i;
+                        is_tex = true;
+                    }
+                    break;
+
+
+                default:
+                    continue;
             }
         }
 
@@ -86,25 +128,24 @@ namespace Libdas {
     std::vector<DasMesh> WavefrontObjCompiler::_CreateMeshes(const std::vector<WavefrontObjGroup> &_groups) {
         std::vector<DasMesh> meshes(_groups.size());
 
-        // buffer id constants declarations
-        const uint32_t vertex_id = 0;
-        const uint32_t texture_map_id = 1;
-        const uint32_t vertex_normal_id = 2;
-        const uint32_t indices_id = 3;
-
         // offset values
         uint32_t indices_offset = 0;
 
         for(size_t i = 0; i < _groups.size(); i++) {
             meshes[i].name = String::ConcatenateNameArgs(_groups[i].names);
-            meshes[i].index_buffer_id = indices_id;
+            meshes[i].index_buffer_id = m_indices_buffer_id;
             meshes[i].index_buffer_offset = indices_offset;
             meshes[i].indices_count = _groups[i].indices.faces.size();
-            meshes[i].vertex_buffer_id = vertex_id;
-            meshes[i].texture_map_buffer_id = texture_map_id;
-            meshes[i].vertex_normal_buffer_id = vertex_normal_id;
+            if(m_vertex_buffer_id != UINT32_MAX)
+                meshes[i].vertex_buffer_id = m_vertex_buffer_id;
+            if(m_texture_map_buffer_id != UINT32_MAX)
+                meshes[i].texture_map_buffer_id = m_texture_map_buffer_id;
+            if(m_vertex_normal_buffer_id != UINT32_MAX)
+                meshes[i].vertex_normal_buffer_id = m_vertex_normal_buffer_id;
+            if(m_texture_id != UINT32_MAX)
+                meshes[i].texture_id = m_texture_id;
 
-            indices_offset += _groups[i].indices.faces.size() * sizeof(DasFace);
+            indices_offset += _groups[i].indices.faces.size() * sizeof(uint32_t[m_face_attr_count]);
         }
 
         return meshes;
@@ -133,21 +174,8 @@ namespace Libdas {
     }
 
 
-    void WavefrontObjCompiler::_HuffmanEncode() {
-        std::string tmp_file = m_file_name + ".huf";
-        // close the output stream
-        CloseStream();
-        
-        // create new streams and huffman encoder class instance
-        std::ifstream in(m_file_name, std::ios_base::binary);
-        std::ofstream out(tmp_file, std::ios_base::binary);
-
-        DasSignature sig;
-        in.read(reinterpret_cast<char*>(&sig), sizeof(DasSignature));
-    }
-
-
-    void WavefrontObjCompiler::Compile(const std::vector<WavefrontObjGroup> &_groups, const DasProperties &_props, const std::string &_out_file) {
+    void WavefrontObjCompiler::Compile(const std::vector<WavefrontObjGroup> &_groups, const DasProperties &_props, const std::string &_out_file, 
+                                       const std::vector<std::string> &_embedded_textures) {
         // open a new file if specified
         if(_out_file != "")
             NewFile(_out_file);
@@ -155,7 +183,7 @@ namespace Libdas {
         InitialiseFile(_props);
 
         // write all buffers to the output file
-        std::vector<DasBuffer> buffers = _CreateBuffers(_groups);
+        std::vector<DasBuffer> buffers = _CreateBuffers(_groups, _embedded_textures);
         for(const DasBuffer &buffer : buffers)
             WriteBuffer(buffer);
 

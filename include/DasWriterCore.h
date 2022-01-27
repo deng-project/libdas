@@ -40,8 +40,9 @@ namespace Libdas {
 
     class LIBDAS_API DasWriterCore {
         private:
+            std::vector<TextureReader> m_texture_readers;
             std::ofstream m_out_stream;
-            bool m_use_compression = false;
+            RawImageDataHeader m_raw_img_header;
 
         protected:
             std::string m_file_name;
@@ -188,9 +189,12 @@ namespace Libdas {
              */
             void WriteAnimation(const DasAnimation &_animation);
             /**
-             * Check if compression is needed and if it is then compress it using Huffman algorithm
+             * Append textures into buffers' vector
+             * @param _buffers specifies the main buffers' vector to use for writing destination 
+             * @param _embedded_textures specifies a vector with all texture file names to be considered
+             * @param _use_raw optionally specifies the the flag, which determines if texture should be written in raw data
              */
-            static void CreateDASC(const std::string &_file_name, bool delete_original = true);
+            void AppendTextures(std::vector<DasBuffer> &_buffers, const std::vector<std::string> &_embedded_textures, bool _use_raw = false);
     };
 }
 

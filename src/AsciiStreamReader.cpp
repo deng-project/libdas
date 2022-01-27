@@ -9,6 +9,29 @@
 
 namespace Libdas {
 
+    namespace String {
+
+        std::string ReadFileToString(const std::string &_file_name) {
+            std::string abs_path = RelativePathToAbsolute(_file_name);
+            std::ifstream file(abs_path, std::ios_base::binary);
+            
+            // get the file size
+            file.seekg(0, std::ios_base::end);
+            size_t len = file.tellg();
+            file.seekg(0, std::ios_base::beg);
+
+            std::vector<char> data(len);
+            file.read(data.data(), data.size());
+
+            if(file.fail()) {
+                std::cerr << "Failed to read file " << abs_path << std::endl; 
+                std::exit(1);
+            }
+
+            return std::string(data.data(), data.size());
+        }
+    }
+
     AsciiStreamReader::AsciiStreamReader(const std::string &_file_name, size_t _chunk_size, const std::string &_end) : 
         m_end(_end), m_buffer_size(_chunk_size) 
     {

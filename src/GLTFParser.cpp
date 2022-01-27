@@ -541,7 +541,7 @@ namespace Libdas {
         // iterate through each subnode now
         for(auto it = _node->sub_nodes.begin(); it != _node->sub_nodes.end(); it++) {
             _VerifySourceData(it->second.get(), JSON_TYPE_INTEGER, false);
-            _attrs[it->first] = std::any_cast<uint32_t>(it->second->values.back());
+            _attrs.push_back(std::make_pair(it->first, std::any_cast<uint32_t>(it->second->values.back())));
         }
     }
 
@@ -738,37 +738,6 @@ namespace Libdas {
     }
 
 
-    void GLTFParser::_ResolveBufferUris(const std::string &_file_name) {
-        std::set<std::string> duplicate_uris;
-        // iterate through all buffer objects
-        for(auto it = m_root.buffers.begin(); it != m_root.buffers.end(); it++) {
-            // check if the uri already exists in the map
-            if(m_root.resources.find(it->uri) != m_root.resources.end()) {
-                duplicate_uris.insert(it->uri);
-                continue;
-            }
-
-            URIResolver resolver(it->uri, String::ExtractRootPath(_file_name));
-            m_root.resources[it->uri] = resolver.MoveBuffer();
-        }
-
-        // iterate through all image objects
-        for(auto it = m_root.images.begin(); it != m_root.images.end(); it++) {
-            // check if the uri already exists in the map
-            if(m_root.resources.find(it->uri) != m_root.resources.end()) {
-                duplicate_uris.insert(it->uri);
-                continue;
-            }
-
-            URIResolver resolver(it->uri, String::ExtractRootPath(_file_name));
-            std::vector<char> buf = resolver.MoveBuffer();
-        }
-
-        for(auto it = duplicate_uris.begin(); it != duplicate_uris.end(); it++)
-            std::cout << "GLTF warning:  Duplicate URI '" << *it << std::endl;
-    }
-
-
     void GLTFParser::Parse(const std::string &_file_name) {
         if(_file_name != "") m_file_name = _file_name; 
 
@@ -781,8 +750,6 @@ namespace Libdas {
             GLTFObjectType type = _FindRootObjectType(it->first, it->second->key_val_decl_line);
             _RootObjectParserCaller(type, it->second.get());
         }
-
-        _ResolveBufferUris(m_file_name);
     }
 
 

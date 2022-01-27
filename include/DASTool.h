@@ -31,6 +31,7 @@
     #include <Matrix.h>
     #include <Quaternion.h>
     #include <DasStructures.h>
+    #include <TextureReader.h>
     #include <DasWriterCore.h>
     #include <DasReaderCore.h>
     #include <DasParser.h>
@@ -42,15 +43,18 @@
     #include <WavefrontObjCompiler.h>
 #endif
 
-typedef uint8_t FlagType;
-#define OUTPUT_FLAG_COMPRESSED      0x01
-#define OUTPUT_FLAG_NO_CURVES       0x02
-#define OUTPUT_FLAG_AUTHOR          0x04
-#define OUTPUT_FLAG_COPYRIGHT       0x08
-#define OUTPUT_FLAG_MODEL           0x10
-#define OUTPUT_FLAG_VERBOSE         0x20
-#define OUTPUT_FLAG_OUT_FILE        0x40
-#define OUTPUT_FLAG
+typedef uint16_t FlagType;
+#define USAGE_FLAG_NONE             0x0000
+#define USAGE_FLAG_COMPRESSED       0x0001
+#define USAGE_FLAG_AUTHOR           0x0002
+#define USAGE_FLAG_COPYRIGHT        0x0004
+#define USAGE_FLAG_COPYRIGHT_FILE   0x0008
+#define USAGE_FLAG_EMBED_TEXTURE    0x0010
+#define USAGE_FLAG_REMOVE_TEXTURE   0x0020
+#define USAGE_FLAG_MODEL            0x0040
+#define USAGE_FLAG_OUT_FILE         0x0080
+#define USAGE_FLAG_HELP             0x0100
+#define USAGE_FLAG_VERBOSE          0x0200
 
 #define VERSION_MAJOR       0
 #define VERSION_MINOR       1
@@ -58,24 +62,29 @@ typedef uint8_t FlagType;
 
 class DASTool {
     private:
-        const std::string m_help_text = "Usage: DASTool convert|list <input file> [output options]\n";
-        std::unordered_map<std::string, FlagType> m_flag_map = {
-            std::make_pair("-c", OUTPUT_FLAG_COMPRESSED),
-            std::make_pair("--compressed", OUTPUT_FLAG_COMPRESSED),
-            std::make_pair("--no-curves", OUTPUT_FLAG_NO_CURVES),
-            std::make_pair("--author", OUTPUT_FLAG_AUTHOR),
-            std::make_pair("--copyright", OUTPUT_FLAG_COPYRIGHT),
-            std::make_pair("--model", OUTPUT_FLAG_MODEL),
-            std::make_pair("-v", OUTPUT_FLAG_VERBOSE),
-            std::make_pair("--verbose", OUTPUT_FLAG_VERBOSE),
-            std::make_pair("-o", OUTPUT_FLAG_OUT_FILE),
-            std::make_pair("--output", OUTPUT_FLAG_OUT_FILE)
-        };
+        const std::string m_help_text = 
+            "Usage: DASTool convert|list <input file> [output options]\n"\
+            "Valid conversion options:\n"\
+            "-c / --compressed - create a compressed DAS file\n"\
+            "--author \"<Author>\" - specify model author's name\n"\
+            "--copyright \"<Message>\" - specify copyright message as an argument string\n"\
+            "-cf / --copyright-file \"<FileName>\"- specify copyright message from file\n"\
+            "-et / --embed-texture \"<FileName>\" - embed an image file to the output\n"\
+            "-rt / --remove-texture \"<Id>\" - remove texture from das input file by its id\n"\
+            "--model \"<ModelName>\" - specify model name\n"\
+            "-o / --output \"<OutFile>\" - specify output file name\n"\
+            "-h / --help - display help text\n"\
+            "Valid listing options:\n"\
+            "-v / --verbose - output verbose message about the object\n"\
+            "-h / --help - display help text\n";
+
         FlagType m_flags = 0;
         Libdas::DasProperties m_props;
         std::string m_author = std::string("DASTool v") + std::to_string(VERSION_MAJOR) + std::string(".") + std::to_string(VERSION_MINOR);
-        std::string m_model = "";
-        std::string m_copyright = "";
+        std::string m_copyright;
+        std::vector<std::string> m_embedded_textures;
+        std::vector<uint32_t> m_removed_textures;
+        std::string m_model;
         std::string m_out_file;
 
     private:
@@ -83,109 +92,37 @@ class DASTool {
         // ***** Conversion methods ***** //
         ////////////////////////////////////
         
-        /**
-         * Convert STL file into DAS file. Output file will be either provided
-         * output file or input file name with das extension
-         * @param _input_file is specified STL file to read from
-         */
+        void _ConvertDAS(const std::string &_input_file);
         void _ConvertSTL(const std::string &_input_file);
-        /**
-         * Convert Wavefront Obj file into DAS file. Output file will be either provided
-         * output file or input file name with das extension
-         * @param _input_file is specified Wavefront Obj file to read from
-         */
         void _ConvertWavefrontObj(const std::string &_input_file);
-        /**
-         * Convert GLTF file into DAS file. Output file will be either provided
-         * output file or input file name with das extension
-         * @param _input_file is specified GLTF file to read from
-         */
         void _ConvertGLTF(const std::string &_input_file);
-        /**
-         * Convert GLB file into DAS file. Output file will be either provided output
-         * file or input file name with das extension
-         * @param _input_file is specified GLB file to read from
-         */
         void _ConvertGLB(const std::string &_input_file);
+        void _ConvertFBX(const std::string &_input_file);
 
         /////////////////////////////////
         // ***** Listing methods ***** //
         /////////////////////////////////
 
-        /**
-         * List render attributes of given Wavefront Obj group
-         * @param _group is a reference to WavefrontObjGroup where render attributes are read
-         */
         void _ListWavefrontObjRenderAttributes(const Libdas::WavefrontObjGroup &_group);
-        /**
-         * List data from STL file to stdout
-         * @param _input_file specifies the STL file to read
-         */
         void _ListSTL(const std::string &_input_file);
-        /**
-         * List data from Wavefront Obj file to stdout
-         * @param _input_file specifies the Wavefront Obj file to read
-         */
         void _ListWavefrontObj(const std::string &_input_file);
-        /**
-         * List data from GLTF file to stdout
-         * @param _input_file specifies the GLTF file to read
-         */
         void _ListGLTF(const std::string &_input_file);
-        /**
-         * List data from GLB file to stdout
-         * @param _input_file specifies the GLB file to read
-         */
         void _ListGLB(const std::string &_input_file);
-        /**
-         * List data from DasProperties
-         * @param _props specifies a reference to DasProperties object where all properties about file are stored
-         */
         void _ListDasProperties(Libdas::DasProperties &_props);
-        /**
-         * List all data about all meshes that were parsed
-         * @param _parser is a reference to DasParser instance that specifies the parser used
-         */
+        void _ListDasEmbeddedTexture(Libdas::DasParser &_parser);
         void _ListDasMeshes(Libdas::DasParser &_parser);
-        /**
-         * List all data about skeltons that were parsed
-         * @param _parser is a reference to DasParser instance that specifies the parser used
-         */
         void _ListDasSkeletons(Libdas::DasParser &_parser);
-        /**
-         * List all data about skeleton joints that were parsed
-         * @param _parser is a reference to DasParser instance that specifies the parser used
-         */
         void _ListDasSkeletonJoints(Libdas::DasParser &_parser);
-        /**
-         * List all data about scenes to stdout
-         * @param _parser specifies the parser used for parsing the file
-         */
         void _ListDasScenes(Libdas::DasParser &_parser);
-        /**
-         * List all data about scene nodes to stdout
-         * @param _parser specifies a reference to parser used for parsing the file
-         */
         void _ListDasNodes(Libdas::DasParser &_parser);
-        /**
-         * List all data about all animations that were parsed
-         * @param _parser is a reference to DasParser instance that specifies the parser used
-         */
         void _ListDasAnimations(Libdas::DasParser &_parser);
-        /**
-         * List data from DAS file to stdout
-         * @param _input_file specifies the DAS file to read
-         */
         void _ListDas(const std::string &_input_file);
-        /**
-         * Parse all string output flags into bitmask values
-         * @param _opts is a const std::vector reference that holds all string flags
-         */
+
+        
+        void _FetchArg(FlagType _type, const std::string &_arg);
+        void _MakeOutputFile(const std::string &_input_file);
+        void _MakeProps();
         void _ParseFlags(const std::vector<std::string> &_opts);
-        /**
-         * Exclude all invalid options according to the specified mode
-         * @param _is_convert is true if the convertion mode was requested
-         */
         void _ExcludeFlags(bool _is_convert);
 
     public:
@@ -204,7 +141,9 @@ class DASTool {
         /**
          * Get DASTool help text
          */
-        const std::string &GetHelpText();
+        inline const std::string &GetHelpText() {
+            return m_help_text;
+        }
 };
 
 #endif

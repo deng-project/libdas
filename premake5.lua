@@ -59,10 +59,9 @@ newoption {
 }
 
 
---- Add option to avoid building the library ---
 newoption {
-    trigger = "no-lib",
-    description = "Do not build libdas library"
+    trigger = "shared",
+    description = "Build a shared libdas library"
 }
 
 
@@ -89,103 +88,78 @@ function LoadTests()
     -- Test options checking
     if _OPTIONS["tests"] == "all" or _OPTIONS["tests"] == "WavefrontObjParser" then
         print("Including WavefrontObjParser test config")
-        local parser = require("premake/tests/WavefrontObjParser")
-        parser.build()
+        require "premake/tests/WavefrontObjParser"
     end
 
     if _OPTIONS["tests"] == "all" or _OPTIONS["tests"] == "AsciiSTLParser" then
         print("Including AsciiSTLParser test config")
-        local parser = require("premake/tests/AsciiSTLParser")
-        parser.build()
+        require "premake/tests/AsciiSTLParser"
     end
 
     if _OPTIONS["tests"] == "all" or _OPTIONS["tests"] == "BinarySTLParser" then
         print("Including BinarySTLParser test config")
-        local parser = require("premake/tests/BinarySTLParser")
-        parser.build()
+        require "premake/tests/BinarySTLParser"
     end
 
     if _OPTIONS["tests"] == "all" or _OPTIONS["tests"] == "HuffmanCompression" then
         print("Including HuffmanCompression test config");
-        local huf = require("premake/tests/HuffmanCompression");
-        huf.build()
+        require "premake/tests/HuffmanCompression"
     end
 
     if _OPTIONS["tests"] == "all" or _OPTIONS["tests"] == "WavefrontObjCompiler" then
         print("Including WavefrontObjCompiler test config")
-        local wobj_compiler = require("premake/tests/WavefrontObjCompiler")
-        wobj_compiler.build()
+        require "premake/tests/WavefrontObjCompiler"
     end
 
     if _OPTIONS["tests"] == "all" or _OPTIONS["tests"] == "STLCompiler" then
         print("Including STLCompiler test config")
-        local stl_compiler = require("premake/tests/STLCompiler")
-        stl_compiler.build()
+        require "premake/tests/STLCompiler"
     end
 
     if _OPTIONS["tests"] == "all" or _OPTIONS["tests"] == "Base64Decoder" then
         print("Including Base64Decoder test config")
-        local decoder = require("premake/tests/Base64Decoder")
-        decoder.build()
+        require "premake/tests/Base64Decoder"
     end
 
     if _OPTIONS["tests"] == "all" or _OPTIONS["tests"] == "JSONParser" then
         print("Including JSONParser test config")
-        local parser = require("premake/tests/JSONParser")
-        parser.build()
+        require "premake/tests/JSONParser"
     end
 
     if _OPTIONS["tests"] == "all" or _OPTIONS["tests"] == "GLTFParser" then
         print("Including GLTFParser test config")
-        local parser = require("premake/tests/GLTFParser")
-        parser.build()
+        require "premake/tests/GLTFParser"
     end
-
-    --if _OPTIONS["tests"] == "all" or _OPTIONS["tests"] == "DasParser" then
-        --print("Including DasParser test config")
-        --local das_parser = require("premake/tests/DasParser")
-        --das_parser.build()
-    --end
 
     -- tmp --
     if _OPTIONS["tests"] == "all" or _OPTIONS["tests"] == "TextureReader" then
         print("Including TextureReader test config");
-        local texture = require("premake/tests/TextureReader");
-        texture.build()
+        require "premake/tests/TextureReader"
     end
 
     if _OPTIONS["tests"] == "all" or _OPTIONS["tests"] == "DasReaderCore" then
         print("Including DasReaderCore test config")
-        local reader = require("premake/tests/DasReaderCore")
-        reader.build();
+        require "premake/tests/DasReaderCore"
     end
 
     if _OPTIONS["tests"] == "all" or _OPTIONS["tests"] == "SubstringSearchTest" then
         print("Including SubstringSearchTest test config")
-        local substr = require("premake/tests/SubstringSearchTest")
-        substr.build()
+        require "premake/tests/SubstringSearchTest"
     end
-end
-
-
--- Load DASTool load configuration --
-function LoadToolConfig() 
-    local tool = require("premake/DASTool")
-    tool.build(not _OPTIONS["no-lib"]);
 end
 
 
 -- Load all required build configs --
 function LoadBuildConfigs()
     -- Load libdas build configuration --
-    if not _OPTIONS["no-lib"] then
-        print("Including libdas configurations")
-        local libdas = require("premake/libdas")
-        libdas.build()
-        LoadTests()
+    if not _OPTIONS["shared"] then
+        require "premake/libdas-shared"
+    else
+        require "premake/libdas-static"
     end
 
-    LoadToolConfig();
+    LoadTests()
+    require "premake/DASTool"
 end
 
 

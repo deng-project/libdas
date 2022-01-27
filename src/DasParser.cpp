@@ -61,7 +61,7 @@ namespace Libdas {
     }
 
 
-    void DasParser::Parse(const std::string &_file_name) {
+    void DasParser::Parse(bool _clean_read, const std::string &_file_name) {
         if(_file_name != "")
             NewFile(_file_name);
 
@@ -76,5 +76,8 @@ namespace Libdas {
             std::any any_scope = ReadScopeData(type);
             _DataCast(any_scope, type);
         } while(true);
+
+        if(_clean_read)
+            CloseFile();
     }
 }

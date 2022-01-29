@@ -128,7 +128,12 @@ function LoadTests()
 
     if _OPTIONS["tests"] == "all" or _OPTIONS["tests"] == "GLTFParser" then
         print("Including GLTFParser test config")
-        require "premake/tests/GLTFParser"
+        require "premake/tests/GLTFParserTest"
+    end
+
+    if _OPTIONS["tests"] == "all" or _OPTIONS["tests"] == "GLTFCompiler" then
+        print("Including GLTFCompiler test config")
+        require "premake/tests/GLTFCompilerTest"
     end
 
     -- tmp --

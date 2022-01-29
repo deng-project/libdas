@@ -12,7 +12,7 @@ namespace Libdas {
     namespace String {
 
         std::string ReadFileToString(const std::string &_file_name) {
-            std::string abs_path = RelativePathToAbsolute(_file_name);
+            std::string abs_path = Algorithm::RelativePathToAbsolute(_file_name);
             std::ifstream file(abs_path, std::ios_base::binary);
             
             // get the file size
@@ -25,7 +25,7 @@ namespace Libdas {
 
             if(file.fail()) {
                 std::cerr << "Failed to read file " << abs_path << std::endl; 
-                std::exit(1);
+                EXIT_ON_ERROR(1);
             }
 
             return std::string(data.data(), data.size());
@@ -69,7 +69,7 @@ namespace Libdas {
         read_bytes = m_stream.tellg();
 
         // using backwards KMP substring search algorithm
-        std::vector<size_t> instances = String::FindSubstringInstances(const_cast<const char*>(m_buffer), m_buffer_size, m_end);
+        std::vector<size_t> instances = Algorithm::FindSubstringInstances(const_cast<const char*>(m_buffer), m_buffer_size, m_end);
 
         if(instances.size()) {
             int64_t back = static_cast<int64_t>(instances.back()) + static_cast<int64_t>(m_end.size()) - 
@@ -92,7 +92,7 @@ namespace Libdas {
 
         if(m_stream.bad()) {
             std::cerr << "Failed to open file " << _file_name << std::endl;
-            std::exit(LIBDAS_ERROR_INVALID_FILE);
+            EXIT_ON_ERROR(LIBDAS_ERROR_INVALID_FILE);
         }
 
         // determine the file size

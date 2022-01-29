@@ -15,10 +15,7 @@ project "das"
 		"../src/*.cpp"
 	}
 	
-	removefiles {
-		"../src/DASTool.cpp",
-		"../src/GLTFCompiler.cpp"
-	}
+	removefiles { "../src/DASTool.cpp" }
 	
 	defines { "LIBDAS_EXPORT_LIBRARY" }
 		

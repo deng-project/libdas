@@ -24,7 +24,7 @@
     #include <Vector.h>
     #include <Matrix.h>
     #include <GLTFStructures.h>
-    #include <FileNameString.h>
+    #include <Algorithm.h>
 
 #define LIBDAS_DEFS_ONLY
     #include <DasStructures.h>

@@ -367,7 +367,7 @@ namespace Libdas {
                 // end of file reached unexpectedly
                 if(ifile.eof()) {
                     std::cerr << "Unexpected EOF aborting" << std::endl;
-                    std::exit(LIBDAS_ERROR_INVALID_FILE);
+                    EXIT_ON_ERROR(LIBDAS_ERROR_INVALID_FILE);
                 }
             }
         }

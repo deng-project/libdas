@@ -146,7 +146,7 @@ void DASTool::_ListWavefrontObj(const std::string &_input_file) {
     // output information about groups to stdout
     for(size_t i = 0; i < groups.size(); i++) {
         if(i > 0) std::cout << std::endl;
-        std::string name = Libdas::String::ConcatenateNameArgs(groups[i].names);
+        std::string name = Libdas::Algorithm::ConcatenateNameArgs(groups[i].names);
         std::cout << "Group name: " << name << std::endl;
 
         // verbose flag is used output render attributes
@@ -483,8 +483,8 @@ void DASTool::_FetchArg(FlagType _type, const std::string &_arg) {
 void DASTool::_MakeOutputFile(const std::string &_input_file) {
     // check if the output file name is correctly specified
     if(m_out_file == "") {
-        m_out_file = Libdas::String::ReplaceFileExtension(_input_file, "das");
-        m_out_file = Libdas::String::ExtractFileName(m_out_file);
+        m_out_file = Libdas::Algorithm::ReplaceFileExtension(_input_file, "das");
+        m_out_file = Libdas::Algorithm::ExtractFileName(m_out_file);
     }
 }
 
@@ -549,7 +549,7 @@ void DASTool::_ParseFlags(const std::vector<std::string> &_opts) {
             m_flags |= USAGE_FLAG_VERBOSE;
         else {
             std::cerr << "Invalid flag '" << _opts[i] << "'" << std::endl;
-            std::exit(LIBDAS_ERROR_INVALID_KEYWORD);
+            EXIT_ON_ERROR(LIBDAS_ERROR_INVALID_KEYWORD);
         }
     }
 }
@@ -574,35 +574,35 @@ void DASTool::_ExcludeFlags(bool _is_convert) {
     else {
         if((m_flags & USAGE_FLAG_COMPRESSED) == USAGE_FLAG_COMPRESSED) {
             std::cerr << "Invalid use of compression flag in listing mode" << std::endl;
-            std::exit(LIBDAS_ERROR_INVALID_KEYWORD);
+            EXIT_ON_ERROR(LIBDAS_ERROR_INVALID_KEYWORD);
         }
         else if((m_flags & USAGE_FLAG_AUTHOR) == USAGE_FLAG_AUTHOR) {
             std::cerr << "Invalid use of author flag in listing mode" << std::endl;
-            std::exit(LIBDAS_ERROR_INVALID_KEYWORD);
+            EXIT_ON_ERROR(LIBDAS_ERROR_INVALID_KEYWORD);
         }
         else if((m_flags & USAGE_FLAG_COPYRIGHT) == USAGE_FLAG_COPYRIGHT) {
             std::cerr << "Invalid use of copyright specifier flag in listing mode" << std::endl;
-            std::exit(LIBDAS_ERROR_INVALID_KEYWORD);
+            EXIT_ON_ERROR(LIBDAS_ERROR_INVALID_KEYWORD);
         }
         else if((m_flags & USAGE_FLAG_COPYRIGHT_FILE) == USAGE_FLAG_COPYRIGHT_FILE) {
             std::cerr << "Invalid use of no curves flag in listing mode" << std::endl;
-            std::exit(LIBDAS_ERROR_INVALID_KEYWORD);
+            EXIT_ON_ERROR(LIBDAS_ERROR_INVALID_KEYWORD);
         }
         else if((m_flags & USAGE_FLAG_EMBED_TEXTURE) == USAGE_FLAG_EMBED_TEXTURE) {
             std::cerr << "Invalid use of embed texture flag in listing mode" << std::endl;
-            std::exit(LIBDAS_ERROR_INVALID_KEYWORD);
+            EXIT_ON_ERROR(LIBDAS_ERROR_INVALID_KEYWORD);
         }
         else if((m_flags & USAGE_FLAG_REMOVE_TEXTURE) == USAGE_FLAG_REMOVE_TEXTURE) {
             std::cerr << "Invalid use of remove texture flag in listing mode" << std::endl;
-            std::exit(LIBDAS_ERROR_INVALID_KEYWORD);
+            EXIT_ON_ERROR(LIBDAS_ERROR_INVALID_KEYWORD);
         }
         else if((m_flags & USAGE_FLAG_MODEL) == USAGE_FLAG_MODEL) {
             std::cerr << "Invalid use of model specifier flag in listing mode" << std::endl;
-            std::exit(LIBDAS_ERROR_INVALID_KEYWORD);
+            EXIT_ON_ERROR(LIBDAS_ERROR_INVALID_KEYWORD);
         }
         else if((m_flags & USAGE_FLAG_OUT_FILE) == USAGE_FLAG_OUT_FILE) {
             std::cerr << "Invalid use of output file specifier flag in listing mode" << std::endl;
-            std::exit(LIBDAS_ERROR_INVALID_KEYWORD);
+            EXIT_ON_ERROR(LIBDAS_ERROR_INVALID_KEYWORD);
         }
     }
 }
@@ -614,10 +614,10 @@ void DASTool::Convert(const std::string &_input_file, const std::vector<std::str
 
     if(_input_file == "-h" || _input_file == "--help") {
         std::cout << GetHelpText() << std::endl;
-        std::exit(0);
+        EXIT_ON_ERROR(0);
     }
 
-    std::string ext = Libdas::String::ExtractFileExtension(_input_file);
+    std::string ext = Libdas::Algorithm::ExtractFileExtension(_input_file);
     if(ext == "stl")
         _ConvertSTL(_input_file);
     else if(ext == "obj")
@@ -639,10 +639,10 @@ void DASTool::List(const std::string &_input_file, const std::vector<std::string
 
     if(_input_file == "-h" || _input_file == "--help") {
         std::cout << GetHelpText();
-        std::exit(0);
+        EXIT_ON_ERROR(0);
     }
 
-    const std::string ext = Libdas::String::ExtractFileExtension(_input_file);
+    const std::string ext = Libdas::Algorithm::ExtractFileExtension(_input_file);
     if(ext == "stl") {
         _ListSTL(_input_file);
     } else if(ext == "obj") {
@@ -651,7 +651,7 @@ void DASTool::List(const std::string &_input_file, const std::vector<std::string
         _ListDas(_input_file);
     } else {
         std::cerr << "Invalid file '" << _input_file << "'" << std::endl;
-        std::exit(LIBDAS_ERROR_INVALID_FILE);
+        EXIT_ON_ERROR(LIBDAS_ERROR_INVALID_FILE);
     }
 }
 

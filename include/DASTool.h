@@ -20,7 +20,7 @@
     #include <unordered_map>
     
     #include <Api.h>
-    #include <FileNameString.h>
+    #include <Algorithm.h>
     #include <LibdasAssert.h>
     #include <ErrorHandlers.h>
     #include <AsciiStreamReader.h>

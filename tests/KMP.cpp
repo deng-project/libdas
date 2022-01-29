@@ -6,7 +6,7 @@
 #include <string>
 
 #include <Api.h>
-#include <FileNameString.h>
+#include <Algorithm.h>
 
 
 int main() {
@@ -15,7 +15,7 @@ int main() {
     std::getline(std::cin, search);
 
 
-    std::vector<size_t> occurences = Libdas::String::FindSubstringInstances(str, search);
+    std::vector<size_t> occurences = Libdas::Algorithm::FindSubstringInstances(str, search);
 
     for(size_t i : occurences) {
         std::cout << i << " ";

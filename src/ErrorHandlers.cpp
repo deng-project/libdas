@@ -222,6 +222,6 @@ namespace Libdas {
                 break;
         }
 
-        if(_terminate) std::exit(_type);
+        if(_terminate) EXIT_ON_ERROR(_type);
     }
 }

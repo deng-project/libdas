@@ -33,7 +33,7 @@ namespace Libdas {
 
 
     bool BufferImageTypeResolver::_CheckTGASignature(const std::string &_uri) {
-        std::string ext = String::ExtractFileName(_uri);
+        std::string ext = Algorithm::ExtractFileName(_uri);
         // convert extension to lower case
         for(size_t i = 0; i < ext.size(); i++) {
             if(ext[i] >= 'A' && ext[i] <= 'Z')

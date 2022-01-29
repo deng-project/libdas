@@ -51,7 +51,7 @@ namespace Libdas {
         // file opening failed, exit the program
         if(m_out_stream.fail()) {
             std::cerr << "Could not open file " + m_file_name << " for writing. Check permissions!" << std::endl;
-            std::exit(LIBDAS_ERROR_INVALID_FILE);
+            EXIT_ON_ERROR(LIBDAS_ERROR_INVALID_FILE);
         }
     }
 

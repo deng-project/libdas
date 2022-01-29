@@ -632,7 +632,18 @@ namespace Libdas {
 
         if(!is_root) 
             _IterateValueObjects<GLTFScene>(_node, values, scene, m_root.scenes);
-        else m_root.load_time_scene = std::any_cast<uint32_t>(_node->values.back());
+        else {
+            std::variant<JSONInteger, JSONNumber> num = std::any_cast<std::variant<JSONInteger, JSONNumber>>(_node->values.back().second);
+            switch(num.index()) {
+                case 0:
+                    m_root.load_time_scene = static_cast<int32_t>(std::get<JSONInteger>(num));
+                    break;
+
+                case 1:
+                    m_root.load_time_scene = static_cast<int32_t>(std::get<JSONNumber>(num));
+                    break;
+            }
+        }
     }
 
 

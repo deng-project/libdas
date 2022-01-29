@@ -19,7 +19,7 @@
 #include <AsciiLineReader.h>
 #include <ErrorHandlers.h>
 #include <LibdasAssert.h>
-#include <FileNameString.h>
+#include <Algorithm.h>
 #include <DasStructures.h>
 #include <TextureReader.h>
 #include <DasWriterCore.h>
@@ -34,8 +34,8 @@ int main(int argc, char *argv[]) {
         std::exit(-1);
     }
 
-    std::string ext = Libdas::String::ExtractFileExtension(argv[1]);
-    std::string file_name = Libdas::String::ExtractFileName(argv[1]);
+    std::string ext = Libdas::Algorithm::ExtractFileExtension(argv[1]);
+    std::string file_name = Libdas::Algorithm::ExtractFileName(argv[1]);
 
     if(ext != "obj" && ext != "OBJ") {
         std::cerr << "Invalid file name " << file_name << std::endl;

@@ -132,7 +132,7 @@ namespace Libdas {
         uint32_t indices_offset = 0;
 
         for(size_t i = 0; i < _groups.size(); i++) {
-            meshes[i].name = String::ConcatenateNameArgs(_groups[i].names);
+            meshes[i].name = Algorithm::ConcatenateNameArgs(_groups[i].names);
             meshes[i].index_buffer_id = m_indices_buffer_id;
             meshes[i].index_buffer_offset = indices_offset;
             meshes[i].indices_count = _groups[i].indices.faces.size();

@@ -12,13 +12,16 @@
     #include <string>
     #include <fstream>
     #include <iostream>
+    #include <map>
 
     #include <Api.h>
 #define LIBDAS_DEFS_ONLY
+    #include <DasStructures.h>
     #include <ErrorHandlers.h>
     #include <HuffmanCompression.h>
 #undef LIBDAS_DEFS_ONLY
 
+    #include <Algorithm.h>
     #include <Base64Decoder.h>
 #endif
 
@@ -44,14 +47,16 @@ namespace Libdas {
 
             // file stream
             std::ifstream m_stream;
+            BufferType m_uri_buffer_type = 0;
 
-            UnresolvedUriSeverity m_unresolved_severity;
+            const UnresolvedUriSeverity m_unresolved_severity;
 
         private:
             /**
              * Resolve file:// URI
              */
             void _ResolveFileURI();
+            void _FindUriBufferTypeFromExtension();
 
         public:
             URIResolver(const std::string &_uri = "", const std::string &_root_path = "", UnresolvedUriSeverity _severity = UNRESOLVED_SEVERITY_ERROR);
@@ -61,12 +66,15 @@ namespace Libdas {
              * @param _root_path optionally specifies 
              */
             void Resolve(const std::string &_uri = "", const std::string &_root_path = "");
+            inline BufferType GetParsedDataType() {
+                return m_uri_buffer_type;
+            }
             /**
              * Get a reference of the buffer containing data found on the resouce
              * @return std::pair moveable object containing buffer pointer and its size
              */
-            inline std::vector<char> &GetBuffer() {
-                return m_buffer;
+            inline std::pair<const char*, size_t> GetBuffer() {
+                return std::make_pair(reinterpret_cast<const char*>(m_buffer.data()), m_buffer.size());
             }
     };
 }

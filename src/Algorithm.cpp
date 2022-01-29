@@ -1,13 +1,15 @@
-/// libdas: DENG asset handling management library
-/// licence: Apache, see LICENCE file
-/// file: FileNameString.h - File name string handling functions implementation
-/// author: Karl-Mihkel Ott
+// libdas: DENG asset handling management library
+// licence: Apache, see LICENCE file
+// file: Algorithm.cpp - Libdas algorithm implementation file
+// author: Karl-Mihkel Ott
 
-#define FILE_NAME_STRING_CPP
-#include <FileNameString.h>
+#define ALGORITHM_CPP
+#include <Algorithm.h>
+
 
 namespace Libdas {
-    namespace String {
+
+    namespace Algorithm {
 
         std::string ReplaceFileExtension(const std::string &_input_file, const std::string &_ext) {
             int32_t i = static_cast<int32_t>(_input_file.size() - 1);
@@ -27,7 +29,11 @@ namespace Libdas {
             GetModuleFileNameA(NULL, buf, len);
             return ExtractRootPath(buf) + "\\" + _rel;
 #else 
-            readlink("/proc/self/exe", buf, len);
+            size_t val = readlink("/proc/self/exe", buf, len);
+            if(val == -1) {
+                std::cerr << "Could not find current executable location errno: " << errno << std::endl;
+                EXIT_ON_ERROR(errno);
+            }
             return ExtractRootPath(buf) + "/" + _rel;
 #endif
         }

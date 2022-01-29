@@ -50,6 +50,15 @@ typedef uint16_t ErrorType;
 #define LIBDAS_WARNING_UNUSED_STATEMENT             17  // statement warning
 #define LIBDAS_WARNING_MULTIPLE_OBJECTS             18  // non-statement warning
 
+// DEBUG: loggers
+#ifdef _DEBUG
+    #define DEBUG_LOG(x)            std::cout << "DEBUG: " << x << std::endl
+    #define EXIT_ON_ERROR(code)     std::abort()
+#else
+    #define DEBUG_LOG(x)
+    #define EXIT_ON_ERROR(code)     std::exit(code)
+#endif
+
 // no LIBDAS_DEFS_ONLY
 #ifndef LIBDAS_DEFS_ONLY
 

@@ -14,7 +14,7 @@ namespace Libdas {
         // check if error occured, while opening the stream
         if(file.fail()) {
             std::cerr << "Failed to read texture file " << _file_name << std::endl;
-            std::exit(LIBDAS_ERROR_INVALID_FILE);
+            EXIT_ON_ERROR(LIBDAS_ERROR_INVALID_FILE);
         }
 
         // read file data into buffer

@@ -27,7 +27,7 @@
 
     #include <LibdasAssert.h>
     #include <ErrorHandlers.h>
-    #include <FileNameString.h>
+    #include <Algorithm.h>
     #include <HuffmanCompression.h>
     #include <WavefrontObjStructures.h>
     #include <DasStructures.h>

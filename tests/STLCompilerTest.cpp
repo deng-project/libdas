@@ -15,7 +15,7 @@
 #include <Quaternion.h>
 
 #include <LibdasAssert.h>
-#include <FileNameString.h>
+#include <Algorithm.h>
 #include <AsciiStreamReader.h>
 #include <AsciiLineReader.h>
 #include <ErrorHandlers.h>
@@ -42,8 +42,8 @@ int main(int argc, char *argv[]) {
     props.model = "An example STL model to test";
     
     std::string in_file = argv[1];
-    std::string out_file = Libdas::String::ReplaceFileExtension(in_file, "das");
-    out_file = Libdas::String::ExtractFileName(out_file);
+    std::string out_file = Libdas::Algorithm::ReplaceFileExtension(in_file, "das");
+    out_file = Libdas::Algorithm::ExtractFileName(out_file);
     bool is_ascii = Libdas::STLFunctions::Identify(argv[1]);
 
     if(is_ascii) {

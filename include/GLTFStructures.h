@@ -29,6 +29,14 @@
 #define KHRONOS_ARRAY_BUFFER            34962
 #define KHRONOS_ELEMENT_ARRAY_BUFFER    34963
 
+// scalar types
+#define KHRONOS_BYTE                    5120
+#define KHRONOS_UNSIGNED_BYTE           5121
+#define KHRONOS_SHORT                   5122
+#define KHRONOS_UNSIGNED_SHORT          5123
+#define KHRONOS_UNSIGNED_INT            5125
+#define KHRONOS_FLOAT                   5126
+
 // primitive types
 #define KHRONOS_POINTS                  0
 #define KHRONOS_LINES                   1
@@ -97,6 +105,14 @@ namespace Libdas {
         std::string name = "";                          // not required
         std::vector<std::any> extensions;               // ignored
         std::vector<std::any> extras;                   // ignored
+        uint32_t accumulated_offset = 0;                // custom
+
+        // less operator
+        struct less {
+            bool operator()(const GLTFAccessor *_a1, const GLTFAccessor *_a2) {
+                return _a1->accumulated_offset < _a2->accumulated_offset;
+            }
+        };
     };
 
 

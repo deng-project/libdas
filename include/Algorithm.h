@@ -1,28 +1,63 @@
 // libdas: DENG asset handling management library
 // licence: Apache, see LICENCE file
-// file: FileNameString.h - File name string handling functions header
+// file: Algorithm.h - Libdas algorithm header file
 // author: Karl-Mihkel Ott
 
-#ifndef FILE_NAME_STRING_H
-#define FILE_NAME_STRING_H
 
-#ifdef FILE_NAME_STRING_CPP
+#ifndef ALGORITHM_H
+#define ALGORITHM_H
+
+#ifdef ALGORITHM_CPP
     #include <string>
     #include <vector>
     #include <climits>
-    #include <Api.h>
+    #include <cerrno>
+    #include <iostream>
 #if defined(_WIN32)
     #include <Windows.h>
 #elif defined(__linux__)
     #include <unistd.h>
 #endif
 
+    #include <Api.h>
+    #include <ErrorHandlers.h>
 #endif
 
 
 namespace Libdas {
-    namespace String {
 
+    namespace Algorithm {
+        /**
+         * Remove duplicate entries from sorted vector
+         * @param _vec specifies the vector where to perform removal actions
+         * @param _pIsEqual specifies a function pointer to function that compares two instances
+         */
+        template<typename _T>
+        void RemoveDuplicates(std::vector<_T> &_vec, bool(*_pIsEqual)(const _T&, const _T&)) {
+            for(size_t i = 0; i < _vec.size(); i++) {
+                for(size_t j = i + 1; j < _vec.size(); j++) {
+                    if(_pIsEqual(_vec[i], _vec[j])) {
+                        _vec.erase(_vec.begin() + j);
+                        j--;
+                    } else break;
+                }
+            }
+        }
+        /**
+         * Remove duplicate entries from sorted vector
+         * @param _vec specifies the vector where to perform removal actions
+         */
+        template<typename _T>
+        void RemoveDuplicates(std::vector<_T> &_vec) {
+            for(size_t i = 0; i < _vec.size(); i++) {
+                for(size_t j = i + 1; j < _vec.size(); j++) {
+                    if(_vec[i] == _vec[j]) {
+                        _vec.erase(_vec.begin() + j);
+                        j--;
+                    } else break;
+                }
+            }
+        }
         /**
          * Replace file extension from input file with specified new one
          * @param _input_file is a file name that needs to have its extension replaced
@@ -90,5 +125,6 @@ namespace Libdas {
         LIBDAS_API std::string RemoveNumbers(const std::string &_str);
     }
 }
+
 
 #endif

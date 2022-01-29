@@ -184,6 +184,11 @@ namespace Libdas {
                 _ReadMeshPrimitives(_src, *reinterpret_cast<std::vector<GLTFMeshPrimitive>*>(_dst.val_ptr));
                 break;
 
+            case GLTF_TYPE_MESH_PRIMITIVE_ATTRIBUTES:
+                _VerifySourceData(_src, JSON_TYPE_OBJECT, false);
+                _ReadMeshPrimitiveAttributes(_src, *reinterpret_cast<GLTFMeshPrimitive::AttributesType*>(_dst.val_ptr));
+                break;
+
             default:
                 break;
         }
@@ -541,7 +546,20 @@ namespace Libdas {
         // iterate through each subnode now
         for(auto it = _node->sub_nodes.begin(); it != _node->sub_nodes.end(); it++) {
             _VerifySourceData(it->second.get(), JSON_TYPE_INTEGER, false);
-            _attrs.push_back(std::make_pair(it->first, std::any_cast<uint32_t>(it->second->values.back())));
+            std::variant<JSONInteger, JSONNumber> vno = std::any_cast<std::variant<JSONInteger, JSONNumber>>(it->second->values.back().second);
+            switch(vno.index()) {
+                case 0:
+                    _attrs.push_back(std::make_pair(it->first, static_cast<uint32_t>(std::get<JSONInteger>(vno))));
+                    break;
+
+                case 1:
+                    _attrs.push_back(std::make_pair(it->first, static_cast<uint32_t>(std::get<JSONNumber>(vno))));
+                    break;
+
+                default:
+                    LIBDAS_ASSERT(false);
+                    break;
+            }
         }
     }
 

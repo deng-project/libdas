@@ -294,7 +294,7 @@ namespace Libdas {
                     _buffers[index_buffer_id].type |= LIBDAS_BUFFER_TYPE_INDICES;
 
                 // check into attributes
-                for(auto map_it = it->primitives[i].attributes.begin(); map_it != it->primitives[i].attributes.end(); it++) {
+                for(auto map_it = it->primitives[i].attributes.begin(); map_it != it->primitives[i].attributes.end(); map_it++) {
                     std::string no_nr = Algorithm::RemoveNumbers(map_it->first);
                     // error check
                     if(m_attribute_type_map.find(no_nr) == m_attribute_type_map.end()) {

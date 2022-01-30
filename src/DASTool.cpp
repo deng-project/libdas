@@ -206,30 +206,42 @@ void DASTool::_ListDasProperties(Libdas::DasProperties &_props) {
 }
 
 
-void DASTool::_ListDasEmbeddedTexture(Libdas::DasParser &_parser) {
-    const BufferType type_mask = LIBDAS_BUFFER_TYPE_TEXTURE_JPEG | LIBDAS_BUFFER_TYPE_TEXTURE_PNG |
-                                 LIBDAS_BUFFER_TYPE_TEXTURE_TGA | LIBDAS_BUFFER_TYPE_TEXTURE_BMP |
-                                 LIBDAS_BUFFER_TYPE_TEXTURE_PPM | LIBDAS_BUFFER_TYPE_TEXTURE_RAW;
-    uint32_t tex_index = 1;
-    for(size_t i = 0; i < _parser.GetBufferCount(); i++) {
-        if((_parser.AccessBuffer(i).type & type_mask) != 0) {
-            std::cout << std::endl << "-- Embedded texture " << tex_index << " --" << std::endl;
-            if((_parser.AccessBuffer(i).type & LIBDAS_BUFFER_TYPE_TEXTURE_JPEG) == LIBDAS_BUFFER_TYPE_TEXTURE_JPEG)
-                std::cout << "Texture format: JPEG" << std::endl;
-            else if((_parser.AccessBuffer(i).type & LIBDAS_BUFFER_TYPE_TEXTURE_PNG) == LIBDAS_BUFFER_TYPE_TEXTURE_PNG)
-                std::cout << "Texture format: PNG" << std::endl;
-            else if((_parser.AccessBuffer(i).type & LIBDAS_BUFFER_TYPE_TEXTURE_TGA) == LIBDAS_BUFFER_TYPE_TEXTURE_TGA)
-                std::cout << "Texture format: TGA" << std::endl;
-            else if((_parser.AccessBuffer(i).type & LIBDAS_BUFFER_TYPE_TEXTURE_BMP) == LIBDAS_BUFFER_TYPE_TEXTURE_BMP)
-                std::cout << "Texture format: BMP" << std::endl;
-            else if((_parser.AccessBuffer(i).type & LIBDAS_BUFFER_TYPE_TEXTURE_PPM) == LIBDAS_BUFFER_TYPE_TEXTURE_PPM)
-                std::cout << "Texture format: PPM" << std::endl;
-            else if((_parser.AccessBuffer(i).type & LIBDAS_BUFFER_TYPE_TEXTURE_RAW) == LIBDAS_BUFFER_TYPE_TEXTURE_RAW)
-                std::cout << "Texture format: RAW" << std::endl;
+void DASTool::_ListDasBuffers(Libdas::DasParser &_parser) {
+    for(uint32_t i = 0; i < _parser.GetBufferCount(); i++) {
+        std::cout << std::endl << "-- Buffer nr " << i + 1 << " --" << std::endl;
+        std::string types;
 
-            std::cout << "Texture size: " << _parser.AccessBuffer(i).data_len << std::endl;
-            tex_index++;
-        }
+        if((_parser.AccessBuffer(i).type & LIBDAS_BUFFER_TYPE_VERTEX) == LIBDAS_BUFFER_TYPE_VERTEX)
+            types += " vertex";
+        if((_parser.AccessBuffer(i).type & LIBDAS_BUFFER_TYPE_TEXTURE_MAP) == LIBDAS_BUFFER_TYPE_TEXTURE_MAP)
+            types += " texmap";
+        if((_parser.AccessBuffer(i).type & LIBDAS_BUFFER_TYPE_VERTEX_NORMAL) == LIBDAS_BUFFER_TYPE_VERTEX_NORMAL)
+            types += " normals";
+        if((_parser.AccessBuffer(i).type & LIBDAS_BUFFER_TYPE_COLOR) == LIBDAS_BUFFER_TYPE_COLOR)
+            types += " colordata";
+        if((_parser.AccessBuffer(i).type & LIBDAS_BUFFER_TYPE_JOINTS) == LIBDAS_BUFFER_TYPE_JOINTS)
+            types += " joints";
+        if((_parser.AccessBuffer(i).type & LIBDAS_BUFFER_TYPE_WEIGHTS) == LIBDAS_BUFFER_TYPE_WEIGHTS)
+            types += " morphweights";
+        if((_parser.AccessBuffer(i).type & LIBDAS_BUFFER_TYPE_INDICES) == LIBDAS_BUFFER_TYPE_INDICES)
+            types += " indices";
+        if((_parser.AccessBuffer(i).type & LIBDAS_BUFFER_TYPE_TEXTURE_JPEG) == LIBDAS_BUFFER_TYPE_TEXTURE_JPEG)
+            types += " jpeg";
+        if((_parser.AccessBuffer(i).type & LIBDAS_BUFFER_TYPE_TEXTURE_PNG) == LIBDAS_BUFFER_TYPE_TEXTURE_PNG)
+            types += " png";
+        if((_parser.AccessBuffer(i).type & LIBDAS_BUFFER_TYPE_TEXTURE_BMP) == LIBDAS_BUFFER_TYPE_TEXTURE_BMP)
+            types += " bmp";
+        if((_parser.AccessBuffer(i).type & LIBDAS_BUFFER_TYPE_TEXTURE_PPM) == LIBDAS_BUFFER_TYPE_TEXTURE_PPM)
+            types += " bmp";
+        if((_parser.AccessBuffer(i).type & LIBDAS_BUFFER_TYPE_TEXTURE_RAW) == LIBDAS_BUFFER_TYPE_TEXTURE_RAW)
+            types += " textureraw";
+        if((_parser.AccessBuffer(i).type & LIBDAS_BUFFER_TYPE_KEYFRAME) == LIBDAS_BUFFER_TYPE_KEYFRAME)
+            types += " keyframe";
+        if((_parser.AccessBuffer(i).type & LIBDAS_BUFFER_TYPE_TIMESTAMPS) == LIBDAS_BUFFER_TYPE_TIMESTAMPS)
+            types += " timestamps";
+
+        std::cout << "Buffer types:" << types << std::endl;
+        std::cout << "Data length: " << _parser.AccessBuffer(i).data_len << std::endl;
     }
 }
 
@@ -304,26 +316,28 @@ void DASTool::_ListDasMeshes(Libdas::DasParser &_parser) {
         std::cout << std::endl << "-- Mesh nr " << i << " --" << std::endl;
         Libdas::DasMesh &mesh = _parser.AccessMesh(i);
         std::cout << "Mesh name: " << mesh.name << std::endl;
-        std::cout << "Used index buffer id: " << mesh.index_buffer_id << std::endl;
-        std::cout << "Used index buffer offset: " << mesh.index_buffer_offset << std::endl;
-        std::cout << "Total indices used: " << mesh.indices_count << std::endl; 
-        std::cout << "Used vertex buffer id: " << mesh.vertex_buffer_id << std::endl;
-        std::cout << "Used vertex buffer offset: " << mesh.vertex_buffer_offset << std::endl;
 
-        if(mesh.texture_id != UINT32_MAX)
-            std::cout << "Used texture id: " << mesh.texture_id << std::endl;
+        // for each primitive in mesh output its data
+        for(uint32_t j = 0; j < mesh.primitive_count; j++) {
+            Libdas::DasMeshPrimitive &prim = _parser.AccessMeshPrimitive(mesh.primitives[j]);
+            std::cout << "---- Primitive nr " << j << " ----" << std::endl;
+            std::cout << "-- Index buffer id: " << prim.index_buffer_id << std::endl;
+            std::cout << "-- Index buffer offset: " << prim.index_buffer_offset << std::endl;
+            std::cout << "-- Indexing mode: " << (prim.indexing_mode == LIBDAS_SEPERATE_INDICES ? "Separate indices" : "Compact indices") << std::endl;
+            std::cout << "-- Vertex buffer id: " << prim.vertex_buffer_id << std::endl;
+            std::cout << "-- Vertex buffer offset: " << prim.vertex_buffer_offset << std::endl;
 
-        if(mesh.texture_map_buffer_id != UINT32_MAX)
-            std::cout << "Used texture map buffer id: " << mesh.texture_map_buffer_id << std::endl;
-
-        if(mesh.texture_map_buffer_offset != 0)
-            std::cout << "Used texture map buffer offset: " << mesh.texture_map_buffer_offset << std::endl;
-
-        if(mesh.vertex_normal_buffer_id != UINT32_MAX)
-            std::cout << "Used vertex normal buffer id: " << mesh.vertex_normal_buffer_id << std::endl;
-
-        if(mesh.vertex_normal_buffer_offset != 0)
-            std::cout << "Used vertex normal buffer offset: " << mesh.vertex_normal_buffer_offset << std::endl;
+            if(prim.texture_id != UINT32_MAX)
+                std::cout << "-- Texture id: " << prim.texture_id << std::endl;
+            if(prim.texture_map_buffer_id != UINT32_MAX) {
+                std::cout << "-- Texture map buffer id: " << prim.texture_map_buffer_id << std::endl;
+                std::cout << "-- Texture map buffer offset: " << prim.texture_map_buffer_offset << std::endl;
+            }
+            if(prim.vertex_normal_buffer_id != UINT32_MAX) {
+                std::cout << "-- Vertex normal buffer id: " << prim.vertex_normal_buffer_id << std::endl;
+                std::cout << "-- Vertex normal buffer offset: " << prim.vertex_normal_buffer_offset << std::endl;
+            }
+        }
     }
 }
 
@@ -440,7 +454,7 @@ void DASTool::_ListDas(const std::string &_input_file) {
 
     // output animation and model data if verbose mode is specified
     if((m_flags & USAGE_FLAG_VERBOSE) == USAGE_FLAG_VERBOSE) {
-        _ListDasEmbeddedTexture(parser);
+        _ListDasBuffers(parser);
         _ListDasMeshes(parser);
         _ListDasSkeletons(parser);
         _ListDasSkeletonJoints(parser);

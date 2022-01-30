@@ -51,7 +51,7 @@ namespace Libdas {
         /** 
          * Calculate Grassman product of two quaternions
          */
-        inline Quaternion operator*(const Quaternion &_q) {
+        inline Quaternion operator*(const Quaternion &_q) const {
             const __m128 pw_vec = _mm_set_ps1(w);
             const __m128 qw_vec = _mm_set_ps1(_q.w);
             const __m128 p_vec = _mm_set_ps(0, z, y, x);
@@ -65,7 +65,7 @@ namespace Libdas {
             return out;
         }
 
-        inline Quaternion operator*(const float _c) {
+        inline Quaternion operator*(const float _c) const {
             Quaternion out;
             const __m128 c = _mm_set_ps1(_c);
             const __m128 vec = _mm_set_ps(w, z, y, x);
@@ -73,7 +73,7 @@ namespace Libdas {
             return out;
         }
 
-        inline Quaternion operator/(const float _c) {
+        inline Quaternion operator/(const float _c) const {
             Quaternion out;
             const __m128 c = _mm_set_ps1(1 / _c);
             const __m128 vec = _mm_set_ps(w, z, y, x);
@@ -84,8 +84,8 @@ namespace Libdas {
         /**
          * Calculate magnitude of quaternion
          */
-        inline float Magnitude() {
-            float *ptr = &x;
+        inline float Magnitude() const {
+            const float *ptr = &x;
             
             #pragma omp simd 
             float sum = 0.0f;
@@ -96,7 +96,7 @@ namespace Libdas {
         }
 
 #ifdef VECTOR_H
-        inline Vector4<float> operator*(const Vector4<float> &_vec) {
+        inline Vector4<float> operator*(const Vector4<float> &_vec) const {
             Quaternion vq = Quaternion(&_vec.first);
             vq.w = 0;
             Quaternion q = *this * vq * this->Inverse();
@@ -106,7 +106,7 @@ namespace Libdas {
 
 #ifdef MATRIX_H
         // not using simd here for now
-        Matrix3<float> ExpandToMatrix3() {
+        Matrix3<float> ExpandToMatrix3() const {
             float dxx = 2 * x * x, dyy = 2 * y * y, dzz = 2 * z * z;
             float dxy = 2 * x * y, dxz = 2 * x * z, dxw = 2 * x * w;
             float dyz = 2 * y * z, dyw = 2 * y * w;
@@ -119,7 +119,7 @@ namespace Libdas {
         }
 
 
-        Matrix4<float> ExpandToMatrix4() {
+        Matrix4<float> ExpandToMatrix4() const {
             float dxx = 2 * x * x, dyy = 2 * y * y, dzz = 2 * z * z;
             float dxy = 2 * x * y, dxz = 2 * x * z, dxw = 2 * x * w;
             float dyz = 2 * y * z, dyw = 2 * y * w;
@@ -178,14 +178,14 @@ namespace Libdas {
         /**
          * Calculate the conjugate of quaternion
          */
-        inline Quaternion Conjugate() {
+        inline Quaternion Conjugate() const {
             return Quaternion(-x, -y, -z, w);
         }
 
         /**
          * Calculate the inverse of quaternion using formula: q* / |q|
          */
-        inline Quaternion Inverse() {
+        inline Quaternion Inverse() const {
             return Conjugate() / Magnitude();
         }
     };

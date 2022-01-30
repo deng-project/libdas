@@ -174,6 +174,68 @@ namespace Libdas {
     }
 
 
+    void DasWriterCore::WriteMeshPrimitive(const DasMeshPrimitive &_primitive) {
+        _WriteScopeBeginning("MESHPRIMITIVE");
+
+        _WriteNumericalValue<uint32_t>("INDEXBUFFERID", _primitive.index_buffer_id);
+        if(_primitive.index_buffer_offset)
+            _WriteNumericalValue<uint32_t>("INDEXBUFFEROFFSET", _primitive.index_buffer_offset);
+        _WriteNumericalValue<uint32_t>("INDICESCOUNT", _primitive.indices_count);
+        _WriteNumericalValue<IndexingMode>("INDEXINGMODE", _primitive.indexing_mode);
+        _WriteNumericalValue<uint32_t>("VERTEXBUFFERID", _primitive.vertex_buffer_id);
+        if(_primitive.vertex_buffer_offset)
+            _WriteNumericalValue<uint32_t>("VERTEXBUFFEROFFSET", _primitive.vertex_buffer_offset);
+
+        if(_primitive.texture_id != UINT32_MAX)
+            _WriteNumericalValue<uint32_t>("TEXTUREID", _primitive.texture_id);
+
+        if(_primitive.texture_map_buffer_id != UINT32_MAX) {
+            _WriteNumericalValue<uint32_t>("TEXTUREMAPBUFFERID", _primitive.texture_map_buffer_id);
+            if(_primitive.texture_map_buffer_offset)
+                _WriteNumericalValue<uint32_t>("TEXTUREMAPBUFFEROFFSET", _primitive.texture_map_buffer_offset);
+        }
+
+        if(_primitive.vertex_normal_buffer_id != UINT32_MAX) {
+            _WriteNumericalValue<uint32_t>("VERTEXNORMALBUFFERID", _primitive.vertex_normal_buffer_id);
+            if(_primitive.vertex_normal_buffer_offset)
+                _WriteNumericalValue<uint32_t>("VERTEXNORMALBUFFEROFFSET", _primitive.vertex_normal_buffer_offset);
+        }
+
+        if(_primitive.morph_target_count) {
+            _WriteNumericalValue<uint32_t>("MORPHTARGETCOUNT", _primitive.morph_target_count);
+            _WriteArrayValue<uint32_t>("MORPHTARGETS", _primitive.morph_target_count, _primitive.morph_targets);
+            _WriteArrayValue<uint32_t>("MORPHWEIGHTS", _primitive.morph_target_count, _primitive.morph_weights);
+        }
+
+        _EndScope();
+    }
+
+
+    void DasWriterCore::WriteMorphTarget(const DasMorphTarget &_morph_target) {
+        _WriteScopeBeginning("MORPHTARGET");
+
+        if(_morph_target.vertex_buffer_id != UINT32_MAX) {
+            _WriteNumericalValue<uint32_t>("VERTEXBUFFERID", _morph_target.vertex_buffer_id);
+            if(_morph_target.vertex_buffer_offset)
+                _WriteNumericalValue<uint32_t>("VERTEXBUFFEROFFSET", _morph_target.vertex_buffer_offset);
+        }
+
+        if(_morph_target.texture_map_buffer_id != UINT32_MAX) {
+            _WriteNumericalValue<uint32_t>("TEXTUREMAPBUFFERID", _morph_target.texture_map_buffer_id);
+            if(_morph_target.texture_map_buffer_offset)
+                _WriteNumericalValue<uint32_t>("TEXTUREMAPBUFFEROFFSET", _morph_target.texture_map_buffer_offset);
+        }
+
+        if(_morph_target.vertex_normal_buffer_id != UINT32_MAX) {
+            _WriteNumericalValue<uint32_t>("VERTEXNORMALBUFFERID", _morph_target.vertex_normal_buffer_id);
+            if(_morph_target.vertex_normal_buffer_offset)
+                _WriteNumericalValue<uint32_t>("VERTEXNORMALBUFFEROFFSET", _morph_target.vertex_normal_buffer_offset);
+        }
+
+        _EndScope();
+    }
+
+
     void DasWriterCore::WriteMesh(const DasMesh &_mesh) {
         _WriteScopeBeginning("MESH");
         
@@ -181,28 +243,8 @@ namespace Libdas {
         if(_mesh.name != "")
             _WriteStringValue("NAME", _mesh.name);
 
-        // write numerical buffer related values
-        _WriteNumericalValue<uint32_t>("INDEXBUFFERID", _mesh.index_buffer_id);
-        _WriteNumericalValue<uint32_t>("INDEXBUFFEROFFSET", _mesh.index_buffer_offset);
-        _WriteNumericalValue<uint32_t>("INDICESCOUNT", _mesh.indices_count);
-        _WriteNumericalValue<uint32_t>("VERTEXBUFFERID", _mesh.vertex_buffer_id);
-        _WriteNumericalValue<uint32_t>("VERTEXBUFFEROFFSET", _mesh.vertex_buffer_offset);
-
-        // write texture buffer id if available
-        if(_mesh.texture_id != UINT32_MAX)
-            _WriteNumericalValue<uint32_t>("TEXTUREID", _mesh.texture_id);
-
-        // write texture map buffer id if available
-        if(_mesh.texture_map_buffer_id != UINT32_MAX) {
-            _WriteNumericalValue<uint32_t>("TEXTUREMAPBUFFERID", _mesh.texture_map_buffer_id);
-            _WriteNumericalValue<uint32_t>("TEXTUREMAPBUFFEROFFSET", _mesh.texture_map_buffer_offset);
-        }
-
-        // write vertex normal buffer id if available
-        if(_mesh.vertex_normal_buffer_id != UINT32_MAX) {
-            _WriteNumericalValue<uint32_t>("VERTEXNORMALBUFFERID", _mesh.vertex_normal_buffer_id);
-            _WriteNumericalValue<uint32_t>("VERTEXNORMALBUFFEROFFSET", _mesh.vertex_normal_buffer_offset);
-        }
+        _WriteNumericalValue<uint32_t>("PRIMITIVECOUNT", _mesh.primitive_count);
+        _WriteArrayValue<uint32_t>("PRIMITIVES", _mesh.primitive_count, _mesh.primitives);
 
         _EndScope();
     }

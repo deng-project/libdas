@@ -34,6 +34,8 @@ namespace Libdas {
             DasProperties m_props;
             std::vector<DasBuffer> m_buffers;
             std::vector<DasMesh> m_meshes;
+            std::vector<DasMeshPrimitive> m_mesh_primitives;
+            std::vector<DasMorphTarget> m_morph_targets;
             std::vector<DasNode> m_nodes;
             std::vector<DasScene> m_scenes;
             std::vector<DasSkeletonJoint> m_joints;
@@ -80,8 +82,26 @@ namespace Libdas {
             }
 
             /**
+             * Access mesh primitive by id
+             * @param _id specifies the mesh primitive id to use for accessing
+             * @return reference to DasMeshPrimitive instance, accessed by the id
+             */
+            inline DasMeshPrimitive &AccessMeshPrimitive(uint32_t _id) {
+                return m_mesh_primitives[_id % static_cast<uint32_t>(m_mesh_primitives.size())];
+            }
+
+            /**
+             * Access morph target by id
+             * @param _id specifies the morph target id to use for accessing
+             * @return reference to DasMorphTarget instance, accessed by the id
+             */
+            inline DasMorphTarget &AccessMorphTarget(uint32_t _id) {
+                return m_morph_targets[_id % static_cast<uint32_t>(m_morph_targets.size())];
+            }
+
+            /**
              * Access mesh reference by id
-             * @param _id specifies the model id to use for accessing
+             * @param _id specifies the mesh id to use for accessing
              * @return reference to DasMesh, accessed by the id
              */
             inline DasMesh &AccessMesh(uint32_t _id) { 
@@ -141,7 +161,23 @@ namespace Libdas {
             }
 
             /**
-             * Get the amount of models that were parsed
+             * Get the amount of mesh primitives that were parsed
+             * @return uint32_t value specifying the mesh primitive count
+             */
+            inline uint32_t GetMeshPrimitiveCount() {
+                return static_cast<uint32_t>(m_mesh_primitives.size());
+            }
+
+            /**
+             * Get the amount of morph targets that were parsed
+             * @return uint32_t value specifying the morph target count
+             */
+            inline uint32_t GetMorphTargetCount() {
+                return static_cast<uint32_t>(m_morph_targets.size());
+            }
+
+            /**
+             * Get the amount of meshes that were parsed
              * @return uint32_t value specifying the model count
              */
             inline uint32_t GetMeshCount() {

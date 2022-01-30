@@ -42,6 +42,8 @@ namespace Libdas {
     enum DasScopeType {
         LIBDAS_DAS_SCOPE_PROPERTIES,
         LIBDAS_DAS_SCOPE_BUFFER,
+        LIBDAS_DAS_SCOPE_MESH_PRIMITIVE,
+        LIBDAS_DAS_SCOPE_MORPH_TARGET,
         LIBDAS_DAS_SCOPE_MESH,
         LIBDAS_DAS_SCOPE_NODE,
         LIBDAS_DAS_SCOPE_SCENE,
@@ -70,10 +72,18 @@ namespace Libdas {
         LIBDAS_DAS_UNIQUE_VALUE_TYPE_DATA,
 
         // MESH
+        LIBDAS_DAS_UNIQUE_VALUE_TYPE_PRIMITIVE_COUNT,
+        LIBDAS_DAS_UNIQUE_VALUE_TYPE_PRIMITIVES,
+
+        // MESHPRIMITIVE
         LIBDAS_DAS_UNIQUE_VALUE_TYPE_INDEX_BUFFER_ID,
         LIBDAS_DAS_UNIQUE_VALUE_TYPE_INDEX_BUFFER_OFFSET,
         LIBDAS_DAS_UNIQUE_VALUE_TYPE_INDICES_COUNT,
+        LIBDAS_DAS_UNIQUE_VALUE_TYPE_INDEXING_MODE,
         LIBDAS_DAS_UNIQUE_VALUE_TYPE_TEXTURE_ID,
+        LIBDAS_DAS_UNIQUE_VALUE_TYPE_MORPH_TARGET_COUNT,
+        LIBDAS_DAS_UNIQUE_VALUE_TYPE_MORPH_TARGETS,
+        LIBDAS_DAS_UNIQUE_VALUE_TYPE_MORPH_WEIGHTS,
 
         // NODE
         LIBDAS_DAS_UNIQUE_VALUE_TYPE_CHILDREN_COUNT,
@@ -119,8 +129,6 @@ namespace Libdas {
         LIBDAS_DAS_UNIQUE_VALUE_TYPE_TEXTURE_MAP_BUFFER_OFFSET,
         LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_NORMAL_BUFFER_ID,
         LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_NORMAL_BUFFER_OFFSET,
-        LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_TANGENT_BUFFER_ID,
-        LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_TANGENT_BUFFER_OFFSET,
 
         // reserved value
         LIBDAS_DAS_UNIQUE_VALUE_TYPE_UNKNOWN
@@ -185,6 +193,18 @@ namespace Libdas {
              * @param _type is a type value specifying the current value type
              */
             void _ReadBufferValue(DasBuffer *_buffer, DasBuffer::ValueType _type);
+            /**
+             * Read mesh primitive value scope according to the specified value type
+             * @param _primitive is a valid pointer to DasMeshPrimitive instance
+             * @param _type is a type value specifying the current value type
+             */
+            void _ReadMeshPrimitiveValue(DasMeshPrimitive *_primitive, DasMeshPrimitive::ValueType _type);
+            /**
+             * Read morph target scope value according to the specified value type
+             * @param _morph_target is a valid pointer to DasMorphTarget instance
+             * @param _type is a type value specifying the current value type
+             */
+            void _ReadMorphTargetValue(DasMorphTarget *_morph_target, DasMorphTarget::ValueType _type);
             /**
              * Read mesh scope value according to the specified value type
              * @param _mesh is a valid pointer to DasMesh instance, where all data is stored

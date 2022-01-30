@@ -602,7 +602,7 @@ namespace Libdas {
 
             // append rotation data into correct data structure if possible
             if(rotation.size() == 4)
-                node.rotation = *reinterpret_cast<Vector4<float>*>(rotation.data());
+                node.rotation = *reinterpret_cast<Quaternion*>(rotation.data());
 
             // append scale data into correct data structure if possible
             if(scale.size() == 3)

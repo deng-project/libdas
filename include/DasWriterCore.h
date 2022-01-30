@@ -159,6 +159,16 @@ namespace Libdas {
              */
             void WriteTextureBuffer(const std::vector<std::string> &_textures);
             /**
+             * Write mesh primitive info to the file
+             * @param _primitive specifies a reference to DasMeshPrimitive object
+             */
+            void WriteMeshPrimitive(const DasMeshPrimitive &_primitive);
+            /**
+             * Write morph target information to the file
+             * @param _morph_target specifies a reference to DasMorphTarget object
+             */
+            void WriteMorphTarget(const DasMorphTarget &_morph_target);
+            /**
              * Write a model information to the file
              * @param _model is a reference to DasModel object
              */

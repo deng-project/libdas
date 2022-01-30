@@ -109,7 +109,7 @@ class DASTool {
         void _ListGLTF(const std::string &_input_file);
         void _ListGLB(const std::string &_input_file);
         void _ListDasProperties(Libdas::DasProperties &_props);
-        void _ListDasEmbeddedTexture(Libdas::DasParser &_parser);
+        void _ListDasBuffers(Libdas::DasParser &_parser);
         void _ListDasMeshes(Libdas::DasParser &_parser);
         void _ListDasSkeletons(Libdas::DasParser &_parser);
         void _ListDasSkeletonJoints(Libdas::DasParser &_parser);

@@ -42,7 +42,7 @@ namespace Libdas {
             // vertices are given, append to the buffer
             if(group.vertices.position.size()) {
                 data = reinterpret_cast<const char*>(group.vertices.position.data());
-                size = group.vertices.position.size() * sizeof(Point4D<float>);
+                size = group.vertices.position.size() * sizeof(Point3D<float>);
                 buffers[0].data_ptrs.push_back(std::make_pair(data, size));
                 buffers[0].data_len += size;
             }
@@ -109,6 +109,8 @@ namespace Libdas {
                 case LIBDAS_BUFFER_TYPE_TEXTURE_TGA:
                 case LIBDAS_BUFFER_TYPE_TEXTURE_BMP:
                 case LIBDAS_BUFFER_TYPE_TEXTURE_PPM:
+                    // basically just select the first texture instance to use, if multiple are present
+                    // NOTE: In the future textures will be replaced with correct material specifications
                     if(!is_tex) {
                         m_texture_id = i;
                         is_tex = true;
@@ -125,41 +127,50 @@ namespace Libdas {
     }
 
 
-    std::vector<DasMesh> WavefrontObjCompiler::_CreateMeshes(const std::vector<WavefrontObjGroup> &_groups) {
-        std::vector<DasMesh> meshes(_groups.size());
+    std::vector<DasMeshPrimitive> WavefrontObjCompiler::_CreateMeshPrimitives(const std::vector<WavefrontObjGroup> &_groups) {
+        std::vector<DasMeshPrimitive> primitives(_groups.size());
 
         // offset values
         uint32_t indices_offset = 0;
 
         for(size_t i = 0; i < _groups.size(); i++) {
-            meshes[i].name = Algorithm::ConcatenateNameArgs(_groups[i].names);
-            meshes[i].index_buffer_id = m_indices_buffer_id;
-            meshes[i].index_buffer_offset = indices_offset;
-            meshes[i].indices_count = _groups[i].indices.faces.size();
-            if(m_vertex_buffer_id != UINT32_MAX)
-                meshes[i].vertex_buffer_id = m_vertex_buffer_id;
+            primitives[i].index_buffer_id = m_indices_buffer_id;
+            primitives[i].index_buffer_offset = indices_offset;
+            primitives[i].indices_count = _groups[i].indices.faces.size();
+            primitives[i].vertex_buffer_id = m_vertex_buffer_id;
             if(m_texture_map_buffer_id != UINT32_MAX)
-                meshes[i].texture_map_buffer_id = m_texture_map_buffer_id;
+                primitives[i].texture_map_buffer_id = m_texture_map_buffer_id;
             if(m_vertex_normal_buffer_id != UINT32_MAX)
-                meshes[i].vertex_normal_buffer_id = m_vertex_normal_buffer_id;
+                primitives[i].vertex_normal_buffer_id = m_vertex_normal_buffer_id;
             if(m_texture_id != UINT32_MAX)
-                meshes[i].texture_id = m_texture_id;
+                primitives[i].texture_id = m_texture_id;
 
             indices_offset += _groups[i].indices.faces.size() * sizeof(uint32_t[m_face_attr_count]);
         }
 
-        return meshes;
+        return primitives;
     }
 
 
-    void WavefrontObjCompiler::_CreateRootScene(std::vector<DasMesh> &_meshes) {
+    DasMesh WavefrontObjCompiler::_CreateMesh(uint32_t _primitive_size) {
+        DasMesh mesh;
+        mesh.name = "Mesh";
+        mesh.primitive_count = _primitive_size;
+        mesh.primitives = new uint32_t[_primitive_size];
+
+        for(uint32_t i = 0; i < _primitive_size; i++)
+            mesh.primitives[i] = i;
+
+        return mesh;
+    }
+
+
+    void WavefrontObjCompiler::_CreateRootScene() {
         // generate a node
         DasNode node;
-        node.mesh_count = static_cast<uint32_t>(_meshes.size());
-        node.meshes = new uint32_t[node.mesh_count];
-
-        for(uint32_t i = 0; i < node.mesh_count; i++) 
-            node.meshes[i] = i;
+        node.mesh_count = 1;
+        node.meshes = new uint32_t;
+        node.meshes[0] = 0;
 
         WriteNode(node);
 
@@ -167,7 +178,7 @@ namespace Libdas {
         DasScene scene;
         scene.name = "Imported from Wavefront Obj";
         scene.node_count = 1;
-        scene.nodes = new uint32_t[1];
+        scene.nodes = new uint32_t;
         scene.nodes[0] = 0;
 
         WriteScene(scene);
@@ -188,10 +199,13 @@ namespace Libdas {
             WriteBuffer(buffer);
 
         // write all given models to the output file
-        std::vector<DasMesh> meshes = _CreateMeshes(_groups);
-        for(const DasMesh &mesh : meshes)
-            WriteMesh(mesh);
+        std::vector<DasMeshPrimitive> primitives = _CreateMeshPrimitives(_groups);
+        for(DasMeshPrimitive &prim : primitives)
+            WriteMeshPrimitive(prim);
 
-        if(meshes.size()) _CreateRootScene(meshes);
+        DasMesh mesh = _CreateMesh(static_cast<uint32_t>(primitives.size()));
+        WriteMesh(mesh);
+
+        _CreateRootScene();
     }
 }

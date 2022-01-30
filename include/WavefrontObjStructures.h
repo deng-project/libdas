@@ -94,7 +94,7 @@ namespace Libdas {
      * Structure for containing information about object vertices
      */
     struct WavefrontObjVertices {
-        std::vector<Point4D<float>> position;
+        std::vector<Point3D<float>> position;
         std::vector<Point3D<float>> points;
         std::vector<Point3D<float>> normals;
         std::vector<Point3D<float>> texture;

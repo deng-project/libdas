@@ -1,7 +1,7 @@
-/// libdas: DENG asset handling management library
-/// licence: Apache, see LICENCE file
-/// file: DasReaderCore.h - DAS file format reader class header
-/// author: Karl-Mihkel Ott
+// libdas: DENG asset handling management library
+// licence: Apache, see LICENCE file
+// file: DasReaderCore.h - DAS file format reader class header
+// author: Karl-Mihkel Ott
 
 #define DAS_READER_CORE_CPP
 #include <DasReaderCore.h>
@@ -21,12 +21,15 @@ namespace Libdas {
     void DasReaderCore::_CreateScopeNameMap() {
         m_scope_name_map["PROPERTIES"] = LIBDAS_DAS_SCOPE_PROPERTIES;
         m_scope_name_map["BUFFER"] = LIBDAS_DAS_SCOPE_BUFFER;
+        m_scope_name_map["MORPHTARGET"] = LIBDAS_DAS_SCOPE_MORPH_TARGET;
+        m_scope_name_map["MESHPRIMITIVE"] = LIBDAS_DAS_SCOPE_MESH_PRIMITIVE;
         m_scope_name_map["MESH"] = LIBDAS_DAS_SCOPE_MESH;
         m_scope_name_map["NODE"] = LIBDAS_DAS_SCOPE_NODE;
         m_scope_name_map["SCENE"] = LIBDAS_DAS_SCOPE_SCENE;
         m_scope_name_map["JOINT"] = LIBDAS_DAS_SCOPE_SKELETON_JOINT;
         m_scope_name_map["SKELETON"] = LIBDAS_DAS_SCOPE_SKELETON;
-        m_scope_name_map["ANIMATION"] = LIBDAS_DAS_SCOPE_ANIMATION; }
+        m_scope_name_map["ANIMATION"] = LIBDAS_DAS_SCOPE_ANIMATION; 
+    }
 
 
     void DasReaderCore::_CreateScopeValueTypeMap() {
@@ -43,18 +46,18 @@ namespace Libdas {
         m_unique_val_map["DATA"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_DATA;
 
         // MESH
+        m_unique_val_map["PRIMITIVECOUNT"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_PRIMITIVE_COUNT;
+        m_unique_val_map["PRIMITIVES"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_PRIMITIVES;
+
+        // MESHPRIMITIVE
         m_unique_val_map["INDEXBUFFERID"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_INDEX_BUFFER_ID;
         m_unique_val_map["INDEXBUFFEROFFSET"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_INDEX_BUFFER_OFFSET;
         m_unique_val_map["INDICESCOUNT"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_INDICES_COUNT;
+        m_unique_val_map["INDEXINGMODE"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_INDEXING_MODE;
         m_unique_val_map["TEXTUREID"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_TEXTURE_ID;
-        m_unique_val_map["VERTEXBUFFERID"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_BUFFER_ID;
-        m_unique_val_map["VERTEXBUFFEROFFSET"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_BUFFER_OFFSET;
-        m_unique_val_map["TEXTUREMAPBUFFERID"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_TEXTURE_MAP_BUFFER_ID;
-        m_unique_val_map["TEXTUREMAPBUFFEROFFSET"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_TEXTURE_MAP_BUFFER_OFFSET;
-        m_unique_val_map["VERTEXNORMALBUFFERID"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_NORMAL_BUFFER_ID;
-        m_unique_val_map["VERTEXNORMALBUFFEROFFSET"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_NORMAL_BUFFER_OFFSET;
-        m_unique_val_map["VERTEXTANGENTBUFFERID"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_TANGENT_BUFFER_ID;
-        m_unique_val_map["VERTEXTANGENTBUFFEROFFSET"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_TANGENT_BUFFER_OFFSET;
+        m_unique_val_map["MORPHTARGETCOUNT"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_MORPH_TARGET_COUNT;
+        m_unique_val_map["MORPHTARGETS"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_MORPH_TARGETS;
+        m_unique_val_map["MORPHWEIGHTS"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_MORPH_WEIGHTS;
 
         // NODE
         m_unique_val_map["CHILDRENCOUNT"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_CHILDREN_COUNT;
@@ -94,6 +97,12 @@ namespace Libdas {
         // Not so unique value types, since these values can be present in multiple scopes
         m_unique_val_map["NAME"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_NAME;
         m_unique_val_map["TRANSFORM"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_TRANSFORM;
+        m_unique_val_map["VERTEXBUFFERID"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_BUFFER_ID;
+        m_unique_val_map["VERTEXBUFFEROFFSET"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_BUFFER_OFFSET;
+        m_unique_val_map["TEXTUREMAPBUFFERID"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_TEXTURE_MAP_BUFFER_ID;
+        m_unique_val_map["TEXTUREMAPBUFFEROFFSET"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_TEXTURE_MAP_BUFFER_OFFSET;
+        m_unique_val_map["VERTEXNORMALBUFFERID"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_NORMAL_BUFFER_ID;
+        m_unique_val_map["VERTEXNORMALBUFFEROFFSET"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_NORMAL_BUFFER_OFFSET;
     }
 
 
@@ -153,41 +162,85 @@ namespace Libdas {
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_NAME:
                         return DasMesh::LIBDAS_MESH_NAME;
 
+                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_PRIMITIVE_COUNT:
+                        return DasMesh::LIBDAS_MESH_PRIMITIVE_COUNT;
+
+                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_PRIMITIVES:
+                        return DasMesh::LIBDAS_MESH_PRIMITIVES;
+
+                    default:
+                        return LIBDAS_DAS_UNIQUE_VALUE_TYPE_UNKNOWN;
+                }
+                break;
+
+            case LIBDAS_DAS_SCOPE_MESH_PRIMITIVE:
+                switch(type) {
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_INDEX_BUFFER_ID:
-                        return DasMesh::LIBDAS_MESH_INDEX_BUFFER_ID;
+                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_INDEX_BUFFER_ID;
 
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_INDEX_BUFFER_OFFSET:
-                        return DasMesh::LIBDAS_MESH_INDEX_BUFFER_OFFSET;
+                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_INDEX_BUFFER_OFFSET;
 
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_INDICES_COUNT:
-                        return DasMesh::LIBDAS_MESH_INDICES_COUNT;
+                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_INDICES_COUNT;
+
+                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_INDEXING_MODE:
+                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_INDEXING_MODE;
 
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_BUFFER_ID:
-                        return DasMesh::LIBDAS_MESH_VERTEX_BUFFER_ID;
+                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_VERTEX_BUFFER_ID;
 
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_BUFFER_OFFSET:
-                        return DasMesh::LIBDAS_MESH_VERTEX_BUFFER_OFFSET;
+                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_VERTEX_BUFFER_OFFSET;
 
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_TEXTURE_ID:
-                        return DasMesh::LIBDAS_MESH_TEXTURE_ID;
+                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_TEXTURE_ID;
 
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_TEXTURE_MAP_BUFFER_ID:
-                        return DasMesh::LIBDAS_MESH_TEXTURE_MAP_BUFFER_ID;
+                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_TEXTURE_MAP_BUFFER_ID;
 
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_TEXTURE_MAP_BUFFER_OFFSET:
-                        return DasMesh::LIBDAS_MESH_TEXTURE_MAP_BUFFER_OFFSET;
+                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_TEXTURE_MAP_BUFFER_OFFSET;
 
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_NORMAL_BUFFER_ID:
-                        return DasMesh::LIBDAS_MESH_VERTEX_NORMAL_BUFFER_ID;
+                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_VERTEX_NORMAL_BUFFER_ID;
 
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_NORMAL_BUFFER_OFFSET:
-                        return DasMesh::LIBDAS_MESH_VERTEX_NORMAL_BUFFER_OFFSET;
+                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_VERTEX_NORMAL_BUFFER_OFFSET;
 
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_TANGENT_BUFFER_ID:
-                        return DasMesh::LIBDAS_MESH_VERTEX_TANGENT_BUFFER_ID;
+                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_MORPH_TARGET_COUNT:
+                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_MORPH_TARGET_COUNT;
 
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_TANGENT_BUFFER_OFFSET:
-                        return DasMesh::LIBDAS_MESH_VERTEX_TANGENT_BUFFER_OFFSET;
+                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_MORPH_TARGETS:
+                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_MORPH_TARGETS;
+
+                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_MORPH_WEIGHTS:
+                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_MORPH_WEIGHTS;
+
+                    default:
+                        return LIBDAS_DAS_UNIQUE_VALUE_TYPE_UNKNOWN;
+                }
+                break;
+
+            case LIBDAS_DAS_SCOPE_MORPH_TARGET:
+                switch(type) {
+                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_BUFFER_ID:
+                        return DasMorphTarget::LIBDAS_MORPH_TARGET_VERTEX_BUFFER_ID;
+
+                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_BUFFER_OFFSET:
+                        return DasMorphTarget::LIBDAS_MORPH_TARGET_VERTEX_BUFFER_OFFSET;
+
+                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_TEXTURE_MAP_BUFFER_ID:
+                        return DasMorphTarget::LIBDAS_MORPH_TARGET_TEXTURE_MAP_BUFFER_ID;
+
+                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_TEXTURE_MAP_BUFFER_OFFSET:
+                        return DasMorphTarget::LIBDAS_MORPH_TARGET_TEXTURE_MAP_BUFFER_OFFSET;
+
+                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_NORMAL_BUFFER_ID:
+                        return DasMorphTarget::LIBDAS_MORPH_TARGET_VERTEX_NORMAL_BUFFER_ID;
+
+                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_NORMAL_BUFFER_OFFSET:
+                        return DasMorphTarget::LIBDAS_MORPH_TARGET_VERTEX_NORMAL_BUFFER_OFFSET;
 
                     default:
                         return LIBDAS_DAS_UNIQUE_VALUE_TYPE_UNKNOWN;
@@ -377,60 +430,149 @@ namespace Libdas {
     }
 
 
-    void DasReaderCore::_ReadMeshValue(DasMesh *_model, DasMesh::ValueType _type) {
+    void DasReaderCore::_ReadMeshPrimitiveValue(DasMeshPrimitive *_primitive, DasMeshPrimitive::ValueType _type) {
+        switch(_type) {
+            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_INDEX_BUFFER_ID:
+                _primitive->index_buffer_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA);
+                break;
+
+            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_INDEX_BUFFER_OFFSET:
+                _primitive->index_buffer_offset = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA);
+                break;
+
+            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_INDICES_COUNT:
+                _primitive->indices_count = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA);
+                break;
+
+            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_INDEXING_MODE:
+                _primitive->indexing_mode = *reinterpret_cast<IndexingMode*>(_GetReadPtr());
+                if(!_SkipData(sizeof(IndexingMode))) m_error.Error(LIBDAS_ERROR_INVALID_DATA);
+                break;
+
+            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_VERTEX_BUFFER_ID:
+                _primitive->vertex_buffer_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA);
+                break;
+
+            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_VERTEX_BUFFER_OFFSET:
+                _primitive->vertex_buffer_offset = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA);
+                break;
+
+            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_TEXTURE_ID:
+                _primitive->texture_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA);
+                break;
+
+            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_TEXTURE_MAP_BUFFER_ID:
+                _primitive->texture_map_buffer_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA);
+                break;
+
+            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_TEXTURE_MAP_BUFFER_OFFSET:
+                _primitive->texture_map_buffer_offset = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA);
+                break;
+
+            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_VERTEX_NORMAL_BUFFER_ID:
+                _primitive->vertex_normal_buffer_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA);
+                break;
+
+            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_VERTEX_NORMAL_BUFFER_OFFSET:
+                _primitive->vertex_normal_buffer_offset = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA);
+                break;
+
+            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_MORPH_TARGET_COUNT:
+                _primitive->morph_target_count = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA);
+
+                // allocate memory for morph target references
+                _primitive->morph_targets = new uint32_t[_primitive->morph_target_count];
+                break;
+
+            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_MORPH_TARGETS:
+                for(uint32_t i = 0; i < _primitive->morph_target_count; i++) {
+                    _primitive->morph_targets[i] = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                    if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA);
+                }
+                break;
+
+            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_MORPH_WEIGHTS:
+                // allocate memory for each morph weight
+                _primitive->morph_weights = new uint32_t[_primitive->morph_target_count];
+                for(uint32_t i = 0; i < _primitive->morph_target_count; i++) {
+                    _primitive->morph_weights[i] = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                    if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA);
+                }
+                break;
+
+            default:
+                LIBDAS_ASSERT(false);
+                break;
+        }
+    }
+
+
+    void DasReaderCore::_ReadMorphTargetValue(DasMorphTarget *_morph_target, DasMorphTarget::ValueType _type) {
+        switch(_type) {
+            case DasMorphTarget::LIBDAS_MORPH_TARGET_VERTEX_BUFFER_ID:
+                _morph_target->vertex_buffer_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                break;
+
+            case DasMorphTarget::LIBDAS_MORPH_TARGET_VERTEX_BUFFER_OFFSET:
+                _morph_target->vertex_buffer_offset = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                break;
+
+            case DasMorphTarget::LIBDAS_MORPH_TARGET_TEXTURE_MAP_BUFFER_ID:
+                _morph_target->texture_map_buffer_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                break;
+
+            case DasMorphTarget::LIBDAS_MORPH_TARGET_TEXTURE_MAP_BUFFER_OFFSET:
+                _morph_target->texture_map_buffer_offset = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                break;
+
+            case DasMorphTarget::LIBDAS_MORPH_TARGET_VERTEX_NORMAL_BUFFER_ID:
+                _morph_target->vertex_normal_buffer_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                break;
+
+            case DasMorphTarget::LIBDAS_MORPH_TARGET_VERTEX_NORMAL_BUFFER_OFFSET:
+                _morph_target->vertex_normal_buffer_offset = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                break;
+
+            default:
+                LIBDAS_ASSERT(false);
+                break;
+
+        }
+
+        if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA);
+    }
+
+
+    void DasReaderCore::_ReadMeshValue(DasMesh *_mesh, DasMesh::ValueType _type) {
         switch(_type) {
             case DasMesh::LIBDAS_MESH_NAME:
-                _model->name = _ExtractString();
+                _mesh->name = _ExtractString();
                 break;
 
-            case DasMesh::LIBDAS_MESH_INDEX_BUFFER_ID:
-                _model->index_buffer_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                _SkipData(sizeof(uint32_t));
+            case DasMesh::LIBDAS_MESH_PRIMITIVE_COUNT:
+                _mesh->primitive_count = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA);
+
+                // allocate memory for primitive references
+                _mesh->primitives = new uint32_t[_mesh->primitive_count];
                 break;
 
-            case DasMesh::LIBDAS_MESH_INDEX_BUFFER_OFFSET:
-                _model->index_buffer_offset = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                _SkipData(sizeof(uint32_t));
-                break;
-
-            case DasMesh::LIBDAS_MESH_INDICES_COUNT:
-                _model->indices_count = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                _SkipData(sizeof(uint32_t));
-                break;
-
-            case DasMesh::LIBDAS_MESH_VERTEX_BUFFER_ID:
-                _model->vertex_buffer_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                _SkipData(sizeof(uint32_t));
-                break;
-
-            case DasMesh::LIBDAS_MESH_VERTEX_BUFFER_OFFSET:
-                _model->vertex_buffer_offset = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                _SkipData(sizeof(uint32_t));
-                break;
-
-            case DasMesh::LIBDAS_MESH_TEXTURE_ID:
-                _model->texture_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                _SkipData(sizeof(uint32_t));
-                break;
-
-            case DasMesh::LIBDAS_MESH_TEXTURE_MAP_BUFFER_ID:
-                _model->texture_map_buffer_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                _SkipData(sizeof(uint32_t));
-                break;
-
-            case DasMesh::LIBDAS_MESH_TEXTURE_MAP_BUFFER_OFFSET:
-                _model->texture_map_buffer_offset = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                _SkipData(sizeof(uint32_t));
-                break;
-
-            case DasMesh::LIBDAS_MESH_VERTEX_NORMAL_BUFFER_ID:
-                _model->vertex_normal_buffer_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                _SkipData(sizeof(uint32_t));
-                break;
-
-            case DasMesh::LIBDAS_MESH_VERTEX_NORMAL_BUFFER_OFFSET:
-                _model->vertex_normal_buffer_offset = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                _SkipData(sizeof(uint32_t));
+            case DasMesh::LIBDAS_MESH_PRIMITIVES:
+                for(uint32_t i = 0; i < _mesh->primitive_count; i++) {
+                    _mesh->primitives[i] = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                    if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA);
+                }
                 break;
 
             default:
@@ -709,6 +851,18 @@ namespace Libdas {
                 _ReadBufferValue(std::any_cast<DasBuffer>(&_scope), std::any_cast<DasBuffer::ValueType>(_value_type));
                 break;
 
+            case LIBDAS_DAS_SCOPE_MESH_PRIMITIVE:
+                if(_value_type.type() != typeid(DasMeshPrimitive::ValueType))
+                    m_error.Error(LIBDAS_ERROR_INVALID_VALUE, _val_str);
+                _ReadMeshPrimitiveValue(std::any_cast<DasMeshPrimitive>(&_scope), std::any_cast<DasMeshPrimitive::ValueType>(_value_type));
+                break;
+
+            case LIBDAS_DAS_SCOPE_MORPH_TARGET:
+                if(_value_type.type() != typeid(DasMorphTarget::ValueType))
+                    m_error.Error(LIBDAS_ERROR_INVALID_VALUE, _val_str);
+                _ReadMorphTargetValue(std::any_cast<DasMorphTarget>(&_scope), std::any_cast<DasMorphTarget::ValueType>(_value_type));
+                break;
+
             case LIBDAS_DAS_SCOPE_MESH:
                 if(_value_type.type() != typeid(DasMesh::ValueType))
                     m_error.Error(LIBDAS_ERROR_INVALID_VALUE, _val_str);
@@ -759,6 +913,12 @@ namespace Libdas {
 
             case LIBDAS_DAS_SCOPE_BUFFER:
                 return std::any(DasBuffer());
+
+            case LIBDAS_DAS_SCOPE_MORPH_TARGET:
+                return std::any(DasMorphTarget());
+
+            case LIBDAS_DAS_SCOPE_MESH_PRIMITIVE:
+                return std::any(DasMeshPrimitive());
 
             case LIBDAS_DAS_SCOPE_MESH:
                 return std::any(DasMesh());

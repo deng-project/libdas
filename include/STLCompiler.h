@@ -46,9 +46,10 @@ namespace Libdas {
      */
     class LIBDAS_API STLCompiler : private DasWriterCore {
         private:
-            std::vector<Point4D<float>> m_unique_verts;
+            std::vector<Point3D<float>> m_unique_verts;
             std::vector<Point3D<float>> m_unique_normals;
             std::vector<std::array<uint32_t, 2>> m_indices;
+            std::vector<size_t> m_offsets;
 
         private:
             /**
@@ -62,16 +63,22 @@ namespace Libdas {
              */
             std::array<DasBuffer, 3> _CreateBuffers();
             /**
-             * Create DasModel instances from given STLObjects 
+             * Create DasMeshPrimitive instances from given STLObjects
+             * @param _objects is a reference to std::vector instance that stores all STL objects to be converted into mesh primitives
+             * @return std::vector instance containing all mesh primitives
+             */
+            std::vector<DasMeshPrimitive> _CreateMeshPrimitives(const std::vector<STLObject> &_objects);
+            /**
+             * Create DasMesh instances from given STLObjects 
              * @param _objects is a reference to std::vector instance that stores all objects to be converted into models
              * @return std::vector instance containing all DasModel instance
              */
-            std::vector<DasMesh> _CreateMeshes(const std::vector<STLObject> &_objects);
+            DasMesh _CreateMesh(uint32_t primitive_count);
             /**
              * Create and write main scene with its single node
              * @param _meshes specifies an std::vector instance containing all converted DasMesh objects
              */
-            void _CreateDefaultScene(std::vector<DasMesh> &_meshes);
+            void _CreateDefaultScene();
 
         public:
             STLCompiler(const std::string &_out_file = "");

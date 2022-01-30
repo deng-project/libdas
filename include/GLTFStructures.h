@@ -234,7 +234,7 @@ namespace Libdas {
         Matrix4<float> matrix;                          // not required (default: 1, 0, 0, 0 | 0, 1, 0, 0 | 0, 0, 1, 0 | 0, 0, 0, 1)
         int32_t mesh = INT32_MAX;                       // not required
         // NOTE: quaternions must be implemented sometime
-        Vector4<float> rotation;                        // not required (default: 0, 0, 0, 1)
+        Quaternion rotation;                            // not required (default: 0, 0, 0, 1)
         Point3D<float> scale = {1.0f, 1.0f, 1.0f};      // not required (default: 1, 1, 1)
         Point3D<float> translation = {0.0f, 0.0f, 0.0f};// not required (default: 0, 0, 0)
         std::vector<float> weights;                     // not required
@@ -423,7 +423,7 @@ namespace Libdas {
         int32_t indices = INT32_MAX;                    // not required
         int32_t material = INT32_MAX;                   // not required
         uint32_t mode = KHRONOS_TRIANGLES;              // not required (default: 4) 
-        AttributesType targets;                         // not required
+        std::vector<AttributesType> targets;            // not required
         std::vector<std::any> extensions;               // ignored
         std::vector<std::any> extras;                   // ignored
     };

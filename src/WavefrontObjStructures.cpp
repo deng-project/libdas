@@ -52,20 +52,18 @@ namespace Libdas {
         /*************** Parser callback ***************/
         /***********************************************/
 
+        // NOTE: Only x, y and z coordinates are allowed
+        // w coordinates will be simply ignored
         void VertexKeywordArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args) {
             const std::string keyword = "v";
             _error.ArgCountCheck(keyword, _args.first, static_cast<uint32_t>(_args.second.size()), 3, 4, TERMINATE);
-            Point4D<float> pt(0.0f, 0.0f, 0.0f, 1.0f);
+            Point3D<float> pt(0.0f, 0.0f, 0.0f);
 
             pt.x = std::stof(_args.second[0]);
             pt.y = std::stof(_args.second[1]);
             pt.z = std::stof(_args.second[2]);
 
-            // w argument is present
-            if(_args.second.size() == 4)
-                pt.w = std::stof(_args.second[3]);
-
-            _error.CheckFloatArgs(&pt.x, &pt.w, 0, keyword, _args);
+            _error.CheckFloatArgs(&pt.x, &pt.z, 0, keyword, _args);
             _groups.back().vertices.position.push_back(pt);
         }
 

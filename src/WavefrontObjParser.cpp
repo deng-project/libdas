@@ -306,7 +306,7 @@ namespace Libdas {
 
 
     void WavefrontObjParser::TriangulateGroups() {
-        std::cout << "Triangulating..." << std::endl;
+        DEBUG_LOG("Triangulating ...");
 
         for(WavefrontObjGroup &group : m_groups) {
             for(size_t i = 0; i < group.indices.faces.size(); i++) {

@@ -27,26 +27,23 @@ typedef uint16_t BufferType;
 #define LIBDAS_BUFFER_TYPE_VERTEX                   0x0001
 #define LIBDAS_BUFFER_TYPE_TEXTURE_MAP              0x0002
 #define LIBDAS_BUFFER_TYPE_VERTEX_NORMAL            0x0004
-#define LIBDAS_BUFFER_TYPE_VERTEX_TANGENT           0x0008
-#define LIBDAS_BUFFER_TYPE_COLOR                    0x0010
-#define LIBDAS_BUFFER_TYPE_JOINTS                   0x0020
-#define LIBDAS_BUFFER_TYPE_WEIGHTS                  0x0040
-#define LIBDAS_BUFFER_TYPE_INDICES                  0x0080
-#define LIBDAS_BUFFER_TYPE_TEXTURE_JPEG             0x0100
-#define LIBDAS_BUFFER_TYPE_TEXTURE_PNG              0x0200
-#define LIBDAS_BUFFER_TYPE_TEXTURE_TGA              0x0400
-#define LIBDAS_BUFFER_TYPE_TEXTURE_BMP              0x0800
-#define LIBDAS_BUFFER_TYPE_TEXTURE_PPM              0x1000
-#define LIBDAS_BUFFER_TYPE_TEXTURE_RAW              0x2000
-#define LIBDAS_BUFFER_TYPE_KEYFRAME                 0x4000  // can be either morph target keyframe or skinned animation keyframe
-#define LIBDAS_BUFFER_TYPE_TIMESTAMPS               0x8000  // used only for identifying timestamp buffers from GLTF format parsing
+#define LIBDAS_BUFFER_TYPE_COLOR                    0x0008
+#define LIBDAS_BUFFER_TYPE_JOINTS                   0x0010
+#define LIBDAS_BUFFER_TYPE_WEIGHTS                  0x0020
+#define LIBDAS_BUFFER_TYPE_INDICES                  0x0040
+#define LIBDAS_BUFFER_TYPE_TEXTURE_JPEG             0x0080
+#define LIBDAS_BUFFER_TYPE_TEXTURE_PNG              0x0100
+#define LIBDAS_BUFFER_TYPE_TEXTURE_TGA              0x0200
+#define LIBDAS_BUFFER_TYPE_TEXTURE_BMP              0x0400
+#define LIBDAS_BUFFER_TYPE_TEXTURE_PPM              0x0800
+#define LIBDAS_BUFFER_TYPE_TEXTURE_RAW              0x1000
+#define LIBDAS_BUFFER_TYPE_KEYFRAME                 0x2000  // can be either morph target keyframe or skinned animation keyframe
+#define LIBDAS_BUFFER_TYPE_TIMESTAMPS               0x4000  // used only for identifying timestamp buffers from GLTF format parsing
 
-typedef uint8_t PrimitiveAttribute;
-#define LIBDAS_PRIMITIVE_ATTRIBUTE_UNKNOWN          0x00
-#define LIBDAS_PRIMITIVE_ATTRIBUTE_VERTEX           0x01
-#define LIBDAS_PRIMITIVE_ATTRIBUTE_TEXTURE_MAP      0x02
-#define LIBDAS_PRIMITIVE_ATTRIBUTE_VERTEX_NORMAL    0x04
-#define LIDBAS_PRIMITIVE_ATTRIBUTE_VERTEX_TANGENT   0x08
+typedef uint8_t IndexingMode;
+#define LIBDAS_SEPERATE_INDICES                 0
+#define LIBDAS_COMPACT_INDICES                  1
+
 
 /// Animation interpolation technique definitions 
 typedef uint8_t InterpolationType;
@@ -110,37 +107,83 @@ namespace Libdas {
      * DAS scope structure that defines mesh related information
      */
     struct DasMesh {
+        ~DasMesh() {
+            delete [] primitives;
+        }
+
         std::string name = "";
-        // buffer ids with values UINT32_MAX are reserved values, indicating that no value is used
-        uint32_t index_buffer_id = 0;
+        uint32_t primitive_count = 0;
+        uint32_t *primitives = nullptr;
+
+        enum ValueType {
+            LIBDAS_MESH_NAME,
+            LIBDAS_MESH_PRIMITIVE_COUNT,
+            LIBDAS_MESH_PRIMITIVES
+        } val_type;
+    };
+
+
+    /**
+     * DAS scope structure that defines mesh primitive related information
+     */
+    struct DasMeshPrimitive {
+        ~DasMeshPrimitive() {
+            delete [] morph_targets;
+            delete [] morph_weights;
+        }
+
+        uint32_t index_buffer_id = UINT32_MAX;
         uint32_t index_buffer_offset = 0;
         uint32_t indices_count = 0;
-        uint32_t vertex_buffer_id = 0;
+        uint32_t vertex_buffer_id = UINT32_MAX;
         uint32_t vertex_buffer_offset = 0;
-        uint32_t texture_id = UINT32_MAX; 
+        uint32_t texture_id = UINT32_MAX;
         uint32_t texture_map_buffer_id = UINT32_MAX;
         uint32_t texture_map_buffer_offset = 0;
         uint32_t vertex_normal_buffer_id = UINT32_MAX;
         uint32_t vertex_normal_buffer_offset = 0;
-        uint32_t vertex_tangent_buffer_id = UINT32_MAX;
-        uint32_t vertex_tangent_buffer_offset = 0;
-        PrimitiveAttribute primitive_attrs = 0;
+        uint32_t morph_target_count = 0;
+        uint32_t *morph_targets = nullptr;
+        uint32_t *morph_weights = nullptr;
+        IndexingMode indexing_mode;
 
         enum ValueType {
-            LIBDAS_MESH_NAME,
-            LIBDAS_MESH_INDEX_BUFFER_ID,
-            LIBDAS_MESH_INDEX_BUFFER_OFFSET,
-            LIBDAS_MESH_INDICES_COUNT,
-            LIBDAS_MESH_VERTEX_BUFFER_ID,
-            LIBDAS_MESH_VERTEX_BUFFER_OFFSET,
-            LIBDAS_MESH_TEXTURE_ID,
-            LIBDAS_MESH_TEXTURE_MAP_BUFFER_ID,
-            LIBDAS_MESH_TEXTURE_MAP_BUFFER_OFFSET,
-            LIBDAS_MESH_VERTEX_NORMAL_BUFFER_ID,
-            LIBDAS_MESH_VERTEX_NORMAL_BUFFER_OFFSET,
-            LIBDAS_MESH_VERTEX_TANGENT_BUFFER_ID,
-            LIBDAS_MESH_VERTEX_TANGENT_BUFFER_OFFSET,
-            LIBDAS_MESH_PRIMITIVE_ATTRIBUTE_FLAG
+            LIBDAS_MESH_PRIMITIVE_INDEX_BUFFER_ID,
+            LIBDAS_MESH_PRIMITIVE_INDEX_BUFFER_OFFSET,
+            LIBDAS_MESH_PRIMITIVE_INDICES_COUNT,
+            LIBDAS_MESH_PRIMITIVE_INDEXING_MODE,
+            LIBDAS_MESH_PRIMITIVE_VERTEX_BUFFER_ID,
+            LIBDAS_MESH_PRIMITIVE_VERTEX_BUFFER_OFFSET,
+            LIBDAS_MESH_PRIMITIVE_TEXTURE_ID,
+            LIBDAS_MESH_PRIMITIVE_TEXTURE_MAP_BUFFER_ID,
+            LIBDAS_MESH_PRIMITIVE_TEXTURE_MAP_BUFFER_OFFSET,
+            LIBDAS_MESH_PRIMITIVE_VERTEX_NORMAL_BUFFER_ID,
+            LIBDAS_MESH_PRIMITIVE_VERTEX_NORMAL_BUFFER_OFFSET,
+            LIBDAS_MESH_PRIMITIVE_MORPH_TARGET_COUNT,
+            LIBDAS_MESH_PRIMITIVE_MORPH_TARGETS,
+            LIBDAS_MESH_PRIMITIVE_MORPH_WEIGHTS,
+        } val_type;
+    };
+
+
+    /**
+     * DAS scope structure that defines mesh morph target related information
+     */
+    struct DasMorphTarget {
+        uint32_t vertex_buffer_id = UINT32_MAX;
+        uint32_t vertex_buffer_offset = 0;
+        uint32_t vertex_normal_buffer_id = UINT32_MAX;
+        uint32_t vertex_normal_buffer_offset = UINT32_MAX;
+        uint32_t texture_map_buffer_id = UINT32_MAX;
+        uint32_t texture_map_buffer_offset = 0;
+
+        enum ValueType {
+            LIBDAS_MORPH_TARGET_VERTEX_BUFFER_ID,
+            LIBDAS_MORPH_TARGET_VERTEX_BUFFER_OFFSET,
+            LIBDAS_MORPH_TARGET_VERTEX_NORMAL_BUFFER_ID,
+            LIBDAS_MORPH_TARGET_VERTEX_NORMAL_BUFFER_OFFSET,
+            LIBDAS_MORPH_TARGET_TEXTURE_MAP_BUFFER_ID,
+            LIBDAS_MORPH_TARGET_TEXTURE_MAP_BUFFER_OFFSET
         } val_type;
     };
 
@@ -171,6 +214,7 @@ namespace Libdas {
         uint32_t *animations = nullptr;
         uint32_t skeleton_count = 0;
         uint32_t *skeletons = nullptr;
+        uint32_t weight_buffer_offset = 0;
         Matrix4<float> transform;
 
         // value types

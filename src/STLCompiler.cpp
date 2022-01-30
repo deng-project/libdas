@@ -22,6 +22,8 @@ namespace Libdas {
 
         uint32_t max_pos = 0;
         uint32_t max_norm = 0;
+
+        size_t offset = 0;
         for(const STLObject &obj : _objects) {
             for(size_t i = 0; i < obj.facets.size(); i++) {
                 std::array<uint32_t, 2> index;
@@ -43,13 +45,16 @@ namespace Libdas {
                     else {
                         index[0] = max_pos;
                         max_pos++;
-                        m_unique_verts.push_back(Point4D<float>(pos));
+                        m_unique_verts.push_back(pos);
                         pos_map[pos] = index[0];
                     }
                 }
 
                 m_indices.push_back(index);
             }
+
+            m_offsets.push_back(offset);
+            offset += obj.facets.size();
         }
     }
 
@@ -62,7 +67,7 @@ namespace Libdas {
 
         // create position vertices buffer
         buffers[0].type = LIBDAS_BUFFER_TYPE_VERTEX;
-        buffers[0].data_len = m_unique_verts.size() * sizeof(Point4D<float>);
+        buffers[0].data_len = static_cast<uint32_t>(m_unique_verts.size() * sizeof(Point3D<float>));
         buffers[0].data_ptrs.push_back(std::make_pair(reinterpret_cast<const char*>(m_unique_verts.data()), buffers[0].data_len));
 
         // create vertex normal buffer
@@ -79,32 +84,42 @@ namespace Libdas {
     }
 
 
-    std::vector<DasMesh> STLCompiler::_CreateMeshes(const std::vector<STLObject> &_objects) {
-        std::vector<DasMesh> meshes(_objects.size());
-        uint32_t m_offset = 0;
-        for(size_t i = 0; i < _objects.size(); i++) {
-            meshes[i].name = _objects[i].name;
-            meshes[i].vertex_buffer_id = VERTICES_ID;
-            meshes[i].vertex_normal_buffer_id = NORMALS_ID;
-            meshes[i].index_buffer_id = INDICES_ID;
-            meshes[i].index_buffer_offset = m_offset;
-            meshes[i].primitive_attrs = LIBDAS_PRIMITIVE_ATTRIBUTE_VERTEX | LIBDAS_PRIMITIVE_ATTRIBUTE_VERTEX_NORMAL;
-            meshes[i].indices_count = static_cast<uint32_t>(m_indices.size());
-            m_offset += static_cast<uint32_t>(m_indices.size() * sizeof(uint32_t[2]));
+    std::vector<DasMeshPrimitive> STLCompiler::_CreateMeshPrimitives(const std::vector<STLObject> &_objects) {
+        std::vector<DasMeshPrimitive> primitives(_objects.size());
+
+        for(size_t i = 0; i < primitives.size(); i++) {
+            DasMeshPrimitive prim;
+            prim.index_buffer_id = INDICES_ID;
+            prim.index_buffer_offset = static_cast<uint32_t>(m_offsets[i]);
+            prim.indices_count = static_cast<uint32_t>(_objects[i].facets.size() * 3);
+            prim.indexing_mode = LIBDAS_SEPERATE_INDICES;
+            prim.vertex_buffer_id = VERTICES_ID;
+            prim.vertex_normal_buffer_id = NORMALS_ID;
+
+            primitives.push_back(prim);
         }
 
-        return meshes;
+        return primitives;
     }
 
 
-    void STLCompiler::_CreateDefaultScene(std::vector<DasMesh> &_meshes) {
+    DasMesh STLCompiler::_CreateMesh(uint32_t _primitive_count) {
+        DasMesh mesh;
+        mesh.primitive_count = _primitive_count;
+        mesh.primitives = new uint32_t[_primitive_count];
+
+        for(uint32_t i = 0; i < _primitive_count; i++)
+            mesh.primitives[i] = i;
+        return mesh;
+    }
+
+
+    void STLCompiler::_CreateDefaultScene() {
         // create a scene node
         DasNode node;
-        node.mesh_count = static_cast<uint32_t>(_meshes.size());
-        node.meshes = new uint32_t[node.mesh_count];
-
-        for(uint32_t i = 0; i < node.mesh_count; i++)
-            node.meshes[i] = i;
+        node.mesh_count = 1;
+        node.meshes = new uint32_t;
+        node.meshes[0] = 0;
 
         WriteNode(node);
 
@@ -112,7 +127,7 @@ namespace Libdas {
         DasScene scene;
         scene.name = "Imported from STL";
         scene.node_count = 1;
-        scene.nodes = new uint32_t[1];
+        scene.nodes = new uint32_t;
         scene.nodes[0] = 0;
         
         WriteScene(scene);
@@ -133,13 +148,14 @@ namespace Libdas {
         for(DasBuffer &buf : buffers)
             WriteBuffer(buf);
 
-        // write all mesh objects to the file
-        std::vector<DasMesh> meshes = _CreateMeshes(_objects);
-        for(DasMesh &mesh : meshes)
-            WriteMesh(mesh);
+        std::vector<DasMeshPrimitive> mesh_primitives = _CreateMeshPrimitives(_objects);
+        for(DasMeshPrimitive &prim : mesh_primitives)
+            WriteMeshPrimitive(prim);
+
+        // write mesh object to the file
+        WriteMesh(_CreateMesh(static_cast<uint32_t>(mesh_primitives.size())));
 
         // generate a default scene if possible
-        if(meshes.size()) 
-            _CreateDefaultScene(meshes);
+        _CreateDefaultScene();
     }
 }

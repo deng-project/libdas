@@ -59,9 +59,8 @@ namespace Libdas {
 
             const std::unordered_map<std::string, BufferType> m_attribute_type_map = {
                 std::make_pair("POSITION", LIBDAS_BUFFER_TYPE_VERTEX),
-                std::make_pair("NORMAL", LIBDAS_BUFFER_TYPE_VERTEX_NORMAL),
-                std::make_pair("TANGENT", LIBDAS_BUFFER_TYPE_VERTEX_TANGENT),
                 std::make_pair("TEXCOORD_", LIBDAS_BUFFER_TYPE_TEXTURE_MAP),
+                std::make_pair("NORMAL", LIBDAS_BUFFER_TYPE_VERTEX_NORMAL),
                 std::make_pair("COLOR_", LIBDAS_BUFFER_TYPE_COLOR),
                 std::make_pair("JOINTS_", LIBDAS_BUFFER_TYPE_JOINTS),
                 std::make_pair("WEIGHTS_", LIBDAS_BUFFER_TYPE_WEIGHTS)
@@ -82,7 +81,9 @@ namespace Libdas {
 
                 struct less {
                     bool operator()(const IndexSupplementationInfo &_s1, const IndexSupplementationInfo &_s2) {
-                        return _s1.buffer_offset < _s2.buffer_offset;
+                        if(_s1.buffer_offset == _s2.buffer_offset)
+                            return _s1.used_size > _s2.used_size;
+                        else return _s1.buffer_offset < _s2.buffer_offset;
                     }
                 };
 
@@ -93,10 +94,12 @@ namespace Libdas {
 
         private:
             BufferAccessorData _FindAccessorData(const GLTFRoot &_root, int32_t _accessor_id);
-            size_t _SupplementIndices(const char *_odata, IndexSupplementationInfo &_suppl_info, DasBuffer &_buffer);
+            uint32_t _SupplementIndices(const char *_odata, IndexSupplementationInfo &_suppl_info, DasBuffer &_buffer);
             std::vector<std::vector<GLTFAccessor*>> _GetAllBufferAccessorRegions(GLTFRoot &_root);
-            std::vector<std::vector<IndexSupplementationInfo>> _GetBufferIndexRegions(const GLTFRoot &_root);
+            std::vector<std::vector<IndexSupplementationInfo>> _GetBufferIndexRegions(GLTFRoot &_root);
             void _CorrectOffsets(std::vector<GLTFAccessor*> &_accessors, size_t _diff, size_t _offset);
+            uint32_t _EnumerateMeshMorphTargets(DasMesh &_mesh, GLTFMeshPrimitive &_primitive);
+            size_t _FindPrimitiveCount(const GLTFRoot &_root);
 
             /**
              * Augment index buffers to uint32_t type and set all offsets correctly
@@ -128,6 +131,16 @@ namespace Libdas {
              * @return std::vector instance containing all DasBuffer objects
              */
             std::vector<DasBuffer> _CreateBuffers(const GLTFRoot &_root, const std::vector<std::string> &_embedded_textures);
+            /**
+             * Create DasMorphTarget instances from given meshes 
+             * @param _root specifies a reference to GLTFRoot object that contains all necessary information
+             */
+            std::vector<DasMorphTarget> _CreateMorphTargets(const GLTFRoot &_root);
+            /**
+             * Create DasMeshPrimitive instances from given meshes
+             * @param _root specifies a reference to GLTFRoot object that contains all necessary information 
+             */
+            std::vector<DasMeshPrimitive> _CreateMeshPrimitives(const GLTFRoot &_root);
             /**
              * Create DasMesh instances from GLTF meshes
              * @param _root specifies a reference to GLTFRoot object, where all GLTF data is stored

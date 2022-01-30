@@ -60,18 +60,24 @@ namespace Libdas {
              */
             std::vector<DasBuffer> _CreateBuffers(const std::vector<WavefrontObjGroup> &_groups, const std::vector<std::string> &_embedded_textures);
             /**
-             * Look into WavefrontObjGroups and determine all models with correct buffer offset values
+             * Look into WavefrontObjGroups and determine all mesh primitives with correct buffer offset values
              * @param _groups is a reference to std::vector<WavefrontObjGroup> instance that contains all parsed
              * Wavefront OBJ groups
-             * @return std::vector<DasModel> instance that has contains all information about models and their correct
+             * @return std::vector<DasMeshPrimitive> instance that has contains all information about primitives and their correct
              * buffer offsets
              */
-            std::vector<DasMesh> _CreateMeshes(const std::vector<WavefrontObjGroup> &_groups);
+            std::vector<DasMeshPrimitive> _CreateMeshPrimitives(const std::vector<WavefrontObjGroup> &_groups);
+            /**
+             * Create a single mesh instance from all associated mesh primitives
+             * @param _primitive_size specifies the total amount of mesh primitives to consider
+             * @return DasMesh instance
+             */
+            DasMesh _CreateMesh(uint32_t _primitive_size);
             /**
              * Create a root scene and nodes out of all meshes
              * @param _meshes specifies a reference to std::vector instance containing information about all meshes
              */
-            void _CreateRootScene(std::vector<DasMesh> &_meshes);
+            void _CreateRootScene();
 
         public:
             WavefrontObjCompiler(const std::string &_out_file = "");

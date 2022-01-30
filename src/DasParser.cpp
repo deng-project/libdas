@@ -22,8 +22,19 @@ namespace Libdas {
                 m_buffers.push_back(std::move(std::any_cast<DasBuffer&>(_any_scope)));
                 break;
 
+            case LIBDAS_DAS_SCOPE_MESH_PRIMITIVE:
+                m_mesh_primitives.push_back(std::move(std::any_cast<DasMeshPrimitive&>(_any_scope)));
+                std::any_cast<DasMeshPrimitive&>(_any_scope).morph_targets = nullptr;
+                std::any_cast<DasMeshPrimitive&>(_any_scope).morph_weights = nullptr;
+                break;
+
+            case LIBDAS_DAS_SCOPE_MORPH_TARGET:
+                m_morph_targets.push_back(std::move(std::any_cast<DasMorphTarget&>(_any_scope)));
+                break;
+
             case LIBDAS_DAS_SCOPE_MESH:
                 m_meshes.push_back(std::move(std::any_cast<DasMesh&>(_any_scope)));
+                std::any_cast<DasMesh&>(_any_scope).primitives = nullptr;
                 break;
 
             case LIBDAS_DAS_SCOPE_NODE:

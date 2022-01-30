@@ -7,11 +7,14 @@
 #include <memory>
 #include <cfloat>
 #include <fstream>
+#include <cmath>
+#include <cstring>
 
 #include <Api.h>
 #include <Points.h>
 #include <Vector.h>
 #include <Matrix.h>
+#include <Quaternion.h>
 #include <ErrorHandlers.h>
 #include <AsciiStreamReader.h>
 #include <JSONParser.h>

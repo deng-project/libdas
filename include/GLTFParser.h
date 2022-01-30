@@ -20,12 +20,14 @@
     #include <unordered_map>
     #include <vector>
     #include <cfloat>
+    #include <cmath>
 
     #include <Api.h>
     #include <Iterators.h>
     #include <Points.h>
     #include <Vector.h>
     #include <Matrix.h>
+    #include <Quaternion.h>
     #include <LibdasAssert.h>
     #include <ErrorHandlers.h>
 #define LIBDAS_DEFS_ONLY

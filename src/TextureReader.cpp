@@ -27,7 +27,7 @@ namespace Libdas {
 
         if(_use_raw) {
             int n;
-            m_raw_buffer = reinterpret_cast<char*>(stbi_load_from_memory(reinterpret_cast<unsigned char* const>(m_buffer),
+            m_raw_buffer = reinterpret_cast<char*>(stbi_load_from_memory(reinterpret_cast<unsigned char*>(m_buffer),
                                                                          static_cast<int>(m_buffer_size), &m_x, &m_y, &n, 4));
             m_raw_buffer_size = static_cast<size_t>(m_x * m_y * 4);
         }

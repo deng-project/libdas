@@ -61,12 +61,11 @@ namespace Libdas {
                 std::make_pair("POSITION", LIBDAS_BUFFER_TYPE_VERTEX),
                 std::make_pair("TEXCOORD_", LIBDAS_BUFFER_TYPE_TEXTURE_MAP),
                 std::make_pair("NORMAL", LIBDAS_BUFFER_TYPE_VERTEX_NORMAL),
+                std::make_pair("TANGENT", LIBDAS_BUFFER_TYPE_VERTEX_TANGENT),
                 std::make_pair("COLOR_", LIBDAS_BUFFER_TYPE_COLOR),
                 std::make_pair("JOINTS_", LIBDAS_BUFFER_TYPE_JOINTS),
                 std::make_pair("WEIGHTS_", LIBDAS_BUFFER_TYPE_WEIGHTS)
             };
-
-            std::vector<int32_t> m_image_buffer_views;
 
             struct BufferAccessorData {
                 uint32_t buffer_id = 0;
@@ -92,14 +91,25 @@ namespace Libdas {
                 }
             };
 
+            std::vector<uint32_t> m_scene_node_id_table;
+            std::vector<uint32_t> m_skeleton_joint_id_table;
+
         private:
             BufferAccessorData _FindAccessorData(const GLTFRoot &_root, int32_t _accessor_id);
             uint32_t _SupplementIndices(const char *_odata, IndexSupplementationInfo &_suppl_info, DasBuffer &_buffer);
             std::vector<std::vector<GLTFAccessor*>> _GetAllBufferAccessorRegions(GLTFRoot &_root);
             std::vector<std::vector<IndexSupplementationInfo>> _GetBufferIndexRegions(GLTFRoot &_root);
             void _CorrectOffsets(std::vector<GLTFAccessor*> &_accessors, size_t _diff, size_t _offset);
-            uint32_t _EnumerateMeshMorphTargets(DasMesh &_mesh, GLTFMeshPrimitive &_primitive);
             size_t _FindPrimitiveCount(const GLTFRoot &_root);
+            std::vector<size_t> _FindMeshNodes(const GLTFRoot &_root, size_t _mesh_index); // O(n)
+            const std::vector<float> _FindMorphWeightsFromNodes(const GLTFRoot &_root, size_t _mesh_index); // O(n)
+
+            // node flagging method
+            void _FlagJointNodes(const GLTFRoot &_root);
+
+            // common parent root finding methods
+            bool _IsRootNode(const GLTFRoot &_root, int32_t _node_id, const std::vector<int32_t> &_pool);
+            uint32_t _FindCommonRootJoint(const GLTFRoot &_root, const GLTFSkin &_skin);
 
             /**
              * Augment index buffers to uint32_t type and set all offsets correctly
@@ -107,70 +117,88 @@ namespace Libdas {
              * @param _buffers specifies a DasBuffer vector, containing all generated buffer instances
              */
             void _StrideIndexBuffers(const GLTFRoot &_root, std::vector<DasBuffer> &_buffers);
+
             /**
              * Check if any properties are empty and if they are, supplement values from GLTFRoot::asset into it
              * @param _root specifies a reference to GLTFRoot object, where potentially supplement values are held
              * @param _props specifies a reference to DasProperties, where supplementable values are held
              */
             void _CheckAndSupplementProperties(const GLTFRoot &_root, DasProperties &_props);
+
             /**
              * Give buffers appropriate flags according to meshes
              * @param _root specifies a reference to GLTFRoot object
              * @param _buffers specifies a reference to std::vector object, containing all generated buffer instances
              */
             void _FlagBuffersAccordingToMeshes(const GLTFRoot &_root, std::vector<DasBuffer> &_buffers);
+
             /**
              * Give buffers appropriate flags according to animations
              * @param _root specifies a reference to GLTFRoot object
              * @param _buffers specifies a reference to std::vector object, containing all generated buffer instances
              */
             void _FlagBuffersAccordingToAnimations(const GLTFRoot &_root, std::vector<DasBuffer> &_buffers);
+
             /**
              * Create all buffer objects from given root node
              * @param _root specifies a reference to GLTFRoot object, where all GLTF data is stored
              * @return std::vector instance containing all DasBuffer objects
              */
             std::vector<DasBuffer> _CreateBuffers(const GLTFRoot &_root, const std::vector<std::string> &_embedded_textures);
+
             /**
              * Create DasMorphTarget instances from given meshes 
              * @param _root specifies a reference to GLTFRoot object that contains all necessary information
              */
             std::vector<DasMorphTarget> _CreateMorphTargets(const GLTFRoot &_root);
+
             /**
              * Create DasMeshPrimitive instances from given meshes
              * @param _root specifies a reference to GLTFRoot object that contains all necessary information 
              */
             std::vector<DasMeshPrimitive> _CreateMeshPrimitives(const GLTFRoot &_root);
+
             /**
              * Create DasMesh instances from GLTF meshes
              * @param _root specifies a reference to GLTFRoot object, where all GLTF data is stored
              * @return std::vector instance containing all DasMesh objects
              */
             std::vector<DasMesh> _CreateMeshes(const GLTFRoot &_root);
+
             /**
              * Create DasNodes from GLTF nodes
              * @param _root specifies a reference to GLTFRoot object, where all GLTF data is stored
              * @return std::vector instance containing all DasNode objects
              */
             std::vector<DasNode> _CreateNodes(const GLTFRoot &_root);
+
             /**
              * Create DasScene instances from GLTF scenes
              * @param _root specifies a reference to GLTFRoot object, where all GLTF data is stored
              * @return std::vector instance containing all DasScene objects
              */
             std::vector<DasScene> _CreateScenes(const GLTFRoot &_root);
+
+            /**
+             * Create DasSkeletonJoint instances from given GLTF skin nodes
+             * @param _root specifies a reference to GLTFRoot object, where all GLTF data is stored
+             * @return std::vector instance containing all DasSkeletonJoint objects
+             */
+            std::vector<DasSkeletonJoint> _CreateSkeletonJoints(const GLTFRoot &_root, const std::vector<DasBuffer> &_buffers);
+
             /**
              * Create DasSkeleton instances from given GLTF skins
              * @param _root specifies a reference to GLTFRoot object, where all GLTF data is stored
              * @return std::vector instance containing all DasSkeleton objects
              */
             std::vector<DasSkeleton> _CreateSkeletons(const GLTFRoot &_root);
+
             /**
-             * Create DasSkeletonJoint instances from given GLTF skin nodes
-             * @param _root specifies a reference to GLTFRoot object, where all GLTF data is stored
-             * @return std::vector instance containing all DasSkeletonJoint objects
+             * Create DasAnimationChannel instances from given GLTF animations
+             * @param _root specifies a reference to GLTFRoot object
              */
-            std::vector<DasSkeletonJoint> _CreateSkeletonJoints(const GLTFRoot &_root);
+            std::vector<DasAnimationChannel> _CreateAnimationChannels(const GLTFRoot &_root);
+
             /**
              * Analyse and create DasAnimation instances from GLTF animations
              * @param _root specifies a reference to GLTFRoot object, where all GLTF data is stored

@@ -21,7 +21,6 @@ namespace Libdas {
         std::unordered_map<Point3D<float>, uint32_t> norm_map;
 
         uint32_t max_pos = 0;
-        uint32_t max_norm = 0;
 
         size_t offset = 0;
         for(const STLObject &obj : _objects) {
@@ -117,9 +116,7 @@ namespace Libdas {
     void STLCompiler::_CreateDefaultScene() {
         // create a scene node
         DasNode node;
-        node.mesh_count = 1;
-        node.meshes = new uint32_t;
-        node.meshes[0] = 0;
+        node.mesh = 0;
 
         WriteNode(node);
 

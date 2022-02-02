@@ -204,7 +204,7 @@ namespace Libdas {
         if(_primitive.morph_target_count) {
             _WriteNumericalValue<uint32_t>("MORPHTARGETCOUNT", _primitive.morph_target_count);
             _WriteArrayValue<uint32_t>("MORPHTARGETS", _primitive.morph_target_count, _primitive.morph_targets);
-            _WriteArrayValue<uint32_t>("MORPHWEIGHTS", _primitive.morph_target_count, _primitive.morph_weights);
+            _WriteArrayValue<float>("MORPHWEIGHTS", _primitive.morph_target_count, _primitive.morph_weights);
         }
 
         _EndScope();
@@ -258,18 +258,11 @@ namespace Libdas {
             _WriteNumericalValue<uint32_t>("CHILDRENCOUNT", _node.children_count);
             _WriteArrayValue<uint32_t>("CHILDREN", _node.children_count, _node.children);
         }
-        if(_node.mesh_count) {
-            _WriteNumericalValue<uint32_t>("MESHCOUNT", _node.mesh_count);
-            _WriteArrayValue<uint32_t>("MESHES", _node.mesh_count, _node.meshes);
-        }
-        if(_node.animation_count) {
-            _WriteNumericalValue<uint32_t>("ANIMATIONCOUNT", _node.animation_count);
-            _WriteArrayValue<uint32_t>("ANIMATIONS", _node.animation_count, _node.animations);
-        }
-        if(_node.skeleton_count) {
-            _WriteNumericalValue<uint32_t>("SKELETONCOUNT", _node.skeleton_count);
-            _WriteArrayValue<uint32_t>("SKELETONS", _node.skeleton_count, _node.skeletons);
-        }
+        if(_node.mesh != UINT32_MAX)
+            _WriteNumericalValue<uint32_t>("MESH", _node.mesh);
+        if(_node.skeleton != UINT32_MAX)
+            _WriteNumericalValue<uint32_t>("SKELETON", _node.skeleton);
+
         _WriteMatrixValue<float>("TRANSFORM", _node.transform);
 
         _EndScope();
@@ -301,10 +294,26 @@ namespace Libdas {
         _WriteMatrixValue<float>("INVERSEBINDPOS", _joint.inverse_bind_pos);
 
         if(_joint.name != "") _WriteStringValue("NAME", _joint.name);
-        _WriteNumericalValue<uint32_t>("PARENT", _joint.parent);
+        _WriteNumericalValue<uint32_t>("CHILDRENCOUNT", _joint.children_count);
+        _WriteArrayValue<uint32_t>("CHILDREN", _joint.children_count, _joint.children);
         _WriteNumericalValue<float>("SCALE", _joint.scale);
         _WriteGenericDataValue(reinterpret_cast<const char*>(&_joint.rotation), sizeof(Quaternion), true, "ROTATION");
-        _WriteGenericDataValue(reinterpret_cast<const char*>(&_joint.translation), sizeof(Vector3<float>), true, "TRANSLATION");
+        _WriteGenericDataValue(reinterpret_cast<const char*>(&_joint.translation), sizeof(Point3D<float>), true, "TRANSLATION");
+
+        _EndScope();
+    }
+
+
+    void DasWriterCore::WriteAnimationChannel(const DasAnimationChannel &_channel) {
+        _WriteScopeBeginning("ANIMATIONCHANNEL");
+        _WriteNumericalValue<uint32_t>("NODEID", _channel.node_id);
+        _WriteNumericalValue<AnimationTarget>("TARGET", _channel.target);
+        _WriteNumericalValue<InterpolationType>("INTERPOLATION", _channel.interpolation);
+        _WriteNumericalValue<uint32_t>("KEYFRAMECOUNT", _channel.keyframe_count);
+        _WriteNumericalValue<uint32_t>("KEYFRAMEBUFFERID", _channel.keyframe_buffer_id);
+        _WriteNumericalValue<uint32_t>("KEYFRAMEBUFFEROFFSET", _channel.keyframe_buffer_offset);
+        _WriteNumericalValue<uint32_t>("TARGETVALUEBUFFERID", _channel.target_value_buffer_id);
+        _WriteNumericalValue<uint32_t>("TARGETVALUEBUFFEROFFSET", _channel.target_value_buffer_offset);
 
         _EndScope();
     }
@@ -313,14 +322,8 @@ namespace Libdas {
     void DasWriterCore::WriteAnimation(const DasAnimation &_animation) {
         _WriteScopeBeginning("ANIMATION");
         if(_animation.name != "") _WriteStringValue("NAME", _animation.name);
-        _WriteNumericalValue<uint32_t>("NODEID", _animation.node_id);
-        _WriteNumericalValue<uint32_t>("DURATION", _animation.duration);
-        _WriteNumericalValue<uint32_t>("KEYFRAMECOUNT", _animation.keyframe_count);
-        _WriteArrayValue<float>("KEYFRAMETIMESTAMPS", _animation.keyframe_count, _animation.keyframe_timestamps);
-        _WriteArrayValue<InterpolationType>("INTERPOLATIONTYPES", _animation.keyframe_count, _animation.interpolation_types);
-        _WriteArrayValue<AnimationTarget>("ANIMATIONTYPES", _animation.keyframe_count, _animation.animation_targets);
-        _WriteNumericalValue<uint32_t>("KEYFRAMEBUFFERID", _animation.keyframe_buffer_id);
-        _WriteNumericalValue<uint32_t>("KEYFRAMEBUFFEROFFSET", _animation.keyframe_buffer_offset);
+        _WriteNumericalValue<uint32_t>("CHANNELCOUNT", _animation.channel_count);
+        _WriteArrayValue<uint32_t>("CHANNELS", _animation.channel_count, _animation.channels);
 
         _EndScope();
     }

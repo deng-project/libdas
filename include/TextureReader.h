@@ -20,6 +20,7 @@
     #include <Api.h>
     #include <Vector.h>
     #include <Matrix.h>
+    #include <Points.h>
     #include <Quaternion.h>
     #include <DasStructures.h>
 

@@ -9,61 +9,65 @@
 namespace Libdas {
 
     DasParser::DasParser(const std::string &_file_name) : 
-        DasReaderCore(_file_name) {}
+        DasReaderCore(_file_name) 
+    {
+        // some default reservation values
+        m_buffers.reserve(4);
+        m_meshes.reserve(10);
+        m_mesh_primitives.reserve(40);
+        m_morph_targets.reserve(30);
+        m_nodes.reserve(10);
+        m_scenes.reserve(2);
+        m_joints.reserve(32);
+        m_skeletons.reserve(4);
+        m_animations.reserve(10);
+    }
 
 
     void DasParser::_DataCast(std::any &_any_scope, DasScopeType _type) {
         switch(_type) {
             case LIBDAS_DAS_SCOPE_PROPERTIES:
-                m_props = std::move(std::any_cast<DasProperties&>(_any_scope));
+                m_props = std::any_cast<DasProperties&&>(std::move(_any_scope));
                 break;
 
             case LIBDAS_DAS_SCOPE_BUFFER:
-                m_buffers.push_back(std::move(std::any_cast<DasBuffer&>(_any_scope)));
+                m_buffers.emplace_back(std::any_cast<DasBuffer&&>(std::move(_any_scope)));
                 break;
 
             case LIBDAS_DAS_SCOPE_MESH_PRIMITIVE:
-                m_mesh_primitives.push_back(std::move(std::any_cast<DasMeshPrimitive&>(_any_scope)));
-                std::any_cast<DasMeshPrimitive&>(_any_scope).morph_targets = nullptr;
-                std::any_cast<DasMeshPrimitive&>(_any_scope).morph_weights = nullptr;
+                m_mesh_primitives.emplace_back(std::any_cast<DasMeshPrimitive&&>(std::move(_any_scope)));
                 break;
 
             case LIBDAS_DAS_SCOPE_MORPH_TARGET:
-                m_morph_targets.push_back(std::move(std::any_cast<DasMorphTarget&>(_any_scope)));
+                m_morph_targets.emplace_back(std::any_cast<DasMorphTarget&&>(std::move(_any_scope)));
                 break;
 
             case LIBDAS_DAS_SCOPE_MESH:
-                m_meshes.push_back(std::move(std::any_cast<DasMesh&>(_any_scope)));
-                std::any_cast<DasMesh&>(_any_scope).primitives = nullptr;
+                m_meshes.emplace_back(std::any_cast<DasMesh&&>(std::move(_any_scope)));
                 break;
 
             case LIBDAS_DAS_SCOPE_NODE:
-                m_nodes.push_back(std::move(std::any_cast<DasNode&>(_any_scope)));
-                std::any_cast<DasNode&>(_any_scope).children = nullptr;
-                std::any_cast<DasNode&>(_any_scope).meshes = nullptr;
-                std::any_cast<DasNode&>(_any_scope).animations = nullptr;
-                std::any_cast<DasNode&>(_any_scope).skeletons = nullptr;
+                m_nodes.emplace_back(std::any_cast<DasNode&&>(std::move(_any_scope)));
                 break;
 
             case LIBDAS_DAS_SCOPE_SCENE:
-                m_scenes.push_back(std::move(std::any_cast<DasScene&>(_any_scope)));
-                std::any_cast<DasScene&>(_any_scope).nodes = nullptr;
+                m_scenes.emplace_back(std::any_cast<DasScene&&>(std::move(_any_scope)));
                 break;
 
             case LIBDAS_DAS_SCOPE_SKELETON:
-                m_skeletons.push_back(std::move(std::any_cast<DasSkeleton&>(_any_scope)));
-                std::any_cast<DasSkeleton&>(_any_scope).joints = nullptr;
+                m_skeletons.emplace_back(std::any_cast<DasSkeleton&&>(std::move(_any_scope)));
                 break;
 
             case LIBDAS_DAS_SCOPE_SKELETON_JOINT:
-                m_joints.push_back(std::move(std::any_cast<DasSkeletonJoint&>(_any_scope)));
+                m_joints.emplace_back(std::any_cast<DasSkeletonJoint&&>(std::move(_any_scope)));
+                break;
+
+            case LIBDAS_DAS_SCOPE_ANIMATION_CHANNEL:
+                m_channels.emplace_back(std::any_cast<DasAnimationChannel&&>(std::move(_any_scope)));
                 break;
 
             case LIBDAS_DAS_SCOPE_ANIMATION:
-                m_animations.push_back(std::move(std::any_cast<DasAnimation&>(_any_scope)));
-                std::any_cast<DasAnimation&>(_any_scope).keyframe_timestamps = nullptr;
-                std::any_cast<DasAnimation&>(_any_scope).interpolation_types = nullptr;
-                std::any_cast<DasAnimation&>(_any_scope).animation_targets = nullptr;
+                m_animations.emplace_back(std::any_cast<DasAnimation&&>(std::move(_any_scope)));
                 break;
 
             default:
@@ -88,7 +92,16 @@ namespace Libdas {
             _DataCast(any_scope, type);
         } while(true);
 
-        if(_clean_read)
-            CloseFile();
+        if(_clean_read) CloseFile();
+
+        m_buffers.shrink_to_fit();
+        m_meshes.shrink_to_fit();
+        m_mesh_primitives.shrink_to_fit();
+        m_morph_targets.shrink_to_fit();
+        m_nodes.shrink_to_fit();
+        m_scenes.shrink_to_fit();
+        m_joints.shrink_to_fit();
+        m_skeletons.shrink_to_fit();
+        m_animations.shrink_to_fit();
     }
 }

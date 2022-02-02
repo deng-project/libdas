@@ -19,6 +19,7 @@
     #include <Api.h>
     #include <Vector.h>
     #include <Matrix.h>
+    #include <Points.h>
     #include <Quaternion.h>
     #include <ErrorHandlers.h>
     #include <AsciiStreamReader.h>
@@ -40,6 +41,7 @@ namespace Libdas {
             std::vector<DasScene> m_scenes;
             std::vector<DasSkeletonJoint> m_joints;
             std::vector<DasSkeleton> m_skeletons;
+            std::vector<DasAnimationChannel> m_channels;
             std::vector<DasAnimation> m_animations;
 
         private:

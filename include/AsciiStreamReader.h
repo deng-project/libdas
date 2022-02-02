@@ -43,12 +43,12 @@ namespace Libdas {
         private:
             const std::string m_end;
             std::ifstream m_stream;
-            size_t m_stream_size = 0;
 
         protected:
             char *m_buffer;
             size_t m_buffer_size;
             size_t m_last_read = 0;
+            size_t m_stream_size = 0;
 
         protected:
             AsciiStreamReader(const std::string &_file_name = "", size_t _chunk_size = DEFAULT_CHUNK, const std::string &_end = "\n");

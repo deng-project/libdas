@@ -509,6 +509,8 @@ namespace Libdas {
             std::make_pair("extensions", GLTFUniversalScopeValue { &_tex_info.extensions, GLTF_TYPE_EXTRAS_OR_EXTENSIONS } ),
             std::make_pair("extras", GLTFUniversalScopeValue { &_tex_info.extras, GLTF_TYPE_EXTRAS_OR_EXTENSIONS } ),
         };
+
+        _IterateSubNodes(_node, values);
     }
 
 

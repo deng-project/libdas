@@ -210,6 +210,90 @@ namespace Libdas {
     }
 
 
+    std::vector<size_t> GLTFCompiler::_FindMeshNodes(const GLTFRoot &_root, size_t _mesh_index) {
+        std::vector<size_t> nodes;
+        nodes.reserve(_root.nodes.size());
+
+        for(size_t i = 0; i < _root.nodes.size(); i++) {
+            if(_root.nodes[i].mesh == static_cast<int32_t>(_mesh_index))
+                nodes.push_back(i);
+        }
+
+        nodes.shrink_to_fit();
+        return nodes;
+    }
+
+
+    const std::vector<float> GLTFCompiler::_FindMorphWeightsFromNodes(const GLTFRoot &_root, size_t _mesh_index) {
+        std::vector<size_t> nodes = _FindMeshNodes(_root, _mesh_index);
+
+        if(nodes.size() > 1)
+            return std::vector<float>();
+
+        return _root.nodes[nodes.back()].weights;
+    }
+
+
+    void GLTFCompiler::_FlagJointNodes(const GLTFRoot &_root) {
+        std::vector<bool> skin_joint_table(_root.nodes.size());
+        std::fill(skin_joint_table.begin(), skin_joint_table.end(), false);
+
+        m_scene_node_id_table.resize(_root.nodes.size());
+        m_skeleton_joint_id_table.resize(_root.nodes.size());
+
+        for(auto skin_it = _root.skins.begin(); skin_it != _root.skins.end(); skin_it++) {
+            if(skin_it->skeleton != INT32_MAX)
+                skin_joint_table[skin_it->skeleton] = true;
+
+            for(size_t i = 0; i < skin_it->joints.size(); i++)
+                skin_joint_table[skin_it->joints[i]] = true;
+        }
+
+        uint32_t skipped_nodes = 0;
+        for(uint32_t i = 0; i < static_cast<uint32_t>(_root.nodes.size()); i++) {
+            if(skin_joint_table[i]) {
+                m_scene_node_id_table[i] = UINT32_MAX;
+                m_skeleton_joint_id_table[i] = skipped_nodes;
+                skipped_nodes++;
+            }
+            else {
+                m_skeleton_joint_id_table[i] = UINT32_MAX;
+                m_scene_node_id_table[i] = i - skipped_nodes;
+            }
+        }
+    }
+
+
+    bool GLTFCompiler::_IsRootNode(const GLTFRoot &_root, int32_t _node_id, const std::vector<int32_t> &_pool) {
+        for(int32_t i = 0; i < static_cast<int32_t>(_root.nodes[_node_id].children.size()); i++) {
+            std::vector<int32_t> npool = _pool;
+            auto it = std::find(npool.begin(), npool.end(), _root.nodes[_node_id].children[i]);
+            if(it == _root.nodes[_node_id].children.end())
+                // should be replaced with correct error anyways
+                LIBDAS_ASSERT(false);
+
+            npool.erase(it);
+
+            if(!npool.size()) return true;
+
+            if(_IsRootNode(_root, i, npool))
+                return true;
+        }
+
+        return false;
+    }
+
+
+    uint32_t GLTFCompiler::_FindCommonRootJoint(const GLTFRoot &_root, const GLTFSkin &_skin) {
+        for(size_t i = 0; i < _skin.joints.size(); i++) {
+            if(_IsRootNode(_root, static_cast<int32_t>(i), _skin.joints))
+                return static_cast<uint32_t>(i);
+        }
+
+        return UINT32_MAX;
+    }
+
+
     // TODO: add accessor buffer offset correction to the implementation
     // right now only supplementation is done
     void GLTFCompiler::_StrideIndexBuffers(const GLTFRoot &_root, std::vector<DasBuffer> &_buffers) {
@@ -302,7 +386,6 @@ namespace Libdas {
             // for each primitive in mesh
             for(size_t i = 0; i < it->primitives.size(); i++) {
                 const int32_t index_buffer_id = _root.buffer_views[_root.accessors[it->primitives[i].indices].buffer_view].buffer;
-                int32_t size = static_cast<int32_t>(_buffers.size());
 
                 if(it->primitives[i].indices != INT32_MAX)
                     _buffers[index_buffer_id].type |= LIBDAS_BUFFER_TYPE_INDICES;
@@ -352,7 +435,6 @@ namespace Libdas {
             buffers.push_back(buffer);
         }
 
-        //m_image_buffer_views.insert(m_image_buffer_views.begin(), _root.buffer_views.size(), INT32_MAX);
         _StrideIndexBuffers(_root, buffers);
 
         // append images
@@ -496,16 +578,19 @@ namespace Libdas {
 
                     // weights are contained inside the mesh structure, where morph targets are contained in mesh.primitives structure
                     // this means that there can be multiple mesh.primitive objects with multiple morph targets in all of them
-                    if(prim.morph_target_count <= static_cast<uint32_t>(mesh_it->weights.size()) - used_weights) {
-                        prim.morph_weights = new uint32_t[prim.morph_target_count];
-                        for(uint32_t i = 0; i < prim.morph_target_count; i++, used_weights++)
-                            prim.morph_weights[i] = mesh_it->weights[used_weights];
+                    if(static_cast<uint32_t>(mesh_it->weights.size()) - used_weights == prim.morph_target_count) {
+                        prim.morph_weights = new float[prim.morph_target_count];
+                        std::memcpy(prim.morph_weights, mesh_it->weights.data(), static_cast<size_t>(prim.morph_target_count) * sizeof(float));
+                    } else {
+                        const std::vector<float> &&node_weights = _FindMorphWeightsFromNodes(_root, mesh_it - _root.meshes.begin());
+                        if(static_cast<uint32_t>(node_weights.size()) == prim.morph_target_count) {
+                            prim.morph_weights = new float[prim.morph_target_count];
+                            std::memcpy(prim.morph_weights, mesh_it->weights.data(), static_cast<size_t>(prim.morph_target_count) * sizeof(float));
+                        }
                     }
                 }
 
-                primitives.emplace_back(prim);
-                prim.morph_targets = nullptr;
-                prim.morph_weights = nullptr;
+                primitives.emplace_back(std::move(prim));
             }
         }
 
@@ -526,8 +611,7 @@ namespace Libdas {
             for(uint32_t i = 0; i < mesh.primitive_count; i++, used_prims++)
                 mesh.primitives[i] = used_prims;
 
-            meshes.emplace_back(mesh);
-            mesh.primitives = nullptr;
+            meshes.emplace_back(std::move(mesh));
         }
 
         return meshes;
@@ -535,31 +619,62 @@ namespace Libdas {
 
 
     std::vector<DasNode> GLTFCompiler::_CreateNodes(const GLTFRoot &_root) {
-        std::vector<DasNode> nodes(_root.nodes.size());
+        std::vector<DasNode> nodes;
+        nodes.reserve(_root.nodes.size());
 
-        for(size_t i = 0; i < nodes.size(); i++) {
+        for(size_t i = 0; i < _root.nodes.size(); i++) {
+            if(m_scene_node_id_table[i] == UINT32_MAX) continue;
+
+            DasNode node;
+            if(_root.nodes[i].name != "")
+                node.name = _root.nodes[i].name;
+
             // write children objects
-            nodes[i].children_count = static_cast<uint32_t>(_root.nodes[i].children.size());
-            nodes[i].children = new uint32_t[nodes[i].children_count];
+            node.children_count = static_cast<uint32_t>(_root.nodes[i].children.size());
+            node.children = new uint32_t[node.children_count];
 
-            for(uint32_t j = 0; j < nodes[i].children_count; j++)
-                nodes[i].children[j] = _root.nodes[i].children[j];
+            for(uint32_t j = 0; j < node.children_count; j++)
+                node.children[j] = m_scene_node_id_table[_root.nodes[i].children[j]];
 
-            nodes[i].transform = Matrix4<float> {
-                { _root.nodes[i].scale.x, 0.0f, 0.0f, _root.nodes[i].translation.x },
-                { 0.0f, _root.nodes[i].scale.y, 0.0f, _root.nodes[i].translation.y },
-                { 0.0f, 0.0f, _root.nodes[i].scale.z, _root.nodes[i].translation.z },
-                { 0.0f, 0.0f, 0.0f, 1.0f }
-            };
-            nodes[i].transform *= _root.nodes[i].rotation.ExpandToMatrix4();
+            if(_root.nodes[i].mesh != INT32_MAX)
+                node.mesh = _root.nodes[i].mesh;
+            if(_root.nodes[i].skin != INT32_MAX)
+                node.skeleton = _root.nodes[i].skin;
+
+            const Matrix4<float> def_mat;
+            if(_root.nodes[i].matrix != def_mat) {
+                node.transform = _root.nodes[i].matrix;
+            } else {
+                node.transform = Matrix4<float> {
+                    { _root.nodes[i].scale.x, 0.0f, 0.0f, _root.nodes[i].translation.x },
+                    { 0.0f, _root.nodes[i].scale.y, 0.0f, _root.nodes[i].translation.y },
+                    { 0.0f, 0.0f, _root.nodes[i].scale.z, _root.nodes[i].translation.z },
+                    { 0.0f, 0.0f, 0.0f, 1.0f }
+                };
+                node.transform *= _root.nodes[i].rotation.ExpandToMatrix4();
+            }
+
+            nodes.emplace_back(std::move(node));
         }
 
+        nodes.shrink_to_fit();
         return nodes;
     }
 
 
     std::vector<DasScene> GLTFCompiler::_CreateScenes(const GLTFRoot &_root) {
         std::vector<DasScene> scenes;
+        scenes.reserve(_root.scenes.size());
+
+        for(auto it = _root.scenes.begin(); it != _root.scenes.end(); it++) {
+            DasScene scene;
+            scene.name = it->name;
+            scene.node_count = static_cast<uint32_t>(it->nodes.size());
+            scene.nodes = new uint32_t[scene.node_count];
+
+            for(uint32_t i = 0; i < scene.node_count; i++)
+                scene.nodes[i] = m_scene_node_id_table[it->nodes[i]];
+        }
 
         return scenes;
     }
@@ -567,19 +682,136 @@ namespace Libdas {
 
     std::vector<DasSkeleton> GLTFCompiler::_CreateSkeletons(const GLTFRoot &_root) {
         std::vector<DasSkeleton> skeletons;
+        skeletons.reserve(_root.skins.size());
+
+        for(size_t i = 0; i < _root.skins.size(); i++) {
+            DasSkeleton skeleton;
+            skeleton.name = _root.skins[i].name;
+
+            if(_root.skins[i].skeleton != INT32_MAX)
+                skeleton.parent = static_cast<uint32_t>(_root.skins[i].skeleton);
+            else
+                skeleton.parent = _FindCommonRootJoint(_root, _root.skins[i]);
+
+            skeleton.joint_count = static_cast<uint32_t>(_root.skins[i].joints.size());
+            skeleton.joints = new uint32_t[skeleton.joint_count];
+            for(uint32_t j = 0; j < skeleton.joint_count; j++)
+                skeleton.joints[j] = m_skeleton_joint_id_table[_root.skins[i].joints[j]];
+
+            skeletons.emplace_back(std::move(skeleton));
+        }
         return skeletons;
     }
 
 
-    std::vector<DasSkeletonJoint> GLTFCompiler::_CreateSkeletonJoints(const GLTFRoot &_root) {
+    std::vector<DasSkeletonJoint> GLTFCompiler::_CreateSkeletonJoints(const GLTFRoot &_root, const std::vector<DasBuffer> &_buffers) {
         std::vector<DasSkeletonJoint> joints;
+        joints.reserve(_root.nodes.size());
+        
+        for(auto skin_it = _root.skins.begin(); skin_it != _root.skins.end(); skin_it++) {
+            BufferAccessorData accessor_data = _FindAccessorData(_root, skin_it->inverse_bind_matrices);
+            uint32_t data_ptr_id = 0;
+            size_t ptr_offset = 0;
 
+            // find data_ptr_id
+            for(size_t offset = 0; data_ptr_id < static_cast<uint32_t>(_buffers[accessor_data.buffer_id].data_ptrs.size()); data_ptr_id++) {
+                const std::pair<const char*, size_t> &data_ptr = _buffers[accessor_data.buffer_id].data_ptrs[data_ptr_id];
+                if(offset + data_ptr.second >= accessor_data.buffer_offset + accessor_data.used_size && accessor_data.buffer_offset >= offset) {
+                    ptr_offset = static_cast<size_t>(accessor_data.buffer_offset) - offset;
+                    break;
+                }
+            }
+
+            const std::pair<const char*, size_t> &data_ptr = _buffers[accessor_data.buffer_id].data_ptrs[data_ptr_id];
+            for(size_t i = 0; i < skin_it->joints.size(); i++) {
+                DasSkeletonJoint joint;
+                joint.inverse_bind_pos = reinterpret_cast<const Matrix4<float>*>(data_ptr.first + ptr_offset)[i];
+                joint.rotation = _root.nodes[skin_it->joints[i]].rotation;
+
+                // for each child in joint
+                joint.children_count = static_cast<uint32_t>(_root.nodes[skin_it->joints[i]].children.size());
+                joint.children = new uint32_t[joint.children_count];
+                for(uint32_t j = 0; j < joint.children_count; j++)
+                    joint.children[j] = m_skeleton_joint_id_table[_root.nodes[skin_it->joints[i]].children[j]];
+
+                // non-uniform scaling is not supported, so just take the vector magnitude of scaling properties
+                const float x = _root.nodes[skin_it->joints[i]].scale.x , y = _root.nodes[skin_it->joints[i]].scale.y, z = _root.nodes[skin_it->joints[i]].scale.z;
+                joint.scale = sqrtf(x * x + y * y + z * z);
+                joint.translation = _root.nodes[skin_it->joints[i]].translation;
+
+                joints.emplace_back(std::move(joint));
+            }
+        }
+
+        joints.shrink_to_fit();
         return joints;
+    }
+
+    std::vector<DasAnimationChannel> GLTFCompiler::_CreateAnimationChannels(const GLTFRoot &_root) {
+        std::vector<DasAnimationChannel> channels;
+
+        // assuming that there are 2 channels for each animation object
+        channels.reserve(_root.animations.size() * 2);
+
+        for(auto ani_it = _root.animations.begin(); ani_it != _root.animations.end(); ani_it++) {
+            // for each channel in animation
+            for(auto ch_it = ani_it->channels.begin(); ch_it != ani_it->channels.end(); ch_it++) {
+                DasAnimationChannel channel;
+                channel.node_id = static_cast<uint32_t>(ch_it->target.node);
+
+                // check path value
+                if(ch_it->target.path == "translation")
+                    channel.target = LIBDAS_ANIMATION_TARGET_TRANSLATION;
+                else if(ch_it->target.path == "rotation")
+                    channel.target = LIBDAS_ANIMATION_TARGET_ROTATION;
+                else if(ch_it->target.path == "scale")
+                    channel.target = LIBDAS_ANIMATION_TARGET_SCALE;
+                else if(ch_it->target.path == "weights")
+                    channel.target = LIBDAS_ANIMATION_TARGET_WEIGHTS;
+
+                // check interpolation value
+                const GLTFAnimationSampler &sampler = ani_it->samplers[ch_it->sampler];
+                if(sampler.interpolation == "LINEAR")
+                    channel.interpolation = LIBDAS_INTERPOLATION_VALUE_LINEAR;
+                else if(sampler.interpolation == "STEP")
+                    channel.interpolation = LIBDAS_INTERPOLATION_VALUE_STEP;
+                else if(sampler.interpolation == "CUBICSPLINE")
+                    channel.interpolation = LIBDAS_INTERPOLATION_VALUE_CUBICSPLINE;
+
+                // keyframe data
+                channel.keyframe_count = static_cast<uint32_t>(_root.accessors[sampler.input].count);
+                BufferAccessorData keyframe = _FindAccessorData(_root, sampler.input);
+                channel.keyframe_buffer_id = keyframe.buffer_id;
+                channel.keyframe_buffer_offset = keyframe.buffer_offset;
+                
+                // target data
+                BufferAccessorData target = _FindAccessorData(_root, sampler.output);
+                channel.target_value_buffer_id = target.buffer_id;
+                channel.target_value_buffer_offset = target.buffer_offset;
+
+                channels.emplace_back(std::move(channel));
+            }
+        }
+
+        return channels;
     }
 
 
     std::vector<DasAnimation> GLTFCompiler::_CreateAnimations(const GLTFRoot &_root) {
         std::vector<DasAnimation> animations;
+        animations.reserve(_root.animations.size());
+        uint32_t channel_count = 0;
+
+        for(auto ani_it = _root.animations.begin(); ani_it != _root.animations.end(); ani_it++) {
+            DasAnimation ani;
+            ani.name = ani_it->name;
+            ani.channel_count = ani_it->channels.size();
+            ani.channels = new uint32_t[ani.channel_count];
+            for(uint32_t i = 0; i < ani.channel_count; i++, channel_count++)
+                ani.channels[i] = channel_count;
+
+            animations.emplace_back(std::move(ani));
+        }
         return animations;
     }
 
@@ -593,48 +825,56 @@ namespace Libdas {
         InitialiseFile(_props);
 
         // write buffers to file
-        std::vector<DasBuffer> &&buffers = _CreateBuffers(_root, _embedded_textures);
+        std::vector<DasBuffer> buffers(std::move(_CreateBuffers(_root, _embedded_textures)));
         for(auto it = buffers.begin(); it != buffers.end(); it++)
             WriteBuffer(*it);
 
         // write mesh primitives to the file
-        std::vector<DasMeshPrimitive> &&primitives = _CreateMeshPrimitives(_root);
+        std::vector<DasMeshPrimitive> primitives(std::move(_CreateMeshPrimitives(_root)));
         for(auto it = primitives.begin(); it != primitives.end(); it++)
             WriteMeshPrimitive(*it);
 
         // write morph targets to the file
-        std::vector<DasMorphTarget> &&morph_targets = _CreateMorphTargets(_root);
+        std::vector<DasMorphTarget> morph_targets(std::move(_CreateMorphTargets(_root)));
         for(auto it = morph_targets.begin(); it != morph_targets.end(); it++)
             WriteMorphTarget(*it);
 
         // write meshes to the file
-        std::vector<DasMesh> &&meshes = _CreateMeshes(_root);
+        std::vector<DasMesh> meshes(std::move(_CreateMeshes(_root)));
         for(auto it = meshes.begin(); it != meshes.end(); it++)
             WriteMesh(*it);
 
+        // flag all skeleton joint nodes
+        _FlagJointNodes(_root);
+
         // write scene nodes to the file
-        //std::vector<DasNode> nodes = _CreateNodes(_root); 
-        //for(auto it = nodes.begin(); it != nodes.end(); it++)
-            //WriteNode(*it);
+        std::vector<DasNode> nodes(std::move(_CreateNodes(_root))); 
+        for(auto it = nodes.begin(); it != nodes.end(); it++)
+            WriteNode(*it);
 
-        //// write scenes to the file
-        //std::vector<DasScene> scenes = _CreateScenes(_root);
-        //for(auto it = scenes.begin(); it != scenes.end(); it++)
-            //WriteScene(*it);
+        // write scenes to the file
+        std::vector<DasScene> scenes(std::move(_CreateScenes(_root)));
+        for(auto it = scenes.begin(); it != scenes.end(); it++)
+            WriteScene(*it);
 
-        //// write skeletons to the file
-        //std::vector<DasSkeleton> skeletons = _CreateSkeletons(_root);
-        //for(auto it = skeletons.begin(); it != skeletons.end(); it++)
-            //WriteSkeleton(*it);
+        // write skeleton joints to the file
+        std::vector<DasSkeletonJoint> joints(std::move(_CreateSkeletonJoints(_root, buffers)));
+        for(auto it = joints.begin(); it != joints.end(); it++)
+            WriteSkeletonJoint(*it);
 
-        //// write skeleton joints to the file
-        //std::vector<DasSkeletonJoint> joints = _CreateSkeletonJoints(_root);
-        //for(auto it = joints.begin(); it != joints.end(); it++)
-            //WriteSkeletonJoint(*it);
+        // write skeletons to the file
+        std::vector<DasSkeleton> skeletons(std::move(_CreateSkeletons(_root)));
+        for(auto it = skeletons.begin(); it != skeletons.end(); it++)
+            WriteSkeleton(*it);
 
-        //// write animations to file
-        //std::vector<DasAnimation> animations = _CreateAnimations(_root);
-        //for(auto it = animations.begin(); it != animations.end(); it++)
-            //WriteAnimation(*it);
+        // write animation channels to file
+        std::vector<DasAnimationChannel> channels(std::move(_CreateAnimationChannels(_root)));
+        for(auto it = channels.begin(); it != channels.end(); it++)
+            WriteAnimationChannel(*it);
+
+        // write animations to file
+        std::vector<DasAnimation> animations(std::move(_CreateAnimations(_root)));
+        for(auto it = animations.begin(); it != animations.end(); it++)
+            WriteAnimation(*it);
     }
 }

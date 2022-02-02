@@ -32,10 +32,12 @@
 namespace Libdas {
 
     struct WavefrontObjStatementCallback {
-        WavefrontObjStatementType type;
-        WavefrontObjFunctions::PTR_KeywordCallback keyword_callback;
+        WavefrontObjStatementType type = WAVEFRONT_OBJ_STATEMENT_NONE;
+        WavefrontObjFunctions::PTR_KeywordCallback keyword_callback = nullptr;
 
-        WavefrontObjStatementCallback() : type(WAVEFRONT_OBJ_STATEMENT_NONE), keyword_callback(nullptr) {}
+        WavefrontObjStatementCallback() = default;
+
+        WavefrontObjStatementCallback(const WavefrontObjStatementCallback &_cb) : type(_cb.type), keyword_callback(_cb.keyword_callback) {}
 
         WavefrontObjStatementCallback(const WavefrontObjStatementType &_type, const WavefrontObjFunctions::PTR_KeywordCallback &_kw_callback) :
             type(_type), keyword_callback(_kw_callback) {}

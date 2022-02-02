@@ -23,6 +23,7 @@
     #include <Iterators.h>
     #include <Vector.h>
     #include <Matrix.h>
+    #include <Points.h>
     #include <Quaternion.h>
     #include <DasStructures.h>
     #include <TextureReader.h>
@@ -193,6 +194,11 @@ namespace Libdas {
              * @param _joint is a reference to DasSkeletonJoint object
              */
             void WriteSkeletonJoint(const DasSkeletonJoint &_joint);
+            /**
+             * Write an animation channel information to the file
+             * @param _channel is a reference to DasAnimationChannel object
+             */
+            void WriteAnimationChannel(const DasAnimationChannel &_channel);
             /**
              * Write an animation information to the file
              * @param _animation is a reference to DasAnimation object

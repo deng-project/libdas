@@ -10,6 +10,7 @@ workspace "libdas"
     platforms { "Win32", "Linux" }
     includedirs { "./include" }
 
+    flags { "ExtraWarnings" }
     architecture "x86_64"
     pic "On"
 

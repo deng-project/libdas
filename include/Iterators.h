@@ -67,7 +67,7 @@ namespace Libdas {
 
         public:
             MatrixIterator(pointer _data, size_t _mat_size, bool _is_row_major = true) :
-                m_data(_data), m_mat_size(_mat_size), m_is_row_major(_is_row_major) {}
+                m_mat_size(_mat_size), m_is_row_major(_is_row_major), m_data(_data) {}
 
             // a, b, c, d
             // e, f, g, h,

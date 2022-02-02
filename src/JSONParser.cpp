@@ -178,7 +178,7 @@ namespace Libdas {
         // extract a number string from the buffer
         bool is_fl = false;
         char *end = m_rd_ptr;
-        while(end < m_buffer + m_buffer_size && ((*end >= '0' && *end <= '9') || *end == '.')) {
+        while(end < m_buffer + m_buffer_size && ((*end >= '0' && *end <= '9') || *end == '.' || *end == 'e' || *end == '-')) {
             if(*end == '.')
                 is_fl = true;
             end++;

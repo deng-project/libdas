@@ -9,6 +9,10 @@
 #ifdef DAS_TOOL_CPP
     #include <any>
     #include <array>
+    #include <variant>
+    #include <map>
+    #include <cfloat>
+    #include <memory>
     #include <string>
     #include <ctime>
     #include <fstream>
@@ -38,6 +42,15 @@
     #include <STLStructures.h>
     #include <STLParser.h>
     #include <STLCompiler.h>
+#define LIBDAS_DEFS_ONLY
+    #include <HuffmanCompression.h>
+#undef LIBDAS_DEFS_ONLY
+    #include <Base64Decoder.h>
+    #include <URIResolver.h>
+    #include <GLTFStructures.h>
+    #include <JSONParser.h>
+    #include <GLTFParser.h>
+    #include <GLTFCompiler.h>
     #include <WavefrontObjStructures.h>
     #include <WavefrontObjParser.h>
     #include <WavefrontObjCompiler.h>

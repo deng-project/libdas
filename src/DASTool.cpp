@@ -55,8 +55,12 @@ void DASTool::_ConvertWavefrontObj(const std::string &_input_file) {
 
 
 void DASTool::_ConvertGLTF(const std::string &_input_file) {
-    std::cerr << "Feature not yet implemented" << std::endl;
-    LIBDAS_ASSERT(false);
+    _MakeOutputFile(_input_file);
+    _MakeProps();
+
+    Libdas::GLTFParser parser(_input_file);
+    parser.Parse();
+    Libdas::GLTFCompiler compiler(Libdas::Algorithm::ExtractRootPath(_input_file), parser.GetRootObject(), m_props, m_out_file);
 }
 
 
@@ -278,27 +282,10 @@ void DASTool::_ListDasNodes(Libdas::DasParser &_parser) {
                 std::cout << node.children[j] << " ";
             std::cout << std::endl;
         }
-        if(node.mesh_count) {
-            std::cout << "Mesh count: " << node.mesh_count << std::endl;
-            std::cout << "Meshes: ";
-            for(uint32_t j = 0; j < node.mesh_count; j++)
-                std::cout << node.meshes[j] << " ";
-            std::cout << std::endl;
-        }
-        if(node.animation_count) {
-            std::cout << "Animation count: " << node.animation_count << std::endl;
-            std::cout << "Animations: ";
-            for(uint32_t j = 0; j < node.animation_count; j++)
-                std::cout << node.animations[j] << " ";
-            std::cout << std::endl;
-        }
-        if(node.skeleton_count) {
-            std::cout << "Skeleton count: " << node.skeleton_count << std::endl;
-            std::cout << "Skeletons: ";
-            for(uint32_t j = 0; j < node.skeleton_count; j++)
-                std::cout << node.skeletons[j] << " ";
-            std::cout << std::endl;
-        }
+        if(node.mesh != UINT32_MAX)
+            std::cout << "Mesh: " << node.mesh << std::endl;
+        if(node.skeleton != UINT32_MAX)
+            std::cout << "Skeleton: " << node.skeleton << std::endl;
 
         // output transformation matrix
         std::cout << "Transformation matrix: " << std::endl;
@@ -369,9 +356,14 @@ void DASTool::_ListDasSkeletonJoints(Libdas::DasParser &_parser) {
         }
 
         if(joint.name != "") std::cout << "Name: " << joint.name << std::endl;
-        std::cout << "Parent: " << joint.parent << std::endl;
+        std::cout << "Children count: " << joint.children_count << std::endl;
+        std::cout << "Children: ";
+        for(uint32_t i = 0; i < joint.children_count; i++)
+            std::cout << joint.children[i] << " ";
+        std::cout << std::endl;
+
         std::cout << "Scale: " << joint.scale << std::endl;
-        std::cout << "Translation: {" << joint.translation.first << ", " << joint.translation.second << ", " << joint.translation.third << "}" << std::endl;
+        std::cout << "Translation: {" << joint.translation.x << ", " << joint.translation.y << ", " << joint.translation.z << "}" << std::endl;
     }
 }
 
@@ -381,66 +373,12 @@ void DASTool::_ListDasAnimations(Libdas::DasParser &_parser) {
         std::cout << std::endl << "-- Animation nr " << i << " --" << std::endl;
         Libdas::DasAnimation &animation = _parser.AccessAnimation(i);
         if(animation.name != "") std::cout << "Name: " << animation.name << std::endl;
-        std::cout << "Node id: " << animation.node_id << std::endl;
-        std::cout << "Duration: " << animation.duration << "s" << std::endl;
-        std::cout << "Keyframe count: " << animation.keyframe_count << std::endl;
         
-        // timestamps
-        std::cout << "Keyframe timestamps: ";
-        for(uint32_t j = 0; j < animation.keyframe_count; j++)
-            std::cout << animation.keyframe_timestamps[j] << " ";
+        std::cout << "Channel count: " << animation.channel_count << std::endl;
+        std::cout << "Channels: ";
+        for(uint32_t i = 0; i < animation.channel_count; i++)
+            std::cout << animation.channels[i] << " ";
         std::cout << std::endl;
-
-        // interpolation types
-        std::cout << "Interpolation types: ";
-        for(uint32_t j = 0; j < animation.keyframe_count; j++) {
-            switch(animation.interpolation_types[j]) {
-                case LIBDAS_INTERPOLATION_VALUE_LINEAR:
-                    std::cout << "linear ";
-                    break;
-
-                case LIBDAS_INTERPOLATION_VALUE_STEP:
-                    std::cout << "step ";
-                    break;
-    
-                case LIBDAS_INTERPOLATION_VALUE_CUBICSPLINE:
-                    std::cout << "cubicspline ";
-                    break;
-
-                default:
-                    break;
-            }
-        }
-        std::cout << std::endl;
-
-        // animation targets
-        std::cout << "Animation targets: ";
-        for(uint32_t j = 0; j < animation.keyframe_count; j++) {
-            switch(animation.animation_targets[j]) {
-                case LIBDAS_ANIMATION_TARGET_WEIGHTS:
-                    std::cout << "weights ";
-                    break;
-
-                case LIBDAS_ANIMATION_TARGET_TRANSLATION:
-                    std::cout << "translation ";
-                    break;
-
-                case LIBDAS_ANIMATION_TARGET_ROTATION:
-                    std::cout << "rotation ";
-                    break;
-
-                case LIBDAS_ANIMATION_TARGET_SCALE:
-                    std::cout << "scale ";
-                    break;
-
-                default:
-                    break;
-            }
-        }
-        std::cout << std::endl;
-
-        std::cout << "Keyframe buffer id: " << animation.keyframe_buffer_id << std::endl;
-        std::cout << "Keyframe buffer offset: " << animation.keyframe_buffer_offset << std::endl;
     }
 }
 

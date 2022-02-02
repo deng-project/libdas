@@ -24,6 +24,7 @@
     #include <Iterators.h>
     #include <Vector.h>
     #include <Matrix.h>
+    #include <Points.h>
     #include <Quaternion.h>
 
     #include <AsciiStreamReader.h>
@@ -50,6 +51,7 @@ namespace Libdas {
         LIBDAS_DAS_SCOPE_SKELETON_JOINT,
         LIBDAS_DAS_SCOPE_SKELETON,
         LIBDAS_DAS_SCOPE_ANIMATION,
+        LIBDAS_DAS_SCOPE_ANIMATION_CHANNEL,
         LIBDAS_DAS_SCOPE_UNDEFINED,
         LIBDAS_DAS_SCOPE_END
     };
@@ -86,39 +88,37 @@ namespace Libdas {
         LIBDAS_DAS_UNIQUE_VALUE_TYPE_MORPH_WEIGHTS,
 
         // NODE
-        LIBDAS_DAS_UNIQUE_VALUE_TYPE_CHILDREN_COUNT,
-        LIBDAS_DAS_UNIQUE_VALUE_TYPE_CHILDREN,
-        LIBDAS_DAS_UNIQUE_VALUE_TYPE_MESH_COUNT,
-        LIBDAS_DAS_UNIQUE_VALUE_TYPE_MESHES,
-        LIBDAS_DAS_UNIQUE_VALUE_TYPE_ANIMATION_COUNT,
-        LIBDAS_DAS_UNIQUE_VALUE_TYPE_ANIMATIONS,
-        LIBDAS_DAS_UNIQUE_VALUE_TYPE_SKELETON_COUNT,
-        LIBDAS_DAS_UNIQUE_VALUE_TYPE_SKELETONS,
+        LIBDAS_DAS_UNIQUE_VALUE_TYPE_MESH,
+        LIBDAS_DAS_UNIQUE_VALUE_TYPE_SKELETON,
 
         // SCENE
         LIBDAS_DAS_UNIQUE_VALUE_TYPE_NODE_COUNT,
         LIBDAS_DAS_UNIQUE_VALUE_TYPE_NODES,
 
         // SKELETON
+        LIBDAS_DAS_UNIQUE_VALUE_TYPE_PARENT,
         LIBDAS_DAS_UNIQUE_VALUE_TYPE_JOINT_COUNT,
         LIBDAS_DAS_UNIQUE_VALUE_TYPE_JOINTS,
 
         // JOINT
         LIBDAS_DAS_UNIQUE_VALUE_TYPE_INVERSE_BIND_POS,
-        LIBDAS_DAS_UNIQUE_VALUE_TYPE_PARENT,
         LIBDAS_DAS_UNIQUE_VALUE_TYPE_SCALE,
         LIBDAS_DAS_UNIQUE_VALUE_TYPE_ROTATION,
         LIBDAS_DAS_UNIQUE_VALUE_TYPE_TRANSLATION,
 
         // ANIMATION
+        LIBDAS_DAS_UNIQUE_VALUE_TYPE_CHANNEL_COUNT,
+        LIBDAS_DAS_UNIQUE_VALUE_TYPE_CHANNELS,
+
+        // ANIMATIONCHANNEL
         LIBDAS_DAS_UNIQUE_VALUE_TYPE_NODE_ID,
-        LIBDAS_DAS_UNIQUE_VALUE_TYPE_DURATION,
+        LIBDAS_DAS_UNIQUE_VALUE_TYPE_TARGET,
+        LIBDAS_DAS_UNIQUE_VALUE_TYPE_INTERPOLATION,
         LIBDAS_DAS_UNIQUE_VALUE_TYPE_KEYFRAME_COUNT,
-        LIBDAS_DAS_UNIQUE_VALUE_TYPE_KEYFRAME_TIMESTAMPS,
-        LIBDAS_DAS_UNIQUE_VALUE_TYPE_INTERPOLATION_TYPES,
-        LIBDAS_DAS_UNIQUE_VALUE_TYPE_ANIMATION_TARGETS,
         LIBDAS_DAS_UNIQUE_VALUE_TYPE_KEYFRAME_BUFFER_ID,
         LIBDAS_DAS_UNIQUE_VALUE_TYPE_KEYFRAME_BUFFER_OFFSET,
+        LIBDAS_DAS_UNIQUE_VALUE_TYPE_TARGET_VALUE_BUFFER_ID,
+        LIBDAS_DAS_UNIQUE_VALUE_TYPE_TARGET_VALUE_BUFFER_OFFSET,
 
         // Not so unique value types, since these values can be present in multiple scopes
         LIBDAS_DAS_UNIQUE_VALUE_TYPE_NAME,
@@ -129,6 +129,8 @@ namespace Libdas {
         LIBDAS_DAS_UNIQUE_VALUE_TYPE_TEXTURE_MAP_BUFFER_OFFSET,
         LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_NORMAL_BUFFER_ID,
         LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_NORMAL_BUFFER_OFFSET,
+        LIBDAS_DAS_UNIQUE_VALUE_TYPE_CHILDREN_COUNT,
+        LIBDAS_DAS_UNIQUE_VALUE_TYPE_CHILDREN,
 
         // reserved value
         LIBDAS_DAS_UNIQUE_VALUE_TYPE_UNKNOWN
@@ -146,6 +148,7 @@ namespace Libdas {
             // scope parsing maps
             std::unordered_map<std::string, DasScopeType> m_scope_name_map;
             std::unordered_map<std::string, DasUniqueValueType> m_unique_val_map;
+            std::vector<char*> m_buffer_blobs;
 
         private:
             /**
@@ -169,13 +172,6 @@ namespace Libdas {
              * @return std::any value specifying any scope value type 
              */
             std::any _GetValueInformation(const DasScopeType _parent, const std::string &_value);
-            /**
-             * Check if value limits were exceeded or the value is specifed as 0 and throw an error if either one 
-             * of these conditions are met
-             * @param _max specifies the maximum value that can be read
-             * @param _val specifies the value itself
-             */
-            void _CheckValueLimit(uint32_t _max, uint32_t _val);
 
             ////////////////////////////////////////////////
             // ***** Property value reading methods ***** //
@@ -242,6 +238,12 @@ namespace Libdas {
              */
             void _ReadAnimationValue(DasAnimation *_animation, DasAnimation::ValueType _type);
             /**
+             * Read animation channel scope value according to the specified value type
+             * @param _channel is a reference to DasAnimationChannel instance
+             * @param _type is a type value specifying the current value type
+             */
+            void _ReadAnimationChannelValue(DasAnimationChannel *_channel, DasAnimationChannel::ValueType _type);
+            /**
              * Call correct scope value data reader method according to the type specified
              * @param _scope specifies any _scope value that is read
              * @param _type specifies that scope type
@@ -258,6 +260,7 @@ namespace Libdas {
 
         public:
             DasReaderCore(const std::string &_file_name = "");
+            ~DasReaderCore();
             /**
              * Read and verify file signature
              */

@@ -30,7 +30,7 @@ namespace Libdas {
             return ExtractRootPath(buf) + "\\" + _rel;
 #else 
             size_t val = readlink("/proc/self/exe", buf, len);
-            if(val == -1) {
+            if(val == static_cast<size_t>(-1)) {
                 std::cerr << "Could not find current executable location errno: " << errno << std::endl;
                 EXIT_ON_ERROR(errno);
             }

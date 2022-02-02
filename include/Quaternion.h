@@ -15,7 +15,7 @@
 namespace Libdas {
 
     /// Fast 3D vector cross product using SIMD instructions
-    inline const __m128 FastCross(const __m128 &_vec1, const __m128 &_vec2) {
+    inline __m128 FastCross(const __m128 &_vec1, const __m128 &_vec2) {
         __m128 tmp0 = _mm_shuffle_ps(_vec1, _vec1, _MM_SHUFFLE(3, 0, 2, 1));
         __m128 tmp1 = _mm_shuffle_ps(_vec2, _vec2, _MM_SHUFFLE(3, 1, 0, 2));
         __m128 tmp2 = _mm_mul_ps(tmp0, _vec2);
@@ -25,7 +25,7 @@ namespace Libdas {
     }
 
 
-    inline const float FastDot(const __m128 &_vec1, const __m128 &_vec2) {
+    inline float FastDot(const __m128 &_vec1, const __m128 &_vec2) {
         __m128 mul_res, shuf_reg, sums_reg;
         mul_res = _mm_mul_ps(_vec1, _vec2);
 
@@ -87,7 +87,6 @@ namespace Libdas {
         inline float Magnitude() const {
             const float *ptr = &x;
             
-            #pragma omp simd 
             float sum = 0.0f;
             for(int i = 0; i < 4; i++)
                 sum += ptr[i] * ptr[i];

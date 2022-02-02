@@ -168,9 +168,7 @@ namespace Libdas {
     void WavefrontObjCompiler::_CreateRootScene() {
         // generate a node
         DasNode node;
-        node.mesh_count = 1;
-        node.meshes = new uint32_t;
-        node.meshes[0] = 0;
+        node.mesh = 0;
 
         WriteNode(node);
 

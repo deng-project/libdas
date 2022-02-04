@@ -189,6 +189,11 @@ namespace Libdas {
                 _ReadMeshPrimitiveAttributes(_src, *reinterpret_cast<GLTFMeshPrimitive::AttributesType*>(_dst.val_ptr));
                 break;
 
+            case GLTF_TYPE_MESH_PRIMITIVE_TARGETS:
+                _VerifySourceData(_src, JSON_TYPE_OBJECT, true);
+                _ReadMeshPrimitiveTargets(_src, *reinterpret_cast<std::vector<GLTFMeshPrimitive::AttributesType>*>(_dst.val_ptr));
+                break;
+
             default:
                 break;
         }
@@ -471,8 +476,11 @@ namespace Libdas {
 
         _IterateSubNodes(_node, values);
 
-        if(base_color_factor.size() == 4)
-            _met_roughness.base_color_factor = *reinterpret_cast<Point4D<float>*>(&base_color_factor);
+        if(base_color_factor.size() == 4) {
+            auto pbr_it = _met_roughness.base_color_factor.Begin();
+            for(auto b_it = base_color_factor.begin(); b_it != base_color_factor.end(); b_it++, pbr_it++)
+                *pbr_it = *b_it;
+        }
     }
 
 
@@ -535,7 +543,7 @@ namespace Libdas {
             std::make_pair("indices", GLTFUniversalScopeValue { &primitive.indices, GLTF_TYPE_INTEGER } ),
             std::make_pair("material", GLTFUniversalScopeValue { &primitive.material, GLTF_TYPE_INTEGER } ),
             std::make_pair("mode", GLTFUniversalScopeValue { &primitive.mode, GLTF_TYPE_INTEGER } ),
-            std::make_pair("targets", GLTFUniversalScopeValue { &primitive.targets, GLTF_TYPE_MESH_PRIMITIVE_ATTRIBUTES } ),
+            std::make_pair("targets", GLTFUniversalScopeValue { &primitive.targets, GLTF_TYPE_MESH_PRIMITIVE_TARGETS } ),
             std::make_pair("extensions", GLTFUniversalScopeValue { &primitive.extensions, GLTF_TYPE_EXTRAS_OR_EXTENSIONS } ),
             std::make_pair("extras", GLTFUniversalScopeValue { &primitive.extras, GLTF_TYPE_EXTRAS_OR_EXTENSIONS } ),
         };
@@ -561,6 +569,34 @@ namespace Libdas {
                 default:
                     LIBDAS_ASSERT(false);
                     break;
+            }
+        }
+    }
+
+
+    void GLTFParser::_ReadMeshPrimitiveTargets(JSONNode *_node, std::vector<GLTFMeshPrimitive::AttributesType> &_targets) {
+        for(auto it = _node->values.begin(); it != _node->values.end(); it++) {
+            _targets.emplace_back();
+
+            GLTFMeshPrimitive::AttributesType attrs;
+            JSONNode &sub_node = std::any_cast<JSONNode&>(it->second);
+
+            for(auto sub_it = sub_node.sub_nodes.begin(); sub_it != sub_node.sub_nodes.end(); sub_it++) {
+                _VerifySourceData(sub_it->second.get(), JSON_TYPE_INTEGER, false);
+                std::variant<JSONInteger, JSONNumber> vno = std::any_cast<std::variant<JSONInteger, JSONNumber>>(sub_it->second->values.back().second);
+                switch(vno.index()) {
+                    case 0:
+                        _targets.back().push_back(std::make_pair(sub_it->first, static_cast<uint32_t>(std::get<JSONInteger>(vno))));
+                        break;
+
+                    case 1:
+                        _targets.back().push_back(std::make_pair(sub_it->first, static_cast<uint32_t>(std::get<JSONNumber>(vno))));
+                        break;
+
+                    default:
+                        LIBDAS_ASSERT(false);
+                        break;
+                }
             }
         }
     }

@@ -70,23 +70,18 @@ namespace Libdas {
             struct BufferAccessorData {
                 uint32_t buffer_id = 0;
                 uint32_t buffer_offset = 0;
+                int32_t component_type = 0;
                 uint32_t used_size = 0;
-            };
-
-            struct IndexSupplementationInfo {
-                uint32_t buffer_offset;
-                uint32_t used_size;
-                int32_t component_type;
 
                 struct less {
-                    bool operator()(const IndexSupplementationInfo &_s1, const IndexSupplementationInfo &_s2) {
+                    bool operator()(const BufferAccessorData &_s1, const BufferAccessorData &_s2) {
                         if(_s1.buffer_offset == _s2.buffer_offset)
                             return _s1.used_size > _s2.used_size;
                         else return _s1.buffer_offset < _s2.buffer_offset;
                     }
                 };
 
-                static bool IsDuplicate(const IndexSupplementationInfo &_s1, const IndexSupplementationInfo &_s2) {
+                static bool IsDuplicate(const BufferAccessorData &_s1, const BufferAccessorData &_s2) {
                     return _s1.buffer_offset == _s2.buffer_offset;
                 }
             };
@@ -96,13 +91,17 @@ namespace Libdas {
 
         private:
             BufferAccessorData _FindAccessorData(const GLTFRoot &_root, int32_t _accessor_id);
-            uint32_t _SupplementIndices(const char *_odata, IndexSupplementationInfo &_suppl_info, DasBuffer &_buffer);
-            std::vector<std::vector<GLTFAccessor*>> _GetAllBufferAccessorRegions(GLTFRoot &_root);
-            std::vector<std::vector<IndexSupplementationInfo>> _GetBufferIndexRegions(GLTFRoot &_root);
             void _CorrectOffsets(std::vector<GLTFAccessor*> &_accessors, size_t _diff, size_t _offset);
             size_t _FindPrimitiveCount(const GLTFRoot &_root);
             std::vector<size_t> _FindMeshNodes(const GLTFRoot &_root, size_t _mesh_index); // O(n)
             const std::vector<float> _FindMorphWeightsFromNodes(const GLTFRoot &_root, size_t _mesh_index); // O(n)
+            auto _FindDataPtrFromOffset(const std::vector<std::pair<const char*, size_t>> &_ptrs, size_t &_offset); // O(n)
+
+            // region finders
+            std::vector<std::vector<GLTFAccessor*>> _GetAllBufferAccessorRegions(GLTFRoot &_root);
+            std::vector<std::vector<BufferAccessorData>> _GetBufferIndexRegions(GLTFRoot &_root);
+            std::vector<std::vector<BufferAccessorData>> _GetBufferJointRegions(GLTFRoot &_root);
+            std::vector<std::vector<BufferAccessorData>> _GetBufferWeightRegions(GLTFRoot &_root);
 
             // node flagging method
             void _FlagJointNodes(const GLTFRoot &_root);
@@ -111,12 +110,21 @@ namespace Libdas {
             bool _IsRootNode(const GLTFRoot &_root, int32_t _node_id, const std::vector<int32_t> &_pool);
             uint32_t _FindCommonRootJoint(const GLTFRoot &_root, const GLTFSkin &_skin);
 
-            /**
-             * Augment index buffers to uint32_t type and set all offsets correctly
-             * @param _root specifies an reference to GLTFRoot object
-             * @param _buffers specifies a DasBuffer vector, containing all generated buffer instances
-             */
-            void _StrideIndexBuffers(const GLTFRoot &_root, std::vector<DasBuffer> &_buffers);
+            // supplementing methods
+            uint32_t _SupplementIndices(const char *_odata, BufferAccessorData &_suppl_info, DasBuffer &_buffer);
+            uint32_t _SupplementJointIndices(const char *_odata, BufferAccessorData &_suppl_info, DasBuffer &_buffer);
+            uint32_t _SupplementJointWeights(const char *_odata, BufferAccessorData &_suppl_info, DasBuffer &_buffer);
+
+            void _CopyToBuffer(const std::vector<std::pair<const char*, size_t>> &_optrs, char *_dst, size_t _len, size_t _offset, DasBuffer &_buffer);
+
+            // striding methods
+            typedef std::vector<std::vector<GLTFAccessor*>> GLTFAccessors;
+            typedef std::vector<std::vector<BufferAccessorData>> BufferAccessorDatas;
+            typedef uint32_t (GLTFCompiler::*Supplement_PFN)(const char*, BufferAccessorData&, DasBuffer&);
+            void _StrideBuffer(GLTFAccessors &_accessors, BufferAccessorDatas &_regions, std::vector<DasBuffer> &_buffers, Supplement_PFN _suppl_fn);
+            void _StrideBuffers(const GLTFRoot &_root, std::vector<DasBuffer> &_buffers);
+
+            void _FreeSupplementedBuffers(std::vector<char*> _mem_areas);
 
             /**
              * Check if any properties are empty and if they are, supplement values from GLTFRoot::asset into it

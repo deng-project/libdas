@@ -14,6 +14,9 @@ project "das"
 		"../include/*.h",
 		"../src/*.cpp"
 	}
+
+    filter "configurations:Release"
+        removefiles { "../include/Debug.h", "../src/Debug.cpp" }
 	
 	removefiles { "../src/DASTool.cpp" }
 	

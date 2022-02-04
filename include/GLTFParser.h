@@ -124,6 +124,7 @@ namespace Libdas {
         // mesh.primitive*
         GLTF_TYPE_MESH_PRIMITIVES,
         GLTF_TYPE_MESH_PRIMITIVE_ATTRIBUTES,            // some unspecified JSON object
+        GLTF_TYPE_MESH_PRIMITIVE_TARGETS,
 
 
         // extensions and extras
@@ -284,6 +285,7 @@ namespace Libdas {
             void _ReadMeshes(JSONNode *_node);
             void _ReadMeshPrimitives(JSONNode *_node, std::vector<GLTFMeshPrimitive> &_root);
             void _ReadMeshPrimitiveAttributes(JSONNode *_node, GLTFMeshPrimitive::AttributesType &_attrs);
+            void _ReadMeshPrimitiveTargets(JSONNode *_node, std::vector<GLTFMeshPrimitive::AttributesType> &_targets);
             void _ReadNodes(JSONNode *_node);
             void _ReadSamplers(JSONNode *_node);
             void _ReadScenes(JSONNode *_node, bool is_root);

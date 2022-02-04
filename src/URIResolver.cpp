@@ -48,6 +48,33 @@ namespace Libdas {
     }
 
 
+    void URIResolver::_SolvePercentNotation(const std::string &_uri) {
+        m_uri = "";
+
+        bool record = false;
+        std::string val_str = "";
+        for(size_t i = 0; i < _uri.size(); i++) {
+            if(_uri[i] == '%')
+                record = true;
+            else if(record) {
+                val_str += _uri[i];
+                if(val_str.size() == 2) {
+                    uint32_t ch;
+                    record = false;
+                    std::stringstream ss;
+                    ss << std::hex << val_str;
+                    ss >> ch;
+                    m_uri += static_cast<char>(ch);
+                    record = false;
+                    val_str = "";
+                }
+            } else {
+                m_uri += _uri[i];
+            }
+        }
+    }
+
+
     void URIResolver::_FindUriBufferTypeFromExtension() {
         std::string ext = Algorithm::ExtractFileExtension(m_uri);
         if(ext == "jpeg" || ext == "jpg")
@@ -90,6 +117,8 @@ namespace Libdas {
         }
 
         // assume file stream otherwise
+        std::string percent_uri = m_uri;
+        _SolvePercentNotation(percent_uri);
         if(!found_mime_type) _ResolveFileURI();
     }
 }

@@ -109,6 +109,12 @@ namespace Libdas {
         m_unique_val_map["TEXTUREMAPBUFFEROFFSET"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_TEXTURE_MAP_BUFFER_OFFSET;
         m_unique_val_map["VERTEXNORMALBUFFERID"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_NORMAL_BUFFER_ID;
         m_unique_val_map["VERTEXNORMALBUFFEROFFSET"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_NORMAL_BUFFER_OFFSET;
+        m_unique_val_map["VERTEXTANGENTBUFFERID"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_TANGENT_BUFFER_ID;
+        m_unique_val_map["VERTEXTANGENTBUFFEROFFSET"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_TANGENT_BUFFER_OFFSET;
+        m_unique_val_map["JOINTINDEXBUFFERID"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_JOINT_INDEX_BUFFER_ID;
+        m_unique_val_map["JOINTINDEXBUFFEROFFSET"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_JOINT_INDEX_BUFFER_OFFSET;
+        m_unique_val_map["WEIGHTBUFFERID"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_WEIGHT_BUFFER_ID;
+        m_unique_val_map["WEIGHTBUFFEROFFSET"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_WEIGHT_BUFFER_OFFSET;
     }
 
 
@@ -214,6 +220,24 @@ namespace Libdas {
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_NORMAL_BUFFER_OFFSET:
                         return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_VERTEX_NORMAL_BUFFER_OFFSET;
 
+                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_TANGENT_BUFFER_ID:
+                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_VERTEX_TANGENT_BUFFER_ID;
+
+                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_TANGENT_BUFFER_OFFSET:
+                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_VERTEX_TANGENT_BUFFER_OFFSET;
+
+                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_JOINT_INDEX_BUFFER_ID:
+                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_JOINT_INDEX_BUFFER_ID;
+
+                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_JOINT_INDEX_BUFFER_OFFSET:
+                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_JOINT_INDEX_BUFFER_OFFSET;
+
+                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_WEIGHT_BUFFER_ID:
+                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_WEIGHT_BUFFER_ID;
+
+                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_WEIGHT_BUFFER_OFFSET:
+                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_WEIGHT_BUFFER_OFFSET;
+
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_MORPH_TARGET_COUNT:
                         return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_MORPH_TARGET_COUNT;
 
@@ -247,6 +271,12 @@ namespace Libdas {
 
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_NORMAL_BUFFER_OFFSET:
                         return DasMorphTarget::LIBDAS_MORPH_TARGET_VERTEX_NORMAL_BUFFER_OFFSET;
+
+                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_TANGENT_BUFFER_ID:
+                        return DasMorphTarget::LIBDAS_MORPH_TARGET_VERTEX_TANGENT_BUFFER_ID;
+
+                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_TANGENT_BUFFER_OFFSET:
+                        return DasMorphTarget::LIBDAS_MORPH_TARGET_VERTEX_TANGENT_BUFFER_OFFSET;
 
                     default:
                         return LIBDAS_DAS_UNIQUE_VALUE_TYPE_UNKNOWN;
@@ -491,6 +521,36 @@ namespace Libdas {
                 if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA);
                 break;
 
+            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_VERTEX_TANGENT_BUFFER_ID:
+                _primitive->vertex_tangent_buffer_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA);
+                break;
+
+            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_VERTEX_TANGENT_BUFFER_OFFSET:
+                _primitive->vertex_tangent_buffer_offset = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA);
+                break;
+
+            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_JOINT_INDEX_BUFFER_ID:
+                _primitive->joint_index_buffer_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA);
+                break;
+
+            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_JOINT_INDEX_BUFFER_OFFSET:
+                _primitive->joint_index_buffer_offset = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA);
+                break;
+
+            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_WEIGHT_BUFFER_ID:
+                _primitive->weight_buffer_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA);
+                break;
+
+            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_WEIGHT_BUFFER_OFFSET:
+                _primitive->weight_buffer_offset = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA);
+                break;
+
             case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_MORPH_TARGET_COUNT:
                 _primitive->morph_target_count = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                 if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA);
@@ -700,7 +760,7 @@ namespace Libdas {
 
             case DasSkeletonJoint::LIBDAS_SKELETON_JOINT_CHILDREN_COUNT:
                 _joint->children_count = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_VALUE);
+                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA);
 
                 // allocate memory for children
                 _joint->children = new uint32_t[_joint->children_count];
@@ -709,7 +769,7 @@ namespace Libdas {
             case DasSkeletonJoint::LIBDAS_SKELETON_JOINT_CHILDREN:
                 for(uint32_t i = 0; i < _joint->children_count; i++) {
                     _joint->children[i] = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                    if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_VALUE);
+                    if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA);
                 }
                 break;
 
@@ -720,12 +780,12 @@ namespace Libdas {
 
             case DasSkeletonJoint::LIBDAS_SKELETON_JOINT_ROTATION:
                 _joint->rotation = *reinterpret_cast<Quaternion*>(_GetReadPtr());
-                if(!_SkipData(sizeof(Quaternion))) m_error.Error(LIBDAS_ERROR_INVALID_VALUE);
+                if(!_SkipData(sizeof(Quaternion))) m_error.Error(LIBDAS_ERROR_INVALID_DATA);
                 break;
 
             case DasSkeletonJoint::LIBDAS_SKELETON_JOINT_TRANSLATION:
                 _joint->translation = *reinterpret_cast<Point3D<float>*>(_GetReadPtr());
-                if(!_SkipData(sizeof(Point3D<float>))) m_error.Error(LIBDAS_ERROR_INVALID_VALUE);
+                if(!_SkipData(sizeof(Point3D<float>))) m_error.Error(LIBDAS_ERROR_INVALID_DATA);
                 break;
 
             default:
@@ -742,7 +802,7 @@ namespace Libdas {
 
             case DasAnimation::LIBDAS_ANIMATION_CHANNEL_COUNT:
                 _animation->channel_count = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                if(_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_VALUE);
+                if(_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA);
 
                 // allocate memory for channels
                 _animation->channels = new uint32_t[_animation->channel_count];
@@ -751,7 +811,7 @@ namespace Libdas {
             case DasAnimation::LIBDAS_ANIMATION_CHANNELS:
                 for(uint32_t i = 0; i < _animation->channel_count; i++) {
                     _animation->channels[i] = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                    if(_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_VALUE);
+                    if(_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA);
                 }
                 break;
 
@@ -766,42 +826,42 @@ namespace Libdas {
         switch(_type) {
             case DasAnimationChannel::LIBDAS_ANIMATION_CHANNEL_NODE_ID:
                 _channel->node_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_VALUE);
+                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA);
                 break;
 
             case DasAnimationChannel::LIBDAS_ANIMATION_CHANNEL_TARGET:
                 _channel->target = *reinterpret_cast<AnimationTarget*>(_GetReadPtr());
-                if(!_SkipData(sizeof(AnimationTarget))) m_error.Error(LIBDAS_ERROR_INVALID_VALUE);
+                if(!_SkipData(sizeof(AnimationTarget))) m_error.Error(LIBDAS_ERROR_INVALID_DATA);
                 break;
 
             case DasAnimationChannel::LIBDAS_ANIMATION_CHANNEL_INTERPOLATION:
                 _channel->interpolation = *reinterpret_cast<InterpolationType*>(_GetReadPtr());
-                if(!_SkipData(sizeof(InterpolationType))) m_error.Error(LIBDAS_ERROR_INVALID_VALUE);
+                if(!_SkipData(sizeof(InterpolationType))) m_error.Error(LIBDAS_ERROR_INVALID_DATA);
                 break;
 
             case DasAnimationChannel::LIBDAS_ANIMATION_CHANNEL_KEYFRAME_COUNT:
                 _channel->keyframe_count = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_VALUE);
+                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA);
                 break;
 
             case DasAnimationChannel::LIBDAS_ANIMATION_CHANNEL_KEYFRAME_BUFFER_ID:
                 _channel->keyframe_buffer_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_VALUE);
+                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA);
                 break;
 
             case DasAnimationChannel::LIBDAS_ANIMATION_CHANNEL_KEYFRAME_BUFFER_OFFSET:
                 _channel->keyframe_buffer_offset = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_VALUE);
+                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA);
                 break;
 
             case DasAnimationChannel::LIBDAS_ANIMATION_CHANNEL_TARGET_VALUE_BUFFER_ID:
                 _channel->target_value_buffer_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_VALUE);
+                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA);
                 break;
 
             case DasAnimationChannel::LIBDAS_ANIMATION_CHANNEL_TARGET_VALUE_BUFFER_OFFSET:
                 _channel->target_value_buffer_offset = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_VALUE);
+                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA);
                 break;
 
             default:
@@ -816,67 +876,67 @@ namespace Libdas {
         switch(_type) {
             case LIBDAS_DAS_SCOPE_PROPERTIES:
                 if(_value_type.type() != typeid(DasProperties::ValueType))
-                    m_error.Error(LIBDAS_ERROR_INVALID_VALUE, _val_str);
+                    m_error.Error(LIBDAS_ERROR_INVALID_DATA, _val_str);
                 _ReadPropertiesValue(std::any_cast<DasProperties>(&_scope), std::any_cast<DasProperties::ValueType>(_value_type));
                 break;
 
             case LIBDAS_DAS_SCOPE_BUFFER:
                 if(_value_type.type() != typeid(DasBuffer::ValueType))
-                    m_error.Error(LIBDAS_ERROR_INVALID_VALUE, _val_str);
+                    m_error.Error(LIBDAS_ERROR_INVALID_DATA, _val_str);
                 _ReadBufferValue(std::any_cast<DasBuffer>(&_scope), std::any_cast<DasBuffer::ValueType>(_value_type));
                 break;
 
             case LIBDAS_DAS_SCOPE_MESH_PRIMITIVE:
                 if(_value_type.type() != typeid(DasMeshPrimitive::ValueType))
-                    m_error.Error(LIBDAS_ERROR_INVALID_VALUE, _val_str);
+                    m_error.Error(LIBDAS_ERROR_INVALID_DATA, _val_str);
                 _ReadMeshPrimitiveValue(std::any_cast<DasMeshPrimitive>(&_scope), std::any_cast<DasMeshPrimitive::ValueType>(_value_type));
                 break;
 
             case LIBDAS_DAS_SCOPE_MORPH_TARGET:
                 if(_value_type.type() != typeid(DasMorphTarget::ValueType))
-                    m_error.Error(LIBDAS_ERROR_INVALID_VALUE, _val_str);
+                    m_error.Error(LIBDAS_ERROR_INVALID_DATA, _val_str);
                 _ReadMorphTargetValue(std::any_cast<DasMorphTarget>(&_scope), std::any_cast<DasMorphTarget::ValueType>(_value_type));
                 break;
 
             case LIBDAS_DAS_SCOPE_MESH:
                 if(_value_type.type() != typeid(DasMesh::ValueType))
-                    m_error.Error(LIBDAS_ERROR_INVALID_VALUE, _val_str);
+                    m_error.Error(LIBDAS_ERROR_INVALID_DATA, _val_str);
                 _ReadMeshValue(std::any_cast<DasMesh>(&_scope), std::any_cast<DasMesh::ValueType>(_value_type));
                 break;
 
             case LIBDAS_DAS_SCOPE_NODE:
                 if(_value_type.type() != typeid(DasNode::ValueType))
-                    m_error.Error(LIBDAS_ERROR_INVALID_VALUE, _val_str);
+                    m_error.Error(LIBDAS_ERROR_INVALID_DATA, _val_str);
                 _ReadNodeValue(std::any_cast<DasNode>(&_scope), std::any_cast<DasNode::ValueType>(_value_type));
                 break;
 
             case LIBDAS_DAS_SCOPE_SCENE:
                 if(_value_type.type() != typeid(DasScene::ValueType))
-                    m_error.Error(LIBDAS_ERROR_INVALID_VALUE, _val_str);
+                    m_error.Error(LIBDAS_ERROR_INVALID_DATA, _val_str);
                 _ReadSceneValue(std::any_cast<DasScene>(&_scope), std::any_cast<DasScene::ValueType>(_value_type));
                 break;
 
             case LIBDAS_DAS_SCOPE_SKELETON:
                 if(_value_type.type() != typeid(DasSkeleton::ValueType))
-                    m_error.Error(LIBDAS_ERROR_INVALID_VALUE, _val_str);
+                    m_error.Error(LIBDAS_ERROR_INVALID_DATA, _val_str);
                 _ReadSkeletonValue(std::any_cast<DasSkeleton>(&_scope), std::any_cast<DasSkeleton::ValueType>(_value_type));
                 break;
 
             case LIBDAS_DAS_SCOPE_SKELETON_JOINT:
                 if(_value_type.type() != typeid(DasSkeletonJoint::ValueType))
-                    m_error.Error(LIBDAS_ERROR_INVALID_VALUE, _val_str);
+                    m_error.Error(LIBDAS_ERROR_INVALID_DATA, _val_str);
                 _ReadSkeletonJointValue(std::any_cast<DasSkeletonJoint>(&_scope), std::any_cast<DasSkeletonJoint::ValueType>(_value_type));
                 break;
 
             case LIBDAS_DAS_SCOPE_ANIMATION:
                 if(_value_type.type() != typeid(DasAnimation::ValueType))
-                    m_error.Error(LIBDAS_ERROR_INVALID_VALUE, _val_str);
+                    m_error.Error(LIBDAS_ERROR_INVALID_DATA, _val_str);
                 _ReadAnimationValue(std::any_cast<DasAnimation>(&_scope), std::any_cast<DasAnimation::ValueType>(_value_type));
                 break;
 
             case LIBDAS_DAS_SCOPE_ANIMATION_CHANNEL:
                 if(_value_type.type() != typeid(DasAnimationChannel::ValueType))
-                    m_error.Error(LIBDAS_ERROR_INVALID_VALUE, _val_str);
+                    m_error.Error(LIBDAS_ERROR_INVALID_DATA, _val_str);
                 _ReadAnimationChannelValue(std::any_cast<DasAnimationChannel>(&_scope), std::any_cast<DasAnimationChannel::ValueType>(_value_type));
                 break;
 

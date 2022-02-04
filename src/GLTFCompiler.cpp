@@ -21,9 +21,7 @@ namespace Libdas {
 
 
     GLTFCompiler::~GLTFCompiler() {
-        for(size_t i = 0; i < m_supplemented_buffers.size(); i++) {
-            delete [] m_supplemented_buffers[i];
-        }
+        _FreeSupplementedBuffers(m_supplemented_buffers);
     }
 
 
@@ -80,11 +78,233 @@ namespace Libdas {
             type_mul = 16;
 
         accessor_data.used_size = _root.accessors[_accessor_id].count * type_mul * component_mul;
+        accessor_data.component_type = _root.accessors[_accessor_id].component_type;
         return accessor_data;
     }
 
 
-    uint32_t GLTFCompiler::_SupplementIndices(const char *_odata, IndexSupplementationInfo &_suppl_info, DasBuffer &_buffer) {
+    std::vector<std::vector<GLTFAccessor*>> GLTFCompiler::_GetAllBufferAccessorRegions(GLTFRoot &_root) {
+        std::vector<std::vector<GLTFAccessor*>> all_regions(_root.buffers.size());
+
+        // find buffer offsets from accessors
+        for(int32_t i = 0; i < static_cast<int32_t>(_root.accessors.size()); i++) {
+            BufferAccessorData accessor_data = _FindAccessorData(_root, i);
+            all_regions[accessor_data.buffer_id].push_back(&_root.accessors[i]);
+            all_regions[accessor_data.buffer_id].back()->accumulated_offset = accessor_data.buffer_offset;
+        }
+
+        // sort results
+        for(size_t i = 0; i < all_regions.size(); i++)
+            std::sort(all_regions[i].begin(), all_regions[i].end(), GLTFAccessor::less());
+
+
+        return all_regions;
+    }
+
+
+    std::vector<std::vector<GLTFCompiler::BufferAccessorData>> GLTFCompiler::_GetBufferIndexRegions(GLTFRoot &_root) {
+        std::vector<std::vector<BufferAccessorData>> index_regions(_root.buffers.size());
+
+        // find all index regions
+        for(auto it = _root.meshes.begin(); it != _root.meshes.end(); it++) {
+            for(size_t i = 0; i < it->primitives.size(); i++) {
+                // error if non-indexed geometry is used
+                if(it->primitives[i].indices == INT32_MAX) {
+                    std::cerr << "Non-indexed geometry is not supported by DAS" << std::endl;
+                    EXIT_ON_ERROR(LIBDAS_ERROR_INVALID_DATA);
+                }
+
+                if(_root.accessors[it->primitives[i].indices].component_type == KHRONOS_BYTE ||
+                   _root.accessors[it->primitives[i].indices].component_type == KHRONOS_UNSIGNED_BYTE ||
+                   _root.accessors[it->primitives[i].indices].component_type == KHRONOS_SHORT ||
+                   _root.accessors[it->primitives[i].indices].component_type == KHRONOS_UNSIGNED_SHORT) 
+                {
+                    BufferAccessorData accessor_data = _FindAccessorData(_root, it->primitives[i].indices);
+                    index_regions[accessor_data.buffer_id].push_back(accessor_data);
+                    _root.accessors[it->primitives[i].indices].component_type = KHRONOS_UNSIGNED_INT;
+                }
+            }
+        }
+
+        return index_regions;
+    }
+
+
+    std::vector<std::vector<GLTFCompiler::BufferAccessorData>> GLTFCompiler::_GetBufferJointRegions(GLTFRoot &_root) {
+        std::vector<std::vector<BufferAccessorData>> joint_regions(_root.buffers.size());
+
+        // find all joint regions
+        for(auto mesh_it = _root.meshes.begin(); mesh_it != _root.meshes.end(); mesh_it++) {
+            for(auto prim_it = mesh_it->primitives.begin(); prim_it != mesh_it->primitives.end(); prim_it++) {
+                auto attr_it = prim_it->attributes.begin();
+                // find JOINTS_0 object
+                for(; attr_it != prim_it->attributes.end(); attr_it++) {
+                    if(attr_it->first == "JOINTS_0")
+                        break;
+                }
+
+                if(attr_it == prim_it->attributes.end()) continue;
+
+                BufferAccessorData accessor_data = _FindAccessorData(_root, attr_it->second);
+                joint_regions[accessor_data.buffer_id].push_back(accessor_data);
+            }
+        }
+
+        return joint_regions;
+    }
+
+
+    std::vector<std::vector<GLTFCompiler::BufferAccessorData>> GLTFCompiler::_GetBufferWeightRegions(GLTFRoot &_root) {
+        std::vector<std::vector<BufferAccessorData>> weight_regions(_root.buffers.size());
+
+        // find all weight regions
+        for(auto mesh_it = _root.meshes.begin(); mesh_it != _root.meshes.end(); mesh_it++) {
+            for(auto prim_it = mesh_it->primitives.begin(); prim_it != mesh_it->primitives.end(); prim_it++) {
+                auto attr_it = prim_it->attributes.begin();
+                // find WEIGHTS_0 object
+                for(; attr_it != prim_it->attributes.end(); attr_it++) {
+                    if(attr_it->first == "WEIGHTS_0")
+                        break;
+                }
+
+                if(attr_it == prim_it->attributes.end()) continue;
+
+                BufferAccessorData accessor_data = _FindAccessorData(_root, attr_it->second);
+                if(accessor_data.component_type != KHRONOS_FLOAT)
+                    weight_regions[accessor_data.buffer_id].push_back(accessor_data);
+            }
+        }
+
+        return weight_regions;
+    }
+
+
+    void GLTFCompiler::_CorrectOffsets(std::vector<GLTFAccessor*> &_accessors, size_t _diff, size_t _offsets) {
+        for(GLTFAccessor *accessor : _accessors) {
+            if(accessor->accumulated_offset <= _offsets)
+                continue;
+
+            accessor->byte_offset += static_cast<uint32_t>(_diff);
+            accessor->accumulated_offset += static_cast<uint32_t>(_diff);
+        }
+    }
+
+
+    size_t GLTFCompiler::_FindPrimitiveCount(const GLTFRoot &_root) {
+        size_t count = 0;
+        for(size_t i = 0; i < _root.meshes.size(); i++)
+            count += _root.meshes[i].primitives.size();
+
+        return count;
+    }
+
+
+    std::vector<size_t> GLTFCompiler::_FindMeshNodes(const GLTFRoot &_root, size_t _mesh_index) {
+        std::vector<size_t> nodes;
+        nodes.reserve(_root.nodes.size());
+
+        for(size_t i = 0; i < _root.nodes.size(); i++) {
+            if(_root.nodes[i].mesh == static_cast<int32_t>(_mesh_index))
+                nodes.push_back(i);
+        }
+
+        nodes.shrink_to_fit();
+        return nodes;
+    }
+
+
+    const std::vector<float> GLTFCompiler::_FindMorphWeightsFromNodes(const GLTFRoot &_root, size_t _mesh_index) {
+        std::vector<size_t> nodes = _FindMeshNodes(_root, _mesh_index);
+
+        if(nodes.size() > 1)
+            return std::vector<float>();
+
+        return _root.nodes[nodes.back()].weights;
+    }
+
+
+    auto GLTFCompiler::_FindDataPtrFromOffset(const std::vector<std::pair<const char*, size_t>> &_ptrs, size_t &_offset) {
+        size_t current_offset = 0;
+        for(auto it = _ptrs.begin(); it != _ptrs.end(); it++) {
+            if(current_offset <= _offset && current_offset + it->second >= _offset) {
+                _offset -= current_offset;
+                return it;
+            }
+
+            current_offset += it->second;
+        }
+
+        LIBDAS_ASSERT(false);
+        return _ptrs.end();
+    }
+
+
+    void GLTFCompiler::_FlagJointNodes(const GLTFRoot &_root) {
+        std::vector<bool> skin_joint_table(_root.nodes.size());
+        std::fill(skin_joint_table.begin(), skin_joint_table.end(), false);
+
+        m_scene_node_id_table.resize(_root.nodes.size());
+        m_skeleton_joint_id_table.resize(_root.nodes.size());
+
+        for(auto skin_it = _root.skins.begin(); skin_it != _root.skins.end(); skin_it++) {
+            for(size_t i = 0; i < skin_it->joints.size(); i++)
+                skin_joint_table[skin_it->joints[i]] = true;
+        }
+
+        uint32_t skipped_nodes = 0;
+        for(uint32_t i = 0; i < static_cast<uint32_t>(_root.nodes.size()); i++) {
+            if(skin_joint_table[i]) {
+                m_scene_node_id_table[i] = UINT32_MAX;
+                m_skeleton_joint_id_table[i] = skipped_nodes;
+                skipped_nodes++;
+            }
+            else if(_root.nodes[i].children.size() == 0 && _root.nodes[i].skin == INT32_MAX && _root.nodes[i].mesh == INT32_MAX) {
+                m_scene_node_id_table[i] = UINT32_MAX;
+                m_skeleton_joint_id_table[i] = UINT32_MAX;
+                skipped_nodes++;
+            }
+            else {
+                m_skeleton_joint_id_table[i] = UINT32_MAX;
+                m_scene_node_id_table[i] = i - skipped_nodes;
+            }
+        }
+    }
+
+
+    bool GLTFCompiler::_IsRootNode(const GLTFRoot &_root, int32_t _node_id, const std::vector<int32_t> &_pool) {
+        for(int32_t i = 0; i < static_cast<int32_t>(_root.nodes[_node_id].children.size()); i++) {
+            std::vector<int32_t> npool = _pool;
+            auto it = std::find(npool.begin(), npool.end(), _root.nodes[_node_id].children[i]);
+            if(it == npool.end()) {
+                std::cerr << "Invalid child object in children pool" << std::endl;
+                std::exit(LIBDAS_ERROR_INVALID_DATA);
+            }
+
+            npool.erase(it);
+
+            if(!npool.size()) return true;
+
+            if(_IsRootNode(_root, _root.nodes[_node_id].children[i], npool))
+                return true;
+        }
+
+        return false;
+    }
+
+
+    uint32_t GLTFCompiler::_FindCommonRootJoint(const GLTFRoot &_root, const GLTFSkin &_skin) {
+        for(size_t i = 0; i < _skin.joints.size(); i++) {
+            std::vector<int32_t> pool = _skin.joints;
+            pool.erase(pool.begin() + i);
+            if(_IsRootNode(_root, _skin.joints[i], pool))
+                return static_cast<uint32_t>(i);
+        }
+
+        return UINT32_MAX;
+    }
+
+
+    uint32_t GLTFCompiler::_SupplementIndices(const char *_odata, BufferAccessorData &_suppl_info, DasBuffer &_buffer) {
         char *buf = nullptr;
         size_t len = 0; // in units not in bytes
         size_t diff = 0;
@@ -138,233 +358,203 @@ namespace Libdas {
     }
 
 
-    std::vector<std::vector<GLTFAccessor*>> GLTFCompiler::_GetAllBufferAccessorRegions(GLTFRoot &_root) {
-        std::vector<std::vector<GLTFAccessor*>> all_regions(_root.buffers.size());
+    uint32_t GLTFCompiler::_SupplementJointIndices(const char *_odata, BufferAccessorData &_suppl_info, DasBuffer &_buffer) {
+        char *buf = nullptr;
+        size_t len = 0; // units
+        size_t diff = 0;
 
-        // find buffer offsets from accessors
-        for(int32_t i = 0; i < static_cast<int32_t>(_root.accessors.size()); i++) {
-            BufferAccessorData accessor_data = _FindAccessorData(_root, i);
-            all_regions[accessor_data.buffer_id].push_back(&_root.accessors[i]);
-            all_regions[accessor_data.buffer_id].back()->accumulated_offset = accessor_data.buffer_offset;
-        }
+        switch(_suppl_info.component_type) {
+            case KHRONOS_UNSIGNED_BYTE:
+                len = (static_cast<size_t>(_suppl_info.used_size) / sizeof(unsigned char));
+                buf = new char[len * sizeof(uint32_t)];
+                diff = len * sizeof(uint32_t) - len * sizeof(unsigned char);
 
-        // sort results
-        for(size_t i = 0; i < all_regions.size(); i++)
-            std::sort(all_regions[i].begin(), all_regions[i].end(), GLTFAccessor::less());
+                for(size_t i = 0; i < len; i++)
+                    reinterpret_cast<uint32_t*>(buf)[i] = static_cast<uint32_t>(reinterpret_cast<const unsigned char*>(_odata)[i]);
+                break;
 
+            case KHRONOS_UNSIGNED_SHORT:
+                len = (static_cast<size_t>(_suppl_info.used_size) / sizeof(unsigned short));
+                buf = new char[len * sizeof(uint32_t)];
+                diff = len * sizeof(uint32_t) - len * sizeof(unsigned short);
 
-        return all_regions;
-    }
+                for(size_t i = 0; i < len; i++)
+                    reinterpret_cast<uint32_t*>(buf)[i] = static_cast<uint32_t>(reinterpret_cast<const unsigned short*>(_odata)[i]);
+                break;
 
-
-    std::vector<std::vector<GLTFCompiler::IndexSupplementationInfo>> GLTFCompiler::_GetBufferIndexRegions(GLTFRoot &_root) {
-        std::vector<std::vector<IndexSupplementationInfo>> index_regions(_root.buffers.size());
-
-        // find all index regions
-        for(auto it = _root.meshes.begin(); it != _root.meshes.end(); it++) {
-            for(size_t i = 0; i < it->primitives.size(); i++) {
-                // error if non-indexed geometry is used
-                if(it->primitives[i].indices == INT32_MAX) {
-                    std::cerr << "Non-indexed geometry is not supported by DAS" << std::endl;
-                    EXIT_ON_ERROR(LIBDAS_ERROR_INVALID_DATA);
-                }
-
-                if(_root.accessors[it->primitives[i].indices].component_type == KHRONOS_BYTE ||
-                   _root.accessors[it->primitives[i].indices].component_type == KHRONOS_UNSIGNED_BYTE ||
-                   _root.accessors[it->primitives[i].indices].component_type == KHRONOS_SHORT ||
-                   _root.accessors[it->primitives[i].indices].component_type == KHRONOS_UNSIGNED_SHORT) 
-                {
-                    BufferAccessorData accessor_data = _FindAccessorData(_root, it->primitives[i].indices);
-                    index_regions[accessor_data.buffer_id].push_back({ 
-                        accessor_data.buffer_offset, 
-                        accessor_data.used_size,  
-                        _root.accessors[it->primitives[i].indices].component_type
-                    });
-
-                    _root.accessors[it->primitives[i].indices].component_type = KHRONOS_UNSIGNED_INT;
-                }
-            }
-        }
-
-        return index_regions;
-    }
-
-
-    void GLTFCompiler::_CorrectOffsets(std::vector<GLTFAccessor*> &_accessors, size_t _diff, size_t _offsets) {
-        for(GLTFAccessor *accessor : _accessors) {
-            if(accessor->accumulated_offset <= _offsets)
-                continue;
-
-            accessor->byte_offset += static_cast<uint32_t>(_diff);
-            accessor->accumulated_offset += static_cast<uint32_t>(_diff);
-        }
-    }
-
-
-    size_t GLTFCompiler::_FindPrimitiveCount(const GLTFRoot &_root) {
-        size_t count = 0;
-        for(size_t i = 0; i < _root.meshes.size(); i++)
-            count += _root.meshes[i].primitives.size();
-
-        return count;
-    }
-
-
-    std::vector<size_t> GLTFCompiler::_FindMeshNodes(const GLTFRoot &_root, size_t _mesh_index) {
-        std::vector<size_t> nodes;
-        nodes.reserve(_root.nodes.size());
-
-        for(size_t i = 0; i < _root.nodes.size(); i++) {
-            if(_root.nodes[i].mesh == static_cast<int32_t>(_mesh_index))
-                nodes.push_back(i);
-        }
-
-        nodes.shrink_to_fit();
-        return nodes;
-    }
-
-
-    const std::vector<float> GLTFCompiler::_FindMorphWeightsFromNodes(const GLTFRoot &_root, size_t _mesh_index) {
-        std::vector<size_t> nodes = _FindMeshNodes(_root, _mesh_index);
-
-        if(nodes.size() > 1)
-            return std::vector<float>();
-
-        return _root.nodes[nodes.back()].weights;
-    }
-
-
-    void GLTFCompiler::_FlagJointNodes(const GLTFRoot &_root) {
-        std::vector<bool> skin_joint_table(_root.nodes.size());
-        std::fill(skin_joint_table.begin(), skin_joint_table.end(), false);
-
-        m_scene_node_id_table.resize(_root.nodes.size());
-        m_skeleton_joint_id_table.resize(_root.nodes.size());
-
-        for(auto skin_it = _root.skins.begin(); skin_it != _root.skins.end(); skin_it++) {
-            if(skin_it->skeleton != INT32_MAX)
-                skin_joint_table[skin_it->skeleton] = true;
-
-            for(size_t i = 0; i < skin_it->joints.size(); i++)
-                skin_joint_table[skin_it->joints[i]] = true;
-        }
-
-        uint32_t skipped_nodes = 0;
-        for(uint32_t i = 0; i < static_cast<uint32_t>(_root.nodes.size()); i++) {
-            if(skin_joint_table[i]) {
-                m_scene_node_id_table[i] = UINT32_MAX;
-                m_skeleton_joint_id_table[i] = skipped_nodes;
-                skipped_nodes++;
-            }
-            else {
-                m_skeleton_joint_id_table[i] = UINT32_MAX;
-                m_scene_node_id_table[i] = i - skipped_nodes;
-            }
-        }
-    }
-
-
-    bool GLTFCompiler::_IsRootNode(const GLTFRoot &_root, int32_t _node_id, const std::vector<int32_t> &_pool) {
-        for(int32_t i = 0; i < static_cast<int32_t>(_root.nodes[_node_id].children.size()); i++) {
-            std::vector<int32_t> npool = _pool;
-            auto it = std::find(npool.begin(), npool.end(), _root.nodes[_node_id].children[i]);
-            if(it == _root.nodes[_node_id].children.end())
-                // should be replaced with correct error anyways
+            default:
                 LIBDAS_ASSERT(false);
-
-            npool.erase(it);
-
-            if(!npool.size()) return true;
-
-            if(_IsRootNode(_root, i, npool))
-                return true;
+                break;
         }
 
-        return false;
+        _buffer.data_ptrs.push_back(std::make_pair(reinterpret_cast<const char*>(buf), len * sizeof(uint32_t)));
+        _buffer.data_len += static_cast<uint32_t>(diff);
+        m_supplemented_buffers.push_back(buf);
+        return static_cast<uint32_t>(diff);
     }
 
 
-    uint32_t GLTFCompiler::_FindCommonRootJoint(const GLTFRoot &_root, const GLTFSkin &_skin) {
-        for(size_t i = 0; i < _skin.joints.size(); i++) {
-            if(_IsRootNode(_root, static_cast<int32_t>(i), _skin.joints))
-                return static_cast<uint32_t>(i);
+    uint32_t GLTFCompiler::_SupplementJointWeights(const char *_odata, BufferAccessorData &_suppl_info, DasBuffer &_buffer) {
+        char *buf = nullptr;
+        size_t len = 0;
+        size_t diff = 0;
+
+        switch(_suppl_info.component_type) {
+            case KHRONOS_UNSIGNED_BYTE:
+                len = (static_cast<size_t>(_suppl_info.used_size) / sizeof(unsigned char));
+                buf = new char[len * sizeof(float)];
+                diff = len * sizeof(float) - len * sizeof(unsigned char);
+
+                for(size_t i = 0; i < len; i++)
+                    reinterpret_cast<float*>(buf)[i] = static_cast<float>(reinterpret_cast<const unsigned char*>(_odata)[i]) / 255.0f;
+                break;
+
+            case KHRONOS_UNSIGNED_SHORT:
+                len = (static_cast<size_t>(_suppl_info.used_size) / sizeof(unsigned short));
+                buf = new char[len * sizeof(float)];
+                diff = len * sizeof(float) - len * sizeof(unsigned short);
+
+                for(size_t i = 0; i < len; i++)
+                    reinterpret_cast<float*>(buf)[i] = static_cast<float>(reinterpret_cast<const unsigned short*>(_odata)[i]) / 65535.0f;
+                break;
+
+            default:
+                LIBDAS_ASSERT(false);
+                break;
         }
 
-        return UINT32_MAX;
+        _buffer.data_ptrs.push_back(std::make_pair(reinterpret_cast<const char*>(buf), len * sizeof(float)));
+        _buffer.data_len += static_cast<uint32_t>(diff);
+        m_supplemented_buffers.push_back(buf);
+        return diff;
     }
 
 
-    // TODO: add accessor buffer offset correction to the implementation
-    // right now only supplementation is done
-    void GLTFCompiler::_StrideIndexBuffers(const GLTFRoot &_root, std::vector<DasBuffer> &_buffers) {
-        std::vector<std::vector<GLTFAccessor*>> all_regions = _GetAllBufferAccessorRegions(const_cast<GLTFRoot&>(_root));
-        std::vector<std::vector<IndexSupplementationInfo>> index_regions = _GetBufferIndexRegions(const_cast<GLTFRoot&>(_root));
+    void GLTFCompiler::_CopyToBuffer(const std::vector<std::pair<const char*, size_t>> &_optrs, char *_dst, size_t _len, size_t _offset, DasBuffer &_buffer) {
+        auto it = _FindDataPtrFromOffset(_optrs, _offset);
+        size_t orig_len = _len;
+        size_t dst_offset = 0;
 
+        while(_len) {
+            // invalid iterator reached
+            if(it == _optrs.end()) {
+                LIBDAS_ASSERT(false);
+            }
+
+            size_t written = _len <= it->second ? _len : it->second - _offset;
+            std::memcpy(_dst + dst_offset, it->first + _offset, written);
+            _offset = 0;
+            dst_offset = written;
+            _len -= written;
+            it++;
+        }
+
+        _buffer.data_ptrs.push_back(std::make_pair(_dst, orig_len));
+        m_supplemented_buffers.push_back(_dst);
+    }
+
+
+    void GLTFCompiler::_StrideBuffer(GLTFCompiler::GLTFAccessors &_accessors, GLTFCompiler::BufferAccessorDatas &_regions, std::vector<DasBuffer> &_buffers, Supplement_PFN _suppl_fn) {
+        std::vector<char*> prev_suppl = m_supplemented_buffers;
+        m_supplemented_buffers.clear();
+        bool is_aug = false;
         uint32_t accumulated_diff = 0;
 
         // for each buffer with index regions, supplement its data
-        for(size_t i = 0; i < index_regions.size(); i++) {
+        for(size_t i = 0; i < _regions.size(); i++) {
+            uint32_t olen = _buffers[i].data_len; 
             // sort by offset size
-            std::sort(index_regions[i].begin(), index_regions[i].end(), IndexSupplementationInfo::less());
-            Algorithm::RemoveDuplicates(index_regions[i], IndexSupplementationInfo::IsDuplicate);
+            std::sort(_regions[i].begin(), _regions[i].end(), BufferAccessorData::less());
+            Algorithm::RemoveDuplicates(_regions[i], BufferAccessorData::IsDuplicate);
 
-            if(!index_regions[i].size())
+            if(!_regions[i].size())
                 continue;
-            DEBUG_LOG("Striding buffer nr " << i);
 
-            const char *odata = _buffers[i].data_ptrs.back().first;
+            std::vector<std::pair<const char*, size_t>> optrs = _buffers[i].data_ptrs;
             _buffers[i].data_ptrs.clear();
 
-            for(size_t j = 0; j < index_regions[i].size(); j++) {
+            for(size_t j = 0; j < _regions[i].size(); j++) {
+                is_aug = true;
                 char *buf = nullptr;
                 size_t len = 0;
-                size_t offset = 0;
+                size_t offset;
 
                 // copy the area before first element
-                if(j == 0 && index_regions[i][j].buffer_offset > 0) {
-                    len = index_regions[i][j].buffer_offset;
+                if(j == 0 && _regions[i][j].buffer_offset > 0) {
+                    len = _regions[i][j].buffer_offset;
                     buf = new char[len];
-                    std::memcpy(buf, odata, len);
-                    _buffers[i].data_ptrs.push_back(std::make_pair(reinterpret_cast<const char*>(buf), len));
-                    m_supplemented_buffers.push_back(buf);
+                    offset = 0;
 
+                    _CopyToBuffer(optrs, buf, len, offset, _buffers[i]);
                     buf = nullptr;
                     len = 0;
                 }
+
                 // copy the area between two index regions
-                else if(index_regions[i][j - 1].buffer_offset + index_regions[i][j - 1].used_size < index_regions[i][j].buffer_offset) {
-                    offset = index_regions[i][j - 1].buffer_offset + index_regions[i][j - 1].used_size;
-                    len = index_regions[i][j].buffer_offset - offset;
+                else if(_regions[i][j - 1].buffer_offset + _regions[i][j - 1].used_size < _regions[i][j].buffer_offset) {
+                    offset = _regions[i][j - 1].buffer_offset + _regions[i][j - 1].used_size;
+                    len = _regions[i][j].buffer_offset - offset;
                     buf = new char[len];
 
-                    std::memcpy(buf, odata + offset, len);
-                    _buffers[i].data_ptrs.push_back(std::make_pair(reinterpret_cast<const char*>(buf), len));
-                    m_supplemented_buffers.push_back(buf);
-
+                    _CopyToBuffer(optrs, buf, len, offset, _buffers[i]);
                     buf = nullptr;
                     len = 0;
                     offset = 0;
                 }
 
                 // supplement indices
-                uint32_t diff = _SupplementIndices(odata, index_regions[i][j], _buffers[i]);
+                offset = static_cast<size_t>(_regions[i][j].buffer_offset);
+                auto it = _FindDataPtrFromOffset(optrs, offset);
+                uint32_t old_offset = _regions[i][j].buffer_offset;
+                len = _buffers[i].data_len;
+                _regions[i][j].buffer_offset = static_cast<uint32_t>(offset);
+                uint32_t diff = (this->*_suppl_fn)(it->first, _regions[i][j], _buffers[i]);
+                _regions[i][j].buffer_offset = old_offset;
 
                 // correct changed offsets
-                _CorrectOffsets(all_regions[i], diff, index_regions[i][j].buffer_offset + accumulated_diff);
+                _CorrectOffsets(_accessors[i], diff, _regions[i][j].buffer_offset + accumulated_diff);
                 accumulated_diff += diff;
 
                 // copy the area between last element and the end of the buffer
-                if(j == index_regions[i].size() - 1 && index_regions[i][j].buffer_offset + index_regions[i][j].used_size < _root.buffers[i].byte_length) {
-                    offset = index_regions[i][j].buffer_offset + index_regions[i][j].used_size;
-                    len = _root.buffers[i].byte_length - offset;
+                if(j == _regions[i].size() - 1 && _regions[i][j].buffer_offset + _regions[i][j].used_size < olen) {
+                    offset = _regions[i][j].buffer_offset + _regions[i][j].used_size;
+                    len -= offset;
                     buf = new char[len];
 
-                    std::memcpy(buf, odata + offset, len);
-                    _buffers[i].data_ptrs.push_back(std::make_pair(reinterpret_cast<const char*>(buf), len));
-                    m_supplemented_buffers.push_back(buf);
+                    _CopyToBuffer(optrs, buf, len, offset, _buffers[i]);
+                    buf = nullptr;
+                    len = 0;
+                    offset = 0;
                 }
             }
         }
+
+        if(is_aug) _FreeSupplementedBuffers(prev_suppl);
+        else m_supplemented_buffers = prev_suppl;
+    }
+
+
+    // TODO: add accessor buffer offset correction to the implementation
+    // right now only supplementation is done
+    void GLTFCompiler::_StrideBuffers(const GLTFRoot &_root, std::vector<DasBuffer> &_buffers) {
+        std::vector<std::vector<GLTFAccessor*>> all_regions(_GetAllBufferAccessorRegions(const_cast<GLTFRoot&>(_root)));
+
+        std::vector<std::vector<BufferAccessorData>> index_regions(std::move(_GetBufferIndexRegions(const_cast<GLTFRoot&>(_root))));
+        _StrideBuffer(all_regions, index_regions, _buffers, &GLTFCompiler::_SupplementIndices);
+
+        std::vector<std::vector<BufferAccessorData>> joint_regions(std::move(_GetBufferJointRegions(const_cast<GLTFRoot&>(_root))));
+        _StrideBuffer(all_regions, joint_regions, _buffers, &GLTFCompiler::_SupplementJointIndices);
+
+        std::vector<std::vector<BufferAccessorData>> joint_weight_regions(std::move(_GetBufferJointRegions(const_cast<GLTFRoot&>(_root))));
+        _StrideBuffer(all_regions, joint_weight_regions, _buffers, &GLTFCompiler::_SupplementJointWeights);
+    }
+
+    
+    void GLTFCompiler::_FreeSupplementedBuffers(std::vector<char*> _mem_areas) {
+        for(auto it = _mem_areas.begin(); it != _mem_areas.end(); it++)
+            delete [] *it;
+
+        _mem_areas.clear();
     }
 
 
@@ -435,7 +625,7 @@ namespace Libdas {
             buffers.push_back(buffer);
         }
 
-        _StrideIndexBuffers(_root, buffers);
+        _StrideBuffers(_root, buffers);
 
         // append images
         for(auto it = _root.images.begin(); it != _root.images.end(); it++) {
@@ -499,6 +689,11 @@ namespace Libdas {
                                 is_attr = true;
                                 break;
 
+                            case LIBDAS_BUFFER_TYPE_VERTEX_TANGENT:
+                                morph_target.vertex_tangent_buffer_id = accessor_data.buffer_id;
+                                morph_target.vertex_tangent_buffer_offset = accessor_data.buffer_offset;
+                                break;
+
                             default:
                                 LIBDAS_ASSERT(false);
                                 break;
@@ -549,6 +744,7 @@ namespace Libdas {
                         EXIT_ON_ERROR(LIBDAS_ERROR_INVALID_DATA);
                     }
 
+                    bool is_joints = false, is_weights = false;
                     accessor_data = _FindAccessorData(_root, attr_it->second);
                     switch(m_attribute_type_map.find(no_nr)->second) {
                         case LIBDAS_BUFFER_TYPE_VERTEX:
@@ -564,6 +760,33 @@ namespace Libdas {
                         case LIBDAS_BUFFER_TYPE_VERTEX_NORMAL:
                             prim.vertex_normal_buffer_id = accessor_data.buffer_id;
                             prim.vertex_normal_buffer_offset = accessor_data.buffer_offset;
+                            break;
+
+                        case LIBDAS_BUFFER_TYPE_VERTEX_TANGENT:
+                            prim.vertex_tangent_buffer_id = accessor_data.buffer_id;
+                            prim.vertex_tangent_buffer_offset = accessor_data.buffer_offset;
+                            break;
+
+                        case LIBDAS_BUFFER_TYPE_JOINTS:
+                            if(is_joints) {
+                                std::cerr << "Using more than 4 joints per node is not allowed" << std::endl;;
+                                std::exit(LIBDAS_ERROR_INVALID_DATA);
+                            }
+
+                            is_joints = true;
+                            prim.joint_index_buffer_id = accessor_data.buffer_id;
+                            prim.joint_index_buffer_offset = accessor_data.buffer_offset;
+                            break;
+
+                        case LIBDAS_BUFFER_TYPE_WEIGHTS:
+                            if(is_weights) {
+                                std::cerr << "Using more than 4 joints per node is not allowed" << std::endl;
+                                std::exit(LIBDAS_ERROR_INVALID_DATA);
+                            }
+
+                            is_weights = true;
+                            prim.weight_buffer_id = accessor_data.buffer_id;
+                            prim.weight_buffer_offset = accessor_data.buffer_offset;
                             break;
 
                         default:
@@ -633,8 +856,16 @@ namespace Libdas {
             node.children_count = static_cast<uint32_t>(_root.nodes[i].children.size());
             node.children = new uint32_t[node.children_count];
 
-            for(uint32_t j = 0; j < node.children_count; j++)
-                node.children[j] = m_scene_node_id_table[_root.nodes[i].children[j]];
+            uint32_t delta_c = 0;
+            for(uint32_t j = 0; j < node.children_count; j++) {
+                if(m_scene_node_id_table[_root.nodes[i].children[j]] == UINT32_MAX) {
+                    delta_c++;
+                    continue;
+                }
+
+                node.children[j - delta_c] = m_scene_node_id_table[_root.nodes[i].children[j]];
+            }
+            node.children_count -= delta_c;
 
             if(_root.nodes[i].mesh != INT32_MAX)
                 node.mesh = _root.nodes[i].mesh;
@@ -672,8 +903,19 @@ namespace Libdas {
             scene.node_count = static_cast<uint32_t>(it->nodes.size());
             scene.nodes = new uint32_t[scene.node_count];
 
-            for(uint32_t i = 0; i < scene.node_count; i++)
-                scene.nodes[i] = m_scene_node_id_table[it->nodes[i]];
+            uint32_t delta_c = 0;
+            for(uint32_t i = 0; i < scene.node_count; i++) {
+                if(m_scene_node_id_table[it->nodes[i]] == UINT32_MAX) {
+                    delta_c++;
+                    continue;
+                }
+
+                scene.nodes[i - delta_c] = m_scene_node_id_table[it->nodes[i]];
+            }
+
+            scene.node_count -= delta_c;
+
+            scenes.emplace_back(std::move(scene));
         }
 
         return scenes;
@@ -690,8 +932,12 @@ namespace Libdas {
 
             if(_root.skins[i].skeleton != INT32_MAX)
                 skeleton.parent = static_cast<uint32_t>(_root.skins[i].skeleton);
-            else
-                skeleton.parent = _FindCommonRootJoint(_root, _root.skins[i]);
+            else {
+                if((skeleton.parent = _FindCommonRootJoint(_root, _root.skins[i])) == UINT32_MAX) {
+                    std::cerr << "Could not find parent skeletal joint for skin " << i << std::endl;
+                    EXIT_ON_ERROR(LIBDAS_ERROR_INVALID_DATA);
+                }
+            }
 
             skeleton.joint_count = static_cast<uint32_t>(_root.skins[i].joints.size());
             skeleton.joints = new uint32_t[skeleton.joint_count];
@@ -710,22 +956,14 @@ namespace Libdas {
         
         for(auto skin_it = _root.skins.begin(); skin_it != _root.skins.end(); skin_it++) {
             BufferAccessorData accessor_data = _FindAccessorData(_root, skin_it->inverse_bind_matrices);
-            uint32_t data_ptr_id = 0;
-            size_t ptr_offset = 0;
 
-            // find data_ptr_id
-            for(size_t offset = 0; data_ptr_id < static_cast<uint32_t>(_buffers[accessor_data.buffer_id].data_ptrs.size()); data_ptr_id++) {
-                const std::pair<const char*, size_t> &data_ptr = _buffers[accessor_data.buffer_id].data_ptrs[data_ptr_id];
-                if(offset + data_ptr.second >= accessor_data.buffer_offset + accessor_data.used_size && accessor_data.buffer_offset >= offset) {
-                    ptr_offset = static_cast<size_t>(accessor_data.buffer_offset) - offset;
-                    break;
-                }
-            }
-
-            const std::pair<const char*, size_t> &data_ptr = _buffers[accessor_data.buffer_id].data_ptrs[data_ptr_id];
+            size_t ptr_offset = accessor_data.buffer_offset;
+            auto it = _FindDataPtrFromOffset(_buffers[accessor_data.buffer_id].data_ptrs, ptr_offset);
             for(size_t i = 0; i < skin_it->joints.size(); i++) {
+                if(m_skeleton_joint_id_table[skin_it->joints[i]] == UINT32_MAX) continue;
+
                 DasSkeletonJoint joint;
-                joint.inverse_bind_pos = reinterpret_cast<const Matrix4<float>*>(data_ptr.first + ptr_offset)[i];
+                joint.inverse_bind_pos = reinterpret_cast<const Matrix4<float>*>(it->first + ptr_offset)[i];
                 joint.rotation = _root.nodes[skin_it->joints[i]].rotation;
 
                 // for each child in joint

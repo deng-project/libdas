@@ -66,13 +66,15 @@ void DASTool::_ConvertGLTF(const std::string &_input_file) {
 
 void DASTool::_ConvertGLB(const std::string &_input_file) {
     std::cerr << "Feature not yet implemented" << std::endl;
-    LIBDAS_ASSERT(false);
+    std::cerr << "Convert file: " << _input_file << std::endl;
+    EXIT_ON_ERROR(-1);
 }
 
 
 void DASTool::_ConvertFBX(const std::string &_input_file) {
     std::cerr << "Feature not yet implemented" << std::endl;
-    LIBDAS_ASSERT(false);
+    std::cerr << "Convert file: " << _input_file << std::endl;
+    EXIT_ON_ERROR(-1);
 }
 
 
@@ -180,13 +182,15 @@ void DASTool::_ListWavefrontObj(const std::string &_input_file) {
 
 void DASTool::_ListGLTF(const std::string &_input_file) {
     std::cerr << "Feature not yet implemented" << std::endl;
-    LIBDAS_ASSERT(false);
+    std::cerr << "File: " << _input_file << std::endl;
+    EXIT_ON_ERROR(-1);
 }
 
 
 void DASTool::_ListGLB(const std::string &_input_file) {
     std::cerr << "Feature not yet implemented" << std::endl;
-    LIBDAS_ASSERT(false);
+    std::cerr << "File: " << _input_file << std::endl;
+    EXIT_ON_ERROR(-1);
 }
 
 
@@ -221,12 +225,14 @@ void DASTool::_ListDasBuffers(Libdas::DasParser &_parser) {
             types += " texmap";
         if((_parser.AccessBuffer(i).type & LIBDAS_BUFFER_TYPE_VERTEX_NORMAL) == LIBDAS_BUFFER_TYPE_VERTEX_NORMAL)
             types += " normals";
+        if((_parser.AccessBuffer(i).type & LIBDAS_BUFFER_TYPE_VERTEX_TANGENT) == LIBDAS_BUFFER_TYPE_VERTEX_TANGENT)
+            types += " tangents";
         if((_parser.AccessBuffer(i).type & LIBDAS_BUFFER_TYPE_COLOR) == LIBDAS_BUFFER_TYPE_COLOR)
             types += " colordata";
         if((_parser.AccessBuffer(i).type & LIBDAS_BUFFER_TYPE_JOINTS) == LIBDAS_BUFFER_TYPE_JOINTS)
             types += " joints";
         if((_parser.AccessBuffer(i).type & LIBDAS_BUFFER_TYPE_WEIGHTS) == LIBDAS_BUFFER_TYPE_WEIGHTS)
-            types += " morphweights";
+            types += " jointweights";
         if((_parser.AccessBuffer(i).type & LIBDAS_BUFFER_TYPE_INDICES) == LIBDAS_BUFFER_TYPE_INDICES)
             types += " indices";
         if((_parser.AccessBuffer(i).type & LIBDAS_BUFFER_TYPE_TEXTURE_JPEG) == LIBDAS_BUFFER_TYPE_TEXTURE_JPEG)
@@ -318,11 +324,28 @@ void DASTool::_ListDasMeshes(Libdas::DasParser &_parser) {
                 std::cout << "-- Texture id: " << prim.texture_id << std::endl;
             if(prim.texture_map_buffer_id != UINT32_MAX) {
                 std::cout << "-- Texture map buffer id: " << prim.texture_map_buffer_id << std::endl;
-                std::cout << "-- Texture map buffer offset: " << prim.texture_map_buffer_offset << std::endl;
+                if(prim.texture_map_buffer_offset)
+                    std::cout << "-- Texture map buffer offset: " << prim.texture_map_buffer_offset << std::endl;
             }
             if(prim.vertex_normal_buffer_id != UINT32_MAX) {
                 std::cout << "-- Vertex normal buffer id: " << prim.vertex_normal_buffer_id << std::endl;
-                std::cout << "-- Vertex normal buffer offset: " << prim.vertex_normal_buffer_offset << std::endl;
+                if(prim.vertex_normal_buffer_offset)
+                    std::cout << "-- Vertex normal buffer offset: " << prim.vertex_normal_buffer_offset << std::endl;
+            }
+            if(prim.vertex_tangent_buffer_id != UINT32_MAX) {
+                std::cout << "-- Vertex tangent buffer id: " << prim.vertex_tangent_buffer_id << std::endl;
+                if(prim.vertex_tangent_buffer_offset)
+                    std::cout << "-- Vertex tangent buffer offset: " << prim.vertex_tangent_buffer_offset << std::endl;
+            }
+            if(prim.joint_index_buffer_id != UINT32_MAX) {
+                std::cout << "-- Joint indices buffer id: " << prim.joint_index_buffer_id << std::endl;
+                if(prim.joint_index_buffer_offset)
+                    std::cout << "-- Joint indices buffer offset: " << prim.joint_index_buffer_offset << std::endl;
+            }
+            if(prim.weight_buffer_id != UINT32_MAX) {
+                std::cout << "-- Joint weights buffer id: " << prim.weight_buffer_id << std::endl;
+                if(prim.weight_buffer_offset)
+                    std::cout << "-- Joint weights buffer offset: " << prim.weight_buffer_offset << std::endl;
             }
         }
     }

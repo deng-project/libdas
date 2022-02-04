@@ -201,6 +201,24 @@ namespace Libdas {
                 _WriteNumericalValue<uint32_t>("VERTEXNORMALBUFFEROFFSET", _primitive.vertex_normal_buffer_offset);
         }
 
+        if(_primitive.vertex_tangent_buffer_id != UINT32_MAX) {
+            _WriteNumericalValue<uint32_t>("VERTEXTANGENTBUFFERID", _primitive.vertex_tangent_buffer_id);
+            if(_primitive.vertex_tangent_buffer_offset)
+                _WriteNumericalValue<uint32_t>("VERTEXTANGENTBUFFEROFFSET", _primitive.vertex_tangent_buffer_offset);
+        }
+
+        if(_primitive.joint_index_buffer_id != UINT32_MAX) {
+            _WriteNumericalValue<uint32_t>("JOINTINDEXBUFFERID", _primitive.joint_index_buffer_id);
+            if(_primitive.joint_index_buffer_offset)
+                _WriteNumericalValue<uint32_t>("JOINTINDEXBUFFEROFFSET", _primitive.joint_index_buffer_offset);
+        }
+
+        if(_primitive.weight_buffer_id != UINT32_MAX) {
+            _WriteNumericalValue<uint32_t>("WEIGHTBUFFERID", _primitive.weight_buffer_id);
+            if(_primitive.weight_buffer_offset)
+                _WriteNumericalValue<uint32_t>("WEIGHTBUFFEROFFSET", _primitive.weight_buffer_offset);
+        }
+
         if(_primitive.morph_target_count) {
             _WriteNumericalValue<uint32_t>("MORPHTARGETCOUNT", _primitive.morph_target_count);
             _WriteArrayValue<uint32_t>("MORPHTARGETS", _primitive.morph_target_count, _primitive.morph_targets);

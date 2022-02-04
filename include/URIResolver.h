@@ -12,6 +12,7 @@
     #include <string>
     #include <fstream>
     #include <iostream>
+    #include <sstream>
     #include <map>
 
     #include <Api.h>
@@ -56,6 +57,7 @@ namespace Libdas {
              * Resolve file:// URI
              */
             void _ResolveFileURI();
+            void _SolvePercentNotation(const std::string &_uri);
             void _FindUriBufferTypeFromExtension();
 
         public:

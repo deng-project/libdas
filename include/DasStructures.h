@@ -165,7 +165,9 @@ namespace Libdas {
         DasMeshPrimitive(const DasMeshPrimitive &_prim) : index_buffer_id(_prim.index_buffer_id), index_buffer_offset(_prim.index_buffer_offset),
             indices_count(_prim.indices_count), vertex_buffer_id(_prim.vertex_buffer_id), vertex_buffer_offset(_prim.vertex_buffer_offset), 
             texture_id(_prim.texture_id), texture_map_buffer_id(_prim.texture_map_buffer_id), texture_map_buffer_offset(_prim.texture_map_buffer_offset),
-            vertex_normal_buffer_id(_prim.vertex_normal_buffer_id), vertex_normal_buffer_offset(_prim.vertex_normal_buffer_offset), morph_target_count(_prim.morph_target_count)
+            vertex_normal_buffer_id(_prim.vertex_normal_buffer_id), vertex_normal_buffer_offset(_prim.vertex_normal_buffer_offset), vertex_tangent_buffer_id(_prim.vertex_tangent_buffer_id),
+            vertex_tangent_buffer_offset(_prim.vertex_tangent_buffer_offset), joint_index_buffer_id(_prim.joint_index_buffer_id), joint_index_buffer_offset(_prim.joint_index_buffer_offset),
+            weight_buffer_id(_prim.weight_buffer_id), weight_buffer_offset(_prim.weight_buffer_offset), morph_target_count(_prim.morph_target_count), indexing_mode(_prim.indexing_mode)
         {
             if(morph_target_count) {
                 morph_targets = new uint32_t[morph_target_count];
@@ -183,8 +185,11 @@ namespace Libdas {
         DasMeshPrimitive(DasMeshPrimitive &&_prim) : index_buffer_id(_prim.index_buffer_id), index_buffer_offset(_prim.index_buffer_offset),
             indices_count(_prim.indices_count), vertex_buffer_id(_prim.vertex_buffer_id), vertex_buffer_offset(_prim.vertex_buffer_offset), 
             texture_id(_prim.texture_id), texture_map_buffer_id(_prim.texture_map_buffer_id), texture_map_buffer_offset(_prim.texture_map_buffer_offset),
-            vertex_normal_buffer_id(_prim.vertex_normal_buffer_id), vertex_normal_buffer_offset(_prim.vertex_normal_buffer_offset), morph_target_count(_prim.morph_target_count),
-            morph_targets(_prim.morph_targets), morph_weights(_prim.morph_weights)
+            vertex_normal_buffer_id(_prim.vertex_normal_buffer_id), vertex_normal_buffer_offset(_prim.vertex_normal_buffer_offset), 
+            vertex_tangent_buffer_id(_prim.vertex_tangent_buffer_id), vertex_tangent_buffer_offset(_prim.vertex_tangent_buffer_offset),
+            joint_index_buffer_id(_prim.joint_index_buffer_id), joint_index_buffer_offset(_prim.joint_index_buffer_offset), 
+            weight_buffer_id(_prim.weight_buffer_id), weight_buffer_offset(_prim.weight_buffer_offset), morph_target_count(_prim.morph_target_count),
+            morph_targets(_prim.morph_targets), morph_weights(_prim.morph_weights), indexing_mode(_prim.indexing_mode)
         {
             _prim.morph_targets = nullptr;
             _prim.morph_weights = nullptr;
@@ -205,6 +210,12 @@ namespace Libdas {
         uint32_t texture_map_buffer_offset = 0;
         uint32_t vertex_normal_buffer_id = UINT32_MAX;
         uint32_t vertex_normal_buffer_offset = 0;
+        uint32_t vertex_tangent_buffer_id = UINT32_MAX;
+        uint32_t vertex_tangent_buffer_offset = 0;
+        uint32_t joint_index_buffer_id = UINT32_MAX;
+        uint32_t joint_index_buffer_offset = 0;
+        uint32_t weight_buffer_id = UINT32_MAX;
+        uint32_t weight_buffer_offset = 0;
         uint32_t morph_target_count = 0;
         uint32_t *morph_targets = nullptr;
         float *morph_weights = nullptr;
@@ -222,6 +233,12 @@ namespace Libdas {
             LIBDAS_MESH_PRIMITIVE_TEXTURE_MAP_BUFFER_OFFSET,
             LIBDAS_MESH_PRIMITIVE_VERTEX_NORMAL_BUFFER_ID,
             LIBDAS_MESH_PRIMITIVE_VERTEX_NORMAL_BUFFER_OFFSET,
+            LIBDAS_MESH_PRIMITIVE_VERTEX_TANGENT_BUFFER_ID,
+            LIBDAS_MESH_PRIMITIVE_VERTEX_TANGENT_BUFFER_OFFSET,
+            LIBDAS_MESH_PRIMITIVE_JOINT_INDEX_BUFFER_ID,
+            LIBDAS_MESH_PRIMITIVE_JOINT_INDEX_BUFFER_OFFSET,
+            LIBDAS_MESH_PRIMITIVE_WEIGHT_BUFFER_ID,
+            LIBDAS_MESH_PRIMITIVE_WEIGHT_BUFFER_OFFSET,
             LIBDAS_MESH_PRIMITIVE_MORPH_TARGET_COUNT,
             LIBDAS_MESH_PRIMITIVE_MORPH_TARGETS,
             LIBDAS_MESH_PRIMITIVE_MORPH_WEIGHTS,
@@ -235,18 +252,22 @@ namespace Libdas {
     struct DasMorphTarget {
         uint32_t vertex_buffer_id = UINT32_MAX;
         uint32_t vertex_buffer_offset = 0;
-        uint32_t vertex_normal_buffer_id = UINT32_MAX;
-        uint32_t vertex_normal_buffer_offset = UINT32_MAX;
         uint32_t texture_map_buffer_id = UINT32_MAX;
         uint32_t texture_map_buffer_offset = 0;
+        uint32_t vertex_normal_buffer_id = UINT32_MAX;
+        uint32_t vertex_normal_buffer_offset = UINT32_MAX;
+        uint32_t vertex_tangent_buffer_id = UINT32_MAX;
+        uint32_t vertex_tangent_buffer_offset = 0;
 
         enum ValueType {
             LIBDAS_MORPH_TARGET_VERTEX_BUFFER_ID,
             LIBDAS_MORPH_TARGET_VERTEX_BUFFER_OFFSET,
+            LIBDAS_MORPH_TARGET_TEXTURE_MAP_BUFFER_ID,
+            LIBDAS_MORPH_TARGET_TEXTURE_MAP_BUFFER_OFFSET,
             LIBDAS_MORPH_TARGET_VERTEX_NORMAL_BUFFER_ID,
             LIBDAS_MORPH_TARGET_VERTEX_NORMAL_BUFFER_OFFSET,
-            LIBDAS_MORPH_TARGET_TEXTURE_MAP_BUFFER_ID,
-            LIBDAS_MORPH_TARGET_TEXTURE_MAP_BUFFER_OFFSET
+            LIBDAS_MORPH_TARGET_VERTEX_TANGENT_BUFFER_ID,
+            LIBDAS_MORPH_TARGET_VERTEX_TANGENT_BUFFER_OFFSET,
         };
     };
 
@@ -394,7 +415,7 @@ namespace Libdas {
         DasSkeletonJoint(DasSkeletonJoint &&_joint) : inverse_bind_pos(_joint.inverse_bind_pos), name(std::move(_joint.name)), children_count(_joint.children_count),
             children(_joint.children), scale(_joint.scale), rotation(_joint.rotation), translation(_joint.translation) 
         {
-            children = nullptr;
+            _joint.children = nullptr;
         }
 
         ~DasSkeletonJoint() {

@@ -263,14 +263,13 @@ namespace std {
          * @param _s specifies the variable value for hashing
          */
         result_type operator()(argument_type const& _s) const {
-            Libdas::Point3D<result_type> hashes = Libdas::Point3D<result_type>(*reinterpret_cast<const result_type*>(&_s.x), 
-                                                                               *reinterpret_cast<const result_type*>(&_s.y),
-                                                                               *reinterpret_cast<const result_type*>(&_s.z));
+            const char *_data = reinterpret_cast<const char*>(&_s.x);
+
             // using joaat hash
             result_type h = 0;
 
-            for(auto it = hashes.Begin(); it != hashes.End(); it++) {
-                h += *it & 0xff;
+            for(int i = 0; i < 12; i++) {
+                h += static_cast<result_type>(_data[i]) & 0xff;
                 h += h << 10;
                 h ^= h >> 6;
             }
@@ -294,16 +293,13 @@ namespace std {
          * @param _s specifies the variable value for hashing
          */
         result_type operator()(argument_type const &_s) const {
-            Libdas::Point4D<result_type> hashes = Libdas::Point4D<result_type>(*reinterpret_cast<const result_type*>(&_s.x),
-                                                                               *reinterpret_cast<const result_type*>(&_s.y),
-                                                                               *reinterpret_cast<const result_type*>(&_s.z),
-                                                                               *reinterpret_cast<const result_type*>(&_s.w));
+            const char *_data = reinterpret_cast<const char*>(&_s.x);
 
             // using joaat hash
             result_type h = 0;
 
-            for(auto it = hashes.Begin(); it != hashes.End(); it++) {
-                h += *it & 0xff;
+            for(int i = 0; i < 16; i++) {
+                h += static_cast<result_type>(_data[i]) & 0xff;
                 h += h << 10;
                 h ^= h >> 6;
             }

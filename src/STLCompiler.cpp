@@ -17,8 +17,8 @@ namespace Libdas {
 
 
     void STLCompiler::_IndexVertices(const std::vector<STLObject> &_objects) {
-        std::unordered_map<Point3D<float>, uint32_t> pos_map;
-        std::unordered_map<Point3D<float>, uint32_t> norm_map;
+        std::unordered_map<Point3D<float>, uint32_t, Hash<Point3D<float>>> pos_map;
+        std::unordered_map<Point3D<float>, uint32_t, Hash<Point3D<float>>> norm_map;
 
         uint32_t max_pos = 0;
 

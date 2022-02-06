@@ -1,3 +1,9 @@
 [submodule "modules/stb"]
 	path = modules/stb
 	url = https://github.com/nothings/stb
+[submodule "third_party/glTF-Sample-Models"]
+	path = third_party/glTF-Sample-Models
+	url = https://github.com/KhronosGroup/glTF-Sample-Models
+[submodule "third_party/3DModelSamples"]
+	path = third_party/3DModelSamples
+	url = https://github.com/inugami-dev64/3DModelSamples

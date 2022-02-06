@@ -1,0 +1,52 @@
+#!/bin/sh
+
+DASTOOL_EXEC="../build/debug/DASTool"
+STLA_PATH="../third_party/3DModelSamples/stla/*.stl"
+STLB_PATH="../third_party/3DModelSamples/stlb/*.stl"
+STLA_OUT_PATH="../dasfiles/stla"
+STLB_OUT_PATH="../dasfiles/stlb"
+
+RED='\033[1;31m'
+GREEN='\033[1;32m'
+NO_COLOR='\033[0m'
+
+# Check if output directories exist
+if [[ ! -d "$STLA_OUT_PATH" ]]; then
+    mkdir -p "$STLA_OUT_PATH"
+fi
+
+if [[ ! -d "$STLB_OUT_PATH" ]]; then
+    mkdir -p "$STLB_OUT_PATH"
+fi
+
+# Convert stla files
+let i=1
+printf "${GREEN}-- Converting stla files --${NO_COLOR}\n"
+
+for f in $STLA_PATH; do
+    printf "%d. Testing with file '%s'\n" "$i" "$f"
+    OUT_NAME="$STLA_OUT_PATH/${f##*/}"
+    $DASTOOL_EXEC convert "$f" -o "$OUT_NAME" | tail -10 >> stla.log
+
+    # Check if program execution failed
+    if [[ "${?}" -ne "0" ]]; then
+        printf "${RED}Test nr %d failed!${NO_COLOR}\n" "$i"
+    fi
+    let i=$i+1
+done
+
+# Convert stlb files
+let i=1
+printf "${GREEN}-- Converting stlb files --${NO_COLOR}\n"
+
+for f in $STLB_PATH; do
+    printf "%d. Testing with file '%s'\n" "$i" "$f"
+    OUT_NAME="$STLB_OUT_PATH/${f##*/}"
+    $DASTOOL_EXEC convert "$f" -o "$OUT_NAME" | tail -10 >> stlb.log
+
+    # Check if program execution failed
+    if [[ "${?}" -ne "0" ]]; then
+        printf "${RED}Test nr %d failed!${NO_COLOR}\n" "$i"
+    fi
+    let i=$i+1
+done

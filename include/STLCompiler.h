@@ -24,6 +24,7 @@
     #include <Vector.h>
     #include <Matrix.h>
     #include <Quaternion.h>
+    #include <Hash.h>
 
     #include <LibdasAssert.h>
     #include <ErrorHandlers.h>

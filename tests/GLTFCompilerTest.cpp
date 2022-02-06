@@ -13,6 +13,7 @@
 #include <Api.h>
 #include <Points.h>
 #include <LibdasAssert.h>
+#include <Hash.h>
 #include <Vector.h>
 #include <Matrix.h>
 #include <Quaternion.h>

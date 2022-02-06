@@ -1,0 +1,52 @@
+#!/bin/sh
+
+DASTOOL_EXEC="../build/debug/DASTool"
+EMBEDDED_GLTF_PATH="../third_party/glTF-Sample-Models/2.0/**/glTF-Embedded/*.gltf"
+GLTF_PATH="../third_party/glTF-Sample-Models/2.0/**/glTF/*.gltf"
+EMBEDDED_OUT_PATH="../dasfiles/gltf-embedded"
+GLTF_OUT_PATH="../dasfiles/gltf"
+
+RED='\033[1;31m'
+GREEN='\033[1;32m'
+NO_COLOR='\033[0m'
+
+# Check if output directories exist
+if [[ ! -d "$GLTF_OUT_PATH" ]]; then
+    mkdir -p "$GLTF_OUT_PATH"
+fi
+
+if [[ ! -d "$EMBEDDED_OUT_PATH" ]]; then
+    mkdir -p "$EMBEDDED_OUT_PATH"
+fi
+
+# Convert embedded gltf files
+let i=1
+printf "${GREEN}%s${NO_COLOR}\n" "-- Converting embedded gltf files --"
+
+for f in $EMBEDDED_GLTF_PATH; do
+    printf "%d. Testing with file '%s'\n" "$i" "$f"
+    OUT_NAME="$EMBEDDED_OUT_PATH/${f##*/}"
+    $DASTOOL_EXEC convert "$f" -o "$OUT_NAME" | tail -10 >> gltf.log
+
+    # Check if program execution failed
+    if [[ "${?}" -ne "0" ]]; then
+        printf "${RED}Test nr %d failed!${NO_COLOR}\n" "$i"
+    fi
+    let i=$i+1
+done
+
+# Convert regular gltf files
+let i=1
+printf "${GREEN}%s${NO_COLOR}\n" "-- Converting regular gltf files --"
+
+for f in $GLTF_PATH; do
+    printf "%d. Testing with file '%s'\n" "$i" "$f"
+    OUT_NAME="$GLTF_OUT_PATH/${f##*/}"
+    $DASTOOL_EXEC convert "$f" -o "${OUT_NAME}" | tail -10 >> gltf.log
+
+    # Check if program execution failed
+    if [[ "${?}" -ne "0" ]]; then
+        printf "${RED}Test nr %d failed!${NO_COLOR}\n" "$i"
+    fi
+    let i=$i+1
+done

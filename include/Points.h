@@ -1,7 +1,7 @@
-/// libdas: DENG asset handling management library
-/// licence: Apache, see LICENCE file
-/// file: Points.h - Point data structures definitions
-/// author: Karl-Mihkel Ott
+// libdas: DENG asset handling management library
+// licence: Apache, see LICENCE file
+// file: Points.h - Point data structures definitions
+// author: Karl-Mihkel Ott
 
 
 #ifndef POINTS_H
@@ -251,68 +251,7 @@ namespace Libdas {
 }
 
 
-#ifdef ITERATORS_H
 namespace std {
-    template <>
-    struct hash<Libdas::Point3D<float>> {
-        typedef Libdas::Point3D<float> argument_type;
-        typedef std::size_t result_type;
-
-        /**
-         * Compatible with Point3D<float> class
-         * @param _s specifies the variable value for hashing
-         */
-        result_type operator()(argument_type const& _s) const {
-            const char *_data = reinterpret_cast<const char*>(&_s.x);
-
-            // using joaat hash
-            result_type h = 0;
-
-            for(int i = 0; i < 12; i++) {
-                h += static_cast<result_type>(_data[i]) & 0xff;
-                h += h << 10;
-                h ^= h >> 6;
-            }
-
-            h += h << 3;
-            h ^= h >> 11;
-            h += h << 16;
-
-            return h;
-        }
-    };
-
-
-    template<>
-    struct hash<Libdas::Point4D<float>> {
-        typedef Libdas::Point4D<float> argument_type;
-        typedef std::size_t result_type;
-
-        /**
-         * Compatible with Point4D<float> class
-         * @param _s specifies the variable value for hashing
-         */
-        result_type operator()(argument_type const &_s) const {
-            const char *_data = reinterpret_cast<const char*>(&_s.x);
-
-            // using joaat hash
-            result_type h = 0;
-
-            for(int i = 0; i < 16; i++) {
-                h += static_cast<result_type>(_data[i]) & 0xff;
-                h += h << 10;
-                h ^= h >> 6;
-            }
-
-            h += h << 3;
-            h ^= h >> 11;
-            h += h << 16;
-
-            return h;
-        }
-    };
 }
-
-#endif
 
 #endif

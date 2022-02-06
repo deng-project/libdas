@@ -35,6 +35,7 @@ namespace Libdas {
         m_scope_name_map["JOINT"] = LIBDAS_DAS_SCOPE_SKELETON_JOINT;
         m_scope_name_map["SKELETON"] = LIBDAS_DAS_SCOPE_SKELETON;
         m_scope_name_map["ANIMATION"] = LIBDAS_DAS_SCOPE_ANIMATION; 
+        m_scope_name_map["ANIMATIONCHANNEL"] = LIBDAS_DAS_SCOPE_ANIMATION_CHANNEL;
     }
 
 
@@ -346,6 +347,25 @@ namespace Libdas {
 
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_TRANSLATION:
                         return DasSkeletonJoint::LIBDAS_SKELETON_JOINT_TRANSLATION;
+
+                    default:
+                        return LIBDAS_DAS_UNIQUE_VALUE_TYPE_UNKNOWN;
+                }
+                break;
+
+            case LIBDAS_DAS_SCOPE_SKELETON:
+                switch(type) {
+                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_NAME:
+                        return DasSkeleton::LIBDAS_SKELETON_NAME;
+
+                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_PARENT:
+                        return DasSkeleton::LIBDAS_SKELETON_PARENT;
+
+                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_JOINT_COUNT:
+                        return DasSkeleton::LIBDAS_SKELETON_JOINT_COUNT;
+
+                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_JOINTS:
+                        return DasSkeleton::LIBDAS_SKELETON_JOINTS;
 
                     default:
                         return LIBDAS_DAS_UNIQUE_VALUE_TYPE_UNKNOWN;
@@ -802,7 +822,7 @@ namespace Libdas {
 
             case DasAnimation::LIBDAS_ANIMATION_CHANNEL_COUNT:
                 _animation->channel_count = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                if(_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA);
+                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA);
 
                 // allocate memory for channels
                 _animation->channels = new uint32_t[_animation->channel_count];
@@ -811,7 +831,7 @@ namespace Libdas {
             case DasAnimation::LIBDAS_ANIMATION_CHANNELS:
                 for(uint32_t i = 0; i < _animation->channel_count; i++) {
                     _animation->channels[i] = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                    if(_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA);
+                    if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA);
                 }
                 break;
 

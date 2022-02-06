@@ -120,6 +120,7 @@ namespace Libdas {
         char *beg = m_rd_ptr;
         char *end_str = nullptr; 
         m_rd_ptr++;
+        m_loose_string = "";
 
         while(!end_str) {
             // check for the beginning statement
@@ -129,7 +130,7 @@ namespace Libdas {
             char *end_nl = strchr(m_rd_ptr, '\n');
             if((!end_nl || end_nl > end_str) && end_str) {
                 if(*(end_str - 1) != '\\')
-                    m_loose_string = beg + 1 == end_str ? std::string("(null)") : std::string(beg + 1, end_str);
+                    m_loose_string += beg + 1 == end_str ? std::string("(null)") : std::string(beg + 1, end_str);
                 else {
                     m_rd_ptr = end_str + 1;
                     end_str = nullptr;
@@ -137,7 +138,16 @@ namespace Libdas {
             }
 
             // error unclosed string
-            else if(end_nl < end_str || !_ReadNewChunk()) m_error.Error(LIBDAS_ERROR_INCOMPLETE_NEWLINE, m_line_nr);
+            else if(end_nl < end_str) m_error.Error(LIBDAS_ERROR_INCOMPLETE_NEWLINE, m_line_nr);
+            else {
+                m_loose_string += std::string(beg + 1, m_buffer + m_last_read);
+                if(!_ReadNewChunk())
+                    m_error.Error(LIBDAS_ERROR_INCOMPLETE_SCOPE, m_line_nr);
+                else {
+                    m_rd_ptr = m_buffer;
+                    beg = m_buffer - 1;
+                }
+            }
         }
 
         m_rd_ptr = end_str;

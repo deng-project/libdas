@@ -33,6 +33,7 @@
     #include <Points.h>
     #include <Vector.h>
     #include <Matrix.h>
+    #include <Hash.h>
     #include <Quaternion.h>
     #include <DasStructures.h>
     #include <TextureReader.h>

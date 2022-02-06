@@ -88,8 +88,10 @@ namespace Libdas {
         loose_bytes[1].second = 8;
         for(size_t i = 0; i < _base64_str.size(); i++) {
             int32_t shift = 8 - loose_bytes[0].second;
-            loose_bytes[0].first |= static_cast<char>((m_base64_table[static_cast<uint32_t>(_base64_str[i])] >> shift));
-            loose_bytes[0].second = std::max<int32_t>(static_cast<int32_t>(loose_bytes[0].second) - 6, 0);
+            if(_base64_str[i] != '=') {
+                loose_bytes[0].first |= static_cast<char>((m_base64_table[static_cast<uint32_t>(_base64_str[i])] >> shift));
+                loose_bytes[0].second = std::max<int32_t>(static_cast<int32_t>(loose_bytes[0].second) - 6, 0);
+            }
             
             // add remaning bits to second byte
             if(shift > 2) {

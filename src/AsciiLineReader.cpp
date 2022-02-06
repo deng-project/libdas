@@ -25,6 +25,7 @@ namespace Libdas {
             // no line ending is saved
             m_line_beg = m_buffer;
             m_line_end = std::strchr(m_line_beg, static_cast<int>(NEWLINE));
+            if(!m_line_end) m_line_end = m_buffer + m_last_read;
         }
         return true;
     }

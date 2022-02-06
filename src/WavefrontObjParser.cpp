@@ -223,12 +223,6 @@ namespace Libdas {
             //WavefrontObjFunctions::SurfaceTechniqueArgsCallback
             nullptr
         };
-
-        m_statement_map["#"] = {
-            WAVEFRONT_OBJ_STATEMENT_COMMENT,
-            nullptr
-        };
-
     }
 
 
@@ -236,6 +230,10 @@ namespace Libdas {
         char *rd = _GetReadPtr();
         std::string key = std::string(rd, _end - rd);
         if(key == "") return WavefrontObjStatementCallback();
+
+        // check if keyword starts with comment statement
+        if(key[0] == '#')
+            return { WAVEFRONT_OBJ_STATEMENT_COMMENT, nullptr };
 
         // verify that the key is valid
         auto res = m_statement_map.find(key);
@@ -291,6 +289,9 @@ namespace Libdas {
                     // Check if valid statement was extracted
                     if(statement_reader.type != WAVEFRONT_OBJ_STATEMENT_NONE) {
                         std::vector<std::string> args = _ReadStatementArgs();
+                        if(statement_reader.type == WAVEFRONT_OBJ_STATEMENT_COMMENT)
+                            continue;
+
                         _AnalyseArgs(statement_reader, args);
                     }
                 }

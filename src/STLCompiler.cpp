@@ -84,9 +84,10 @@ namespace Libdas {
 
 
     std::vector<DasMeshPrimitive> STLCompiler::_CreateMeshPrimitives(const std::vector<STLObject> &_objects) {
-        std::vector<DasMeshPrimitive> primitives(_objects.size());
+        std::vector<DasMeshPrimitive> primitives;
+        primitives.reserve(_objects.size());
 
-        for(size_t i = 0; i < primitives.size(); i++) {
+        for(size_t i = 0; i < _objects.size(); i++) {
             DasMeshPrimitive prim;
             prim.index_buffer_id = INDICES_ID;
             prim.index_buffer_offset = static_cast<uint32_t>(m_offsets[i]);
@@ -95,7 +96,7 @@ namespace Libdas {
             prim.vertex_buffer_id = VERTICES_ID;
             prim.vertex_normal_buffer_id = NORMALS_ID;
 
-            primitives.push_back(prim);
+            primitives.emplace_back(prim);
         }
 
         return primitives;

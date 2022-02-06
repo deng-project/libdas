@@ -20,7 +20,7 @@ printf "${GREEN}-- Converting wobj files --${NO_COLOR}\n"
 for f in $WOBJ_PATH; do
     printf "%d. Testing with file '%s'\n" "$i" "$f"
     OUT_NAME="$WOBJ_OUT_PATH/${f##*/}"
-    $DASTOOL_EXEC convert "$f" -o "$OUT_NAME" | tail -10 >> stla.log
+    ${DASTOOL_EXEC} convert "$f" -o "$OUT_NAME" | tail -10 >> stla.log
 
     # Check if program execution failed
     if [[ "${?}" -ne "0" ]]; then

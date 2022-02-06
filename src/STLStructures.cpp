@@ -59,8 +59,7 @@ namespace Libdas {
             *p_is_solid = true;
 
             // concatenate arguments into one name
-            std::string name = _ConcatenateArgs(_args);
-            _groups.push_back(STLObject(std::move(name)));
+            _groups.push_back(STLObject(std::move(*_args.second.begin())));
         }
 
 
@@ -150,7 +149,7 @@ namespace Libdas {
 
         void _EndSolidCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args, void *custom) {
             const std::string keyword = "endsolid";
-            _error.ArgCountCheck(keyword, _args.first, static_cast<uint32_t>(_args.second.size()), 1, 1, TERMINATE);
+            _error.ArgCountCheck(keyword, _args.first, static_cast<uint32_t>(_args.second.size()), 0, UINT32_MAX, TERMINATE);
             std::string con_name = _ConcatenateArgs(_args);
             bool *p_is_solid = reinterpret_cast<bool*>(custom);
 
@@ -159,10 +158,6 @@ namespace Libdas {
                 _error.Error(LIBDAS_ERROR_UNEXPECTED_END_STATEMENT, _args.first, keyword);
 
             *p_is_solid = false;
-
-            // check if the concatenated name is valid for the solid group
-            if(con_name != _groups.back().name)
-                _error.Error(LIBDAS_ERROR_INVALID_ARGUMENT, _args.first, keyword, con_name);
         }
     }
 }

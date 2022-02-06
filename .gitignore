@@ -2,6 +2,7 @@ tags
 .vs/
 doxygen/
 compile_commands.json
+compile_flags.txt
 *.o
 *.jpeg
 *.jpg
@@ -19,6 +20,7 @@ triangulate
 mesh_query
 testobj/
 dam
+dasfiles/
 .cache
 gcc.gz
 hf_comp

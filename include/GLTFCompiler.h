@@ -27,6 +27,7 @@
     #include <Matrix.h>
     #include <Quaternion.h>
 
+    #include <STDUtils.h>
     #include <Algorithm.h>
     #include <LibdasAssert.h>
     #include <ErrorHandlers.h>
@@ -58,14 +59,6 @@ namespace Libdas {
         Vector2<float> tex0 = { FLT_MAX, FLT_MAX };
         Vector4<uint32_t> joints = { UINT32_MAX, UINT32_MAX, UINT32_MAX, UINT32_MAX };
         Vector4<float> weights = { FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX };
-    };
-
-    template <typename _T1, typename _T2>
-    struct FirstLess {
-        typedef std::pair<_T1, _T2> Pair;
-        bool operator()(const Pair &_p1, const Pair &_p2) {
-            return _p1.first < _p2.first;
-        }
     };
 
 

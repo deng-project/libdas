@@ -69,6 +69,10 @@ namespace Libdas {
             return x == _pt.x && y == _pt.y;
         }
 
+        bool operator!=(const Point2D<T> &_pt) const {
+            return x != _pt.x || y != _pt.y;
+        }
+
 #ifdef ITERATORS_H
         iterator Begin() {
             return iterator(const_cast<T*>(&x));
@@ -137,6 +141,10 @@ namespace Libdas {
 
         bool operator==(const Point3D<T> &_pt) const {
             return x == _pt.x && y == _pt.y && z == _pt.z;
+        }
+
+        bool operator!=(const Point3D<T> &_pt) const {
+            return x != _pt.x || y != _pt.y || z != _pt.z;
         }
 
         // casting operator
@@ -229,6 +237,10 @@ namespace Libdas {
 
         bool operator==(const Point4D<T> &_pt) {
             return x == _pt.x && y == _pt.y && z == _pt.z && w == _pt.w;
+        }
+
+        bool operator!=(const Point4D<T> &_pt) {
+            return x != _pt.x || y != _pt.y || z != _pt.z;
         }
 
         static T GetNormalizedValue() {

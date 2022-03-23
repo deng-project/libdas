@@ -122,13 +122,14 @@ class DASTool {
         void _ListWavefrontObj(const std::string &_input_file);
         void _ListGLTF(const std::string &_input_file);
         void _ListGLB(const std::string &_input_file);
-        void _ListDasProperties(Libdas::DasProperties &_props);
+        void _ListDasProperties(const Libdas::DasProperties &_props);
         void _ListDasBuffers(Libdas::DasParser &_parser);
         void _ListDasMeshes(Libdas::DasParser &_parser);
         void _ListDasSkeletons(Libdas::DasParser &_parser);
         void _ListDasSkeletonJoints(Libdas::DasParser &_parser);
         void _ListDasScenes(Libdas::DasParser &_parser);
         void _ListDasNodes(Libdas::DasParser &_parser);
+        void _ListDasAnimationChannels(Libdas::DasParser &_parser);
         void _ListDasAnimations(Libdas::DasParser &_parser);
         void _ListDas(const std::string &_input_file);
 

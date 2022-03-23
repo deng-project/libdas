@@ -139,7 +139,7 @@ namespace Libdas {
             primitives[i].indices_count = _groups[i].indices.faces.size();
             primitives[i].vertex_buffer_id = m_vertex_buffer_id;
             if(m_texture_map_buffer_id != UINT32_MAX)
-                primitives[i].texture_map_buffer_id = m_texture_map_buffer_id;
+                primitives[i].uv_buffer_id = m_texture_map_buffer_id;
             if(m_vertex_normal_buffer_id != UINT32_MAX)
                 primitives[i].vertex_normal_buffer_id = m_vertex_normal_buffer_id;
             if(m_texture_id != UINT32_MAX)

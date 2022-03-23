@@ -12,16 +12,12 @@ in-game entities (also known as assets) during the rendering process.
 In order to build libdas library you will need [premake5](https://github.com/premake/premake-core).  
 
 ### Generate build files
-If GNU toolchain is used you can generate Makefiles using following command:  
-`premake5 gmake2`
 
-On Windows with Visual Studio 2019 use following command:  
-`premake5 vs2019`
-
-When using GNU toolchain you can specify the build configuration using either `config=debug_linux` or `config=release_linux` respectively. Similarly
-on Windows with mingw32 the configuration variable values can be following `config=debug_win32` or `config=release_win32`.
-
-Additionally manual tests can be built using `--test` switch on premake5 command. See `premake5 --help` for more information.
+The project is set up to use CMake for generating build files.  
+`mkdir build`  
+`cd build`  
+`cmake ..`  
+`make`  
 
 
 ## Generating documentation

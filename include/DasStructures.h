@@ -164,7 +164,7 @@ namespace Libdas {
 
         DasMeshPrimitive(const DasMeshPrimitive &_prim) : index_buffer_id(_prim.index_buffer_id), index_buffer_offset(_prim.index_buffer_offset),
             indices_count(_prim.indices_count), vertex_buffer_id(_prim.vertex_buffer_id), vertex_buffer_offset(_prim.vertex_buffer_offset), 
-            texture_id(_prim.texture_id), texture_map_buffer_id(_prim.texture_map_buffer_id), texture_map_buffer_offset(_prim.texture_map_buffer_offset),
+            texture_id(_prim.texture_id), uv_buffer_id(_prim.uv_buffer_id), uv_buffer_offset(_prim.uv_buffer_offset),
             vertex_normal_buffer_id(_prim.vertex_normal_buffer_id), vertex_normal_buffer_offset(_prim.vertex_normal_buffer_offset), vertex_tangent_buffer_id(_prim.vertex_tangent_buffer_id),
             vertex_tangent_buffer_offset(_prim.vertex_tangent_buffer_offset), joint_index_buffer_id(_prim.joint_index_buffer_id), joint_index_buffer_offset(_prim.joint_index_buffer_offset),
             weight_buffer_id(_prim.weight_buffer_id), weight_buffer_offset(_prim.weight_buffer_offset), morph_target_count(_prim.morph_target_count), indexing_mode(_prim.indexing_mode)
@@ -184,7 +184,7 @@ namespace Libdas {
 
         DasMeshPrimitive(DasMeshPrimitive &&_prim) : index_buffer_id(_prim.index_buffer_id), index_buffer_offset(_prim.index_buffer_offset),
             indices_count(_prim.indices_count), vertex_buffer_id(_prim.vertex_buffer_id), vertex_buffer_offset(_prim.vertex_buffer_offset), 
-            texture_id(_prim.texture_id), texture_map_buffer_id(_prim.texture_map_buffer_id), texture_map_buffer_offset(_prim.texture_map_buffer_offset),
+            texture_id(_prim.texture_id), uv_buffer_id(_prim.uv_buffer_id), uv_buffer_offset(_prim.uv_buffer_offset),
             vertex_normal_buffer_id(_prim.vertex_normal_buffer_id), vertex_normal_buffer_offset(_prim.vertex_normal_buffer_offset), 
             vertex_tangent_buffer_id(_prim.vertex_tangent_buffer_id), vertex_tangent_buffer_offset(_prim.vertex_tangent_buffer_offset),
             joint_index_buffer_id(_prim.joint_index_buffer_id), joint_index_buffer_offset(_prim.joint_index_buffer_offset), 
@@ -206,8 +206,8 @@ namespace Libdas {
         uint32_t vertex_buffer_id = UINT32_MAX;
         uint32_t vertex_buffer_offset = 0;
         uint32_t texture_id = UINT32_MAX;
-        uint32_t texture_map_buffer_id = UINT32_MAX;
-        uint32_t texture_map_buffer_offset = 0;
+        uint32_t uv_buffer_id = UINT32_MAX;
+        uint32_t uv_buffer_offset = 0;
         uint32_t vertex_normal_buffer_id = UINT32_MAX;
         uint32_t vertex_normal_buffer_offset = 0;
         uint32_t vertex_tangent_buffer_id = UINT32_MAX;
@@ -252,8 +252,8 @@ namespace Libdas {
     struct DasMorphTarget {
         uint32_t vertex_buffer_id = UINT32_MAX;
         uint32_t vertex_buffer_offset = 0;
-        uint32_t texture_map_buffer_id = UINT32_MAX;
-        uint32_t texture_map_buffer_offset = 0;
+        uint32_t uv_buffer_id = UINT32_MAX;
+        uint32_t uv_buffer_offset = 0;
         uint32_t vertex_normal_buffer_id = UINT32_MAX;
         uint32_t vertex_normal_buffer_offset = UINT32_MAX;
         uint32_t vertex_tangent_buffer_id = UINT32_MAX;

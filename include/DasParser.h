@@ -70,7 +70,7 @@ namespace Libdas {
              * Get all specified file properties
              * @return reference to DasProperties object that specifies all parsed properties
              */
-            inline DasProperties &GetProperties() { 
+            inline const DasProperties &GetProperties() const { 
                 return m_props; 
             }
 
@@ -79,7 +79,7 @@ namespace Libdas {
              * @param _id specifies the buffer id to use for accessing
              * @return reference to DasBuffer object, accessed by the id
              */
-            inline DasBuffer &AccessBuffer(uint32_t _id) { 
+            inline const DasBuffer &AccessBuffer(uint32_t _id) const { 
                 return m_buffers[_id % static_cast<uint32_t>(m_buffers.size())];
             }
 
@@ -88,7 +88,7 @@ namespace Libdas {
              * @param _id specifies the mesh primitive id to use for accessing
              * @return reference to DasMeshPrimitive instance, accessed by the id
              */
-            inline DasMeshPrimitive &AccessMeshPrimitive(uint32_t _id) {
+            inline const DasMeshPrimitive &AccessMeshPrimitive(uint32_t _id) const {
                 return m_mesh_primitives[_id % static_cast<uint32_t>(m_mesh_primitives.size())];
             }
 
@@ -97,7 +97,7 @@ namespace Libdas {
              * @param _id specifies the morph target id to use for accessing
              * @return reference to DasMorphTarget instance, accessed by the id
              */
-            inline DasMorphTarget &AccessMorphTarget(uint32_t _id) {
+            inline const DasMorphTarget &AccessMorphTarget(uint32_t _id) const {
                 return m_morph_targets[_id % static_cast<uint32_t>(m_morph_targets.size())];
             }
 
@@ -106,8 +106,17 @@ namespace Libdas {
              * @param _id specifies the mesh id to use for accessing
              * @return reference to DasMesh, accessed by the id
              */
-            inline DasMesh &AccessMesh(uint32_t _id) { 
+            inline const DasMesh &AccessMesh(uint32_t _id) const { 
                 return m_meshes[_id % static_cast<uint32_t>(m_meshes.size())]; 
+            }
+
+            /**
+             * Access animation channel reference by id
+             * @param _id specifyies the animation channel id to use for accessing
+             * @return reference to DasAnimationChannel instance, accessed by the id
+             */
+            inline const DasAnimationChannel &AccessAnimationChannel(uint32_t _id) const {
+                return m_channels[_id % static_cast<uint32_t>(m_channels.size())];
             }
 
             /**
@@ -115,7 +124,7 @@ namespace Libdas {
              * @param _id specifies the animation id to use for accessing
              * @return reference to DasAnimation, accessed by the id
              */
-            inline DasAnimation &AccessAnimation(uint32_t _id) { 
+            inline const DasAnimation &AccessAnimation(uint32_t _id) const { 
                 return m_animations[_id % static_cast<uint32_t>(m_animations.size())]; 
             }
 
@@ -124,7 +133,7 @@ namespace Libdas {
              * @param _id specifies the scene node id to use for accessing
              * @return reference to DasNode object, accessed by the id
              */
-            inline DasNode &AccessNode(uint32_t _id) {
+            inline const DasNode &AccessNode(uint32_t _id) const {
                 return m_nodes[_id % static_cast<uint32_t>(m_nodes.size())];
             }
 
@@ -133,7 +142,7 @@ namespace Libdas {
              * @param _id specifies the skeleton id to use for accessing
              * @return reference to DasSkeleton object, accessed by the id
              */
-            inline DasSkeleton &AccessSkeleton(uint32_t _id) {
+            inline const DasSkeleton &AccessSkeleton(uint32_t _id) const {
                 return m_skeletons[_id % static_cast<uint32_t>(m_skeletons.size())];
             }
 
@@ -142,7 +151,7 @@ namespace Libdas {
              * @param _id specifies the skeleton joint id to use for accessing
              * @return reference to DasSkeletonJoint object, accessed by the id
              */
-            inline DasSkeletonJoint &AccessSkeletonJoint(uint32_t _id) {
+            inline const DasSkeletonJoint &AccessSkeletonJoint(uint32_t _id) const {
                 return m_joints[_id % static_cast<uint32_t>(m_joints.size())];
             }
 
@@ -150,7 +159,7 @@ namespace Libdas {
              * Get all scenes specified in the file
              * @return reference to std::vector object containing all scene details
              */
-            inline std::vector<DasScene> &GetScenes() {
+            inline const std::vector<DasScene> &GetScenes() const {
                 return m_scenes;
             }
 
@@ -158,7 +167,7 @@ namespace Libdas {
              * Get the amount of buffers that were parsed 
              * @return uint32_t value specifying the buffer count
              */
-            inline uint32_t GetBufferCount() {
+            inline uint32_t GetBufferCount() const {
                 return static_cast<uint32_t>(m_buffers.size());
             }
 
@@ -166,7 +175,7 @@ namespace Libdas {
              * Get the amount of mesh primitives that were parsed
              * @return uint32_t value specifying the mesh primitive count
              */
-            inline uint32_t GetMeshPrimitiveCount() {
+            inline uint32_t GetMeshPrimitiveCount() const {
                 return static_cast<uint32_t>(m_mesh_primitives.size());
             }
 
@@ -174,7 +183,7 @@ namespace Libdas {
              * Get the amount of morph targets that were parsed
              * @return uint32_t value specifying the morph target count
              */
-            inline uint32_t GetMorphTargetCount() {
+            inline uint32_t GetMorphTargetCount() const {
                 return static_cast<uint32_t>(m_morph_targets.size());
             }
 
@@ -182,7 +191,7 @@ namespace Libdas {
              * Get the amount of meshes that were parsed
              * @return uint32_t value specifying the model count
              */
-            inline uint32_t GetMeshCount() {
+            inline uint32_t GetMeshCount() const {
                 return static_cast<uint32_t>(m_meshes.size());
             }
 
@@ -190,31 +199,39 @@ namespace Libdas {
              * Get the amount of nodes that were parsed
              * @return uint32_t value specifying the node count
              */
-            inline uint32_t GetNodeCount() {
+            inline uint32_t GetNodeCount() const {
                 return static_cast<uint32_t>(m_nodes.size());
             }
             
             /**
              * Get the amount of skeletons that were parsed
-             * @param uint32_t value specifying the skeleton count
+             * @return uint32_t value specifying the skeleton count
              */
-            inline uint32_t GetSkeletonCount() {
+            inline uint32_t GetSkeletonCount() const {
                 return static_cast<uint32_t>(m_skeletons.size());
             }
 
             /**
              * Get the amount of skeleton joints that were parsed
-             * @param uint32_t value specifying the skeleton joint count
+             * @return uint32_t value specifying the skeleton joint count
              */
-            inline uint32_t GetSkeletonJointCount() {
+            inline uint32_t GetSkeletonJointCount() const {
                 return static_cast<uint32_t>(m_joints.size());
+            }
+
+            /**
+             * Get the amount of animation channels that were parsed
+             * @return uint32_t value specifying the animation channel count
+             */
+            inline uint32_t GetAnimationChannelCount() const {
+                return static_cast<uint32_t>(m_channels.size());
             }
 
             /**
              * Get the amount of animations that were parsed
              * @return uint32_t value specifying the animation count
              */
-            inline uint32_t GetAnimationCount() {
+            inline uint32_t GetAnimationCount() const {
                 return static_cast<uint32_t>(m_animations.size());
             }
 

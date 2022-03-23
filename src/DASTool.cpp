@@ -194,7 +194,7 @@ void DASTool::_ListGLB(const std::string &_input_file) {
 }
 
 
-void DASTool::_ListDasProperties(Libdas::DasProperties &_props) {
+void DASTool::_ListDasProperties(const Libdas::DasProperties &_props) {
     // output file properties
     if(_props.model != "")
         std::cout << "Model: " << _props.model << std::endl;
@@ -258,7 +258,7 @@ void DASTool::_ListDasBuffers(Libdas::DasParser &_parser) {
 
 void DASTool::_ListDasScenes(Libdas::DasParser &_parser) {
     for(size_t i = 0; i < _parser.GetScenes().size(); i++) {
-        Libdas::DasScene &scene = _parser.GetScenes()[i];
+        const Libdas::DasScene &scene = _parser.GetScenes()[i];
         std::cout << std::endl << "-- Scene nr " << i << " --" << std::endl;
 
         if(scene.name != "")
@@ -277,7 +277,7 @@ void DASTool::_ListDasScenes(Libdas::DasParser &_parser) {
 
 void DASTool::_ListDasNodes(Libdas::DasParser &_parser) {
     for(uint32_t i = 0; i < _parser.GetNodeCount(); i++) {
-        Libdas::DasNode &node = _parser.AccessNode(i);
+        const Libdas::DasNode &node = _parser.AccessNode(i);
         std::cout << std::endl << "-- Node nr " << i << " --" << std::endl;
 
         if(node.name != "") std::cout << "Name: " << node.name << std::endl;
@@ -307,12 +307,12 @@ void DASTool::_ListDasNodes(Libdas::DasParser &_parser) {
 void DASTool::_ListDasMeshes(Libdas::DasParser &_parser) {
     for(uint32_t i = 0; i < _parser.GetMeshCount(); i++) {
         std::cout << std::endl << "-- Mesh nr " << i << " --" << std::endl;
-        Libdas::DasMesh &mesh = _parser.AccessMesh(i);
+        const Libdas::DasMesh &mesh = _parser.AccessMesh(i);
         std::cout << "Mesh name: " << mesh.name << std::endl;
 
         // for each primitive in mesh output its data
         for(uint32_t j = 0; j < mesh.primitive_count; j++) {
-            Libdas::DasMeshPrimitive &prim = _parser.AccessMeshPrimitive(mesh.primitives[j]);
+            const Libdas::DasMeshPrimitive &prim = _parser.AccessMeshPrimitive(mesh.primitives[j]);
             std::cout << "---- Primitive nr " << j << " ----" << std::endl;
             std::cout << "-- Index buffer id: " << prim.index_buffer_id << std::endl;
             std::cout << "-- Index buffer offset: " << prim.index_buffer_offset << std::endl;
@@ -322,10 +322,10 @@ void DASTool::_ListDasMeshes(Libdas::DasParser &_parser) {
 
             if(prim.texture_id != UINT32_MAX)
                 std::cout << "-- Texture id: " << prim.texture_id << std::endl;
-            if(prim.texture_map_buffer_id != UINT32_MAX) {
-                std::cout << "-- Texture map buffer id: " << prim.texture_map_buffer_id << std::endl;
-                if(prim.texture_map_buffer_offset)
-                    std::cout << "-- Texture map buffer offset: " << prim.texture_map_buffer_offset << std::endl;
+            if(prim.uv_buffer_id != UINT32_MAX) {
+                std::cout << "-- Texture map buffer id: " << prim.uv_buffer_id << std::endl;
+                if(prim.uv_buffer_offset)
+                    std::cout << "-- Texture map buffer offset: " << prim.uv_buffer_offset << std::endl;
             }
             if(prim.vertex_normal_buffer_id != UINT32_MAX) {
                 std::cout << "-- Vertex normal buffer id: " << prim.vertex_normal_buffer_id << std::endl;
@@ -355,7 +355,7 @@ void DASTool::_ListDasMeshes(Libdas::DasParser &_parser) {
 void DASTool::_ListDasSkeletons(Libdas::DasParser &_parser) {
     for(uint32_t i = 0; i < _parser.GetSkeletonCount(); i++) {
         std::cout << std::endl << "-- Skeleton nr " << i << " --" << std::endl;
-        Libdas::DasSkeleton &skeleton = _parser.AccessSkeleton(i);
+        const Libdas::DasSkeleton &skeleton = _parser.AccessSkeleton(i);
         if(skeleton.name != "") std::cout << "Name: " << skeleton.name << std::endl;
         std::cout << "Joint count: " << skeleton.joint_count << std::endl;
 
@@ -370,7 +370,7 @@ void DASTool::_ListDasSkeletons(Libdas::DasParser &_parser) {
 void DASTool::_ListDasSkeletonJoints(Libdas::DasParser &_parser) {
     for(uint32_t i = 0; i < _parser.GetSkeletonJointCount(); i++) {
         std::cout << std::endl << "-- Skeleton joint nr " << i << " --" << std::endl;
-        Libdas::DasSkeletonJoint &joint = _parser.AccessSkeletonJoint(i);
+        const Libdas::DasSkeletonJoint &joint = _parser.AccessSkeletonJoint(i);
         // output inverse bind position matrix
         std::cout << "Inverse bind position matrix: " << std::endl;
         for(struct {Libdas::Matrix4<float>::iterator it; uint32_t j; } s = {joint.inverse_bind_pos.BeginRowMajor(), 0}; s.it != joint.inverse_bind_pos.EndRowMajor(); s.it++, s.j++) {
@@ -391,10 +391,72 @@ void DASTool::_ListDasSkeletonJoints(Libdas::DasParser &_parser) {
 }
 
 
+void DASTool::_ListDasAnimationChannels(Libdas::DasParser &_parser) {
+    for(uint32_t i = 0; i < _parser.GetAnimationChannelCount(); i++) {
+        std::cout << std::endl << "-- Animation channel nr " << i << " --" << std::endl;
+        const Libdas::DasAnimationChannel &channel = _parser.AccessAnimationChannel(i);
+        std::cout << "Referenced node id: " << channel.node_id << std::endl;
+
+        // output information about animation target 
+        std::cout << "Animation target: ";
+        switch(channel.target) {
+            case LIBDAS_ANIMATION_TARGET_ROTATION:
+                std::cout << "rotation" << std::endl;
+                break;
+
+            case LIBDAS_ANIMATION_TARGET_SCALE:
+                std::cout << "scale" << std::endl;
+                break;
+
+            case LIBDAS_ANIMATION_TARGET_TRANSLATION:
+                std::cout << "translation" << std::endl;
+                break;
+
+            case LIBDAS_ANIMATION_TARGET_WEIGHTS:
+                std::cout << "weights" << std::endl;
+                break;
+
+            default:
+                LIBDAS_ASSERT(false);
+                break;
+        }
+
+        // output information about interpolation type
+        std::cout << "Interpolation: ";
+        switch(channel.interpolation) {
+            case LIBDAS_INTERPOLATION_VALUE_LINEAR:
+                std::cout << "linear" << std::endl;
+                break;
+
+            case LIBDAS_INTERPOLATION_VALUE_STEP:
+                std::cout << "step" << std::endl;
+                break;
+
+            case LIBDAS_INTERPOLATION_VALUE_CUBICSPLINE:
+                std::cout << "cubic spline" << std::endl;
+                break;
+
+            default:
+                LIBDAS_ASSERT(false);
+                break;
+        }
+        
+        std::cout << "Keyframe count: " << channel.keyframe_count << std::endl;
+        std::cout << "Keyframe buffer id: " << channel.keyframe_buffer_id << std::endl;
+        if(channel.keyframe_buffer_offset)
+            std::cout << "Keyframe buffer offset: " << channel.keyframe_buffer_offset << std::endl;
+        std::cout << "Target value buffer id: " << channel.target_value_buffer_id << std::endl;
+
+        if(channel.target_value_buffer_offset)
+            std::cout << "Target value buffer offset: " << channel.target_value_buffer_offset << std::endl;
+    }
+}
+
+
 void DASTool::_ListDasAnimations(Libdas::DasParser &_parser) {
     for(uint32_t i = 0; i < _parser.GetAnimationCount(); i++) {
         std::cout << std::endl << "-- Animation nr " << i << " --" << std::endl;
-        Libdas::DasAnimation &animation = _parser.AccessAnimation(i);
+        const Libdas::DasAnimation &animation = _parser.AccessAnimation(i);
         if(animation.name != "") std::cout << "Name: " << animation.name << std::endl;
         
         std::cout << "Channel count: " << animation.channel_count << std::endl;
@@ -410,7 +472,7 @@ void DASTool::_ListDas(const std::string &_input_file) {
     Libdas::DasParser parser(_input_file);
     parser.Parse();
     
-    Libdas::DasProperties &props = parser.GetProperties();
+    const Libdas::DasProperties &props = parser.GetProperties();
     _ListDasProperties(props);
 
     // output animation and model data if verbose mode is specified
@@ -419,6 +481,7 @@ void DASTool::_ListDas(const std::string &_input_file) {
         _ListDasMeshes(parser);
         _ListDasSkeletons(parser);
         _ListDasSkeletonJoints(parser);
+        _ListDasAnimationChannels(parser);
         _ListDasAnimations(parser);
     }
 

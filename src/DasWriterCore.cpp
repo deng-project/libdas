@@ -189,10 +189,10 @@ namespace Libdas {
         if(_primitive.texture_id != UINT32_MAX)
             _WriteNumericalValue<uint32_t>("TEXTUREID", _primitive.texture_id);
 
-        if(_primitive.texture_map_buffer_id != UINT32_MAX) {
-            _WriteNumericalValue<uint32_t>("TEXTUREMAPBUFFERID", _primitive.texture_map_buffer_id);
-            if(_primitive.texture_map_buffer_offset)
-                _WriteNumericalValue<uint32_t>("TEXTUREMAPBUFFEROFFSET", _primitive.texture_map_buffer_offset);
+        if(_primitive.uv_buffer_id != UINT32_MAX) {
+            _WriteNumericalValue<uint32_t>("TEXTUREMAPBUFFERID", _primitive.uv_buffer_id);
+            if(_primitive.uv_buffer_offset)
+                _WriteNumericalValue<uint32_t>("TEXTUREMAPBUFFEROFFSET", _primitive.uv_buffer_offset);
         }
 
         if(_primitive.vertex_normal_buffer_id != UINT32_MAX) {
@@ -238,10 +238,10 @@ namespace Libdas {
                 _WriteNumericalValue<uint32_t>("VERTEXBUFFEROFFSET", _morph_target.vertex_buffer_offset);
         }
 
-        if(_morph_target.texture_map_buffer_id != UINT32_MAX) {
-            _WriteNumericalValue<uint32_t>("TEXTUREMAPBUFFERID", _morph_target.texture_map_buffer_id);
-            if(_morph_target.texture_map_buffer_offset)
-                _WriteNumericalValue<uint32_t>("TEXTUREMAPBUFFEROFFSET", _morph_target.texture_map_buffer_offset);
+        if(_morph_target.uv_buffer_id != UINT32_MAX) {
+            _WriteNumericalValue<uint32_t>("TEXTUREMAPBUFFERID", _morph_target.uv_buffer_id);
+            if(_morph_target.uv_buffer_offset)
+                _WriteNumericalValue<uint32_t>("TEXTUREMAPBUFFEROFFSET", _morph_target.uv_buffer_offset);
         }
 
         if(_morph_target.vertex_normal_buffer_id != UINT32_MAX) {

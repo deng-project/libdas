@@ -396,17 +396,27 @@ namespace Libdas {
     /// Find the inverse of the current matrix 
     template<typename T>
     Matrix2<T> Matrix2<T>::Inverse() const {
-        Matrix2<float> fl_mat;
-        float inv_det = 1 / Matrix2<T>::Determinant(*this);
-        fl_mat.row1.first = row2.second * inv_det;
-        fl_mat.row1.second = -row2.first * inv_det;
-        fl_mat.row2.first = -row1.second * inv_det;
-        fl_mat.row2.second = row1.first * inv_det;
-
         Matrix2<T> out_mat;
-        out_mat.row1 = {(T) fl_mat.row1.first, (T) fl_mat.row1.second};
-        out_mat.row2 = {(T) fl_mat.row2.first, (T) fl_mat.row2.second};
 
+        // attempt to use gaussian elimination instead
+        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
+            T new_row1[4] = { row1.first, row1.second, 1, 0 };
+            T new_row2[4] = { row2.first, row2.second, 0, 1 };
+
+            // compiler should be smart enough to optimize this code for SIMD instructions, if not then consider using non-meme compiler like gcc or clang
+            for(int i = 0; i < 4; i++) {
+                new_row2[i] += new_row1[i];
+                new_row1[i] = -(new_row1[i] - 3 * new_row2[i]);
+                new_row2[i] *= 2;
+            }
+
+
+            out_mat.row1.first = new_row1[2];
+            out_mat.row1.second = new_row1[3];
+            out_mat.row2.first = new_row2[2];
+            out_mat.row2.second = new_row2[3];
+        }
+        
         return out_mat;
     }
 

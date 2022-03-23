@@ -522,12 +522,12 @@ namespace Libdas {
                 break;
 
             case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_TEXTURE_MAP_BUFFER_ID:
-                _primitive->texture_map_buffer_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                _primitive->uv_buffer_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                 if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA);
                 break;
 
             case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_TEXTURE_MAP_BUFFER_OFFSET:
-                _primitive->texture_map_buffer_offset = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                _primitive->uv_buffer_offset = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                 if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA);
                 break;
 
@@ -613,11 +613,11 @@ namespace Libdas {
                 break;
 
             case DasMorphTarget::LIBDAS_MORPH_TARGET_TEXTURE_MAP_BUFFER_ID:
-                _morph_target->texture_map_buffer_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                _morph_target->uv_buffer_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                 break;
 
             case DasMorphTarget::LIBDAS_MORPH_TARGET_TEXTURE_MAP_BUFFER_OFFSET:
-                _morph_target->texture_map_buffer_offset = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                _morph_target->uv_buffer_offset = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                 break;
 
             case DasMorphTarget::LIBDAS_MORPH_TARGET_VERTEX_NORMAL_BUFFER_ID:

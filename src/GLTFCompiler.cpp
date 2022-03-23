@@ -832,7 +832,7 @@ namespace Libdas {
                 uint32_t vertex_accessor = UINT32_MAX;
                 uint32_t vertex_normal_accessor = UINT32_MAX;
                 uint32_t vertex_tangent_accessor = UINT32_MAX;
-                uint32_t texture_map_accessor = UINT32_MAX;
+                uint32_t uv_accessor = UINT32_MAX;
                 uint32_t joints_accessor = UINT32_MAX;
                 uint32_t weights_accessor = UINT32_MAX;
 
@@ -857,7 +857,7 @@ namespace Libdas {
                             break;
 
                         case LIBDAS_BUFFER_TYPE_TEXTURE_MAP:
-                            texture_map_accessor = attr_it->second;
+                            uv_accessor = attr_it->second;
                             break;
 
                         case LIBDAS_BUFFER_TYPE_JOINTS:
@@ -874,7 +874,7 @@ namespace Libdas {
                 }
                 
                 _IndexMeshPrimitive(_root, _root.meshes[i].primitives[*it], _buffers, _accessors, vertex_accessor, vertex_normal_accessor, 
-                                    vertex_tangent_accessor, texture_map_accessor, joints_accessor, weights_accessor);
+                                    vertex_tangent_accessor, uv_accessor, joints_accessor, weights_accessor);
             }
         }
     }
@@ -1027,8 +1027,8 @@ namespace Libdas {
                                 break;
 
                             case LIBDAS_BUFFER_TYPE_TEXTURE_MAP:
-                                morph_target.texture_map_buffer_id = accessor_data.buffer_id;
-                                morph_target.texture_map_buffer_offset = accessor_data.buffer_offset;
+                                morph_target.uv_buffer_id = accessor_data.buffer_id;
+                                morph_target.uv_buffer_offset = accessor_data.buffer_offset;
                                 break;
 
                             case LIBDAS_BUFFER_TYPE_VERTEX_NORMAL:
@@ -1099,8 +1099,8 @@ namespace Libdas {
                             break;
 
                         case LIBDAS_BUFFER_TYPE_TEXTURE_MAP:
-                            prim.texture_map_buffer_id = accessor_data.buffer_id;
-                            prim.texture_map_buffer_offset = accessor_data.buffer_offset;
+                            prim.uv_buffer_id = accessor_data.buffer_id;
+                            prim.uv_buffer_offset = accessor_data.buffer_offset;
                             break;
 
                         case LIBDAS_BUFFER_TYPE_VERTEX_NORMAL:

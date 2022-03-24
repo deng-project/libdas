@@ -56,6 +56,7 @@ namespace Libdas {
 
         public:
             TextureReader(const std::string &_file_name, bool _use_raw = true);
+            TextureReader(char *_buffer, size_t _size, bool _use_raw = true);
             TextureReader(TextureReader &&_mov);
             ~TextureReader();
             /**

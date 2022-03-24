@@ -36,6 +36,16 @@ namespace Libdas {
     }
 
 
+    TextureReader::TextureReader(char *_buffer, size_t _size, bool _use_raw) : m_buffer(_buffer), m_buffer_size(_size) {
+        if(_use_raw) {
+            int n;
+            m_raw_buffer = reinterpret_cast<char*>(stbi_load_from_memory(reinterpret_cast<unsigned char*>(m_buffer),
+                                                                         static_cast<int>(m_buffer_size), &m_x, &m_y, &n, 4));
+            m_raw_buffer_size = static_cast<size_t>(m_x * m_y * 4);
+        }
+    }
+
+
     TextureReader::TextureReader(TextureReader &&_mov) : m_buffer(_mov.m_buffer), m_buffer_size(_mov.m_buffer_size),
         m_raw_buffer(_mov.m_raw_buffer), m_raw_buffer_size(_mov.m_raw_buffer_size), m_file_name(_mov.m_file_name), m_x(_mov.m_x), m_y(_mov.m_y)
     {

@@ -22,12 +22,13 @@ namespace Libdas {
         m_buffer_size = file.tellg();
         file.seekg(0, std::ios_base::beg);
 
-        m_buffer = new char[m_buffer_size];
-        file.read(m_buffer, m_buffer_size);
+        char *buffer = new char[m_buffer_size];
+        file.read(buffer, m_buffer_size);
+        m_buffer = buffer;
 
         if(_use_raw) {
             int n;
-            m_raw_buffer = reinterpret_cast<char*>(stbi_load_from_memory(reinterpret_cast<unsigned char*>(m_buffer),
+            m_raw_buffer = reinterpret_cast<char*>(stbi_load_from_memory(reinterpret_cast<const unsigned char*>(m_buffer),
                                                                          static_cast<int>(m_buffer_size), &m_x, &m_y, &n, 4));
             m_raw_buffer_size = static_cast<size_t>(m_x * m_y * 4);
         }
@@ -36,10 +37,10 @@ namespace Libdas {
     }
 
 
-    TextureReader::TextureReader(char *_buffer, size_t _size, bool _use_raw) : m_buffer(_buffer), m_buffer_size(_size) {
+    TextureReader::TextureReader(std::pair<const char*, size_t> _raw_data, bool _use_raw) : m_buffer(_raw_data.first), m_buffer_size(_raw_data.second) {
         if(_use_raw) {
             int n;
-            m_raw_buffer = reinterpret_cast<char*>(stbi_load_from_memory(reinterpret_cast<unsigned char*>(m_buffer),
+            m_raw_buffer = reinterpret_cast<char*>(stbi_load_from_memory(reinterpret_cast<const unsigned char*>(m_buffer),
                                                                          static_cast<int>(m_buffer_size), &m_x, &m_y, &n, 4));
             m_raw_buffer_size = static_cast<size_t>(m_x * m_y * 4);
         }

@@ -482,6 +482,7 @@ namespace Libdas {
     struct DasAnimationChannel {
         uint32_t node_id;
         AnimationTarget target;
+        uint32_t weight_count = 0;
         InterpolationType interpolation;
         uint32_t keyframe_count = 0;
         uint32_t keyframe_buffer_id = UINT32_MAX;

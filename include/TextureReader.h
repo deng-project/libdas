@@ -45,7 +45,7 @@ namespace Libdas {
      */
     class LIBDAS_API TextureReader {
         private:
-            char *m_buffer = nullptr;
+            const char *m_buffer = nullptr;
             size_t m_buffer_size = 0;
             char *m_raw_buffer = nullptr;
             size_t m_raw_buffer_size = 0;
@@ -56,7 +56,7 @@ namespace Libdas {
 
         public:
             TextureReader(const std::string &_file_name, bool _use_raw = true);
-            TextureReader(char *_buffer, size_t _size, bool _use_raw = true);
+            TextureReader(std::pair<const char*, size_t> _raw_data, bool _use_raw = true);
             TextureReader(TextureReader &&_mov);
             ~TextureReader();
             /**

@@ -21,6 +21,7 @@
     #include <cmath>
     #include <vector>
     #include <stdexcept>
+    #include <filesystem>
     #include <unordered_map>
     
     #include <Api.h>

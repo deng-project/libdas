@@ -519,6 +519,16 @@ void DASTool::_FetchArg(FlagType _type, const std::string &_arg) {
 
 
 void DASTool::_MakeOutputFile(const std::string &_input_file) {
+    // check if there exists any directories or files with given file name
+    if(std::filesystem::exists(m_out_file) && std::filesystem::is_directory(m_out_file)) {
+        std::string f = Libdas::Algorithm::ExtractFileName(_input_file);
+        f = Libdas::Algorithm::ReplaceFileExtension(f, "das");
+
+        if(m_out_file.back() == '/')
+            m_out_file += f;
+        else m_out_file += '/' + f;
+    }
+    
     // check if the output file name is correctly specified
     if(m_out_file == "") {
         m_out_file = Libdas::Algorithm::ReplaceFileExtension(_input_file, "das");
@@ -697,7 +707,7 @@ void DASTool::List(const std::string &_input_file, const std::vector<std::string
 // main method
 int main(int argc, char *argv[]) {
     DASTool tool;
-    if(argc < 3) {
+    if(argc < 3 || (std::string(argv[1]) != "convert" && std::string(argv[1]) != "list")) {
         std::cout << tool.GetHelpText();
         return 0;
     }

@@ -9,8 +9,6 @@ in-game entities (also known as assets) during the rendering process.
 
 ## Building
 
-In order to build libdas library you will need [premake5](https://github.com/premake/premake-core).  
-
 ### Generate build files
 
 The project is set up to use CMake for generating build files.  

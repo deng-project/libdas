@@ -328,21 +328,32 @@ namespace Libdas {
     struct DasScene {
         DasScene() = default;
         
-        DasScene(const DasScene &_scene) : name(_scene.name), node_count(_scene.node_count) {
+        DasScene(const DasScene &_scene) : name(_scene.name), node_count(_scene.node_count), root_count(_scene.root_count) {
             if(node_count) {
                 nodes = new uint32_t[node_count];
                 for(uint32_t i = 0; i < node_count; i++)
                     nodes[i] = _scene.nodes[i];
             }
+
+            if(root_count) {
+                roots = new uint32_t[root_count];
+                for(uint32_t i = 0; i < root_count; i++)
+                    roots[i] = _scene.roots[i];
+            }
         }
 
         ~DasScene() {
             delete [] nodes;
+            delete [] roots;
         }
 
         std::string name = "";
         uint32_t node_count = 0;
         uint32_t *nodes = nullptr;
+
+        // custom members not included in the file specification
+        uint32_t root_count = 0;
+        uint32_t *roots = nullptr;
 
         // value types
         enum ValueType {

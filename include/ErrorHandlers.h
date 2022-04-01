@@ -18,6 +18,8 @@
     #include <vector>
 #endif
 
+#include <LibdasAssert.h>
+
 /// Termination definations
 typedef bool TerminationType;
 #define TERMINATE true

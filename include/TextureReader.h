@@ -45,11 +45,12 @@ namespace Libdas {
      */
     class LIBDAS_API TextureReader {
         private:
+            std::string m_file_name = "";
             const char *m_buffer = nullptr;
             size_t m_buffer_size = 0;
             char *m_raw_buffer = nullptr;
             size_t m_raw_buffer_size = 0;
-            std::string m_file_name = "";
+            const bool m_is_attached_buffer;
 
             // raw buffer data
             int m_x = 0, m_y = 0;

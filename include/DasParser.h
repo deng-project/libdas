@@ -21,6 +21,7 @@
     #include <Matrix.h>
     #include <Points.h>
     #include <Quaternion.h>
+    #include <LibdasAssert.h>
     #include <ErrorHandlers.h>
     #include <AsciiStreamReader.h>
     #include <AsciiLineReader.h>
@@ -52,6 +53,12 @@ namespace Libdas {
              */
             void _DataCast(std::any &_any_scope, DasScopeType _type);
 
+            /**
+             * Find root nodes from given scene
+             * @param _id is a reference to the DasScene object whose root nodes will be calculated
+             */
+            void _FindSceneNodeRoots(DasScene &_scene);
+
         public:
             DasParser(const std::string &_file_name = "");
             /**
@@ -80,7 +87,8 @@ namespace Libdas {
              * @return reference to DasBuffer object, accessed by the id
              */
             inline const DasBuffer &AccessBuffer(uint32_t _id) const { 
-                return m_buffers[_id % static_cast<uint32_t>(m_buffers.size())];
+                LIBDAS_ASSERT(_id < static_cast<uint32_t>(m_buffers.size()));
+                return m_buffers[_id];
             }
 
             /**
@@ -89,7 +97,8 @@ namespace Libdas {
              * @return reference to DasMeshPrimitive instance, accessed by the id
              */
             inline const DasMeshPrimitive &AccessMeshPrimitive(uint32_t _id) const {
-                return m_mesh_primitives[_id % static_cast<uint32_t>(m_mesh_primitives.size())];
+                LIBDAS_ASSERT(_id < static_cast<uint32_t>(m_mesh_primitives.size()));
+                return m_mesh_primitives[_id];
             }
 
             /**
@@ -98,7 +107,8 @@ namespace Libdas {
              * @return reference to DasMorphTarget instance, accessed by the id
              */
             inline const DasMorphTarget &AccessMorphTarget(uint32_t _id) const {
-                return m_morph_targets[_id % static_cast<uint32_t>(m_morph_targets.size())];
+                LIBDAS_ASSERT(_id < static_cast<uint32_t>(m_morph_targets.size()));
+                return m_morph_targets[_id];
             }
 
             /**
@@ -107,7 +117,8 @@ namespace Libdas {
              * @return reference to DasMesh, accessed by the id
              */
             inline const DasMesh &AccessMesh(uint32_t _id) const { 
-                return m_meshes[_id % static_cast<uint32_t>(m_meshes.size())]; 
+                LIBDAS_ASSERT(_id < static_cast<uint32_t>(m_meshes.size()));
+                return m_meshes[_id]; 
             }
 
             /**
@@ -116,7 +127,8 @@ namespace Libdas {
              * @return reference to DasAnimationChannel instance, accessed by the id
              */
             inline const DasAnimationChannel &AccessAnimationChannel(uint32_t _id) const {
-                return m_channels[_id % static_cast<uint32_t>(m_channels.size())];
+                LIBDAS_ASSERT(_id < static_cast<uint32_t>(m_channels.size()));
+                return m_channels[_id];
             }
 
             /**
@@ -125,7 +137,8 @@ namespace Libdas {
              * @return reference to DasAnimation, accessed by the id
              */
             inline const DasAnimation &AccessAnimation(uint32_t _id) const { 
-                return m_animations[_id % static_cast<uint32_t>(m_animations.size())]; 
+                LIBDAS_ASSERT(_id < static_cast<uint32_t>(m_animations.size()));
+                return m_animations[_id]; 
             }
 
             /**
@@ -134,7 +147,8 @@ namespace Libdas {
              * @return reference to DasNode object, accessed by the id
              */
             inline const DasNode &AccessNode(uint32_t _id) const {
-                return m_nodes[_id % static_cast<uint32_t>(m_nodes.size())];
+                LIBDAS_ASSERT(_id < static_cast<uint32_t>(m_nodes.size()));
+                return m_nodes[_id];
             }
 
             /**
@@ -143,7 +157,18 @@ namespace Libdas {
              * @return reference to DasSkeleton object, accessed by the id
              */
             inline const DasSkeleton &AccessSkeleton(uint32_t _id) const {
-                return m_skeletons[_id % static_cast<uint32_t>(m_skeletons.size())];
+                LIBDAS_ASSERT(_id < static_cast<uint32_t>(m_skeletons.size()));
+                return m_skeletons[_id];
+            }
+
+            /**
+             * Access a scene by id
+             * @param _id specifies the scene id to use for accessing
+             * @return reference to DasScene object, accessed by the id
+             */
+            inline const DasScene &AccessScene(uint32_t _id) const {
+                LIBDAS_ASSERT(_id < static_cast<uint32_t>(m_scenes.size()));
+                return m_scenes[_id];
             }
 
             /**
@@ -152,15 +177,16 @@ namespace Libdas {
              * @return reference to DasSkeletonJoint object, accessed by the id
              */
             inline const DasSkeletonJoint &AccessSkeletonJoint(uint32_t _id) const {
-                return m_joints[_id % static_cast<uint32_t>(m_joints.size())];
+                LIBDAS_ASSERT(_id < static_cast<uint32_t>(m_joints.size()));
+                return m_joints[_id];
             }
 
             /**
-             * Get all scenes specified in the file
-             * @return reference to std::vector object containing all scene details
+             * Get the amount of scenes that were parsed
+             * @return uint32_t value specifying the scene count
              */
-            inline const std::vector<DasScene> &GetScenes() const {
-                return m_scenes;
+            inline uint32_t GetSceneCount() const {
+                return static_cast<uint32_t>(m_scenes.size());
             }
 
             /**
@@ -234,7 +260,6 @@ namespace Libdas {
             inline uint32_t GetAnimationCount() const {
                 return static_cast<uint32_t>(m_animations.size());
             }
-
     };
 }
 

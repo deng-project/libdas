@@ -257,8 +257,8 @@ void DASTool::_ListDasBuffers(Libdas::DasParser &_parser) {
 
 
 void DASTool::_ListDasScenes(Libdas::DasParser &_parser) {
-    for(size_t i = 0; i < _parser.GetScenes().size(); i++) {
-        const Libdas::DasScene &scene = _parser.GetScenes()[i];
+    for(size_t i = 0; i < _parser.GetSceneCount(); i++) {
+        const Libdas::DasScene &scene = _parser.AccessScene(i);
         std::cout << std::endl << "-- Scene nr " << i << " --" << std::endl;
 
         if(scene.name != "")

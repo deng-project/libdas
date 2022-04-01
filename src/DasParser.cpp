@@ -76,6 +76,29 @@ namespace Libdas {
     }
 
 
+    void DasParser::_FindSceneNodeRoots(DasScene &_scene) {
+        // allocate memory for scene roots
+        _scene.roots = new uint32_t[_scene.node_count];
+        _scene.root_count = 0;
+
+        // array for containing boolean values about nodes being used as children
+        std::vector<bool> is_child(m_nodes.size(), false);
+
+        // search for child nodes
+        for(uint32_t i = 0; i < _scene.node_count; i++) {
+            const Libdas::DasNode &node = m_nodes[_scene.nodes[i]];
+            for(uint32_t j = 0; j < node.children_count; j++)
+                is_child[node.children[j]] = true;
+        }
+
+        // check which node is not a child node
+        for(uint32_t i = 0; i < _scene.node_count; i++) {
+            if(!is_child[_scene.nodes[i]])
+                _scene.roots[_scene.root_count++] = _scene.nodes[i];
+        }
+    }
+
+
     void DasParser::Parse(bool _clean_read, const std::string &_file_name) {
         if(_file_name != "")
             NewFile(_file_name);
@@ -103,5 +126,9 @@ namespace Libdas {
         m_joints.shrink_to_fit();
         m_skeletons.shrink_to_fit();
         m_animations.shrink_to_fit();
+
+        // search and find root nodes for each given scene
+        for(auto it = m_scenes.begin(); it != m_scenes.end(); it++)
+            _FindSceneNodeRoots(*it);
     }
 }

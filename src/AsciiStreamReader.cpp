@@ -88,10 +88,11 @@ namespace Libdas {
         if(m_stream.is_open())
             m_stream.close();
 
-        m_stream.open(_file_name.c_str(), std::ios::binary);
+        std::string abs_file = Algorithm::RelativePathToAbsolute(_file_name);
+        m_stream.open(abs_file.c_str(), std::ios::binary);
 
-        if(m_stream.bad()) {
-            std::cerr << "Failed to open file " << _file_name << std::endl;
+        if(!m_stream.is_open()) {
+            std::cerr << "Failed to open file " << abs_file << std::endl;
             EXIT_ON_ERROR(LIBDAS_ERROR_INVALID_FILE);
         }
 

@@ -72,7 +72,7 @@ namespace Libdas {
     TextureReader::~TextureReader() {
         if(!m_is_attached_buffer && m_buffer) 
             delete [] m_buffer;
-        if(m_raw_buffer) 
+        if(m_raw_buffer)
             std::free(m_raw_buffer);
     }
 

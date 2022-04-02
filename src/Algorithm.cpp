@@ -26,15 +26,23 @@ namespace Libdas {
             char buf[256] = {};
             size_t len = sizeof(buf);
 #ifdef _WIN32
-            GetModuleFileNameA(NULL, buf, len);
-            return ExtractRootPath(buf) + "\\" + _rel;
-#else 
-            size_t val = readlink("/proc/self/exe", buf, len);
-            if(val == static_cast<size_t>(-1)) {
-                std::cerr << "Could not find current executable location errno: " << errno << std::endl;
-                EXIT_ON_ERROR(errno);
+            if(_rel.find(":\\") == std::string::npos) {
+                GetModuleFileNameA(NULL, buf, len);
+                return ExtractRootPath(buf) + "\\" + _rel;
             }
-            return ExtractRootPath(buf) + "/" + _rel;
+            
+            return _rel;
+#else 
+            if(_rel[0] != '/') {
+                size_t val = readlink("/proc/self/exe", buf, len);
+                if(val == static_cast<size_t>(-1)) {
+                    std::cerr << "Could not find current executable location errno: " << errno << std::endl;
+                    EXIT_ON_ERROR(errno);
+                }
+                return ExtractRootPath(buf) + "/" + _rel;
+            }
+
+            return _rel;
 #endif
         }
 

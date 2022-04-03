@@ -81,6 +81,14 @@ namespace Libdas {
             return out;
         }
 
+        inline Quaternion operator+(const Quaternion &_q) const {
+            Quaternion out;
+            const __m128 q1 = _mm_set_ps(w, z, y, x);
+            const __m128 q2 = _mm_set_ps(_q.w, _q.z, _q.y, _q.x);
+            _mm_storeu_ps(&out.x, _mm_add_ps(q1, q2));
+            return out;
+        }
+
         /**
          * Calculate magnitude of quaternion
          */

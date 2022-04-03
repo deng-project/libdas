@@ -219,7 +219,7 @@ namespace Libdas {
             // read vertices
             m_stream.read(reinterpret_cast<char*>(m_object.facets[i].vertices.data()), 3 * sizeof(Point3D<float>));
 
-            // skip atribute byte count
+            // skip attribute byte count
             std::size_t pos = m_stream.tellg();
             m_stream.seekg(pos + 2, std::ios_base::beg);
 

@@ -147,7 +147,6 @@ namespace Libdas {
     class LIBDAS_API GLTFParser : public JSONParser {
         private:
             std::ifstream m_ext_reader;
-            AsciiFormatErrorHandler m_error;
             GLTFRoot m_root;
             std::unordered_map<std::string, GLTFObjectType> m_root_objects;
 
@@ -168,8 +167,9 @@ namespace Libdas {
              * @param _node is a reference to JSONNode that specifies the node whose values would be verified
              * @param _supported_type specifies the supported source type 
              * @param _is_array specifies if the given destination format supports array type
+             * @return boolean value indicating if the verification was successful
              */
-            void _VerifySourceData(JSONNode *_node, JSONType _supported_type, bool _is_array);
+            bool _VerifySourceData(JSONNode *_node, JSONType _supported_type, bool _is_array);
             /**
              * Helper method to add data into correct data structure according to specified type,
              * @param _src specifies a valid pointer to JSONNode instance, where parsed values are stored
@@ -200,61 +200,12 @@ namespace Libdas {
                 // for each element in values
                 for(size_t i = 0; i < _node->values.size(); i++) {
                     // error: invalid element type, only JSON objects are supported
-                    if(_node->values[i].first != JSON_TYPE_OBJECT)
-                        m_error.Error(LIBDAS_ERROR_INVALID_TYPE, _node->key_val_decl_line, _node->name, "JSON object");
+                    if(_node->values[i].index() != JSON_TYPE_OBJECT)
+                        m_error.Error(LIBDAS_ERROR_INVALID_TYPE, _node->key_val_decl_line, _node->name, "object");
 
-                    _IterateSubNodes(std::any_cast<JSONNode>(&_node->values[i].second), _val_map);
+                    _IterateSubNodes(&std::get<JSONNode>(_node->values[i]), _val_map);
                     _dst_vector.push_back(_dst_item);
                     _dst_item = T();
-                }
-            }
-            /**
-             * Create an object vector from JSONValues vector without checking the type
-             * of each element
-             * @param _val is a reference to JSONValues instance where original JSONData is 
-             * stored
-             */
-            template<typename T>
-            std::vector<T> _JsonValueToVectorCast(JSONValues &_val) {
-                std::vector<T> out;
-                out.reserve(_val.size());
-                for(size_t i = 0; i < _val.size(); i++)
-                    out.push_back(std::any_cast<T>(_val[i].second));
-
-                return out;
-            }
-            /**
-             * Create an object vector from non-numerical JSONValues vector without checking the type
-             * of each element
-             * @param _val is a reference to JSONValues instance, where original JSONData is stored
-             */
-            template <typename T>
-            std::vector<T> _NumericalJsonValueToVectorCast(JSONValues &_val) {
-                std::vector<T> out;
-                out.reserve(_val.size());
-                for(size_t i = 0; i < _val.size(); i++) {
-                    if(!std::is_floating_point<T>::value)
-                        out.push_back(_CastVariantNumber<T, JSONNumber>(std::any_cast<std::variant<JSONInteger, JSONNumber>>(_val[i].second)));
-                    else out.push_back(_CastVariantNumber<T, JSONInteger>(std::any_cast<std::variant<JSONInteger, JSONNumber>>(_val[i].second)));
-                }
-
-                return out;
-            }
-            /**
-             * Helper method to cast variant numbers into correct types
-             * @tparam Primary specifies the destination type to cast into, supported: JSONInteger and JSONNumber
-             * @tparam Secondary specifies the secondary type that can be used in variant as well (opposite of 
-             * Primary in this regard)
-             * @param _var_num is a const reference to std::variant<JSONInteger, JSONNumber> 
-             * that specifies the variant type to be casted
-             */
-            template<typename Primary, typename Secondary>
-            Primary _CastVariantNumber(const std::variant<JSONInteger, JSONNumber> &_var_num) {
-                // attempt to cast directly
-                try {
-                    return std::get<Primary>(_var_num);
-                } catch (const std::bad_variant_access& ex) {
-                    return std::get<Secondary>(_var_num);
                 }
             }
 

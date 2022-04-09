@@ -65,6 +65,12 @@ namespace Libdas {
             return out;
         }
 
+        inline static float Dot(const Quaternion &_q1, const Quaternion &_q2) {
+            const __m128 q1_vec = _mm_set_ps(_q1.w, _q1.z, _q1.y, _q1.x);
+            const __m128 q2_vec = _mm_set_ps(_q2.w, _q2.z, _q2.y, _q2.x);
+            return FastDot(q1_vec, q2_vec);
+        }
+
         inline Quaternion operator*(const float _c) const {
             Quaternion out;
             const __m128 c = _mm_set_ps1(_c);

@@ -224,7 +224,7 @@ namespace Libdas {
             m_stream.seekg(pos + 2, std::ios_base::beg);
 
             // error check
-            if(m_stream.fail()) m_error.Error(LIBDAS_ERROR_INVALID_DATA);
+            if(m_stream.fail()) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
         }
     }
 

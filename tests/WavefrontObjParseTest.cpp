@@ -23,8 +23,6 @@
 #include <WavefrontObjStructures.h>
 #include <WavefrontObjParser.h>
 
-using Groups = Libdas::WavefrontObjFunctions::Groups;
-
 
 int main(int argc, char *argv[]) {
     if(argc < 2) {
@@ -34,21 +32,20 @@ int main(int argc, char *argv[]) {
 
     Libdas::WavefrontObjParser parser;
     parser.Parse(argv[1]);
-    parser.TriangulateGroups();
 
-    const Groups &groups = parser.GetParsedGroups();
+    const Libdas::WavefrontObjData &wobj = parser.GetParsedData();
     
-    for(const Libdas::WavefrontObjGroup &group : groups) {
+    std::cout << "Position vertices count (v): " << wobj.vertices.position.size() << std::endl;
+    std::cout << "Texture vertices count (vt): " << wobj.vertices.texture.size() << std::endl;
+    std::cout << "Vertex normal count (vn): " << wobj.vertices.normals.size() << std::endl;
+    std::cout << "Points count (vp): " << wobj.vertices.points.size() << std::endl;
+
+    for(const Libdas::WavefrontObjGroup &group : wobj.groups) {
         // display group names 
         std::cout << "Group names: ";
         for(size_t i = 0; i < group.names.size(); i++)
             std::cout << "'" << group.names[i] << "' ";
         std::cout << std::endl;
-
-        // display vertex counts
-        std::cout << "Position vertices count: " << group.vertices.position.size() << std::endl;
-        std::cout << "Texture vertices count: " << group.vertices.texture.size() << std::endl;
-        std::cout << "Vertex normals count: " << group.vertices.normals.size() << std::endl;
 
         // display faces counts
         std::cout << "Faces: " << group.indices.faces.size() << std::endl << std::endl;

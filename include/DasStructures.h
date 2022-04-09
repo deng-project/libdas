@@ -31,10 +31,6 @@ typedef uint16_t BufferType;
 #define LIBDAS_BUFFER_TYPE_KEYFRAME                 0x4000  // can be either morph target keyframe or skinned animation keyframe
 #define LIBDAS_BUFFER_TYPE_TIMESTAMPS               0x8000  // used only for identifying timestamp buffers from GLTF format parsing
 
-typedef uint8_t IndexingMode;
-#define LIBDAS_SEPERATE_INDICES                 0
-#define LIBDAS_COMPACT_INDICES                  1
-
 
 /// Animation interpolation technique definitions 
 typedef uint8_t InterpolationType;
@@ -140,6 +136,12 @@ namespace Libdas {
                 primitives[i] = _mesh.primitives[i];
         }
 
+        void operator=(const DasMesh &_mesh) {
+            name = _mesh.name;
+            primitive_count = _mesh.primitive_count;
+            primitives = _mesh.primitives;
+        }
+
         ~DasMesh() {
             delete [] primitives;
         }
@@ -167,7 +169,7 @@ namespace Libdas {
             texture_id(_prim.texture_id), uv_buffer_id(_prim.uv_buffer_id), uv_buffer_offset(_prim.uv_buffer_offset),
             vertex_normal_buffer_id(_prim.vertex_normal_buffer_id), vertex_normal_buffer_offset(_prim.vertex_normal_buffer_offset), vertex_tangent_buffer_id(_prim.vertex_tangent_buffer_id),
             vertex_tangent_buffer_offset(_prim.vertex_tangent_buffer_offset), joint_index_buffer_id(_prim.joint_index_buffer_id), joint_index_buffer_offset(_prim.joint_index_buffer_offset),
-            weight_buffer_id(_prim.weight_buffer_id), weight_buffer_offset(_prim.weight_buffer_offset), morph_target_count(_prim.morph_target_count), indexing_mode(_prim.indexing_mode)
+            weight_buffer_id(_prim.weight_buffer_id), weight_buffer_offset(_prim.weight_buffer_offset), morph_target_count(_prim.morph_target_count)
         {
             if(morph_target_count) {
                 morph_targets = new uint32_t[morph_target_count];
@@ -189,7 +191,7 @@ namespace Libdas {
             vertex_tangent_buffer_id(_prim.vertex_tangent_buffer_id), vertex_tangent_buffer_offset(_prim.vertex_tangent_buffer_offset),
             joint_index_buffer_id(_prim.joint_index_buffer_id), joint_index_buffer_offset(_prim.joint_index_buffer_offset), 
             weight_buffer_id(_prim.weight_buffer_id), weight_buffer_offset(_prim.weight_buffer_offset), morph_target_count(_prim.morph_target_count),
-            morph_targets(_prim.morph_targets), morph_weights(_prim.morph_weights), indexing_mode(_prim.indexing_mode)
+            morph_targets(_prim.morph_targets), morph_weights(_prim.morph_weights)
         {
             _prim.morph_targets = nullptr;
             _prim.morph_weights = nullptr;
@@ -219,13 +221,11 @@ namespace Libdas {
         uint32_t morph_target_count = 0;
         uint32_t *morph_targets = nullptr;
         float *morph_weights = nullptr;
-        IndexingMode indexing_mode;
 
         enum ValueType {
             LIBDAS_MESH_PRIMITIVE_INDEX_BUFFER_ID,
             LIBDAS_MESH_PRIMITIVE_INDEX_BUFFER_OFFSET,
             LIBDAS_MESH_PRIMITIVE_INDICES_COUNT,
-            LIBDAS_MESH_PRIMITIVE_INDEXING_MODE,
             LIBDAS_MESH_PRIMITIVE_VERTEX_BUFFER_ID,
             LIBDAS_MESH_PRIMITIVE_VERTEX_BUFFER_OFFSET,
             LIBDAS_MESH_PRIMITIVE_TEXTURE_ID,

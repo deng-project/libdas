@@ -209,8 +209,8 @@ namespace Libdas {
                 std::cerr << err_beg << " Invalid file " << _arg << std::endl;
                 break;
 
-            case LIBDAS_ERROR_INVALID_DATA:
-                std::cerr << err_beg << " Invalid data" << std::endl;
+            case LIBDAS_ERROR_INVALID_DATA_LENGTH:
+                std::cerr << err_beg << " Invalid data length" << std::endl;
                 break;
 
             case LIBDAS_ERROR_INVALID_VALUE:

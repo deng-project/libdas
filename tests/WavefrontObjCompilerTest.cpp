@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <climits>
 #include <cstring>
+#include <cfloat>
 #include <ctime>
 #include <cmath>
 #include <fstream>
@@ -52,7 +53,7 @@ int main(int argc, char *argv[]) {
     props.moddate = static_cast<uint64_t>(time(NULL));
     props.model = argv[1];
 
-    Libdas::WavefrontObjCompiler compiler(parser.GetParsedGroups(), props, file_name);
+    Libdas::WavefrontObjCompiler compiler(parser.GetParsedData(), props, file_name);
 
     return 0;
 }

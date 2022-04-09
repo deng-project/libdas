@@ -4,7 +4,7 @@
 # author: Karl-Mihkel Ott
 
 set(WAVEFRONT_OBJ_PARSER_TARGET WavefrontObjParserTest)
-set(WAVEFRONT_OBJ_PARSER_SOURCES tests/WavefrontObjCompilerTest.cpp) 
+set(WAVEFRONT_OBJ_PARSER_SOURCES tests/WavefrontObjParseTest.cpp) 
 
 add_executable(${WAVEFRONT_OBJ_PARSER_TARGET} ${WAVEFRONT_OBJ_PARSER_SOURCES})
 target_link_libraries(${WAVEFRONT_OBJ_PARSER_TARGET} PRIVATE ${LIBDAS_SHARED_TARGET})

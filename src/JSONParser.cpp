@@ -6,6 +6,7 @@
 #define JSON_PARSER_CPP
 #include <JSONParser.h>
 
+
 namespace Libdas {
     
     JSONParser::JSONParser(ModelFormat _format, const std::string &_file_name) : 
@@ -45,10 +46,10 @@ namespace Libdas {
     void JSONParser::_HandleScopeStartToken() {
         // check if array was previously opened and if so add a new value regarding the the subobject
         if(m_active_node->is_array_open) {
-            m_active_node->values.push_back(std::make_pair(JSON_TYPE_OBJECT, JSONNode()));
-            std::any_cast<JSONNode&>(m_active_node->values.back().second).parent = m_active_node;
-            std::any_cast<JSONNode&>(m_active_node->values.back().second).name = "";
-            m_active_node = &std::any_cast<JSONNode&>(m_active_node->values.back().second);
+            m_active_node->values.push_back(JSONNode());
+            std::get<JSONNode>(m_active_node->values.back()).parent = m_active_node;
+            std::get<JSONNode>(m_active_node->values.back()).name = "";
+            m_active_node = &std::get<JSONNode>(m_active_node->values.back());
             m_active_node->is_scope_open = true;
             m_prev_decl = false;
         }
@@ -63,7 +64,7 @@ namespace Libdas {
     void JSONParser::_HandleScopeEndToken() {
         // check if loose string value is available and if it is, push it to values
         if(m_loose_string != "") {
-            m_active_node->values.push_back(std::make_pair(JSON_TYPE_STRING, m_loose_string));
+            m_active_node->values.push_back(m_loose_string);
 
             // fallback to parent
             if(m_active_node->parent)
@@ -100,7 +101,7 @@ namespace Libdas {
 
         // loose string is available, push it to values
         if(m_loose_string != "") {
-            m_active_node->values.push_back(std::make_pair(JSON_TYPE_STRING, m_loose_string));
+            m_active_node->values.push_back(m_loose_string);
             m_loose_string = "";
         }
         m_active_node->is_array_open = false;
@@ -169,7 +170,7 @@ namespace Libdas {
         }
 
         if(bool_str == "false" || bool_str == "true")
-            m_active_node->values.push_back(std::make_pair(JSON_TYPE_BOOLEAN, bool_str == "true" ? true : false));
+            m_active_node->values.push_back((bool_str == "true" ? true : false));
         else m_error.Error(LIBDAS_ERROR_INVALID_VALUE, m_line_nr, m_active_node->name);
 
         m_rd_ptr--;
@@ -186,27 +187,14 @@ namespace Libdas {
             m_error.Error(LIBDAS_ERROR_INCOMPLETE_SCOPE, m_line_nr, m_loose_string);
 
         // extract a number string from the buffer
-        bool is_fl = false;
         char *end = m_rd_ptr;
         while(end < m_buffer + m_buffer_size && ((*end >= '0' && *end <= '9') || *end == '.' || *end == 'e' || *end == '-')) {
-            if(*end == '.')
-                is_fl = true;
             end++;
         }
 
         std::string num_str = std::string(m_rd_ptr, end - m_rd_ptr);
-        std::variant<JSONInteger, JSONNumber> var_int;
-
-        // detected a float value
-        if(is_fl) {
-            var_int = std::stof(num_str.c_str());
-            m_active_node->values.push_back(std::make_pair(JSON_TYPE_FLOAT, var_int));
-        }
-        // detected integer value
-        else {
-            var_int = std::stoi(num_str.c_str());
-            m_active_node->values.push_back(std::make_pair(JSON_TYPE_INTEGER, var_int));
-        }
+        JSONNumber num = std::stof(num_str.c_str());
+        m_active_node->values.push_back(num);
 
         // check if fallback to parent scope should be made
         if(!m_active_node->is_scope_open && !m_active_node->is_array_open)
@@ -264,7 +252,7 @@ namespace Libdas {
     void JSONParser::_HandleNextElementToken() {
         // check if there is a loose string to add into values
         if(m_loose_string != "") {
-            m_active_node->values.push_back(std::make_pair(JSON_TYPE_STRING, m_loose_string));
+            m_active_node->values.push_back(m_loose_string);
             m_loose_string = "";
         }
 

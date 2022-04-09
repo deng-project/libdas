@@ -179,7 +179,7 @@ namespace Libdas {
 
 
     void GLTFCompiler::_GetUnindexedMeshPrimitives(GLTFRoot &_root) {
-        m_unindexed_primitives.resize(_root.meshes.size());
+        m_unindexed_primitives.reserve(_root.meshes.size());
 
         // find all unindexed mesh primitives
         for(size_t i = 0; i < _root.meshes.size(); i++) {
@@ -290,7 +290,7 @@ namespace Libdas {
             auto it = std::find(npool.begin(), npool.end(), _root.nodes[_node_id].children[i]);
             if(it == npool.end()) {
                 std::cerr << "Invalid child object in children pool" << std::endl;
-                std::exit(LIBDAS_ERROR_INVALID_DATA);
+                std::exit(LIBDAS_ERROR_INVALID_DATA_LENGTH);
             }
 
             npool.erase(it);
@@ -608,13 +608,13 @@ namespace Libdas {
     void GLTFCompiler::_StrideBuffers(GLTFRoot &_root, std::vector<DasBuffer> &_buffers) {
         std::vector<std::vector<GLTFAccessor*>> all_regions(_GetAllBufferAccessorRegions(_root));
 
-        std::vector<std::vector<BufferAccessorData>> index_regions(std::move(_GetBufferIndexRegions(_root)));
+        std::vector<std::vector<BufferAccessorData>> index_regions(_GetBufferIndexRegions(_root));
         _StrideBuffer(all_regions, index_regions, _buffers, &GLTFCompiler::_SupplementIndices);
 
-        std::vector<std::vector<BufferAccessorData>> joint_regions(std::move(_GetBufferJointRegions(_root)));
+        std::vector<std::vector<BufferAccessorData>> joint_regions(_GetBufferJointRegions(_root));
         _StrideBuffer(all_regions, joint_regions, _buffers, &GLTFCompiler::_SupplementJointIndices);
 
-        std::vector<std::vector<BufferAccessorData>> joint_weight_regions(std::move(_GetBufferJointRegions(_root)));
+        std::vector<std::vector<BufferAccessorData>> joint_weight_regions(_GetBufferJointRegions(_root));
         _StrideBuffer(all_regions, joint_weight_regions, _buffers, &GLTFCompiler::_SupplementJointWeights);
 
         _GetUnindexedMeshPrimitives(_root);
@@ -840,7 +840,7 @@ namespace Libdas {
                 for(auto attr_it = _root.meshes[i].primitives[*it].attributes.begin(); attr_it != _root.meshes[i].primitives[*it].attributes.end(); attr_it++) {
                     if(m_attribute_type_map.find(attr_it->first) == m_attribute_type_map.end()) {
                         std::cerr << "Invalid attribute '" << attr_it->first << "'" << std::endl;
-                        std::exit(LIBDAS_ERROR_INVALID_DATA);
+                        std::exit(LIBDAS_ERROR_INVALID_DATA_LENGTH);
                     }
 
                     switch(m_attribute_type_map.find(attr_it->first)->second) {
@@ -1080,7 +1080,6 @@ namespace Libdas {
                 prim.index_buffer_id = accessor_data.buffer_id;
                 prim.index_buffer_offset = accessor_data.buffer_offset;
                 prim.indices_count = _root.accessors[prim_it->indices].count;
-                prim.indexing_mode = LIBDAS_COMPACT_INDICES;
 
                 // for each attribute write its data into mesh primitive structure
                 for(auto attr_it = prim_it->attributes.begin(); attr_it != prim_it->attributes.end(); attr_it++) {
@@ -1116,7 +1115,7 @@ namespace Libdas {
                         case LIBDAS_BUFFER_TYPE_JOINTS:
                             if(is_joints) {
                                 std::cerr << "Using more than 4 joints per node is not allowed" << std::endl;;
-                                std::exit(LIBDAS_ERROR_INVALID_DATA);
+                                std::exit(LIBDAS_ERROR_INVALID_DATA_LENGTH);
                             }
 
                             is_joints = true;
@@ -1127,7 +1126,7 @@ namespace Libdas {
                         case LIBDAS_BUFFER_TYPE_WEIGHTS:
                             if(is_weights) {
                                 std::cerr << "Using more than 4 joints per node is not allowed" << std::endl;
-                                std::exit(LIBDAS_ERROR_INVALID_DATA);
+                                std::exit(LIBDAS_ERROR_INVALID_DATA_LENGTH);
                             }
 
                             is_weights = true;
@@ -1409,22 +1408,22 @@ namespace Libdas {
         InitialiseFile(_props);
 
         // write buffers to file
-        std::vector<DasBuffer> buffers(std::move(_CreateBuffers(_root, _embedded_textures)));
+        std::vector<DasBuffer> buffers(_CreateBuffers(_root, _embedded_textures));
         for(auto it = buffers.begin(); it != buffers.end(); it++)
             WriteBuffer(*it);
 
         // write mesh primitives to the file
-        std::vector<DasMeshPrimitive> primitives(std::move(_CreateMeshPrimitives(_root)));
+        std::vector<DasMeshPrimitive> primitives(_CreateMeshPrimitives(_root));
         for(auto it = primitives.begin(); it != primitives.end(); it++)
             WriteMeshPrimitive(*it);
 
         // write morph targets to the file
-        std::vector<DasMorphTarget> morph_targets(std::move(_CreateMorphTargets(_root)));
+        std::vector<DasMorphTarget> morph_targets(_CreateMorphTargets(_root));
         for(auto it = morph_targets.begin(); it != morph_targets.end(); it++)
             WriteMorphTarget(*it);
 
         // write meshes to the file
-        std::vector<DasMesh> meshes(std::move(_CreateMeshes(_root)));
+        std::vector<DasMesh> meshes(_CreateMeshes(_root));
         for(auto it = meshes.begin(); it != meshes.end(); it++)
             WriteMesh(*it);
 
@@ -1432,32 +1431,32 @@ namespace Libdas {
         _FlagJointNodes(_root);
 
         // write scene nodes to the file
-        std::vector<DasNode> nodes(std::move(_CreateNodes(_root))); 
+        std::vector<DasNode> nodes(_CreateNodes(_root)); 
         for(auto it = nodes.begin(); it != nodes.end(); it++)
             WriteNode(*it);
 
         // write scenes to the file
-        std::vector<DasScene> scenes(std::move(_CreateScenes(_root)));
+        std::vector<DasScene> scenes(_CreateScenes(_root));
         for(auto it = scenes.begin(); it != scenes.end(); it++)
             WriteScene(*it);
 
         // write skeleton joints to the file
-        std::vector<DasSkeletonJoint> joints(std::move(_CreateSkeletonJoints(_root, buffers)));
+        std::vector<DasSkeletonJoint> joints(_CreateSkeletonJoints(_root, buffers));
         for(auto it = joints.begin(); it != joints.end(); it++)
             WriteSkeletonJoint(*it);
 
         // write skeletons to the file
-        std::vector<DasSkeleton> skeletons(std::move(_CreateSkeletons(_root)));
+        std::vector<DasSkeleton> skeletons(_CreateSkeletons(_root));
         for(auto it = skeletons.begin(); it != skeletons.end(); it++)
             WriteSkeleton(*it);
 
         // write animation channels to file
-        std::vector<DasAnimationChannel> channels(std::move(_CreateAnimationChannels(_root)));
+        std::vector<DasAnimationChannel> channels(_CreateAnimationChannels(_root));
         for(auto it = channels.begin(); it != channels.end(); it++)
             WriteAnimationChannel(*it);
 
         // write animations to file
-        std::vector<DasAnimation> animations(std::move(_CreateAnimations(_root)));
+        std::vector<DasAnimation> animations(_CreateAnimations(_root));
         for(auto it = animations.begin(); it != animations.end(); it++)
             WriteAnimation(*it);
     }

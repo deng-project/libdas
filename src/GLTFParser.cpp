@@ -10,7 +10,7 @@
 namespace Libdas {
 
     GLTFParser::GLTFParser(const std::string &_file_name) : 
-        JSONParser(MODEL_FORMAT_GLTF, _file_name), m_error(MODEL_FORMAT_GLTF) 
+        JSONParser(MODEL_FORMAT_GLTF, _file_name)
     {
         _InitialiseRootObjectTypeMap();
     }
@@ -48,25 +48,37 @@ namespace Libdas {
     }
 
 
-    void GLTFParser::_VerifySourceData(JSONNode *_node, JSONType _supported_type, bool _is_array) {
+    bool GLTFParser::_VerifySourceData(JSONNode *_node, JSONType _supported_type, bool _is_array) {
         // find an appropriate expected type string in case of error
         std::string exp_type_str;
-        if(_supported_type & JSON_TYPE_STRING) {
-            if(!_is_array)
-                exp_type_str = "string";
-            else exp_type_str = "string array";
-        } else if (_supported_type & JSON_TYPE_BOOLEAN) {
-            if(!_is_array)
-                exp_type_str = "boolean";
-            else exp_type_str = "boolean array";
-        } else if (_supported_type & JSON_TYPE_INTEGER || _supported_type & JSON_TYPE_FLOAT) {
-            if(!_is_array)
-                exp_type_str = "number";
-            else exp_type_str = "number array";
-        } else if (_supported_type & JSON_TYPE_OBJECT) {
-            if(!_is_array)
-                exp_type_str = "object";
-            else exp_type_str = "object array";
+        switch(_supported_type) {
+            case JSON_TYPE_STRING:
+                if(!_is_array)
+                    exp_type_str = "string";
+                else exp_type_str = "string array";
+                break;
+
+            case JSON_TYPE_BOOLEAN:
+                if(!_is_array)
+                    exp_type_str = "boolean";
+                else exp_type_str = "boolean array";
+                break;
+
+            case JSON_TYPE_NUMBER:
+                if(!_is_array)
+                    exp_type_str = "number";
+                else exp_type_str = "number array";
+                break;
+
+            case JSON_TYPE_OBJECT:
+                if(!_is_array)
+                    exp_type_str = "object";
+                else exp_type_str = "object array";
+                break;
+
+            default:
+                LIBDAS_ASSERT(false);
+                break;
         }
 
         // throw an error if array type is not specified, but there are 
@@ -77,121 +89,223 @@ namespace Libdas {
         else {
             // check if array elements are homogenous and supported
             for(size_t i = 0; i < _node->values.size(); i++) {
-                if(!(_node->values[i].first & _supported_type))
-                    m_error.Error(LIBDAS_ERROR_INVALID_TYPE, _node->key_val_decl_line, _node->name, exp_type_str);
+                if(_node->values[i].index() != _supported_type)
+                    return false;
             }
         }
+
+        return true;
     }
 
 
     void GLTFParser::_CopyJSONDataToGLTFRoot(JSONNode *_src, GLTFUniversalScopeValue &_dst) {
         switch(_dst.type) {
             case GLTF_TYPE_STRING:
-                _VerifySourceData(_src, JSON_TYPE_STRING, false);
-                *reinterpret_cast<JSONString*>(_dst.val_ptr) = std::any_cast<JSONString>(_src->values.back().second);
+                {
+                    bool is_str = _VerifySourceData(_src, JSON_TYPE_STRING, false);
+                    if(is_str)
+                        *reinterpret_cast<JSONString*>(_dst.val_ptr) = std::get<JSONString>(_src->values.back());
+                    else m_error.Error(LIBDAS_ERROR_INVALID_TYPE, _src->key_val_decl_line, _src->name, "string");
+                }
                 break;
 
-            case GLTF_TYPE_INTEGER: {
-                _VerifySourceData(_src, JSON_TYPE_INTEGER | JSON_TYPE_FLOAT, false);
-                *reinterpret_cast<JSONInteger*>(_dst.val_ptr) = _CastVariantNumber<JSONInteger, JSONNumber>(
-                    std::any_cast<std::variant<JSONInteger, JSONNumber>>(_src->values.back().second));
+            case GLTF_TYPE_INTEGER: 
+                {
+                    bool is_num = _VerifySourceData(_src, JSON_TYPE_NUMBER, false);
+
+                    if(is_num)
+                        *reinterpret_cast<int32_t*>(_dst.val_ptr) = std::get<JSONNumber>(_src->values.back());
+                    else m_error.Error(LIBDAS_ERROR_INVALID_TYPE, _src->key_val_decl_line, _src->name, "integer");
+                }
                 break;
-            }
 
             case GLTF_TYPE_FLOAT:
-                _VerifySourceData(_src, JSON_TYPE_INTEGER | JSON_TYPE_FLOAT, false);
-                *reinterpret_cast<JSONNumber*>(_dst.val_ptr) = _CastVariantNumber<JSONNumber, JSONInteger>(
-                    std::any_cast<std::variant<JSONInteger, JSONNumber>>(_src->values.back().second));
+                {
+                    bool is_num = _VerifySourceData(_src, JSON_TYPE_NUMBER, false);
+
+                    if(is_num)
+                        *reinterpret_cast<JSONNumber*>(_dst.val_ptr) = std::get<JSONNumber>(_src->values.back());
+                    else m_error.Error(LIBDAS_ERROR_INVALID_TYPE, _src->key_val_decl_line, _src->name, "number");
+                }
                 break;
 
             case GLTF_TYPE_INTEGER_ARRAY:
-                _VerifySourceData(_src, JSON_TYPE_INTEGER | JSON_TYPE_FLOAT, true);
-                *reinterpret_cast<std::vector<JSONInteger>*>(_dst.val_ptr) = _NumericalJsonValueToVectorCast<JSONInteger>(_src->values);
+                {
+                    bool is_numerical_array = _VerifySourceData(_src, JSON_TYPE_NUMBER, true);
+                    if(is_numerical_array) {
+                        std::vector<int32_t> *vec = reinterpret_cast<std::vector<int32_t>*>(_dst.val_ptr);
+                        vec->reserve(_src->values.size());
+
+                        for(auto it = _src->values.begin(); it != _src->values.end(); it++) {
+                            JSONNumber num = std::get<JSONNumber>(*it);
+                            vec->push_back(static_cast<int32_t>(num));
+                        }
+                    }
+                    else m_error.Error(LIBDAS_ERROR_INVALID_TYPE, _src->key_val_decl_line, _src->name, "integer array");
+                }
                 break;
 
-            case GLTF_TYPE_FLOAT_ARRAY:
-                _VerifySourceData(_src, JSON_TYPE_FLOAT | JSON_TYPE_INTEGER, true);
-                *reinterpret_cast<std::vector<JSONNumber>*>(_dst.val_ptr) = _NumericalJsonValueToVectorCast<JSONNumber>(_src->values);
+            case GLTF_TYPE_FLOAT_ARRAY: 
+                {
+                    bool is_num_array = _VerifySourceData(_src, JSON_TYPE_NUMBER, true);
+                    if(is_num_array) {
+                        std::vector<JSONNumber> *vec = reinterpret_cast<std::vector<JSONNumber>*>(_dst.val_ptr);
+                        vec->reserve(_src->values.size());
+
+                        for(auto it = _src->values.begin(); it != _src->values.end(); it++)
+                            vec->push_back(std::get<JSONNumber>(*it));
+                    }
+                    else m_error.Error(LIBDAS_ERROR_INVALID_TYPE, _src->key_val_decl_line, _src->name, "number array");
+                }
                 break;
 
             case GLTF_TYPE_STRING_ARRAY:
-                _VerifySourceData(_src, JSON_TYPE_STRING, true);
-                *reinterpret_cast<std::vector<JSONString>*>(_dst.val_ptr) = _JsonValueToVectorCast<JSONString>(_src->values);
+                {
+                    bool is_str_array = _VerifySourceData(_src, JSON_TYPE_STRING, true);
+                    if(is_str_array) {
+                        std::vector<JSONString> *vec = reinterpret_cast<std::vector<JSONString>*>(_dst.val_ptr);
+                        vec->reserve(_src->values.size());
+
+                        for(auto it = _src->values.begin(); it != _src->values.end(); it++)
+                            vec->push_back(std::get<JSONString>(*it));
+                    }
+                    else m_error.Error(LIBDAS_ERROR_INVALID_TYPE, _src->key_val_decl_line, _src->name, "string array");
+                }
                 break;
 
             case GLTF_TYPE_ACCESSOR_SPARSE:
-                _VerifySourceData(_src, JSON_TYPE_OBJECT, false);
-                _ReadAccessorSparse(_src, *reinterpret_cast<GLTFAccessorSparse*>(_dst.val_ptr));
+                {
+                    bool is_obj = _VerifySourceData(_src, JSON_TYPE_OBJECT, false);
+                    if(is_obj)
+                        _ReadAccessorSparse(_src, *reinterpret_cast<GLTFAccessorSparse*>(_dst.val_ptr));
+                    else m_error.Error(LIBDAS_ERROR_INVALID_TYPE, _src->key_val_decl_line, _src->name, "object");
+                }
                 break;
 
             case GLTF_TYPE_ACCESSOR_SPARSE_INDICES:
-                _VerifySourceData(_src, JSON_TYPE_OBJECT, false);
-                _ReadAccessorSparseIndices(_src, *reinterpret_cast<GLTFAccessorSparseIndices*>(_dst.val_ptr));
+                {
+                    bool is_obj = _VerifySourceData(_src, JSON_TYPE_OBJECT, false);
+                    if(is_obj)
+                        _ReadAccessorSparseIndices(_src, *reinterpret_cast<GLTFAccessorSparseIndices*>(_dst.val_ptr));
+                    else m_error.Error(LIBDAS_ERROR_INVALID_TYPE, _src->key_val_decl_line, _src->name, "object");
+                }
                 break;
 
             case GLTF_TYPE_ACCESSOR_SPARSE_VALUES:
-                _VerifySourceData(_src, JSON_TYPE_OBJECT, false);
-                _ReadAccessorSparseValues(_src, *reinterpret_cast<GLTFAccessorSparseValues*>(_dst.val_ptr));
+                {
+                    bool is_obj = _VerifySourceData(_src, JSON_TYPE_OBJECT, false);
+                    if(is_obj)
+                        _ReadAccessorSparseValues(_src, *reinterpret_cast<GLTFAccessorSparseValues*>(_dst.val_ptr));
+                    else m_error.Error(LIBDAS_ERROR_INVALID_TYPE, _src->key_val_decl_line, _src->name, "object");
+                }
                 break;
 
             case GLTF_TYPE_ANIMATION_CHANNELS:
-                _VerifySourceData(_src, JSON_TYPE_OBJECT, true);
-                _ReadAnimationChannels(_src, *reinterpret_cast<std::vector<GLTFAnimationChannel>*>(_dst.val_ptr));
+                {
+                    bool is_obj = _VerifySourceData(_src, JSON_TYPE_OBJECT, true);
+                    if(is_obj)
+                        _ReadAnimationChannels(_src, *reinterpret_cast<std::vector<GLTFAnimationChannel>*>(_dst.val_ptr));
+                    else m_error.Error(LIBDAS_ERROR_INVALID_TYPE, _src->key_val_decl_line, _src->name, "object array");
+                }
                 break;
 
             case GLTF_TYPE_ANIMATION_CHANNEL_TARGET:
-                _VerifySourceData(_src, JSON_TYPE_OBJECT, false);
-                _ReadAnimationChannelTarget(_src, *reinterpret_cast<GLTFAnimationChannelTarget*>(_dst.val_ptr));
+                {
+                    bool is_obj = _VerifySourceData(_src, JSON_TYPE_OBJECT, false);
+                    if(is_obj)
+                        _ReadAnimationChannelTarget(_src, *reinterpret_cast<GLTFAnimationChannelTarget*>(_dst.val_ptr));
+                    else m_error.Error(LIBDAS_ERROR_INVALID_TYPE, _src->key_val_decl_line, _src->name, "object array");
+                }
                 break;
 
             case GLTF_TYPE_ANIMATION_SAMPLERS:
-                _VerifySourceData(_src, JSON_TYPE_OBJECT, true);
-                _ReadAnimationSamplers(_src, *reinterpret_cast<std::vector<GLTFAnimationSampler>*>(_dst.val_ptr));
+                {
+                    bool is_obj = _VerifySourceData(_src, JSON_TYPE_OBJECT, true);
+                    if(is_obj)
+                        _ReadAnimationSamplers(_src, *reinterpret_cast<std::vector<GLTFAnimationSampler>*>(_dst.val_ptr));
+                    else m_error.Error(LIBDAS_ERROR_INVALID_TYPE, _src->key_val_decl_line, _src->name, "object array");
+                }
                 break;
 
             case GLTF_TYPE_CAMERA_ORTHOGRAPHIC:
-                _VerifySourceData(_src, JSON_TYPE_OBJECT, false);
-                _ReadCameraOrthographic(_src, *reinterpret_cast<GLTFCameraOrthographic*>(_dst.val_ptr));
+                {
+                    bool is_obj = _VerifySourceData(_src, JSON_TYPE_OBJECT, false);
+                    if(is_obj)
+                        _ReadCameraOrthographic(_src, *reinterpret_cast<GLTFCameraOrthographic*>(_dst.val_ptr));
+                    else m_error.Error(LIBDAS_ERROR_INVALID_TYPE, _src->key_val_decl_line, _src->name, "object");
+                }
                 break;
 
             case GLTF_TYPE_CAMERA_PERSPECTIVE:
-                _VerifySourceData(_src, JSON_TYPE_OBJECT, false);
-                _ReadCameraPerspective(_src, *reinterpret_cast<GLTFCameraPerspective*>(_dst.val_ptr));
+                {
+                    bool is_obj = _VerifySourceData(_src, JSON_TYPE_OBJECT, false);
+                    if(is_obj)
+                        _ReadCameraPerspective(_src, *reinterpret_cast<GLTFCameraPerspective*>(_dst.val_ptr));
+                    else m_error.Error(LIBDAS_ERROR_INVALID_TYPE, _src->key_val_decl_line, _src->name, "object array");
+                }
                 break;
 
             case GLTF_TYPE_MATERIAL_PBR_METALLIC_ROUGHNESS:
-                _VerifySourceData(_src, JSON_TYPE_OBJECT, false);
-                _ReadMaterialPbrMetallicRoughness(_src, *reinterpret_cast<GLTFpbrMetallicRoughness*>(_dst.val_ptr));
+                {
+                    bool is_obj = _VerifySourceData(_src, JSON_TYPE_OBJECT, false);
+                    if(is_obj)
+                        _ReadMaterialPbrMetallicRoughness(_src, *reinterpret_cast<GLTFpbrMetallicRoughness*>(_dst.val_ptr));
+                    else m_error.Error(LIBDAS_ERROR_INVALID_TYPE, _src->key_val_decl_line, _src->name, "object");
+                }
                 break;
 
             case GLTF_TYPE_MATERIAL_NORMAL_TEXTURE:
-                _VerifySourceData(_src, JSON_TYPE_OBJECT, false);
-                _ReadMaterialNormalTexture(_src, *reinterpret_cast<GLTFNormalTextureInfo*>(_dst.val_ptr));
+                {
+                    bool is_obj = _VerifySourceData(_src, JSON_TYPE_OBJECT, false);
+                    if(is_obj)
+                        _ReadMaterialNormalTexture(_src, *reinterpret_cast<GLTFNormalTextureInfo*>(_dst.val_ptr));
+                    else m_error.Error(LIBDAS_ERROR_INVALID_TYPE, _src->key_val_decl_line, _src->name, "object");
+                }
                 break;
 
             case GLTF_TYPE_MATERIAL_OCCLUSION_TEXTURE:
-                _VerifySourceData(_src, JSON_TYPE_OBJECT, false);
-                _ReadMaterialOcclusionTexture(_src, *reinterpret_cast<GLTFOcclusionTextureInfo*>(_dst.val_ptr));
+                {
+                    bool is_obj = _VerifySourceData(_src, JSON_TYPE_OBJECT, false);
+                    if(is_obj)
+                        _ReadMaterialOcclusionTexture(_src, *reinterpret_cast<GLTFOcclusionTextureInfo*>(_dst.val_ptr));
+                    else m_error.Error(LIBDAS_ERROR_INVALID_TYPE, _src->key_val_decl_line, _src->name, "object");
+                }
                 break;
 
             case GLTF_TYPE_MATERIAL_TEXTURE_INFO:
-                _VerifySourceData(_src, JSON_TYPE_OBJECT, false);
-                _ReadMaterialTextureInfo(_src, *reinterpret_cast<GLTFTextureInfo*>(_dst.val_ptr));
+                {
+                    bool is_obj = _VerifySourceData(_src, JSON_TYPE_OBJECT, false);
+                    if(is_obj)
+                        _ReadMaterialTextureInfo(_src, *reinterpret_cast<GLTFTextureInfo*>(_dst.val_ptr));
+                    else m_error.Error(LIBDAS_ERROR_INVALID_TYPE, _src->key_val_decl_line, _src->name, "object");
+                }
                 break;
 
             case GLTF_TYPE_MESH_PRIMITIVES:
-                _VerifySourceData(_src, JSON_TYPE_OBJECT, true);
-                _ReadMeshPrimitives(_src, *reinterpret_cast<std::vector<GLTFMeshPrimitive>*>(_dst.val_ptr));
+                {
+                    bool is_obj_array = _VerifySourceData(_src, JSON_TYPE_OBJECT, true);
+                    if(is_obj_array)
+                        _ReadMeshPrimitives(_src, *reinterpret_cast<std::vector<GLTFMeshPrimitive>*>(_dst.val_ptr));
+                    else m_error.Error(LIBDAS_ERROR_INVALID_TYPE, _src->key_val_decl_line, _src->name, "object array");
+                }
                 break;
 
             case GLTF_TYPE_MESH_PRIMITIVE_ATTRIBUTES:
-                _VerifySourceData(_src, JSON_TYPE_OBJECT, false);
-                _ReadMeshPrimitiveAttributes(_src, *reinterpret_cast<GLTFMeshPrimitive::AttributesType*>(_dst.val_ptr));
+                {
+                    bool is_obj = _VerifySourceData(_src, JSON_TYPE_OBJECT, false);
+                    if(is_obj)
+                        _ReadMeshPrimitiveAttributes(_src, *reinterpret_cast<GLTFMeshPrimitive::AttributesType*>(_dst.val_ptr));
+                    else m_error.Error(LIBDAS_ERROR_INVALID_TYPE, _src->key_val_decl_line, _src->name, "object");
+                }
                 break;
 
             case GLTF_TYPE_MESH_PRIMITIVE_TARGETS:
-                _VerifySourceData(_src, JSON_TYPE_OBJECT, true);
-                _ReadMeshPrimitiveTargets(_src, *reinterpret_cast<std::vector<GLTFMeshPrimitive::AttributesType>*>(_dst.val_ptr));
+                {
+                    bool is_obj = _VerifySourceData(_src, JSON_TYPE_OBJECT, true);
+                    if(is_obj)
+                        _ReadMeshPrimitiveTargets(_src, *reinterpret_cast<std::vector<GLTFMeshPrimitive::AttributesType>*>(_dst.val_ptr));
+                    else m_error.Error(LIBDAS_ERROR_INVALID_TYPE, _src->key_val_decl_line, _src->name, "object array");
+                }
                 break;
 
             default:
@@ -448,10 +562,10 @@ namespace Libdas {
         // for each element in values
         for(size_t i = 0; i < _node->values.size(); i++) {
             // error: invalid element type, only JSON objects are supported
-            if(_node->values[i].first != JSON_TYPE_OBJECT)
-                m_error.Error(LIBDAS_ERROR_INVALID_TYPE, _node->key_val_decl_line, _node->name, "JSON object");
+            if(_node->values[i].index() != JSON_TYPE_OBJECT)
+                m_error.Error(LIBDAS_ERROR_INVALID_TYPE, _node->key_val_decl_line, _node->name, "object");
 
-            _IterateSubNodes(std::any_cast<JSONNode>(&_node->values[i].second), values);
+            _IterateSubNodes(&std::get<JSONNode>(_node->values[i]), values);
 
             // check if emissive factor should be considered
             if(emissive_factor.size() == 3)
@@ -555,21 +669,9 @@ namespace Libdas {
     void GLTFParser::_ReadMeshPrimitiveAttributes(JSONNode *_node, GLTFMeshPrimitive::AttributesType &_attrs) {
         // iterate through each subnode now
         for(auto it = _node->sub_nodes.begin(); it != _node->sub_nodes.end(); it++) {
-            _VerifySourceData(it->second.get(), JSON_TYPE_INTEGER, false);
-            std::variant<JSONInteger, JSONNumber> vno = std::any_cast<std::variant<JSONInteger, JSONNumber>>(it->second->values.back().second);
-            switch(vno.index()) {
-                case 0:
-                    _attrs.push_back(std::make_pair(it->first, static_cast<uint32_t>(std::get<JSONInteger>(vno))));
-                    break;
-
-                case 1:
-                    _attrs.push_back(std::make_pair(it->first, static_cast<uint32_t>(std::get<JSONNumber>(vno))));
-                    break;
-
-                default:
-                    LIBDAS_ASSERT(false);
-                    break;
-            }
+            _VerifySourceData(it->second.get(), JSON_TYPE_NUMBER, false);
+            JSONNumber num = std::get<JSONNumber>(it->second->values.back());
+            _attrs.push_back(std::make_pair(it->first, static_cast<uint32_t>(num)));
         }
     }
 
@@ -579,24 +681,12 @@ namespace Libdas {
             _targets.emplace_back();
 
             GLTFMeshPrimitive::AttributesType attrs;
-            JSONNode &sub_node = std::any_cast<JSONNode&>(it->second);
+            JSONNode &sub_node = std::get<JSONNode>(*it);
 
             for(auto sub_it = sub_node.sub_nodes.begin(); sub_it != sub_node.sub_nodes.end(); sub_it++) {
-                _VerifySourceData(sub_it->second.get(), JSON_TYPE_INTEGER, false);
-                std::variant<JSONInteger, JSONNumber> vno = std::any_cast<std::variant<JSONInteger, JSONNumber>>(sub_it->second->values.back().second);
-                switch(vno.index()) {
-                    case 0:
-                        _targets.back().push_back(std::make_pair(sub_it->first, static_cast<uint32_t>(std::get<JSONInteger>(vno))));
-                        break;
-
-                    case 1:
-                        _targets.back().push_back(std::make_pair(sub_it->first, static_cast<uint32_t>(std::get<JSONNumber>(vno))));
-                        break;
-
-                    default:
-                        LIBDAS_ASSERT(false);
-                        break;
-                }
+                _VerifySourceData(sub_it->second.get(), JSON_TYPE_NUMBER, false);
+                JSONNumber num = std::get<JSONNumber>(sub_it->second->values.back());
+                _targets.back().push_back(std::make_pair(sub_it->first, static_cast<uint32_t>(num)));
             }
         }
     }
@@ -627,10 +717,10 @@ namespace Libdas {
         // for each node in nodes
         for(size_t i = 0; i < _node->values.size(); i++) {
             // error: invalid value type, expected JSON object
-            if(_node->values[i].first != JSON_TYPE_OBJECT)
+            if(_node->values[i].index() != JSON_TYPE_OBJECT)
                 m_error.Error(LIBDAS_ERROR_INVALID_TYPE, _node->key_val_decl_line, _node->name, "JSON object");
 
-            _IterateSubNodes(std::any_cast<JSONNode>(&_node->values[i].second), values);
+            _IterateSubNodes(&std::get<JSONNode>(_node->values[i]), values);
 
             // append matrix data into correct data structure if possible
             if(matrix.size() == 16) {
@@ -689,16 +779,8 @@ namespace Libdas {
         if(!is_root) 
             _IterateValueObjects<GLTFScene>(_node, values, scene, m_root.scenes);
         else {
-            std::variant<JSONInteger, JSONNumber> num = std::any_cast<std::variant<JSONInteger, JSONNumber>>(_node->values.back().second);
-            switch(num.index()) {
-                case 0:
-                    m_root.load_time_scene = static_cast<int32_t>(std::get<JSONInteger>(num));
-                    break;
-
-                case 1:
-                    m_root.load_time_scene = static_cast<int32_t>(std::get<JSONNumber>(num));
-                    break;
-            }
+            JSONNumber num = std::get<JSONNumber>(_node->values.back());
+            m_root.load_time_scene = static_cast<int32_t>(num);
         }
     }
 

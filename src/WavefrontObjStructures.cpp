@@ -54,7 +54,7 @@ namespace Libdas {
 
         // NOTE: Only x, y and z coordinates are allowed
         // w coordinates will be simply ignored
-        void VertexKeywordArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args) {
+        void VertexKeywordArgsCallback(WavefrontObjData &_wobj_data, AsciiFormatErrorHandler &_error, ArgsType &_args) {
             const std::string keyword = "v";
             _error.ArgCountCheck(keyword, _args.first, static_cast<uint32_t>(_args.second.size()), 3, 4, TERMINATE);
             Point3D<float> pt(0.0f, 0.0f, 0.0f);
@@ -64,11 +64,11 @@ namespace Libdas {
             pt.z = std::stof(_args.second[2]);
 
             _error.CheckFloatArgs(&pt.x, &pt.z, 0, keyword, _args);
-            _groups.back().vertices.position.push_back(pt);
+            _wobj_data.vertices.position.push_back(pt);
         }
 
 
-        void PointKeywordArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args) {
+        void PointKeywordArgsCallback(WavefrontObjData &_wobj_data, AsciiFormatErrorHandler &_error, ArgsType &_args) {
             const std::string keyword = "vp";
             _error.ArgCountCheck(keyword, _args.first, static_cast<uint32_t>(_args.second.size()), 1, 3, TERMINATE);
             Point3D<float> pt(0.0f, 0.0f, 0.0f);
@@ -83,11 +83,11 @@ namespace Libdas {
             }
 
             _error.CheckFloatArgs(&pt.x, &pt.y, 0, keyword, _args);
-            _groups.back().vertices.points.push_back(pt);
+            _wobj_data.vertices.points.push_back(pt);
         }
 
 
-        void VertexNormalKeywordArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args) {
+        void VertexNormalKeywordArgsCallback(WavefrontObjData &_wobj_data, AsciiFormatErrorHandler &_error, ArgsType &_args) {
             const std::string keyword = "vn";
             _error.ArgCountCheck(keyword, _args.first, static_cast<uint32_t>(_args.second.size()), 3, 3, TERMINATE);
             Point3D<float> pt(0.0f, 0.0f, 0.0f);
@@ -97,25 +97,22 @@ namespace Libdas {
             pt.z = std::stof(_args.second[2]);
 
             _error.CheckFloatArgs(&pt.x, &pt.y, 0, keyword, _args);
-            _groups.back().vertices.normals.push_back(pt);
+            _wobj_data.vertices.normals.push_back(pt);
         }
 
 
-        void TextureVertexKeywordArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args) {
+        void TextureVertexKeywordArgsCallback(WavefrontObjData &_wobj_data, AsciiFormatErrorHandler &_error, ArgsType &_args) {
             const std::string keyword = "vt";
             _error.ArgCountCheck(keyword, _args.first, static_cast<uint32_t>(_args.second.size()), 1, 3, TERMINATE);
-            Point3D<float> pt(0.0f, 0.0f, 0.0f);
+            Point2D<float> pt(0.0f, 0.0f);
 
             pt.x = std::stof(_args.second[0]);
             if(_args.second.size() > 1) {
                 pt.y = std::stof(_args.second[1]);
-
-                if(_args.second.size() == 3)
-                    pt.z = std::stof(_args.second[2]);
             }
 
             _error.CheckFloatArgs(&pt.x, &pt.y, 0, keyword, _args);
-            _groups.back().vertices.texture.push_back(pt);
+            _wobj_data.vertices.texture.push_back(pt);
         };
 
 
@@ -125,7 +122,7 @@ namespace Libdas {
         //void BasisMatrixArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
         //void CSStepArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
         
-        void PointsArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args) {
+        void PointsArgsCallback(WavefrontObjData &_wobj_data, AsciiFormatErrorHandler &_error, ArgsType &_args) {
             const std::string keyword = "p";
             _error.ArgCountCheck(keyword, _args.first, static_cast<uint32_t>(_args.second.size()), 1, UINT32_MAX, TERMINATE);
             std::vector<uint32_t> verts;
@@ -139,7 +136,7 @@ namespace Libdas {
                 verts.push_back(index);
             }
 
-            _groups.back().indices.pt.push_back(verts);
+            _wobj_data.groups.back().indices.pt.push_back(verts);
         }
 
 
@@ -151,19 +148,24 @@ namespace Libdas {
         //}
 
 
-        void FaceArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args) {
+        void FaceArgsCallback(WavefrontObjData &_wobj_data, AsciiFormatErrorHandler &_error, ArgsType &_args) {
             const std::string keyword = "f";
             _error.ArgCountCheck(keyword, _args.first, static_cast<uint32_t>(_args.second.size()), 1, UINT32_MAX, TERMINATE);
-            WavefrontObjFace face(_args.second.size());
+            _wobj_data.groups.back().indices.faces.emplace_back(_args.second.size());
+            auto &face  = _wobj_data.groups.back().indices.faces.back();
 
             for(size_t i = 0; i < _args.second.size(); i++) {
                 Point3D<uint32_t> elem = _TripleIndexBlockCallback(_error, _args.second[i], keyword, _args.first);
-                face[i].vert = elem.x;
-                face[i].texture = elem.y;
-                face[i].normal = elem.z;
-            }
 
-            _groups.back().indices.faces.push_back(face);
+                if(elem.x != UINT32_MAX)
+                    face[i].vert = elem.x - 1;
+
+                if(elem.y != UINT32_MAX)
+                    face[i].texture = elem.y - 1;
+
+                if(elem.z != UINT32_MAX)
+                    face[i].normal = elem.z - 1;
+            }
         }
 
         //void CurveArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
@@ -176,10 +178,10 @@ namespace Libdas {
         //void SpecialPointArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
         
 
-        void GroupArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args) {
+        void GroupArgsCallback(WavefrontObjData &_wobj_data, AsciiFormatErrorHandler &_error, ArgsType &_args) {
             const std::string keyword = "g";
             _error.ArgCountCheck(keyword, _args.first, static_cast<uint32_t>(_args.second.size()), 0, UINT32_MAX, TERMINATE);
-            _groups.push_back(WavefrontObjGroup(_args.second));
+            _wobj_data.groups.emplace_back(_args.second);
         }
 
 
@@ -187,10 +189,10 @@ namespace Libdas {
         //void MergeGroupCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
         
         
-        void ObjectNameCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args) {
+        void ObjectNameCallback(WavefrontObjData &_wobj_data, AsciiFormatErrorHandler &_error, ArgsType &_args) {
             const std::string keyword = "o";
             _error.ArgCountCheck(keyword, _args.first, static_cast<uint32_t>(_args.second.size()), 1, 1, TERMINATE);
-            _groups.push_back(WavefrontObjGroup(_args.second));
+            _wobj_data.groups.emplace_back(_args.second);
         }
 
 

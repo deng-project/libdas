@@ -16,25 +16,21 @@ void OutputNodes(const std::string &_name, Libdas::JSONNode *_node, std::string 
     std::cout << _sep << " " << _name << std::endl;
     _sep += "-";
     for(size_t i = 0; i < _node->values.size(); i++) {
-        switch(_node->values[i].first) {
+        switch(_node->values[i].index()) {
             case JSON_TYPE_STRING:
-                std::cout << _sep << " " << std::any_cast<std::string>(_node->values[i].second) << std::endl;
+                std::cout << _sep << " " << std::get<std::string>(_node->values[i]) << std::endl;
                 break;
 
-            case JSON_TYPE_INTEGER:
-                std::cout << _sep << " " << std::get<int32_t>(std::any_cast<std::variant<int32_t, float>>(_node->values[i].second)) << std::endl;
-                break;
-
-            case JSON_TYPE_FLOAT:
-                std::cout << _sep << " " << std::get<float>(std::any_cast<std::variant<int32_t, float>>(_node->values[i].second)) << std::endl;
+            case JSON_TYPE_NUMBER:
+                std::cout << _sep << " " << std::get<float>(_node->values[i]) << std::endl;
                 break;
 
             case JSON_TYPE_BOOLEAN:
-                std::cout << _sep << " " << (std::any_cast<bool>(_node->values[i].second) ? "true" : "false") << std::endl;
+                std::cout << _sep << " " << (std::get<bool>(_node->values[i]) ? "true" : "false") << std::endl;
                 break;
 
             case JSON_TYPE_OBJECT:
-                OutputNodes("{}", &std::any_cast<Libdas::JSONNode&>(_node->values[i].second), _sep);
+                OutputNodes("{}", &std::get<Libdas::JSONNode>(_node->values[i]), _sep);
                 break;
 
             default:

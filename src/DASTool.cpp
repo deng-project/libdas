@@ -50,7 +50,7 @@ void DASTool::_ConvertWavefrontObj(const std::string &_input_file) {
 
     Libdas::WavefrontObjParser parser(_input_file);
     parser.Parse();
-    Libdas::WavefrontObjCompiler(parser.GetParsedGroups(), m_props, m_out_file, m_embedded_textures);
+    Libdas::WavefrontObjCompiler(parser.GetParsedData(), m_props, m_out_file, m_embedded_textures);
 }
 
 
@@ -147,7 +147,18 @@ void DASTool::_ListWavefrontObj(const std::string &_input_file) {
     Libdas::WavefrontObjParser parser(_input_file);
     parser.Parse();
 
-    const std::vector<Libdas::WavefrontObjGroup> &groups = parser.GetParsedGroups();
+    const Libdas::WavefrontObjData &data = parser.GetParsedData();
+    const std::vector<Libdas::WavefrontObjGroup> &groups = data.groups;
+
+    // output information about vertices
+    if(data.vertices.position.size())
+        std::cout << "Position vertices count: " << data.vertices.position.size() << std::endl;
+    if(data.vertices.points.size())
+        std::cout << "Point vertices count: " << data.vertices.points.size() << std::endl;
+    if(data.vertices.normals.size())
+        std::cout << "Vertex normals count: " << data.vertices.normals.size() << std::endl;
+    if(data.vertices.texture.size())
+        std::cout << "Texture vertices count: " << data.vertices.texture.size() << std::endl;
     
     // output information about groups to stdout
     for(size_t i = 0; i < groups.size(); i++) {
@@ -158,16 +169,6 @@ void DASTool::_ListWavefrontObj(const std::string &_input_file) {
         // verbose flag is used output render attributes
         if(m_flags & USAGE_FLAG_VERBOSE)
             _ListWavefrontObjRenderAttributes(groups[i]);
-
-        // output vertices count
-        if(groups[i].vertices.position.size())
-            std::cout << "Position vertices count: " << groups[i].vertices.position.size() << std::endl;
-        if(groups[i].vertices.points.size())
-            std::cout << "Point vertices count: " << groups[i].vertices.points.size() << std::endl;
-        if(groups[i].vertices.normals.size())
-            std::cout << "Vertex normals count: " << groups[i].vertices.normals.size() << std::endl;
-        if(groups[i].vertices.texture.size())
-            std::cout << "Texture vertices count: " << groups[i].vertices.texture.size() << std::endl;
 
         // output indices count
         if(groups[i].indices.faces.size())
@@ -316,7 +317,6 @@ void DASTool::_ListDasMeshes(Libdas::DasParser &_parser) {
             std::cout << "---- Primitive nr " << j << " ----" << std::endl;
             std::cout << "-- Index buffer id: " << prim.index_buffer_id << std::endl;
             std::cout << "-- Index buffer offset: " << prim.index_buffer_offset << std::endl;
-            std::cout << "-- Indexing mode: " << (prim.indexing_mode == LIBDAS_SEPERATE_INDICES ? "Separate indices" : "Compact indices") << std::endl;
             std::cout << "-- Vertex buffer id: " << prim.vertex_buffer_id << std::endl;
             std::cout << "-- Vertex buffer offset: " << prim.vertex_buffer_offset << std::endl;
 

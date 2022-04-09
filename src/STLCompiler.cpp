@@ -17,69 +17,45 @@ namespace Libdas {
 
 
     void STLCompiler::_IndexVertices(const std::vector<STLObject> &_objects) {
-        std::unordered_map<Point3D<float>, uint32_t, Hash<Point3D<float>>> pos_map;
-        std::unordered_map<Point3D<float>, uint32_t, Hash<Point3D<float>>> norm_map;
+        std::unordered_map<Vertex, uint32_t, Hash<Vertex>> vert_map;
+        uint32_t max_index = 0;
 
-        uint32_t max_pos = 0;
-
-        size_t offset = 0;
         for(const STLObject &obj : _objects) {
             for(size_t i = 0; i < obj.facets.size(); i++) {
-                std::array<uint32_t, 2> index;
-
-                // check if vertex normal key exists in normals hashmap
-                if(norm_map.find(obj.facets[i].normal) != norm_map.end())
-                    index[1] = norm_map[obj.facets[i].normal];
-                else {
-                    index[1] = max_pos;
-                    max_pos++;
-                    m_unique_normals.push_back(obj.facets[i].normal);
-                    norm_map[obj.facets[i].normal] = index[1];
-                }
-
-                // check if the position vertices already exist in the position vertex map
+                // for each position vertex construct 
                 for(const Point3D<float> &pos : obj.facets[i].vertices) {
-                    if(pos_map.find(pos) != pos_map.end())
-                        index[0] = pos_map[pos];
+                    Vertex v = { pos, obj.facets[i].normal };
+
+                    // check if given vertex already exists in map
+                    if(vert_map.find(v) != vert_map.end())
+                        m_indices.push_back(vert_map[v]);
                     else {
-                        index[0] = max_pos;
-                        max_pos++;
-                        m_unique_verts.push_back(pos);
-                        pos_map[pos] = index[0];
+                        vert_map[v] = max_index;
+                        m_unique_positions.push_back(v.pos);
+                        m_unique_normals.push_back(v.norm);
+                        m_indices.push_back(max_index++);
                     }
                 }
-
-                m_indices.push_back(index);
             }
-
-            m_offsets.push_back(offset);
-            offset += obj.facets.size();
         }
     }
 
 
-    std::array<DasBuffer, 3> STLCompiler::_CreateBuffers() {
-        // 0 - vertices buffer
-        // 1 - normals buffer
-        // 2 - indices buffer
-        std::array<DasBuffer, 3> buffers;
+    DasBuffer STLCompiler::_CreateBuffers() {
+        // - position vertices memory area
+        // - normal vertices memory area
+        // - indices memory area
+        DasBuffer buffer;
 
-        // create position vertices buffer
-        buffers[0].type = LIBDAS_BUFFER_TYPE_VERTEX;
-        buffers[0].data_len = static_cast<uint32_t>(m_unique_verts.size() * sizeof(Point3D<float>));
-        buffers[0].data_ptrs.push_back(std::make_pair(reinterpret_cast<const char*>(m_unique_verts.data()), buffers[0].data_len));
+        buffer.type = LIBDAS_BUFFER_TYPE_VERTEX | LIBDAS_BUFFER_TYPE_VERTEX_NORMAL | LIBDAS_BUFFER_TYPE_INDICES;
+        buffer.data_len = static_cast<uint32_t>(sizeof(Point3D<float>) * (m_unique_positions.size() + m_unique_normals.size()) + m_indices.size() * sizeof(uint32_t));
 
-        // create vertex normal buffer
-        buffers[1].type = LIBDAS_BUFFER_TYPE_VERTEX_NORMAL;
-        buffers[1].data_len = m_unique_normals.size() * sizeof(Point3D<float>);
-        buffers[1].data_ptrs.push_back(std::make_pair(reinterpret_cast<const char*>(m_unique_normals.data()), buffers[1].data_len));
+        // push data pointers
+        buffer.data_ptrs.push_back(std::make_pair(reinterpret_cast<const char*>(m_unique_positions.data()), m_unique_positions.size() * sizeof(Point3D<float>)));
+        buffer.data_ptrs.push_back(std::make_pair(reinterpret_cast<const char*>(m_unique_normals.data()), m_unique_normals.size() * sizeof(Point3D<float>)));
+        buffer.data_ptrs.push_back(std::make_pair(reinterpret_cast<const char*>(m_indices.data()), m_indices.size() * sizeof(uint32_t)));
 
-        // create indices buffer
-        buffers[2].type = LIBDAS_BUFFER_TYPE_INDICES;
-        buffers[2].data_len = m_indices.size() * sizeof(uint32_t[2]);
-        buffers[2].data_ptrs.push_back(std::make_pair(reinterpret_cast<const char*>(m_indices.data()), buffers[2].data_len));
-
-        return buffers;
+        return buffer;
     }
 
 
@@ -88,13 +64,22 @@ namespace Libdas {
         primitives.reserve(_objects.size());
 
         for(size_t i = 0; i < _objects.size(); i++) {
+            const uint32_t pos_size = static_cast<uint32_t>(m_unique_positions.size() * sizeof(Point3D<float>));
+            const uint32_t norm_size = static_cast<uint32_t>(m_unique_normals.size() * sizeof(Point3D<float>));
+
             DasMeshPrimitive prim;
-            prim.index_buffer_id = INDICES_ID;
-            prim.index_buffer_offset = static_cast<uint32_t>(m_offsets[i]);
-            prim.indices_count = static_cast<uint32_t>(_objects[i].facets.size() * 3);
-            prim.indexing_mode = LIBDAS_SEPERATE_INDICES;
-            prim.vertex_buffer_id = VERTICES_ID;
-            prim.vertex_normal_buffer_id = NORMALS_ID;
+            // indices
+            prim.index_buffer_id = 0;
+            prim.index_buffer_offset = pos_size + norm_size;
+            prim.indices_count = static_cast<uint32_t>(m_indices.size());
+
+            // vertices
+            prim.vertex_buffer_id = 0;
+            prim.vertex_buffer_offset = 0;
+
+            // vertex normals
+            prim.vertex_normal_buffer_id = 0;
+            prim.vertex_normal_buffer_offset = pos_size;
 
             primitives.emplace_back(prim);
         }
@@ -133,20 +118,19 @@ namespace Libdas {
 
 
     void STLCompiler::Compile(const std::vector<STLObject> &_objects, DasProperties &_props, const std::string &_out_file) {
-        _IndexVertices(_objects);
-        
         // check if new file should be opened
         if(_out_file != "")
             NewFile(_out_file);
 
         InitialiseFile(_props);
 
-        // write all buffers to the file
-        std::array<DasBuffer, 3> buffers = _CreateBuffers();
-        for(DasBuffer &buf : buffers)
-            WriteBuffer(buf);
+        _IndexVertices(_objects);
 
-        std::vector<DasMeshPrimitive> mesh_primitives = _CreateMeshPrimitives(_objects);
+        // write all buffers to the file
+        DasBuffer buf(_CreateBuffers());
+        WriteBuffer(buf);
+
+        std::vector<DasMeshPrimitive> mesh_primitives(_CreateMeshPrimitives(_objects));
         for(DasMeshPrimitive &prim : mesh_primitives)
             WriteMeshPrimitive(prim);
 

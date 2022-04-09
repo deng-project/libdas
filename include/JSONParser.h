@@ -8,7 +8,6 @@
 
 
 #ifdef JSON_PARSER_CPP
-    #include <any>
     #include <variant>
     #include <map>
     #include <fstream>
@@ -41,24 +40,21 @@ namespace Libdas {
 
 
     typedef uint8_t JSONType;
-    #define JSON_TYPE_STRING    0x01
-    #define JSON_TYPE_FLOAT     0x02
-    #define JSON_TYPE_INTEGER   0x04
-    #define JSON_TYPE_BOOLEAN   0x08
-    #define JSON_TYPE_OBJECT    0x10
-    #define JSON_TYPE_UNKNOWN   0x20
+    #define JSON_TYPE_STRING    0
+    #define JSON_TYPE_OBJECT    1
+    #define JSON_TYPE_NUMBER    2
+    #define JSON_TYPE_BOOLEAN   3
 
 
     // JSON data type definitions
     typedef std::string JSONString;
     typedef float JSONNumber;
-    typedef int32_t JSONInteger;
     typedef bool JSONBoolean;
 
 
     // Value and subnode type declarations for easier typing
     struct JSONNode;
-    typedef std::vector<std::pair<JSONType, std::any>> JSONValues;
+    typedef std::vector<std::variant<JSONString, JSONNode, JSONNumber, JSONBoolean>> JSONValues;
     typedef std::map<std::string, std::shared_ptr<JSONNode>> SubnodeMap;
 
     struct JSONNode {
@@ -84,7 +80,6 @@ namespace Libdas {
 
     class LIBDAS_API JSONParser : public AsciiStreamReader {
         private:
-            AsciiFormatErrorHandler m_error;
             JSONNode m_root_node;
             JSONNode *m_active_node = &m_root_node;
 
@@ -100,6 +95,7 @@ namespace Libdas {
 
         protected:
             std::string m_file_name;
+            AsciiFormatErrorHandler m_error;
 
         private:
             ////////////////////////////////

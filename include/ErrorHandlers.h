@@ -42,7 +42,7 @@ typedef uint16_t ErrorType;
 
 /// Binary format errors
 #define LIBDAS_ERROR_INVALID_SIGNATURE              13  // binary error
-#define LIBDAS_ERROR_INVALID_DATA                   14  // binary error
+#define LIBDAS_ERROR_INVALID_DATA_LENGTH            14  // binary error
 #define LIBDAS_ERROR_INVALID_VALUE                  15  // binary or ascii error
 
 /// Misc

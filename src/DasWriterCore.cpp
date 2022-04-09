@@ -181,7 +181,6 @@ namespace Libdas {
         if(_primitive.index_buffer_offset)
             _WriteNumericalValue<uint32_t>("INDEXBUFFEROFFSET", _primitive.index_buffer_offset);
         _WriteNumericalValue<uint32_t>("INDICESCOUNT", _primitive.indices_count);
-        _WriteNumericalValue<IndexingMode>("INDEXINGMODE", _primitive.indexing_mode);
         _WriteNumericalValue<uint32_t>("VERTEXBUFFERID", _primitive.vertex_buffer_id);
         if(_primitive.vertex_buffer_offset)
             _WriteNumericalValue<uint32_t>("VERTEXBUFFEROFFSET", _primitive.vertex_buffer_offset);
@@ -350,7 +349,7 @@ namespace Libdas {
     void DasWriterCore::AppendTextures(std::vector<DasBuffer> &_buffers, const std::vector<std::string> &_embedded_textures, bool _use_raw) {
         m_texture_readers.reserve(_embedded_textures.size());
         for(const std::string &file_name : _embedded_textures) {
-            m_texture_readers.push_back(std::move(TextureReader(file_name, _use_raw)));
+            m_texture_readers.push_back(TextureReader(file_name, _use_raw));
             
             DasBuffer buf;
             buf.type = m_texture_readers.back().GetImageBufferType();

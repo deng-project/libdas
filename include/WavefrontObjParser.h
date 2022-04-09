@@ -59,7 +59,7 @@ namespace Libdas {
             uint32_t m_parse_pos = 1;
             std::string m_file_name;
             AsciiFormatErrorHandler m_error;
-            WavefrontObjFunctions::Groups m_groups;
+            WavefrontObjData m_parsed_data;
 
         private:
             /** 
@@ -92,14 +92,12 @@ namespace Libdas {
              */
             void Parse();
             /**
-             * Triangulate all non-triangular groups and insert new triangles between faces
-             */
-            void TriangulateGroups();
-            /**
              * Get all parsed WavefrontObj groups
              * @return reference to std::vector<WavefrontObjGroup>
              */
-            const WavefrontObjFunctions::Groups &GetParsedGroups();
+            inline WavefrontObjData &GetParsedData() {
+                return m_parsed_data;
+            }
     };
 }
 

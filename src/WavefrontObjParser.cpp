@@ -12,7 +12,7 @@ namespace Libdas {
     WavefrontObjParser::WavefrontObjParser(const std::string &_file_name, size_t _chunk_size) : 
         AsciiLineReader(_file_name, _chunk_size, "\n"), m_file_name(_file_name), m_error(MODEL_FORMAT_WOBJ) {
         std::vector<std::string> names = {"main"};
-        m_groups.push_back(WavefrontObjGroup(names));
+        m_parsed_data.groups.emplace_back(std::vector<std::string>{ "default" });
         _Tokenize();
     }
     
@@ -40,25 +40,21 @@ namespace Libdas {
         
         m_statement_map["cstype"] = {
             WAVEFRONT_OBJ_STATEMENT_CSTYPE,
-            //WavefrontObjFunctions::CSTypeArgsCallback
             nullptr
         };
 
         m_statement_map["deg"] = {
             WAVEFRONT_OBJ_STATEMENT_POLYNOMIAL_DEGREE,
-            //WavefrontObjFunctions::PolynomialDegreeArgsCallback
             nullptr
         };
 
         m_statement_map["bmat"] = {
             WAVEFRONT_OBJ_STATEMENT_BASIS_MATRIX,
-            //WavefrontObjFunctions::BasisMatrixArgsCallback
             nullptr
         };
 
         m_statement_map["step"] = {
             WAVEFRONT_OBJ_STATEMENT_STEP,
-            //WavefrontObjFunctions::CSStepArgsCallback
             nullptr
         };
 
@@ -69,7 +65,6 @@ namespace Libdas {
 
         m_statement_map["l"] = {
             WAVEFRONT_OBJ_STATEMENT_LINE,
-            //WavefrontObjFunctions::LineArgsCallback
             nullptr
         };
 
@@ -80,25 +75,21 @@ namespace Libdas {
 
         m_statement_map["curv"] = {
             WAVEFRONT_OBJ_STATEMENT_CURV,
-            //WavefrontObjFunctions::CurveArgsCallback
             nullptr
         };
 
         m_statement_map["curv2d"] = {
             WAVEFRONT_OBJ_STATEMENT_CURV2D,
-            //WavefrontObjFunctions::2DCurveArgsCallback
             nullptr
         };
 
         m_statement_map["surf"] = {
             WAVEFRONT_OBJ_STATEMENT_SURFACE,
-            //WavefrontObjFunctions::SurfaceArgsCallback
             nullptr
         };
 
         m_statement_map["parm"] = {
             WAVEFRONT_OBJ_STATEMENT_PARAMETER,
-            //WavefrontObjFunctions::ParameterArgsCallback
             nullptr
         };
 
@@ -248,7 +239,7 @@ namespace Libdas {
     void WavefrontObjParser::_AnalyseArgs(WavefrontObjStatementCallback _callback, std::vector<std::string> &_args) {
         if(_callback.keyword_callback != nullptr) {
             auto arg_pair = std::make_pair(m_parse_pos, _args);
-            _callback.keyword_callback(m_groups, m_error, arg_pair);
+            _callback.keyword_callback(m_parsed_data, m_error, arg_pair);
         }
 
         _SetReadPtr(_GetLineBounds().second);
@@ -303,35 +294,6 @@ namespace Libdas {
 
             _SetLineBounds(std::make_pair(nullptr, nullptr));
         } while(_ReadNewChunk());
-    }
 
-
-    void WavefrontObjParser::TriangulateGroups() {
-        DEBUG_LOG("Triangulating ...");
-
-        for(WavefrontObjGroup &group : m_groups) {
-            for(size_t i = 0; i < group.indices.faces.size(); i++) {
-                std::vector<WavefrontObjFace> new_faces;
-                // more than 3 vertices per face
-                if(group.indices.faces[i].size() > 3) {
-                    size_t face_size = group.indices.faces[i].size();
-                    for(size_t j = 0; j < face_size; j += 2) {
-                        new_faces.push_back(std::vector<WavefrontObjIndex> {
-                            group.indices.faces[i][j % face_size], 
-                            group.indices.faces[i][j + 1 % face_size],
-                            group.indices.faces[i][j + 2 % face_size]
-                        });
-                    }
-
-                    group.indices.faces.erase(group.indices.faces.begin() + i);
-                    group.indices.faces.insert(group.indices.faces.begin() + i, new_faces.begin(), new_faces.end());
-                }
-            }
-        }
-    } 
-
-
-    const WavefrontObjFunctions::Groups &WavefrontObjParser::GetParsedGroups() {
-        return m_groups;
     }
 }

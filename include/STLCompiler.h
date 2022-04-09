@@ -33,10 +33,6 @@
     #include <DasWriterCore.h>
 
     #include <STLStructures.h>
-
-    #define VERTICES_ID 0
-    #define NORMALS_ID  1
-    #define INDICES_ID  2
 #endif
 
 
@@ -47,10 +43,18 @@ namespace Libdas {
      */
     class LIBDAS_API STLCompiler : private DasWriterCore {
         private:
-            std::vector<Point3D<float>> m_unique_verts;
+            struct Vertex {
+                Point3D<float> pos;
+                Point3D<float> norm;
+
+                bool operator==(const Vertex _v1) const {
+                    return pos == _v1.pos && norm == _v1.norm;
+                }
+            };
+
+            std::vector<Point3D<float>> m_unique_positions;
             std::vector<Point3D<float>> m_unique_normals;
-            std::vector<std::array<uint32_t, 2>> m_indices;
-            std::vector<size_t> m_offsets;
+            std::vector<uint32_t> m_indices;
 
         private:
             /**
@@ -59,10 +63,10 @@ namespace Libdas {
              */
             void _IndexVertices(const std::vector<STLObject> &_objects);
             /**
-             * Create buffers from parsed vertices, normals and faces 
-             * @return std::array instance containing all created buffers
+             * Create a buffer object from parsed or generated vertices, normals and indices 
+             * @return DasBuffer instance containing data
              */
-            std::array<DasBuffer, 3> _CreateBuffers();
+            DasBuffer _CreateBuffers();
             /**
              * Create DasMeshPrimitive instances from given STLObjects
              * @param _objects is a reference to std::vector instance that stores all STL objects to be converted into mesh primitives

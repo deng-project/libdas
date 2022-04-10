@@ -361,7 +361,7 @@ void DASTool::_ListDasSkeletons(Libdas::DasParser &_parser) {
 
         std::cout << "Joints: ";
         for(uint32_t j = 0; j < skeleton.joint_count; j++)
-            std::cout << skeleton.joints[j] << std::endl;
+            std::cout << skeleton.joints[j] << " ";
         std::cout << std::endl;
     }
 }

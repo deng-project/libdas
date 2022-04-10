@@ -182,6 +182,7 @@ namespace Libdas {
         m_unindexed_primitives.reserve(_root.meshes.size());
 
         // find all unindexed mesh primitives
+        m_unindexed_primitives.resize(_root.meshes.size());
         for(size_t i = 0; i < _root.meshes.size(); i++) {
             uint32_t j = 0;
             for(auto prim_it = _root.meshes[i].primitives.begin(); prim_it != _root.meshes[i].primitives.end(); prim_it++, j++) {

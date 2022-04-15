@@ -1015,7 +1015,7 @@ namespace Libdas {
 
                         if(m_attribute_type_map.find(no_nr) == m_attribute_type_map.end()) {
                             std::cerr << "GLTF error: No valid morph target attribute '" << no_nr << "' available for current implementation" << std::endl;
-                            EXIT_ON_ERROR(LIBDAS_ERROR_INVALID_DATA);
+                            EXIT_ON_ERROR(LIBDAS_ERROR_INVALID_DATA_LENGTH);
                         }
 
                         BufferAccessorData accessor_data = _FindAccessorData(_root, target_it->at(i).second);
@@ -1073,7 +1073,7 @@ namespace Libdas {
                 // check if the primitive mode is correct
                 if(prim_it->mode != KHRONOS_TRIANGLES) {
                     std::cerr << "Non-triangle geometry is not supported" << std::endl;
-                    EXIT_ON_ERROR(LIBDAS_ERROR_INVALID_DATA);
+                    EXIT_ON_ERROR(LIBDAS_ERROR_INVALID_DATA_LENGTH);
                 }
 
                 // write index buffer data
@@ -1087,7 +1087,7 @@ namespace Libdas {
                     // no attribute found, display an error
                     if(m_attribute_type_map.find(attr_it->first) == m_attribute_type_map.end()) {
                         std::cerr << "Invalid attribute " << attr_it->first << std::endl;
-                        EXIT_ON_ERROR(LIBDAS_ERROR_INVALID_DATA);
+                        EXIT_ON_ERROR(LIBDAS_ERROR_INVALID_DATA_LENGTH);
                     }
 
                     bool is_joints = false, is_weights = false;
@@ -1281,7 +1281,7 @@ namespace Libdas {
             else {
                 if((skeleton.parent = _FindCommonRootJoint(_root, _root.skins[i])) == UINT32_MAX) {
                     std::cerr << "Could not find parent skeletal joint for skin " << i << std::endl;
-                    EXIT_ON_ERROR(LIBDAS_ERROR_INVALID_DATA);
+                    EXIT_ON_ERROR(LIBDAS_ERROR_INVALID_DATA_LENGTH);
                 }
             }
 

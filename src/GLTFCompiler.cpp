@@ -111,7 +111,7 @@ namespace Libdas {
             for(size_t i = 0; i < it->primitives.size(); i++) {
                 // error if non-indexed geometry is used
                 if(it->primitives[i].indices == INT32_MAX)
-                    return index_regions;
+                    continue;
 
                 if(_root.accessors[it->primitives[i].indices].component_type == KHRONOS_BYTE ||
                    _root.accessors[it->primitives[i].indices].component_type == KHRONOS_UNSIGNED_BYTE ||
@@ -135,17 +135,15 @@ namespace Libdas {
         // find all joint regions
         for(auto mesh_it = _root.meshes.begin(); mesh_it != _root.meshes.end(); mesh_it++) {
             for(auto prim_it = mesh_it->primitives.begin(); prim_it != mesh_it->primitives.end(); prim_it++) {
-                auto attr_it = prim_it->attributes.begin();
-                // find JOINTS_0 object
-                for(; attr_it != prim_it->attributes.end(); attr_it++) {
-                    if(attr_it->first == "JOINTS_0")
-                        break;
+                // find JOINTS_ objects
+                for(auto attr_it = prim_it->attributes.begin(); attr_it != prim_it->attributes.end(); attr_it++) {
+                    const std::string attr_wo_num = Algorithm::RemoveNumbers(attr_it->first);
+                    if(attr_wo_num == "JOINTS_") {
+                        BufferAccessorData accessor_data = _FindAccessorData(_root, attr_it->second);
+                        if(accessor_data.component_type != KHRONOS_UNSIGNED_SHORT)
+                            joint_regions[accessor_data.buffer_id].push_back(accessor_data);
+                    }
                 }
-
-                if(attr_it == prim_it->attributes.end()) continue;
-
-                BufferAccessorData accessor_data = _FindAccessorData(_root, attr_it->second);
-                joint_regions[accessor_data.buffer_id].push_back(accessor_data);
             }
         }
 
@@ -159,22 +157,43 @@ namespace Libdas {
         // find all weight regions
         for(auto mesh_it = _root.meshes.begin(); mesh_it != _root.meshes.end(); mesh_it++) {
             for(auto prim_it = mesh_it->primitives.begin(); prim_it != mesh_it->primitives.end(); prim_it++) {
-                auto attr_it = prim_it->attributes.begin();
-                // find WEIGHTS_0 object
-                for(; attr_it != prim_it->attributes.end(); attr_it++) {
-                    if(attr_it->first == "WEIGHTS_0")
-                        break;
+                // find WEIGHTS_ objects
+                for(auto attr_it = prim_it->attributes.begin(); attr_it != prim_it->attributes.end(); attr_it++) {
+                    const std::string attr_wo_num = Algorithm::RemoveNumbers(attr_it->first);
+                    if(attr_wo_num == "WEIGHTS_") {
+                        BufferAccessorData accessor_data = _FindAccessorData(_root, attr_it->second);
+                        if(accessor_data.component_type != KHRONOS_FLOAT)
+                            weight_regions[accessor_data.buffer_id].push_back(accessor_data);
+                    }
                 }
-
-                if(attr_it == prim_it->attributes.end()) continue;
-
-                BufferAccessorData accessor_data = _FindAccessorData(_root, attr_it->second);
-                if(accessor_data.component_type != KHRONOS_FLOAT)
-                    weight_regions[accessor_data.buffer_id].push_back(accessor_data);
             }
         }
 
         return weight_regions;
+    }
+
+
+    std::vector<std::vector<GLTFCompiler::BufferAccessorData>> GLTFCompiler::_GetAnimationDataRegions(GLTFRoot &_root) {
+        // first inner element: keyframe input
+        // second inner element: keyframe output
+        std::vector<std::vector<GLTFCompiler::BufferAccessorData>> regions;
+
+        // for each animation
+        for(auto ani_it = _root.animations.begin(); ani_it != _root.animations.end(); ani_it++) {
+            regions.emplace_back();
+            regions.back().reserve(ani_it->channels.size());
+
+            // for each animation channel
+            for(auto ch_it = ani_it->channels.begin(); ch_it != ani_it->channels.end(); ch_it++) {
+                LIBDAS_ASSERT(ch_it->sampler < static_cast<int32_t>(ani_it->samplers.size()));
+                GLTFAnimationSampler &sampler = ani_it->samplers[ch_it->sampler];
+
+                regions.back().push_back(_FindAccessorData(_root, sampler.input));
+                regions.back().push_back(_FindAccessorData(_root, sampler.output));
+            }
+        }
+
+        return regions;
     }
 
 
@@ -250,6 +269,54 @@ namespace Libdas {
 
         LIBDAS_ASSERT(false);
         return _ptrs.end();
+    }
+
+
+    void GLTFCompiler::_FindMultiSpecVertexAttributeAccessors(const GLTFMeshPrimitive::AttributesType &_attrs) {
+        // TODO: Find TEXCOORD_n, COLOR_n, JOINTS_n and WEIGHTS_n counts and associated accessors
+        m_texcoord_accessors.resize(_attrs.size());
+        m_colormul_accessors.resize(_attrs.size());
+        m_joints_accessors.resize(_attrs.size());
+        m_weights_accessors.resize(_attrs.size());
+
+        const std::string texcoord_str = "TEXCOORD_";
+        const std::string color_str = "COLOR_";
+        const std::string joints_str = "JOINTS_";
+        const std::string weights_str = "WEIGHTS_";
+
+        uint32_t tex_count = 0, color_mul_count = 0, joints_count = 0, weights_count = 0;
+        for(auto attr_it = _attrs.begin(); attr_it != _attrs.end(); attr_it++) {
+            uint32_t index;
+
+            if(attr_it->first.find(texcoord_str) == 0) {
+                index = std::stoi(attr_it->first.substr(texcoord_str.size()));
+                m_texcoord_accessors[index] = attr_it->second;
+                tex_count++;
+            } else if(attr_it->first.find(color_str) == 0) {
+                index = std::stoi(attr_it->first.substr(color_str.size()));
+                m_colormul_accessors[index] = attr_it->second;
+                color_mul_count++;
+            } else if(attr_it->first.find(joints_str) == 0) {
+                index = std::stoi(attr_it->first.substr(joints_str.size()));
+                m_joints_accessors[index] = attr_it->second;
+                joints_count++;
+            } else if(attr_it->first.find(weights_str) == 0) {
+                index = std::stoi(attr_it->first.substr(weights_str.size()));
+                m_weights_accessors[index] = attr_it->second;
+                weights_count++;
+            }
+        }
+
+        // error: weights and joints don't match
+        if(joints_count != weights_count) {
+            std::cerr << "Vertex joints count doesn't match vertex joint weights count" << std::endl;
+            EXIT_ON_ERROR(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+        }
+
+        m_texcoord_accessors.resize(tex_count);
+        m_colormul_accessors.resize(color_mul_count);
+        m_joints_accessors.resize(joints_count);
+        m_weights_accessors.resize(weights_count);
     }
 
 
@@ -380,11 +447,11 @@ namespace Libdas {
         switch(_suppl_info.component_type) {
             case KHRONOS_UNSIGNED_BYTE:
                 len = (static_cast<size_t>(_suppl_info.used_size) / sizeof(unsigned char));
-                buf = new char[len * sizeof(uint32_t)];
-                diff = len * sizeof(uint32_t) - len * sizeof(unsigned char);
+                buf = new char[len * sizeof(uint16_t)];
+                diff = len * sizeof(uint16_t) - len * sizeof(unsigned char);
 
                 for(size_t i = 0; i < len; i++)
-                    reinterpret_cast<uint32_t*>(buf)[i] = static_cast<uint32_t>(reinterpret_cast<const unsigned char*>(_odata)[i]);
+                    reinterpret_cast<uint16_t*>(buf)[i] = static_cast<uint32_t>(reinterpret_cast<const unsigned char*>(_odata)[i]);
                 break;
 
             case KHRONOS_UNSIGNED_SHORT:
@@ -440,6 +507,17 @@ namespace Libdas {
         _buffer.data_ptrs.push_back(std::make_pair(reinterpret_cast<const char*>(buf), len * sizeof(float)));
         _buffer.data_len += static_cast<uint32_t>(diff);
         m_supplemented_buffers.push_back(buf);
+        return diff;
+    }
+
+
+    uint32_t GLTFCompiler::_SupplementAnimationKeyframeData(const char *_odata, BufferAccessorData &_suppl_info, DasBuffer &_buffer) {
+        const uint32_t diff = -_suppl_info.used_size;
+
+        // copy input data
+        for(size_t i = 0; i < _suppl_info.used_size; i++)
+            m_animation_blob.push_back(_odata[i]);
+
         return diff;
     }
 
@@ -617,6 +695,19 @@ namespace Libdas {
 
         std::vector<std::vector<BufferAccessorData>> joint_weight_regions(_GetBufferJointRegions(_root));
         _StrideBuffer(all_regions, joint_weight_regions, _buffers, &GLTFCompiler::_SupplementJointWeights);
+
+        std::vector<std::vector<BufferAccessorData>> animation_regions(_GetAnimationDataRegions(_root));
+
+        // allocate enough memory for animation related blobs
+        uint32_t required_size = 0;
+        for(auto ani_it = animation_regions.begin(); ani_it != animation_regions.end(); ani_it++) {
+            LIBDAS_ASSERT(ani_it->size() == 2);
+            required_size += ani_it->at(0).used_size + ani_it->at(1).used_size;
+        }
+
+        m_animation_blob.reserve(required_size);
+        _StrideBuffer(all_regions, animation_regions, _buffers, &GLTFCompiler::_SupplementAnimationKeyframeData);
+
 
         _GetUnindexedMeshPrimitives(_root);
         _IndexGeometry(_root, all_regions, _buffers);
@@ -1010,8 +1101,11 @@ namespace Libdas {
                     DasMorphTarget morph_target;
                     bool is_attr = false;
 
+                    _FindMultiSpecVertexAttributeAccessors(*target_it);   
+                    _CopyUniversalMultiSpecVertexAttributes(_root, morph_target);
+
                     for(size_t i = 0; i < target_it->size(); i++) {
-                        std::string no_nr = Algorithm::RemoveNumbers(target_it->at(i).first);
+                        const std::string no_nr = Algorithm::RemoveNumbers(target_it->at(i).first);
 
                         if(m_attribute_type_map.find(no_nr) == m_attribute_type_map.end()) {
                             std::cerr << "GLTF error: No valid morph target attribute '" << no_nr << "' available for current implementation" << std::endl;
@@ -1027,11 +1121,6 @@ namespace Libdas {
                                 is_attr = true;
                                 break;
 
-                            case LIBDAS_BUFFER_TYPE_TEXTURE_MAP:
-                                morph_target.uv_buffer_id = accessor_data.buffer_id;
-                                morph_target.uv_buffer_offset = accessor_data.buffer_offset;
-                                break;
-
                             case LIBDAS_BUFFER_TYPE_VERTEX_NORMAL:
                                 morph_target.vertex_normal_buffer_id = accessor_data.buffer_id;
                                 morph_target.vertex_normal_buffer_offset = accessor_data.buffer_offset;
@@ -1044,7 +1133,6 @@ namespace Libdas {
                                 break;
 
                             default:
-                                LIBDAS_ASSERT(false);
                                 break;
                         }
                     }
@@ -1064,6 +1152,12 @@ namespace Libdas {
         primitives.reserve(_FindPrimitiveCount(_root));
         uint32_t used_targets = 0, used_weights = 0;
 
+        // for TEXCOORD_n, COLOR_n, JOINTS_n and WEIGHTS_n
+        std::vector<uint32_t> texcoord_accessors;
+        std::vector<uint32_t> colormul_accessors;
+        std::vector<uint32_t> joints_accessors;
+        std::vector<uint32_t> weights_accessors;
+
         // for each mesh
         for(auto mesh_it = _root.meshes.begin(); mesh_it != _root.meshes.end(); mesh_it++) {
             // for each mesh primitive
@@ -1081,26 +1175,44 @@ namespace Libdas {
                 prim.index_buffer_id = accessor_data.buffer_id;
                 prim.index_buffer_offset = accessor_data.buffer_offset;
                 prim.indices_count = _root.accessors[prim_it->indices].count;
+                _FindMultiSpecVertexAttributeAccessors(prim_it->attributes);
+                _CopyUniversalMultiSpecVertexAttributes(_root, prim);
+    
+                prim.joint_set_count = m_joints_accessors.size();
+                if(prim.joint_set_count) {
+                    prim.joint_index_buffer_ids = new uint32_t[prim.joint_set_count];
+                    prim.joint_index_buffer_offsets = new uint32_t[prim.joint_set_count];
+                    prim.joint_weight_buffer_ids = new uint32_t[prim.joint_set_count];
+                    prim.joint_weight_buffer_offsets = new uint32_t[prim.joint_set_count];
+
+                    // write joint indices data to das mesh primitive
+                    for(uint32_t i = 0; i < prim.joint_set_count; i++) {
+                        accessor_data = _FindAccessorData(_root, m_joints_accessors[i]);
+                        prim.joint_index_buffer_ids[i] = accessor_data.buffer_id;
+                        prim.joint_index_buffer_offsets[i] = accessor_data.buffer_offset;
+                    }
+
+                    // write joint weights to das mesh primitive
+                    for(uint32_t i = 0; i < prim.joint_set_count; i++) {
+                        accessor_data = _FindAccessorData(_root, m_weights_accessors[i]);
+                        prim.joint_weight_buffer_ids[i] = accessor_data.buffer_id;
+                        prim.joint_weight_buffer_offsets[i] = accessor_data.buffer_offset;
+                    }
+                }
 
                 // for each attribute write its data into mesh primitive structure
                 for(auto attr_it = prim_it->attributes.begin(); attr_it != prim_it->attributes.end(); attr_it++) {
                     // no attribute found, display an error
-                    if(m_attribute_type_map.find(attr_it->first) == m_attribute_type_map.end()) {
+                    if(m_attribute_type_map.find(Algorithm::RemoveNumbers(attr_it->first)) == m_attribute_type_map.end()) {
                         std::cerr << "Invalid attribute " << attr_it->first << std::endl;
                         EXIT_ON_ERROR(LIBDAS_ERROR_INVALID_DATA_LENGTH);
                     }
 
-                    bool is_joints = false, is_weights = false;
                     accessor_data = _FindAccessorData(_root, attr_it->second);
                     switch(m_attribute_type_map.find(attr_it->first)->second) {
                         case LIBDAS_BUFFER_TYPE_VERTEX:
                             prim.vertex_buffer_id = accessor_data.buffer_id;
                             prim.vertex_buffer_offset = accessor_data.buffer_offset;
-                            break;
-
-                        case LIBDAS_BUFFER_TYPE_TEXTURE_MAP:
-                            prim.uv_buffer_id = accessor_data.buffer_id;
-                            prim.uv_buffer_offset = accessor_data.buffer_offset;
                             break;
 
                         case LIBDAS_BUFFER_TYPE_VERTEX_NORMAL:
@@ -1113,48 +1225,28 @@ namespace Libdas {
                             prim.vertex_tangent_buffer_offset = accessor_data.buffer_offset;
                             break;
 
-                        case LIBDAS_BUFFER_TYPE_JOINTS:
-                            if(is_joints) {
-                                std::cerr << "Using more than 4 joints per node is not allowed" << std::endl;;
-                                std::exit(LIBDAS_ERROR_INVALID_DATA_LENGTH);
-                            }
-
-                            is_joints = true;
-                            prim.joint_index_buffer_id = accessor_data.buffer_id;
-                            prim.joint_index_buffer_offset = accessor_data.buffer_offset;
-                            break;
-
-                        case LIBDAS_BUFFER_TYPE_WEIGHTS:
-                            if(is_weights) {
-                                std::cerr << "Using more than 4 joints per node is not allowed" << std::endl;
-                                std::exit(LIBDAS_ERROR_INVALID_DATA_LENGTH);
-                            }
-
-                            is_weights = true;
-                            prim.weight_buffer_id = accessor_data.buffer_id;
-                            prim.weight_buffer_offset = accessor_data.buffer_offset;
-                            break;
-
                         default:
                             break;
                     }
 
                     // set morph targets with their correct counts
                     prim.morph_target_count = static_cast<uint32_t>(prim_it->targets.size());
-                    prim.morph_targets = new uint32_t[prim.morph_target_count];
-                    for(uint32_t i = 0; i < prim.morph_target_count; i++, used_targets++) 
-                        prim.morph_targets[i] = used_targets;
+                    if(prim.morph_target_count) {
+                        prim.morph_targets = new uint32_t[prim.morph_target_count];
+                        for(uint32_t i = 0; i < prim.morph_target_count; i++, used_targets++) 
+                            prim.morph_targets[i] = used_targets;
 
-                    // weights are contained inside the mesh structure, where morph targets are contained in mesh.primitives structure
-                    // this means that there can be multiple mesh.primitive objects with multiple morph targets in all of them
-                    if(static_cast<uint32_t>(mesh_it->weights.size()) - used_weights == prim.morph_target_count) {
-                        prim.morph_weights = new float[prim.morph_target_count];
-                        std::memcpy(prim.morph_weights, mesh_it->weights.data(), static_cast<size_t>(prim.morph_target_count) * sizeof(float));
-                    } else {
-                        const std::vector<float> &&node_weights = _FindMorphWeightsFromNodes(_root, mesh_it - _root.meshes.begin());
-                        if(static_cast<uint32_t>(node_weights.size()) == prim.morph_target_count) {
+                        // weights are contained inside the mesh structure, where morph targets are contained in mesh.primitives structure
+                        // this means that there can be multiple mesh.primitive objects with multiple morph targets in all of them
+                        if(static_cast<uint32_t>(mesh_it->weights.size()) - used_weights == prim.morph_target_count) {
                             prim.morph_weights = new float[prim.morph_target_count];
                             std::memcpy(prim.morph_weights, mesh_it->weights.data(), static_cast<size_t>(prim.morph_target_count) * sizeof(float));
+                        } else {
+                            const std::vector<float> &&node_weights = _FindMorphWeightsFromNodes(_root, mesh_it - _root.meshes.begin());
+                            if(static_cast<uint32_t>(node_weights.size()) == prim.morph_target_count) {
+                                prim.morph_weights = new float[prim.morph_target_count];
+                                std::memcpy(prim.morph_weights, mesh_it->weights.data(), static_cast<size_t>(prim.morph_target_count) * sizeof(float));
+                            }
                         }
                     }
                 }
@@ -1208,7 +1300,6 @@ namespace Libdas {
                     delta_c++;
                     continue;
                 }
-
                 node.children[j - delta_c] = m_scene_node_id_table[_root.nodes[i].children[j]];
             }
             node.children_count -= delta_c;
@@ -1331,27 +1422,50 @@ namespace Libdas {
         return joints;
     }
 
+
     std::vector<DasAnimationChannel> GLTFCompiler::_CreateAnimationChannels(const GLTFRoot &_root) {
         std::vector<DasAnimationChannel> channels;
 
         // assuming that there are 2 channels for each animation object
         channels.reserve(_root.animations.size() * 2);
+        uint32_t rel_blob_offset = 0;
 
         for(auto ani_it = _root.animations.begin(); ani_it != _root.animations.end(); ani_it++) {
             // for each channel in animation
             for(auto ch_it = ani_it->channels.begin(); ch_it != ani_it->channels.end(); ch_it++) {
                 DasAnimationChannel channel;
-                channel.node_id = static_cast<uint32_t>(ch_it->target.node);
+
+                if(m_scene_node_id_table[ch_it->target.node] != UINT32_MAX)
+                    channel.node_id = m_scene_node_id_table[ch_it->target.node];
+                else if(m_skeleton_joint_id_table[ch_it->target.node] != UINT32_MAX)
+                    channel.joint_id = m_skeleton_joint_id_table[ch_it->target.node];
+                else continue;
 
                 // check path value
-                if(ch_it->target.path == "translation")
+                uint32_t type_stride = 0;
+                if(ch_it->target.path == "translation") {
                     channel.target = LIBDAS_ANIMATION_TARGET_TRANSLATION;
-                else if(ch_it->target.path == "rotation")
+                    type_stride = static_cast<uint32_t>(sizeof(Libdas::Vector3<float>));
+                }
+                else if(ch_it->target.path == "rotation") {
                     channel.target = LIBDAS_ANIMATION_TARGET_ROTATION;
-                else if(ch_it->target.path == "scale")
+                    type_stride = static_cast<uint32_t>(sizeof(Libdas::Quaternion));
+                }
+                else if(ch_it->target.path == "scale") {
                     channel.target = LIBDAS_ANIMATION_TARGET_SCALE;
-                else if(ch_it->target.path == "weights")
+                    type_stride = static_cast<uint32_t>(sizeof(float));
+                }
+                else if(ch_it->target.path == "weights") {
                     channel.target = LIBDAS_ANIMATION_TARGET_WEIGHTS;
+                    LIBDAS_ASSERT(ch_it->target.node != INT32_MAX);
+                    const GLTFNode &node = _root.nodes[ch_it->target.node];
+                    LIBDAS_ASSERT(node.mesh != INT32_MAX);
+                    const GLTFMesh &mesh = _root.meshes[node.mesh];
+                    LIBDAS_ASSERT(mesh.weights.size());
+                    type_stride = static_cast<uint32_t>(sizeof(float) * mesh.weights.size());
+                } else {
+                    LIBDAS_ASSERT(false);
+                }
 
                 // check interpolation value
                 const GLTFAnimationSampler &sampler = ani_it->samplers[ch_it->sampler];
@@ -1364,14 +1478,23 @@ namespace Libdas {
 
                 // keyframe data
                 channel.keyframe_count = static_cast<uint32_t>(_root.accessors[sampler.input].count);
-                BufferAccessorData keyframe = _FindAccessorData(_root, sampler.input);
-                channel.keyframe_buffer_id = keyframe.buffer_id;
-                channel.keyframe_buffer_offset = keyframe.buffer_offset;
-                
-                // target data
-                BufferAccessorData target = _FindAccessorData(_root, sampler.output);
-                channel.target_value_buffer_id = target.buffer_id;
-                channel.target_value_buffer_offset = target.buffer_offset;
+                LIBDAS_ASSERT(channel.keyframe_count);
+
+                // allocate and copy keyframe inputs
+                channel.keyframes = new float[channel.keyframe_count];
+                std::memcpy(channel.keyframes, m_animation_blob.data() + rel_blob_offset, channel.keyframe_count * sizeof(float));
+                rel_blob_offset += channel.keyframe_count * static_cast<uint32_t>(sizeof(float));
+
+                // allocate and copy keyframe outputs
+                channel.target_values = new char[type_stride * channel.keyframe_count];
+                if(channel.interpolation == LIBDAS_INTERPOLATION_VALUE_CUBICSPLINE) {
+                    LIBDAS_ASSERT(false);
+                    // cubicspline interpolation requires extraction of tangent values
+                    //channel.tangents = new char[type_stride * 2 * channel.keyframe_count];
+                    //for()
+                } else {
+                    memcpy(channel.target_values, m_animation_blob.data() + rel_blob_offset, channel.keyframe_count * type_stride);
+                }
 
                 channels.emplace_back(std::move(channel));
             }

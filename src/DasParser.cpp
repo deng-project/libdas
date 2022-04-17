@@ -8,6 +8,46 @@
 
 namespace Libdas {
 
+#ifdef _DEBUG
+    std::vector<std::vector<DasSkeletonJoint>::iterator> _JointCheck(std::vector<DasSkeletonJoint> &_joints) {
+        std::vector<std::vector<DasSkeletonJoint>::iterator> overlapping_children;
+        overlapping_children.reserve(_joints.size());
+
+        // for each joint
+        for(auto it = _joints.begin(); it != _joints.end(); it++) {
+            // for each joint child
+            for(uint32_t i = 0; i < it->children_count; i++) {
+                if(it->children[i] >= _joints.size()) {
+                    overlapping_children.push_back(it);
+                    break;
+                }
+            }
+        }
+
+        return overlapping_children;
+    }
+
+
+    std::vector<std::vector<DasNode>::iterator> _NodeCheck(std::vector<DasNode> &_nodes) {
+        std::vector<std::vector<DasNode>::iterator> overlapping_children;
+        overlapping_children.reserve(_nodes.size());
+
+        // for each node
+        for(auto it = _nodes.begin(); it != _nodes.end(); it++) {
+            // for each node child
+            for(uint32_t i = 0; i < it->children_count; i++) {
+                if(it->children[i] >= _nodes.size()) {
+                    overlapping_children.push_back(it);
+                    break;
+                }
+            }
+        }
+
+        return overlapping_children;
+    }
+#endif
+
+
     DasParser::DasParser(const std::string &_file_name) : 
         DasReaderCore(_file_name) 
     {

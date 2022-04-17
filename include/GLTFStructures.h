@@ -137,7 +137,7 @@ namespace Libdas {
      * Structure that describes the animated property
      */
     struct GLTFAnimationChannelTarget {
-        int32_t node;                                   // not required
+        int32_t node = INT32_MAX;                       // not required
         std::string path;                               // required
         std::vector<std::any> extensions;               // ignored
         std::vector<std::any> extras;                   // ignored

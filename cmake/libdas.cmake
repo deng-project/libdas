@@ -13,6 +13,7 @@ set(LIBDAS_SOURCES
     src/BufferImageTypeResolver.cpp
     src/DasParser.cpp
     src/DasReaderCore.cpp
+    src/DasStructures.cpp
     src/DasWriterCore.cpp
     src/Debug.cpp
     src/ErrorHandlers.cpp

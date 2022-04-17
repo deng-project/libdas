@@ -133,6 +133,14 @@ namespace Libdas {
          * @return std::string instance without any numbers
          */
         LIBDAS_API std::string RemoveNumbers(const std::string &_str);
+
+        /**
+         * Find largest continuos storage blocks from given boundaries
+         * @complexity O(n)
+         * @param _blocks specifies a vector containing all sorted storage block boundaries
+         * @return std::vector instance containing largest continuous storage blocks
+         */
+        LIBDAS_API std::vector<std::pair<uint32_t, uint32_t>> FindContinuousStorageBlocks(const std::vector<std::pair<uint32_t, uint32_t>> &_blocks);
     }
 }
 

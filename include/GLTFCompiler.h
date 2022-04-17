@@ -78,12 +78,12 @@ namespace Libdas {
 
             const std::unordered_map<std::string, BufferType> m_attribute_type_map = {
                 std::make_pair("POSITION", LIBDAS_BUFFER_TYPE_VERTEX),
-                std::make_pair("TEXCOORD_0", LIBDAS_BUFFER_TYPE_TEXTURE_MAP),
+                std::make_pair("TEXCOORD_", LIBDAS_BUFFER_TYPE_TEXTURE_MAP),
                 std::make_pair("NORMAL", LIBDAS_BUFFER_TYPE_VERTEX_NORMAL),
                 std::make_pair("TANGENT", LIBDAS_BUFFER_TYPE_VERTEX_TANGENT),
-                std::make_pair("COLOR_0", LIBDAS_BUFFER_TYPE_COLOR),
-                std::make_pair("JOINTS_0", LIBDAS_BUFFER_TYPE_JOINTS),
-                std::make_pair("WEIGHTS_0", LIBDAS_BUFFER_TYPE_WEIGHTS)
+                std::make_pair("COLOR_", LIBDAS_BUFFER_TYPE_COLOR),
+                std::make_pair("JOINTS_", LIBDAS_BUFFER_TYPE_JOINTS),
+                std::make_pair("WEIGHTS_", LIBDAS_BUFFER_TYPE_WEIGHTS)
             };
 
             struct BufferAccessorData {
@@ -110,6 +110,19 @@ namespace Libdas {
             std::vector<uint32_t> m_skeleton_joint_id_table;
             std::vector<std::vector<uint32_t>> m_supplemented_indices;
 
+            // data extracted from buffer for animation
+            // DATA LAYOUT:
+            //  * input data
+            //  * output data
+            // size is not specified here, refer to GLTFAnimationChannel
+            std::vector<char> m_animation_blob;
+
+            // data for n attribute types
+            std::vector<uint32_t> m_texcoord_accessors;
+            std::vector<uint32_t> m_colormul_accessors;
+            std::vector<uint32_t> m_joints_accessors;
+            std::vector<uint32_t> m_weights_accessors;
+
         private:
             BufferAccessorData _FindAccessorData(const GLTFRoot &_root, int32_t _accessor_id);
             void _CorrectOffsets(std::vector<GLTFAccessor*> &_accessors, size_t _diff, size_t _offset);
@@ -118,11 +131,46 @@ namespace Libdas {
             const std::vector<float> _FindMorphWeightsFromNodes(const GLTFRoot &_root, size_t _mesh_index); // O(n)
             auto _FindDataPtrFromOffset(const std::vector<std::pair<const char*, size_t>> &_ptrs, size_t &_offset); // O(n)
 
+            void _FindMultiSpecVertexAttributeAccessors(const GLTFMeshPrimitive::AttributesType &_attrs);
+
+            template<typename T>
+            void _CopyUniversalMultiSpecVertexAttributes(const GLTFRoot &_root, T &_prim) {
+                // allocate memory for custom attributes
+                _prim.texture_count = static_cast<uint32_t>(m_texcoord_accessors.size());
+                if(_prim.texture_count) {
+                    _prim.uv_buffer_ids = new uint32_t[_prim.texture_count];
+                    _prim.uv_buffer_offsets = new uint32_t[_prim.texture_count];
+
+                    // NOTE: TEXTUREIDS value is ignored for now
+
+                    // write uv buffer data to das structure
+                    for(uint32_t i = 0; i < _prim.texture_count; i++) {
+                        BufferAccessorData accessor_data = _FindAccessorData(_root, m_texcoord_accessors[i]);
+                        _prim.uv_buffer_ids[i] = accessor_data.buffer_id;
+                        _prim.uv_buffer_offsets[i] = accessor_data.buffer_offset;
+                    }
+                }
+
+                _prim.color_mul_count = m_colormul_accessors.size();
+                if(_prim.color_mul_count) {
+                    _prim.color_mul_buffer_ids = new uint32_t[_prim.color_mul_count];
+                    _prim.color_mul_buffer_offsets = new uint32_t[_prim.color_mul_count];
+                    
+                    // write color multiplier buffer data to das structure
+                    for(uint32_t i = 0; i < _prim.color_mul_count; i++) {
+                        BufferAccessorData accessor_data = _FindAccessorData(_root, m_colormul_accessors[i]);
+                        _prim.color_mul_buffer_ids[i] = accessor_data.buffer_id;
+                        _prim.color_mul_buffer_offsets[i] = accessor_data.buffer_offset;
+                    }
+                }
+            }
+
             // region finders
             std::vector<std::vector<GLTFAccessor*>> _GetAllBufferAccessorRegions(GLTFRoot &_root);
             std::vector<std::vector<BufferAccessorData>> _GetBufferIndexRegions(GLTFRoot &_root);
             std::vector<std::vector<BufferAccessorData>> _GetBufferJointRegions(GLTFRoot &_root);
             std::vector<std::vector<BufferAccessorData>> _GetBufferWeightRegions(GLTFRoot &_root);
+            std::vector<std::vector<BufferAccessorData>> _GetAnimationDataRegions(GLTFRoot &_root);
             void _GetUnindexedMeshPrimitives(GLTFRoot &_root); // for each mesh not for each buffer
 
             // node flagging method
@@ -136,6 +184,7 @@ namespace Libdas {
             uint32_t _SupplementIndices(const char *_odata, BufferAccessorData &_suppl_info, DasBuffer &_buffer);
             uint32_t _SupplementJointIndices(const char *_odata, BufferAccessorData &_suppl_info, DasBuffer &_buffer);
             uint32_t _SupplementJointWeights(const char *_odata, BufferAccessorData &_suppl_info, DasBuffer &_buffer);
+            uint32_t _SupplementAnimationKeyframeData(const char *_odata, BufferAccessorData &_suppl_info, DasBuffer &_buffer);
             void _SupplementVertexAttrs(const std::unordered_map<GenericVertexAttribute, uint32_t, Hash<GenericVertexAttribute>> &_map, uint32_t _max, BufferType _type, DasBuffer &_buffer);
 
             void _CopyToBuffer(const std::vector<std::pair<const char*, size_t>> &_optrs, char *_dst, size_t _len, size_t _offset, DasBuffer &_buffer);

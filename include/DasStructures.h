@@ -1,15 +1,30 @@
 // libdas: DENG asset handling management library
 // licence: Apache, see LICENCE file
-// file: DasStructures.h - Header containing all structures and abstract data types used for reading and writing DAS files
+// file: DasStructures.h - DAS file format structure header
 // author: Karl-Mihkel Ott
 
 #ifndef DAS_STRUCTURES_H
 #define DAS_STRUCTURES_H
 
+#ifdef DAS_STRUCTURES_CPP
+    #include <cstdint>
+    #include <cstring>
+    #include <cmath>
+#ifdef _DEBUG
+    #include <iostream>
+#endif
+    #include <string>
+    #include <vector>
+
+    #include <Points.h>
+    #include <Vector.h>
+    #include <Matrix.h>
+    #include <Quaternion.h>
+#endif
+
 // file constant definitions
 #define LIBDAS_DAS_MAGIC                0x00534144
 #define LIBDAS_DAS_DEFAULT_AUTHOR       "DENG project v 1.0"
-
 
 /// Buffer type definitions
 typedef uint16_t BufferType;
@@ -59,22 +74,11 @@ namespace Libdas {
      */
     struct DasProperties {
         DasProperties() = default;
+        DasProperties(const DasProperties &_props);
+        DasProperties(DasProperties &&_props);
 
-        // copy constructor
-        DasProperties(const DasProperties &_props) : model(_props.model), author(_props.author), 
-            copyright(_props.copyright), moddate(_props.moddate), default_scene(_props.default_scene) {}
-
-        // move constructor
-        DasProperties(DasProperties &&_props) : model(std::move(_props.model)), author(std::move(_props.author)), 
-            copyright(std::move(_props.copyright)), moddate(_props.moddate), default_scene(_props.default_scene) {}
-
-        void operator=(DasProperties &&_props) {
-            model = std::move(_props.model);
-            author = std::move(_props.author);
-            copyright = std::move(_props.copyright);
-            moddate = _props.moddate;
-            default_scene = _props.default_scene;
-        }
+        void operator=(const DasProperties &_props);
+        void operator=(DasProperties &&_props);
 
         std::string model;
         std::string author = LIBDAS_DAS_DEFAULT_AUTHOR;
@@ -97,16 +101,11 @@ namespace Libdas {
      */
     struct DasBuffer {
         DasBuffer() = default;
+        DasBuffer(const DasBuffer &_buf);
+        DasBuffer(DasBuffer &&_buf);
 
-        DasBuffer(const DasBuffer &_buf) : data_ptrs(_buf.data_ptrs), data_len(_buf.data_len), type(_buf.type) {}
-
-        DasBuffer(DasBuffer &&_buf) : data_ptrs(std::move(_buf.data_ptrs)), data_len(_buf.data_len), type(_buf.type) {}
-
-        void operator=(const DasBuffer &_buf) {
-            data_ptrs = _buf.data_ptrs;
-            data_len = _buf.data_len;
-            type = _buf.type;
-        }
+        void operator=(const DasBuffer &_buf);
+        void operator=(DasBuffer &&_buf);
 
         std::vector<std::pair<const char*, size_t>> data_ptrs;
         uint32_t data_len = 0;
@@ -125,26 +124,12 @@ namespace Libdas {
      */
     struct DasMesh {
         DasMesh() = default;
+        DasMesh(const DasMesh &_mesh);
+        DasMesh(DasMesh &&_mesh);
+        ~DasMesh();
 
-        DasMesh(DasMesh &&_mesh) : name(std::move(_mesh.name)), primitive_count(_mesh.primitive_count), primitives(_mesh.primitives) {
-            _mesh.primitives = nullptr;
-        }
-
-        DasMesh(const DasMesh &_mesh) : name(_mesh.name), primitive_count(_mesh.primitive_count) {
-            primitives = new uint32_t[primitive_count];
-            for(uint32_t i = 0; i < primitive_count; i++)
-                primitives[i] = _mesh.primitives[i];
-        }
-
-        void operator=(const DasMesh &_mesh) {
-            name = _mesh.name;
-            primitive_count = _mesh.primitive_count;
-            primitives = _mesh.primitives;
-        }
-
-        ~DasMesh() {
-            delete [] primitives;
-        }
+        void operator=(const DasMesh &_mesh);
+        void operator=(DasMesh &&_mesh);
 
         std::string name = "";
         uint32_t primitive_count = 0;
@@ -163,61 +148,42 @@ namespace Libdas {
      */
     struct DasMeshPrimitive {
         DasMeshPrimitive() = default;
+        DasMeshPrimitive(const DasMeshPrimitive &_prim);
+        DasMeshPrimitive(DasMeshPrimitive &&_prim);
+        ~DasMeshPrimitive();
 
-        DasMeshPrimitive(const DasMeshPrimitive &_prim) : index_buffer_id(_prim.index_buffer_id), index_buffer_offset(_prim.index_buffer_offset),
-            indices_count(_prim.indices_count), vertex_buffer_id(_prim.vertex_buffer_id), vertex_buffer_offset(_prim.vertex_buffer_offset), 
-            texture_id(_prim.texture_id), uv_buffer_id(_prim.uv_buffer_id), uv_buffer_offset(_prim.uv_buffer_offset),
-            vertex_normal_buffer_id(_prim.vertex_normal_buffer_id), vertex_normal_buffer_offset(_prim.vertex_normal_buffer_offset), vertex_tangent_buffer_id(_prim.vertex_tangent_buffer_id),
-            vertex_tangent_buffer_offset(_prim.vertex_tangent_buffer_offset), joint_index_buffer_id(_prim.joint_index_buffer_id), joint_index_buffer_offset(_prim.joint_index_buffer_offset),
-            weight_buffer_id(_prim.weight_buffer_id), weight_buffer_offset(_prim.weight_buffer_offset), morph_target_count(_prim.morph_target_count)
-        {
-            if(morph_target_count) {
-                morph_targets = new uint32_t[morph_target_count];
-                for(uint32_t i = 0; i < morph_target_count; i++)
-                    morph_targets[i] = _prim.morph_targets[i];
-
-                if(_prim.morph_weights) {
-                    morph_weights = new float[morph_target_count];
-                    for(uint32_t i = 0; i < morph_target_count; i++)
-                        morph_weights[i] = _prim.morph_weights[i];
-                }
-            }
-        }
-
-        DasMeshPrimitive(DasMeshPrimitive &&_prim) : index_buffer_id(_prim.index_buffer_id), index_buffer_offset(_prim.index_buffer_offset),
-            indices_count(_prim.indices_count), vertex_buffer_id(_prim.vertex_buffer_id), vertex_buffer_offset(_prim.vertex_buffer_offset), 
-            texture_id(_prim.texture_id), uv_buffer_id(_prim.uv_buffer_id), uv_buffer_offset(_prim.uv_buffer_offset),
-            vertex_normal_buffer_id(_prim.vertex_normal_buffer_id), vertex_normal_buffer_offset(_prim.vertex_normal_buffer_offset), 
-            vertex_tangent_buffer_id(_prim.vertex_tangent_buffer_id), vertex_tangent_buffer_offset(_prim.vertex_tangent_buffer_offset),
-            joint_index_buffer_id(_prim.joint_index_buffer_id), joint_index_buffer_offset(_prim.joint_index_buffer_offset), 
-            weight_buffer_id(_prim.weight_buffer_id), weight_buffer_offset(_prim.weight_buffer_offset), morph_target_count(_prim.morph_target_count),
-            morph_targets(_prim.morph_targets), morph_weights(_prim.morph_weights)
-        {
-            _prim.morph_targets = nullptr;
-            _prim.morph_weights = nullptr;
-        }
-
-        ~DasMeshPrimitive() {
-            delete [] morph_targets;
-            delete [] morph_weights;
-        }
+        void operator=(const DasMeshPrimitive &_prim);
+        void operator=(DasMeshPrimitive &&_prim);
 
         uint32_t index_buffer_id = UINT32_MAX;
         uint32_t index_buffer_offset = 0;
         uint32_t indices_count = 0;
         uint32_t vertex_buffer_id = UINT32_MAX;
         uint32_t vertex_buffer_offset = 0;
-        uint32_t texture_id = UINT32_MAX;
-        uint32_t uv_buffer_id = UINT32_MAX;
-        uint32_t uv_buffer_offset = 0;
         uint32_t vertex_normal_buffer_id = UINT32_MAX;
         uint32_t vertex_normal_buffer_offset = 0;
         uint32_t vertex_tangent_buffer_id = UINT32_MAX;
         uint32_t vertex_tangent_buffer_offset = 0;
-        uint32_t joint_index_buffer_id = UINT32_MAX;
-        uint32_t joint_index_buffer_offset = 0;
-        uint32_t weight_buffer_id = UINT32_MAX;
-        uint32_t weight_buffer_offset = 0;
+
+        // texture attributes
+        uint32_t texture_count = 0;
+        uint32_t *uv_buffer_ids = nullptr;
+        uint32_t *uv_buffer_offsets = nullptr;
+        uint32_t *texture_ids = nullptr;
+
+        // color multiplier attributes
+        uint32_t color_mul_count = 0;
+        uint32_t *color_mul_buffer_ids = nullptr;
+        uint32_t *color_mul_buffer_offsets = nullptr;
+
+        // skeletal joint attributes
+        uint32_t joint_set_count = 0;
+        uint32_t *joint_index_buffer_ids = nullptr;
+        uint32_t *joint_index_buffer_offsets = nullptr;
+        uint32_t *joint_weight_buffer_ids = nullptr;
+        uint32_t *joint_weight_buffer_offsets = nullptr;
+
+        // morph targets
         uint32_t morph_target_count = 0;
         uint32_t *morph_targets = nullptr;
         float *morph_weights = nullptr;
@@ -228,20 +194,29 @@ namespace Libdas {
             LIBDAS_MESH_PRIMITIVE_INDICES_COUNT,
             LIBDAS_MESH_PRIMITIVE_VERTEX_BUFFER_ID,
             LIBDAS_MESH_PRIMITIVE_VERTEX_BUFFER_OFFSET,
-            LIBDAS_MESH_PRIMITIVE_TEXTURE_ID,
-            LIBDAS_MESH_PRIMITIVE_TEXTURE_MAP_BUFFER_ID,
-            LIBDAS_MESH_PRIMITIVE_TEXTURE_MAP_BUFFER_OFFSET,
             LIBDAS_MESH_PRIMITIVE_VERTEX_NORMAL_BUFFER_ID,
             LIBDAS_MESH_PRIMITIVE_VERTEX_NORMAL_BUFFER_OFFSET,
             LIBDAS_MESH_PRIMITIVE_VERTEX_TANGENT_BUFFER_ID,
             LIBDAS_MESH_PRIMITIVE_VERTEX_TANGENT_BUFFER_OFFSET,
-            LIBDAS_MESH_PRIMITIVE_JOINT_INDEX_BUFFER_ID,
-            LIBDAS_MESH_PRIMITIVE_JOINT_INDEX_BUFFER_OFFSET,
-            LIBDAS_MESH_PRIMITIVE_WEIGHT_BUFFER_ID,
-            LIBDAS_MESH_PRIMITIVE_WEIGHT_BUFFER_OFFSET,
+
+            LIBDAS_MESH_PRIMITIVE_TEXTURE_COUNT,
+            LIBDAS_MESH_PRIMITIVE_UV_BUFFER_IDS,
+            LIBDAS_MESH_PRIMITIVE_UV_BUFFER_OFFSETS,
+            LIBDAS_MESH_PRIMITIVE_TEXTURE_IDS,
+
+            LIBDAS_MESH_PRIMITIVE_COLOR_MUL_COUNT,
+            LIBDAS_MESH_PRIMITIVE_COLOR_MUL_BUFFER_IDS,
+            LIBDAS_MESH_PRIMITIVE_COLOR_MUL_BUFFER_OFFSETS,
+
+            LIBDAS_MESH_PRIMITIVE_JOINT_SET_COUNT,
+            LIBDAS_MESH_PRIMITIVE_JOINT_INDEX_BUFFER_IDS,
+            LIBDAS_MESH_PRIMITIVE_JOINT_INDEX_BUFFER_OFFSETS,
+            LIBDAS_MESH_PRIMITIVE_JOINT_WEIGHT_BUFFER_IDS,
+            LIBDAS_MESH_PRIMITIVE_JOINT_WEIGHT_BUFFER_OFFSETS,
+
             LIBDAS_MESH_PRIMITIVE_MORPH_TARGET_COUNT,
             LIBDAS_MESH_PRIMITIVE_MORPH_TARGETS,
-            LIBDAS_MESH_PRIMITIVE_MORPH_WEIGHTS,
+            LIBDAS_MESH_PRIMITIVE_MORPH_WEIGHTS
         };
     };
 
@@ -250,10 +225,25 @@ namespace Libdas {
      * DAS scope structure that defines mesh morph target related information
      */
     struct DasMorphTarget {
+        DasMorphTarget() = default;
+        DasMorphTarget(const DasMorphTarget &_morph);
+        DasMorphTarget(DasMorphTarget &&_morph);
+        ~DasMorphTarget();
+
+        void operator=(const DasMorphTarget &_morph);
+        void operator=(DasMorphTarget &&_morph);
+
         uint32_t vertex_buffer_id = UINT32_MAX;
         uint32_t vertex_buffer_offset = 0;
-        uint32_t uv_buffer_id = UINT32_MAX;
-        uint32_t uv_buffer_offset = 0;
+
+        uint32_t texture_count = 0;
+        uint32_t *uv_buffer_ids = nullptr;
+        uint32_t *uv_buffer_offsets = nullptr;
+
+        uint32_t color_mul_count = 0;
+        uint32_t *color_mul_buffer_ids = nullptr;
+        uint32_t *color_mul_buffer_offsets = nullptr;
+
         uint32_t vertex_normal_buffer_id = UINT32_MAX;
         uint32_t vertex_normal_buffer_offset = UINT32_MAX;
         uint32_t vertex_tangent_buffer_id = UINT32_MAX;
@@ -262,8 +252,12 @@ namespace Libdas {
         enum ValueType {
             LIBDAS_MORPH_TARGET_VERTEX_BUFFER_ID,
             LIBDAS_MORPH_TARGET_VERTEX_BUFFER_OFFSET,
-            LIBDAS_MORPH_TARGET_TEXTURE_MAP_BUFFER_ID,
-            LIBDAS_MORPH_TARGET_TEXTURE_MAP_BUFFER_OFFSET,
+            LIBDAS_MORPH_TARGET_TEXTURE_COUNT,
+            LIBDAS_MORPH_TARGET_UV_BUFFER_IDS,
+            LIBDAS_MORPH_TARGET_UV_BUFFER_OFFSETS,
+            LIBDAS_MORPH_TARGET_COLOR_MUL_COUNT,
+            LIBDAS_MORPH_TARGET_COLOR_MUL_BUFFER_IDS,
+            LIBDAS_MORPH_TARGET_COLOR_MUL_BUFFER_OFFSETS,
             LIBDAS_MORPH_TARGET_VERTEX_NORMAL_BUFFER_ID,
             LIBDAS_MORPH_TARGET_VERTEX_NORMAL_BUFFER_OFFSET,
             LIBDAS_MORPH_TARGET_VERTEX_TANGENT_BUFFER_ID,
@@ -283,25 +277,12 @@ namespace Libdas {
     struct DasNode {
         // default constructor
         DasNode() = default;
+        DasNode(const DasNode &_node);
+        DasNode(DasNode &&_node);
+        ~DasNode();
 
-        // deep copy constructor
-        DasNode(const DasNode &_node) : name(_node.name), children_count(_node.children_count), mesh(_node.mesh), skeleton(_node.skeleton), transform(_node.transform) {
-            // copy child refs
-            if(children_count) {
-                children = new uint32_t[children_count];
-                for(uint32_t i = 0; i < children_count; i++)
-                    children[i] = _node.children[i];
-            }
-        }
-
-        // move constructor
-        DasNode(DasNode &&_node) : name(std::move(_node.name)), children_count(_node.children_count), children(_node.children), mesh(_node.mesh), skeleton(_node.skeleton), transform(_node.transform) {
-            _node.children = nullptr;
-        }
-
-        ~DasNode() {
-            delete [] children;
-        }
+        void operator=(const DasNode &_node);
+        void operator=(DasNode &&_node);
 
         std::string name = "";
         uint32_t children_count = 0;
@@ -327,25 +308,12 @@ namespace Libdas {
      */
     struct DasScene {
         DasScene() = default;
-        
-        DasScene(const DasScene &_scene) : name(_scene.name), node_count(_scene.node_count), root_count(_scene.root_count) {
-            if(node_count) {
-                nodes = new uint32_t[node_count];
-                for(uint32_t i = 0; i < node_count; i++)
-                    nodes[i] = _scene.nodes[i];
-            }
+        DasScene(const DasScene &_scene);
+        DasScene(DasScene &&_scene);
+        ~DasScene();
 
-            if(root_count) {
-                roots = new uint32_t[root_count];
-                for(uint32_t i = 0; i < root_count; i++)
-                    roots[i] = _scene.roots[i];
-            }
-        }
-
-        ~DasScene() {
-            delete [] nodes;
-            delete [] roots;
-        }
+        void operator=(const DasScene &_scene);
+        void operator=(DasScene &&_scene);
 
         std::string name = "";
         uint32_t node_count = 0;
@@ -374,24 +342,12 @@ namespace Libdas {
      */
     struct DasSkeleton {
         DasSkeleton() = default;
+        DasSkeleton(const DasSkeleton &_skel);
+        DasSkeleton(DasSkeleton &&_skel);
+        ~DasSkeleton();
 
-        // deep copy constructor
-        DasSkeleton(const DasSkeleton &_skel) : name(_skel.name), joint_count(_skel.joint_count) {
-            if(_skel.joint_count) {
-                joints = new uint32_t[joint_count];
-                for(uint32_t i = 0; i < joint_count; i++)
-                    joints[i] = _skel.joints[i];
-            }
-        }
-
-        // move constructor
-        DasSkeleton(DasSkeleton &&_skel) : name(std::move(_skel.name)), joint_count(_skel.joint_count), joints(_skel.joints) {
-            _skel.joints = nullptr;
-        }
-
-        ~DasSkeleton() {
-            delete [] joints;
-        }
+        void operator=(const DasSkeleton &_skel);
+        void operator=(DasSkeleton &&_skel);
 
         std::string name;
         uint32_t parent = UINT32_MAX;
@@ -412,26 +368,12 @@ namespace Libdas {
      */
     struct DasSkeletonJoint {
         DasSkeletonJoint() = default;
+        DasSkeletonJoint(const DasSkeletonJoint &_joint);
+        DasSkeletonJoint(DasSkeletonJoint &&_joint);
+        ~DasSkeletonJoint();
 
-        DasSkeletonJoint(const DasSkeletonJoint &_joint) : inverse_bind_pos(_joint.inverse_bind_pos), name(_joint.name), children_count(_joint.children_count),
-            scale(_joint.scale), rotation(_joint.rotation), translation(_joint.translation) 
-        {
-            if(children_count) {
-                children = new uint32_t[children_count];
-                for(uint32_t i = 0; i < children_count; i++)
-                    children[i] = _joint.children[i];
-            }
-        }
-
-        DasSkeletonJoint(DasSkeletonJoint &&_joint) : inverse_bind_pos(_joint.inverse_bind_pos), name(std::move(_joint.name)), children_count(_joint.children_count),
-            children(_joint.children), scale(_joint.scale), rotation(_joint.rotation), translation(_joint.translation) 
-        {
-            _joint.children = nullptr;
-        }
-
-        ~DasSkeletonJoint() {
-            delete [] children;
-        }
+        void operator=(const DasSkeletonJoint &_joint);
+        void operator=(DasSkeletonJoint &&_joint);
 
         Matrix4<float> inverse_bind_pos;
         std::string name;
@@ -458,25 +400,12 @@ namespace Libdas {
      */
     struct DasAnimation {
         DasAnimation() = default;
+        DasAnimation(const DasAnimation &_ani);
+        DasAnimation(DasAnimation &&_ani);
+        ~DasAnimation();
 
-        // deep copy constructor
-        DasAnimation(const DasAnimation &_ani) : name(_ani.name), channel_count(_ani.channel_count) {
-            // channels are present
-            if(channel_count) {
-                channels = new uint32_t[channel_count];
-                for(uint32_t i = 0; i < channel_count; i++)
-                    channels[i] = _ani.channels[i];
-            }
-        }
-
-        // move constructor
-        DasAnimation(DasAnimation &&_ani) : name(std::move(_ani.name)), channel_count(_ani.channel_count), channels(_ani.channels) {
-            _ani.channels = nullptr;
-        }
-
-        ~DasAnimation() {
-            delete [] channels;
-        }
+        void operator=(const DasAnimation &_ani);
+        void operator=(DasAnimation &&_ani);
 
         std::string name;
         uint32_t channel_count = 0;
@@ -491,25 +420,38 @@ namespace Libdas {
 
 
     struct DasAnimationChannel {
-        uint32_t node_id;
-        AnimationTarget target;
-        uint32_t weight_count = 0;
-        InterpolationType interpolation;
-        uint32_t keyframe_count = 0;
-        uint32_t keyframe_buffer_id = UINT32_MAX;
-        uint32_t keyframe_buffer_offset = 0;
-        uint32_t target_value_buffer_id = UINT32_MAX;
-        uint32_t target_value_buffer_offset = 0;
+        private:
+            uint32_t m_morph_target_count = 0;
+            
+        public:
+            DasAnimationChannel() = default;
+            DasAnimationChannel(const DasAnimationChannel &_ch);
+            DasAnimationChannel(DasAnimationChannel &&_ch);
+            ~DasAnimationChannel();
+
+            void operator=(const DasAnimationChannel &_ch);
+            void operator=(DasAnimationChannel &&_ch);
+
+            uint32_t node_id = UINT32_MAX;
+            uint32_t joint_id = UINT32_MAX;
+            AnimationTarget target;
+            InterpolationType interpolation;
+            uint32_t keyframe_count = 0;
+            uint32_t weight_count = 0;
+            float *keyframes = nullptr;
+            char *tangents = nullptr;
+            char *target_values = nullptr;
 
         enum ValueType {
             LIBDAS_ANIMATION_CHANNEL_NODE_ID,
+            LIBDAS_ANIMATION_CHANNEL_JOINT_ID,
             LIBDAS_ANIMATION_CHANNEL_TARGET,
             LIBDAS_ANIMATION_CHANNEL_INTERPOLATION,
             LIBDAS_ANIMATION_CHANNEL_KEYFRAME_COUNT,
-            LIBDAS_ANIMATION_CHANNEL_KEYFRAME_BUFFER_ID,
-            LIBDAS_ANIMATION_CHANNEL_KEYFRAME_BUFFER_OFFSET,
-            LIBDAS_ANIMATION_CHANNEL_TARGET_VALUE_BUFFER_ID,
-            LIBDAS_ANIMATION_CHANNEL_TARGET_VALUE_BUFFER_OFFSET
+            LIBDAS_ANIMATION_CHANNEL_WEIGHT_COUNT,
+            LIBDAS_ANIMATION_CHANNEL_KEYFRAMES,
+            LIBDAS_ANIMATION_CHANNEL_TANGENTS,
+            LIBDAS_ANIMATION_CHANNEL_TARGET_VALUES
         };
     };
 }

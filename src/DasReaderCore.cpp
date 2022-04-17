@@ -60,14 +60,19 @@ namespace Libdas {
         m_unique_val_map["INDEXBUFFERID"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_INDEX_BUFFER_ID;
         m_unique_val_map["INDEXBUFFEROFFSET"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_INDEX_BUFFER_OFFSET;
         m_unique_val_map["INDICESCOUNT"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_INDICES_COUNT;
-        m_unique_val_map["TEXTUREID"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_TEXTURE_ID;
+        m_unique_val_map["TEXTURECOUNT"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_TEXTURE_COUNT;
+        m_unique_val_map["TEXTUREIDS"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_TEXTURE_IDS;
+        m_unique_val_map["COLORMULCOUNT"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_COLOR_MUL_COUNT;
+        m_unique_val_map["JOINTSETCOUNT"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_JOINT_SET_COUNT;
+        m_unique_val_map["JOINTINDEXBUFFERIDS"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_JOINT_INDEX_BUFFER_IDS;
+        m_unique_val_map["JOINTINDEXBUFFEROFFSETS"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_JOINT_INDEX_BUFFER_OFFSETS;
+        m_unique_val_map["JOINTWEIGHTBUFFERIDS"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_JOINT_WEIGHT_BUFFER_IDS;
+        m_unique_val_map["JOINTWEIGHTBUFFEROFFSETS"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_JOINT_WEIGHT_BUFFER_OFFSETS;
         m_unique_val_map["MORPHTARGETCOUNT"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_MORPH_TARGET_COUNT;
         m_unique_val_map["MORPHTARGETS"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_MORPH_TARGETS;
         m_unique_val_map["MORPHWEIGHTS"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_MORPH_WEIGHTS;
 
         // NODE
-        m_unique_val_map["CHILDRENCOUNT"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_CHILDREN_COUNT;
-        m_unique_val_map["CHILDREN"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_CHILDREN;
         m_unique_val_map["MESH"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_MESH;
         m_unique_val_map["SKELETON"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_SKELETON;
 
@@ -92,29 +97,28 @@ namespace Libdas {
 
         // ANIMATIONCHANNEL
         m_unique_val_map["NODEID"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_NODE_ID;
+        m_unique_val_map["JOINTID"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_JOINT_ID;
         m_unique_val_map["TARGET"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_TARGET;
         m_unique_val_map["INTERPOLATION"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_INTERPOLATION;
         m_unique_val_map["KEYFRAMECOUNT"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_KEYFRAME_COUNT;
-        m_unique_val_map["KEYFRAMEBUFFERID"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_KEYFRAME_BUFFER_ID;
-        m_unique_val_map["KEYFRAMEBUFFEROFFSET"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_KEYFRAME_BUFFER_OFFSET;
-        m_unique_val_map["TARGETVALUEBUFFERID"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_TARGET_VALUE_BUFFER_ID;
-        m_unique_val_map["TARGETVALUEBUFFEROFFSET"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_TARGET_VALUE_BUFFER_OFFSET;
+        m_unique_val_map["WEIGHTCOUNT"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_WEIGHT_COUNT;
+        m_unique_val_map["KEYFRAMES"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_KEYFRAMES;
+        m_unique_val_map["TANGENTS"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_TANGENTS;
+        m_unique_val_map["TARGETVALUES"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_TARGET_VALUES;
 
         // Not so unique value types, since these values can be present in multiple scopes
         m_unique_val_map["NAME"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_NAME;
         m_unique_val_map["TRANSFORM"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_TRANSFORM;
         m_unique_val_map["VERTEXBUFFERID"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_BUFFER_ID;
         m_unique_val_map["VERTEXBUFFEROFFSET"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_BUFFER_OFFSET;
-        m_unique_val_map["UVBUFFERID"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_TEXTURE_MAP_BUFFER_ID;
-        m_unique_val_map["UVBUFFEROFFSET"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_TEXTURE_MAP_BUFFER_OFFSET;
+        m_unique_val_map["UVBUFFERIDS"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_UV_BUFFER_IDS;
+        m_unique_val_map["UVBUFFEROFFSETS"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_UV_BUFFER_OFFSETS;
         m_unique_val_map["VERTEXNORMALBUFFERID"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_NORMAL_BUFFER_ID;
         m_unique_val_map["VERTEXNORMALBUFFEROFFSET"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_NORMAL_BUFFER_OFFSET;
         m_unique_val_map["VERTEXTANGENTBUFFERID"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_TANGENT_BUFFER_ID;
         m_unique_val_map["VERTEXTANGENTBUFFEROFFSET"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_TANGENT_BUFFER_OFFSET;
-        m_unique_val_map["JOINTINDEXBUFFERID"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_JOINT_INDEX_BUFFER_ID;
-        m_unique_val_map["JOINTINDEXBUFFEROFFSET"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_JOINT_INDEX_BUFFER_OFFSET;
-        m_unique_val_map["WEIGHTBUFFERID"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_WEIGHT_BUFFER_ID;
-        m_unique_val_map["WEIGHTBUFFEROFFSET"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_WEIGHT_BUFFER_OFFSET;
+        m_unique_val_map["CHILDRENCOUNT"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_CHILDREN_COUNT;
+        m_unique_val_map["CHILDREN"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_CHILDREN;
     }
 
 
@@ -202,15 +206,6 @@ namespace Libdas {
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_BUFFER_OFFSET:
                         return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_VERTEX_BUFFER_OFFSET;
 
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_TEXTURE_ID:
-                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_TEXTURE_ID;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_TEXTURE_MAP_BUFFER_ID:
-                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_TEXTURE_MAP_BUFFER_ID;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_TEXTURE_MAP_BUFFER_OFFSET:
-                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_TEXTURE_MAP_BUFFER_OFFSET;
-
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_NORMAL_BUFFER_ID:
                         return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_VERTEX_NORMAL_BUFFER_ID;
 
@@ -223,17 +218,41 @@ namespace Libdas {
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_TANGENT_BUFFER_OFFSET:
                         return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_VERTEX_TANGENT_BUFFER_OFFSET;
 
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_JOINT_INDEX_BUFFER_ID:
-                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_JOINT_INDEX_BUFFER_ID;
+                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_TEXTURE_COUNT:
+                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_TEXTURE_COUNT;
 
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_JOINT_INDEX_BUFFER_OFFSET:
-                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_JOINT_INDEX_BUFFER_OFFSET;
+                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_UV_BUFFER_IDS:
+                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_UV_BUFFER_IDS;
 
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_WEIGHT_BUFFER_ID:
-                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_WEIGHT_BUFFER_ID;
+                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_UV_BUFFER_OFFSETS:
+                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_UV_BUFFER_OFFSETS;
 
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_WEIGHT_BUFFER_OFFSET:
-                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_WEIGHT_BUFFER_OFFSET;
+                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_TEXTURE_IDS:
+                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_TEXTURE_IDS;
+
+                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_COLOR_MUL_COUNT:
+                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_COLOR_MUL_COUNT;
+
+                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_COLOR_MUL_BUFFER_IDS:
+                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_COLOR_MUL_BUFFER_IDS;
+
+                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_COLOR_MUL_BUFFER_OFFSETS:
+                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_COLOR_MUL_BUFFER_OFFSETS;
+
+                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_JOINT_SET_COUNT:
+                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_JOINT_SET_COUNT;
+
+                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_JOINT_INDEX_BUFFER_IDS:
+                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_JOINT_INDEX_BUFFER_IDS;
+
+                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_JOINT_INDEX_BUFFER_OFFSETS:
+                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_JOINT_INDEX_BUFFER_OFFSETS;
+
+                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_JOINT_WEIGHT_BUFFER_IDS:
+                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_JOINT_WEIGHT_BUFFER_IDS;
+
+                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_JOINT_WEIGHT_BUFFER_OFFSETS:
+                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_JOINT_WEIGHT_BUFFER_OFFSETS;
 
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_MORPH_TARGET_COUNT:
                         return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_MORPH_TARGET_COUNT;
@@ -257,11 +276,17 @@ namespace Libdas {
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_BUFFER_OFFSET:
                         return DasMorphTarget::LIBDAS_MORPH_TARGET_VERTEX_BUFFER_OFFSET;
 
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_TEXTURE_MAP_BUFFER_ID:
-                        return DasMorphTarget::LIBDAS_MORPH_TARGET_TEXTURE_MAP_BUFFER_ID;
+                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_UV_BUFFER_IDS:
+                        return DasMorphTarget::LIBDAS_MORPH_TARGET_UV_BUFFER_IDS;
 
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_TEXTURE_MAP_BUFFER_OFFSET:
-                        return DasMorphTarget::LIBDAS_MORPH_TARGET_TEXTURE_MAP_BUFFER_OFFSET;
+                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_UV_BUFFER_OFFSETS:
+                        return DasMorphTarget::LIBDAS_MORPH_TARGET_UV_BUFFER_OFFSETS;
+
+                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_COLOR_MUL_BUFFER_IDS:
+                        return DasMorphTarget::LIBDAS_MORPH_TARGET_COLOR_MUL_BUFFER_IDS;
+
+                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_COLOR_MUL_BUFFER_OFFSETS:
+                        return DasMorphTarget::LIBDAS_MORPH_TARGET_COLOR_MUL_BUFFER_OFFSETS;
 
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_NORMAL_BUFFER_ID:
                         return DasMorphTarget::LIBDAS_MORPH_TARGET_VERTEX_NORMAL_BUFFER_ID;
@@ -389,6 +414,9 @@ namespace Libdas {
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_NODE_ID:
                         return DasAnimationChannel::LIBDAS_ANIMATION_CHANNEL_NODE_ID;
 
+                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_JOINT_ID:
+                        return DasAnimationChannel::LIBDAS_ANIMATION_CHANNEL_JOINT_ID;
+
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_TARGET:
                         return DasAnimationChannel::LIBDAS_ANIMATION_CHANNEL_TARGET;
 
@@ -398,17 +426,17 @@ namespace Libdas {
                     case LIBDAS_DAS_UNIQUE_VALUE_TYPE_KEYFRAME_COUNT:
                         return DasAnimationChannel::LIBDAS_ANIMATION_CHANNEL_KEYFRAME_COUNT;
 
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_KEYFRAME_BUFFER_ID:
-                        return DasAnimationChannel::LIBDAS_ANIMATION_CHANNEL_KEYFRAME_BUFFER_ID;
+                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_WEIGHT_COUNT:
+                        return DasAnimationChannel::LIBDAS_ANIMATION_CHANNEL_WEIGHT_COUNT;
 
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_KEYFRAME_BUFFER_OFFSET:
-                        return DasAnimationChannel::LIBDAS_ANIMATION_CHANNEL_KEYFRAME_BUFFER_OFFSET;
+                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_KEYFRAMES:
+                        return DasAnimationChannel::LIBDAS_ANIMATION_CHANNEL_KEYFRAMES;
 
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_TARGET_VALUE_BUFFER_ID:
-                        return DasAnimationChannel::LIBDAS_ANIMATION_CHANNEL_TARGET_VALUE_BUFFER_ID;
+                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_TANGENTS:
+                        return DasAnimationChannel::LIBDAS_ANIMATION_CHANNEL_TANGENTS;
 
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_TARGET_VALUE_BUFFER_OFFSET:
-                        return DasAnimationChannel::LIBDAS_ANIMATION_CHANNEL_TARGET_VALUE_BUFFER_OFFSET;
+                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_TARGET_VALUES:
+                        return DasAnimationChannel::LIBDAS_ANIMATION_CHANNEL_TARGET_VALUES;
 
                     default:
                         return LIBDAS_DAS_UNIQUE_VALUE_TYPE_UNKNOWN;
@@ -507,21 +535,6 @@ namespace Libdas {
                 if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
                 break;
 
-            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_TEXTURE_ID:
-                _primitive->texture_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
-                break;
-
-            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_TEXTURE_MAP_BUFFER_ID:
-                _primitive->uv_buffer_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
-                break;
-
-            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_TEXTURE_MAP_BUFFER_OFFSET:
-                _primitive->uv_buffer_offset = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
-                break;
-
             case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_VERTEX_NORMAL_BUFFER_ID:
                 _primitive->vertex_normal_buffer_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                 if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
@@ -542,24 +555,82 @@ namespace Libdas {
                 if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
                 break;
 
-            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_JOINT_INDEX_BUFFER_ID:
-                _primitive->joint_index_buffer_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_TEXTURE_COUNT:
+                _primitive->texture_count = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                 if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+
+                // allocate memory for uv buffer ids and offsets
+                if(_primitive->texture_count) {
+                    _primitive->uv_buffer_ids = new uint32_t[_primitive->texture_count];
+                    _primitive->uv_buffer_offsets = new uint32_t[_primitive->texture_count];
+                }
                 break;
 
-            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_JOINT_INDEX_BUFFER_OFFSET:
-                _primitive->joint_index_buffer_offset = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_UV_BUFFER_IDS:
+                for(uint32_t i = 0; i < _primitive->texture_count; i++) {
+                    _primitive->uv_buffer_ids[i] = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                    if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                }
                 break;
 
-            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_WEIGHT_BUFFER_ID:
-                _primitive->weight_buffer_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_UV_BUFFER_OFFSETS:
+                for(uint32_t i = 0; i < _primitive->texture_count; i++) {
+                    _primitive->uv_buffer_offsets[i] = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                    if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                }
                 break;
 
-            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_WEIGHT_BUFFER_OFFSET:
-                _primitive->weight_buffer_offset = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_TEXTURE_IDS:
+                // allocate memory for texture ids
+                if(_primitive->texture_count) {
+                    _primitive->texture_ids = new uint32_t[_primitive->texture_count];
+                    
+                    for(uint32_t i = 0; i < _primitive->texture_count; i++) {
+                        _primitive->texture_ids[i] = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                        if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                    }
+                }
+                break;
+
+            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_JOINT_SET_COUNT:
+                _primitive->joint_set_count = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                 if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+
+                // allocate memory for index and weight buffer ids / offsets
+                if(_primitive->joint_set_count) {
+                    _primitive->joint_index_buffer_ids = new uint32_t[_primitive->joint_set_count];
+                    _primitive->joint_index_buffer_offsets = new uint32_t[_primitive->joint_set_count];
+                    _primitive->joint_weight_buffer_ids = new uint32_t[_primitive->joint_set_count];
+                    _primitive->joint_weight_buffer_offsets = new uint32_t[_primitive->joint_set_count];
+                }
+                break;
+
+            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_JOINT_INDEX_BUFFER_IDS:
+                for(uint32_t i = 0; i < _primitive->joint_set_count; i++) {
+                    _primitive->joint_index_buffer_ids[i] = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                    if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                }
+                break;
+
+            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_JOINT_INDEX_BUFFER_OFFSETS:
+                for(uint32_t i = 0; i < _primitive->joint_set_count; i++) {
+                    _primitive->joint_index_buffer_offsets[i] = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                    if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                }
+                break;
+
+            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_JOINT_WEIGHT_BUFFER_IDS:
+                for(uint32_t i = 0; i < _primitive->joint_set_count; i++) {
+                    _primitive->joint_weight_buffer_ids[i] = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                    if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                }
+                break;
+
+            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_JOINT_WEIGHT_BUFFER_OFFSETS:
+                for(uint32_t i = 0; i < _primitive->joint_set_count; i++) {
+                    _primitive->joint_weight_buffer_offsets[i] = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                    if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                }
                 break;
 
             case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_MORPH_TARGET_COUNT:
@@ -567,7 +638,10 @@ namespace Libdas {
                 if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
 
                 // allocate memory for morph target references
-                _primitive->morph_targets = new uint32_t[_primitive->morph_target_count];
+                if(_primitive->morph_target_count) {
+                    _primitive->morph_targets = new uint32_t[_primitive->morph_target_count];
+                    _primitive->morph_weights = new float[_primitive->morph_target_count];
+                }
                 break;
 
             case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_MORPH_TARGETS:
@@ -578,8 +652,6 @@ namespace Libdas {
                 break;
 
             case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_MORPH_WEIGHTS:
-                // allocate memory for each morph weight
-                _primitive->morph_weights = new float[_primitive->morph_target_count];
                 for(uint32_t i = 0; i < _primitive->morph_target_count; i++) {
                     _primitive->morph_weights[i] = *reinterpret_cast<float*>(_GetReadPtr());
                     if(!_SkipData(sizeof(float))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
@@ -597,26 +669,82 @@ namespace Libdas {
         switch(_type) {
             case DasMorphTarget::LIBDAS_MORPH_TARGET_VERTEX_BUFFER_ID:
                 _morph_target->vertex_buffer_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
                 break;
 
             case DasMorphTarget::LIBDAS_MORPH_TARGET_VERTEX_BUFFER_OFFSET:
                 _morph_target->vertex_buffer_offset = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
                 break;
 
-            case DasMorphTarget::LIBDAS_MORPH_TARGET_TEXTURE_MAP_BUFFER_ID:
-                _morph_target->uv_buffer_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+            case DasMorphTarget::LIBDAS_MORPH_TARGET_TEXTURE_COUNT:
+                _morph_target->texture_count = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+
+                // allocate memory for buffer ids and offsets
+                if(_morph_target->texture_count) {
+                    _morph_target->uv_buffer_ids = new uint32_t[_morph_target->texture_count];
+                    _morph_target->uv_buffer_offsets = new uint32_t[_morph_target->texture_count];
+                }
                 break;
 
-            case DasMorphTarget::LIBDAS_MORPH_TARGET_TEXTURE_MAP_BUFFER_OFFSET:
-                _morph_target->uv_buffer_offset = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+            case DasMorphTarget::LIBDAS_MORPH_TARGET_UV_BUFFER_IDS:
+                for(uint32_t i = 0; i < _morph_target->texture_count; i++) {
+                    _morph_target->uv_buffer_ids[i] = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                    if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                }
+                break;
+
+            case DasMorphTarget::LIBDAS_MORPH_TARGET_UV_BUFFER_OFFSETS:
+                for(uint32_t i = 0; i < _morph_target->texture_count; i++) {
+                    _morph_target->uv_buffer_offsets[i] = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                    if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                }
+                break;
+
+            case DasMorphTarget::LIBDAS_MORPH_TARGET_COLOR_MUL_COUNT:
+                _morph_target->color_mul_count = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+
+                // allocate memory for buffer ids and offsets
+                if(_morph_target->color_mul_count) {
+                    _morph_target->color_mul_buffer_ids = new uint32_t[_morph_target->color_mul_count];
+                    _morph_target->color_mul_buffer_offsets = new uint32_t[_morph_target->color_mul_count];
+                }
+                break;
+
+            case DasMorphTarget::LIBDAS_MORPH_TARGET_COLOR_MUL_BUFFER_IDS:
+                for(uint32_t i = 0; i < _morph_target->color_mul_count; i++) {
+                    _morph_target->color_mul_buffer_ids[i] = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                    if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                }
+                break;
+
+            case DasMorphTarget::LIBDAS_MORPH_TARGET_COLOR_MUL_BUFFER_OFFSETS:
+                for(uint32_t i = 0; i < _morph_target->color_mul_count; i++) {
+                    _morph_target->color_mul_buffer_offsets[i] = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                    if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                }
                 break;
 
             case DasMorphTarget::LIBDAS_MORPH_TARGET_VERTEX_NORMAL_BUFFER_ID:
                 _morph_target->vertex_normal_buffer_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
                 break;
 
             case DasMorphTarget::LIBDAS_MORPH_TARGET_VERTEX_NORMAL_BUFFER_OFFSET:
                 _morph_target->vertex_normal_buffer_offset = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                break;
+
+            case DasMorphTarget::LIBDAS_MORPH_TARGET_VERTEX_TANGENT_BUFFER_ID:
+                _morph_target->vertex_tangent_buffer_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                break;
+
+            case DasMorphTarget::LIBDAS_MORPH_TARGET_VERTEX_TANGENT_BUFFER_OFFSET:
+                _morph_target->vertex_tangent_buffer_offset = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
                 break;
 
             default:
@@ -840,6 +968,11 @@ namespace Libdas {
                 if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
                 break;
 
+            case DasAnimationChannel::LIBDAS_ANIMATION_CHANNEL_JOINT_ID:
+                _channel->joint_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                break;
+
             case DasAnimationChannel::LIBDAS_ANIMATION_CHANNEL_TARGET:
                 _channel->target = *reinterpret_cast<AnimationTarget*>(_GetReadPtr());
                 if(!_SkipData(sizeof(AnimationTarget))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
@@ -853,26 +986,117 @@ namespace Libdas {
             case DasAnimationChannel::LIBDAS_ANIMATION_CHANNEL_KEYFRAME_COUNT:
                 _channel->keyframe_count = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                 if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+
+                // allocate memory for keyframe data
+                LIBDAS_ASSERT(_channel->keyframe_count);
+                if(_channel->keyframe_count) {
+                    _channel->keyframes = new float[_channel->keyframe_count];
+                    uint32_t type_stride = 0;
+                    switch(_channel->target) {
+                        case LIBDAS_ANIMATION_TARGET_TRANSLATION:
+                            type_stride = static_cast<uint32_t>(sizeof(Libdas::Vector3<float>));
+                            break;
+
+                        case LIBDAS_ANIMATION_TARGET_ROTATION:
+                            type_stride = static_cast<uint32_t>(sizeof(Libdas::Quaternion));
+                            break;
+
+                        case LIBDAS_ANIMATION_TARGET_SCALE:
+                            type_stride = static_cast<uint32_t>(sizeof(float));
+                            break;
+
+                        default:
+                            break;
+                    }
+
+                    if(type_stride) {
+                        if(_channel->interpolation == LIBDAS_INTERPOLATION_VALUE_CUBICSPLINE)
+                            _channel->tangents = new char[type_stride * _channel->keyframe_count * 2];
+                        _channel->target_values = new char[type_stride * _channel->keyframe_count];
+                    }
+                }
                 break;
 
-            case DasAnimationChannel::LIBDAS_ANIMATION_CHANNEL_KEYFRAME_BUFFER_ID:
-                _channel->keyframe_buffer_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+            case DasAnimationChannel::LIBDAS_ANIMATION_CHANNEL_WEIGHT_COUNT:
+                _channel->weight_count = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                 if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
                 break;
 
-            case DasAnimationChannel::LIBDAS_ANIMATION_CHANNEL_KEYFRAME_BUFFER_OFFSET:
-                _channel->keyframe_buffer_offset = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+            case DasAnimationChannel::LIBDAS_ANIMATION_CHANNEL_KEYFRAMES:
+                for(uint32_t i = 0; i < _channel->keyframe_count; i++) {
+                    _channel->keyframes[i] = *reinterpret_cast<float*>(_GetReadPtr());
+                    if(!_SkipData(sizeof(float))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                }
                 break;
 
-            case DasAnimationChannel::LIBDAS_ANIMATION_CHANNEL_TARGET_VALUE_BUFFER_ID:
-                _channel->target_value_buffer_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+            case DasAnimationChannel::LIBDAS_ANIMATION_CHANNEL_TANGENTS:
+                if(_channel->keyframe_count) {
+                    uint32_t type_stride = 0;
+                    switch(_channel->target) {
+                        case LIBDAS_ANIMATION_TARGET_WEIGHTS:
+                            type_stride = static_cast<uint32_t>(sizeof(float)) * _channel->weight_count;
+
+                            // allocate memory for tangents 
+                            _channel->tangents = new char[type_stride * 2 * _channel->keyframe_count];
+                            break;
+
+                        case LIBDAS_ANIMATION_TARGET_TRANSLATION:
+                            type_stride = static_cast<uint32_t>(sizeof(Libdas::Vector3<float>));
+                            break;
+
+                        case LIBDAS_ANIMATION_TARGET_ROTATION:
+                            type_stride = static_cast<uint32_t>(sizeof(Libdas::Quaternion));
+                            break;
+
+                        case LIBDAS_ANIMATION_TARGET_SCALE:
+                            type_stride = static_cast<uint32_t>(sizeof(float));
+                            break;
+
+                        default:
+                            LIBDAS_ASSERT(false);
+                            break;
+                    }
+
+                    for(uint32_t i = 0; i < type_stride * 2 * _channel->keyframe_count; i++) {
+                        _channel->tangents[i] = *_GetReadPtr();
+                        if(!_SkipData(sizeof(char))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                    }
+                }
                 break;
 
-            case DasAnimationChannel::LIBDAS_ANIMATION_CHANNEL_TARGET_VALUE_BUFFER_OFFSET:
-                _channel->target_value_buffer_offset = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+            case DasAnimationChannel::LIBDAS_ANIMATION_CHANNEL_TARGET_VALUES:
+                if(_channel->keyframe_count) {
+                    uint32_t type_stride = 0;
+                    switch(_channel->target) {
+                        case LIBDAS_ANIMATION_TARGET_WEIGHTS:
+                            type_stride = static_cast<uint32_t>(sizeof(float)) * _channel->weight_count;
+
+                            // allocate memory for target values 
+                            _channel->target_values = new char[type_stride * _channel->keyframe_count];
+                            break;
+
+                        case LIBDAS_ANIMATION_TARGET_TRANSLATION:
+                            type_stride = static_cast<uint32_t>(sizeof(Libdas::Vector3<float>));
+                            break;
+
+                        case LIBDAS_ANIMATION_TARGET_ROTATION:
+                            type_stride = static_cast<uint32_t>(sizeof(Libdas::Quaternion));
+                            break;
+
+                        case LIBDAS_ANIMATION_TARGET_SCALE:
+                            type_stride = static_cast<uint32_t>(sizeof(float));
+                            break;
+
+                        default:
+                            LIBDAS_ASSERT(false);
+                            break;
+                    }
+
+                    for(uint32_t i = 0; i < type_stride * _channel->keyframe_count; i++) {
+                        _channel->target_values[i] = *_GetReadPtr();
+                        if(!_SkipData(sizeof(char))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                    }
+                }
                 break;
 
             default:

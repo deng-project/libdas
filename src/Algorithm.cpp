@@ -187,5 +187,25 @@ namespace Libdas {
 
             return out;
         }
+
+
+        std::vector<std::pair<uint32_t, uint32_t>> FindContinuousStorageBlocks(const std::vector<std::pair<uint32_t, uint32_t>> &_blocks) {
+            std::vector<std::pair<uint32_t, uint32_t>> largest;
+
+            uint32_t current_beg = _blocks[0].first;
+            uint32_t current_size = _blocks[0].second;
+
+            for(size_t i = 1; i < _blocks.size(); i++) {
+                if(_blocks[i].first <= current_beg + current_size)
+                    current_size += _blocks[i].second - (current_beg + current_size - _blocks[i].first);
+                else {
+                    largest.push_back(std::make_pair(current_beg, current_size));
+                    current_beg = _blocks[i].first;
+                    current_size = _blocks[i].second;
+                }
+            }
+
+            return largest;
+        }
     }
 }

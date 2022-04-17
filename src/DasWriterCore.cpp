@@ -185,15 +185,6 @@ namespace Libdas {
         if(_primitive.vertex_buffer_offset)
             _WriteNumericalValue<uint32_t>("VERTEXBUFFEROFFSET", _primitive.vertex_buffer_offset);
 
-        if(_primitive.texture_id != UINT32_MAX)
-            _WriteNumericalValue<uint32_t>("TEXTUREID", _primitive.texture_id);
-
-        if(_primitive.uv_buffer_id != UINT32_MAX) {
-            _WriteNumericalValue<uint32_t>("UVBUFFERID", _primitive.uv_buffer_id);
-            if(_primitive.uv_buffer_offset)
-                _WriteNumericalValue<uint32_t>("UVBUFFEROFFSET", _primitive.uv_buffer_offset);
-        }
-
         if(_primitive.vertex_normal_buffer_id != UINT32_MAX) {
             _WriteNumericalValue<uint32_t>("VERTEXNORMALBUFFERID", _primitive.vertex_normal_buffer_id);
             if(_primitive.vertex_normal_buffer_offset)
@@ -206,17 +197,29 @@ namespace Libdas {
                 _WriteNumericalValue<uint32_t>("VERTEXTANGENTBUFFEROFFSET", _primitive.vertex_tangent_buffer_offset);
         }
 
-        if(_primitive.joint_index_buffer_id != UINT32_MAX) {
-            _WriteNumericalValue<uint32_t>("JOINTINDEXBUFFERID", _primitive.joint_index_buffer_id);
-            if(_primitive.joint_index_buffer_offset)
-                _WriteNumericalValue<uint32_t>("JOINTINDEXBUFFEROFFSET", _primitive.joint_index_buffer_offset);
+        if(_primitive.texture_count) {
+            _WriteNumericalValue<uint32_t>("TEXTURECOUNT", _primitive.texture_count);
+            _WriteArrayValue<uint32_t>("UVBUFFERIDS", _primitive.texture_count, _primitive.uv_buffer_ids);
+            _WriteArrayValue<uint32_t>("UVBUFFEROFFSETS", _primitive.texture_count, _primitive.uv_buffer_offsets);
+
+            if(_primitive.texture_ids)
+                _WriteArrayValue<uint32_t>("TEXTUREIDS", _primitive.texture_count, _primitive.texture_ids);
+        }
+        
+        if(_primitive.color_mul_count) {
+            _WriteNumericalValue<uint32_t>("COLORMULCOUNT", _primitive.texture_count);
+            _WriteArrayValue<uint32_t>("COLORMULBUFFERIDS", _primitive.texture_count, _primitive.uv_buffer_ids);
+            _WriteArrayValue<uint32_t>("COLORMULBUFFEROFFSETS", _primitive.texture_count, _primitive.uv_buffer_offsets);
         }
 
-        if(_primitive.weight_buffer_id != UINT32_MAX) {
-            _WriteNumericalValue<uint32_t>("WEIGHTBUFFERID", _primitive.weight_buffer_id);
-            if(_primitive.weight_buffer_offset)
-                _WriteNumericalValue<uint32_t>("WEIGHTBUFFEROFFSET", _primitive.weight_buffer_offset);
+        if(_primitive.joint_set_count) {
+            _WriteNumericalValue<uint32_t>("JOINTSETCOUNT", _primitive.joint_set_count);
+            _WriteArrayValue<uint32_t>("JOINTINDEXBUFFERIDS", _primitive.joint_set_count, _primitive.joint_index_buffer_ids);
+            _WriteArrayValue<uint32_t>("JOINTINDEXBUFFEROFFSETS", _primitive.joint_set_count, _primitive.joint_index_buffer_offsets);
+            _WriteArrayValue<uint32_t>("JOINTWEIGHTBUFFERIDS", _primitive.joint_set_count, _primitive.joint_weight_buffer_ids);
+            _WriteArrayValue<uint32_t>("JOINTWEIGHTBUFFEROFFSETS", _primitive.joint_set_count, _primitive.joint_weight_buffer_offsets);
         }
+        
 
         if(_primitive.morph_target_count) {
             _WriteNumericalValue<uint32_t>("MORPHTARGETCOUNT", _primitive.morph_target_count);
@@ -237,16 +240,28 @@ namespace Libdas {
                 _WriteNumericalValue<uint32_t>("VERTEXBUFFEROFFSET", _morph_target.vertex_buffer_offset);
         }
 
-        if(_morph_target.uv_buffer_id != UINT32_MAX) {
-            _WriteNumericalValue<uint32_t>("UVBUFFERID", _morph_target.uv_buffer_id);
-            if(_morph_target.uv_buffer_offset)
-                _WriteNumericalValue<uint32_t>("UVBUFFEROFFSET", _morph_target.uv_buffer_offset);
+        if(_morph_target.texture_count) {
+            _WriteNumericalValue<uint32_t>("TEXTURECOUNT", _morph_target.texture_count);
+            _WriteArrayValue<uint32_t>("UVBUFFERIDS", _morph_target.texture_count, _morph_target.uv_buffer_ids);
+            _WriteArrayValue<uint32_t>("UVBUFFEROFFSETS", _morph_target.texture_count, _morph_target.uv_buffer_offsets);
+        }
+
+        if(_morph_target.color_mul_count) {
+            _WriteNumericalValue<uint32_t>("COLORMULCOUNT", _morph_target.color_mul_count);
+            _WriteArrayValue<uint32_t>("COLORMULBUFFERIDS", _morph_target.color_mul_count, _morph_target.color_mul_buffer_ids);
+            _WriteArrayValue<uint32_t>("COLORMULBUFFEROFFSETS", _morph_target.color_mul_count, _morph_target.color_mul_buffer_offsets);
         }
 
         if(_morph_target.vertex_normal_buffer_id != UINT32_MAX) {
             _WriteNumericalValue<uint32_t>("VERTEXNORMALBUFFERID", _morph_target.vertex_normal_buffer_id);
             if(_morph_target.vertex_normal_buffer_offset)
                 _WriteNumericalValue<uint32_t>("VERTEXNORMALBUFFEROFFSET", _morph_target.vertex_normal_buffer_offset);
+        }
+
+        if(_morph_target.vertex_tangent_buffer_id != UINT32_MAX) {
+            _WriteNumericalValue<uint32_t>("VERTEXTANGENTBUFFERID", _morph_target.vertex_tangent_buffer_id);
+            if(_morph_target.vertex_normal_buffer_offset)
+                _WriteNumericalValue<uint32_t>("VERTEXTANGENTBUFFEROFFSET", _morph_target.vertex_tangent_buffer_offset);
         }
 
         _EndScope();
@@ -323,15 +338,44 @@ namespace Libdas {
 
     void DasWriterCore::WriteAnimationChannel(const DasAnimationChannel &_channel) {
         _WriteScopeBeginning("ANIMATIONCHANNEL");
-        _WriteNumericalValue<uint32_t>("NODEID", _channel.node_id);
+        if(_channel.node_id != UINT32_MAX)
+            _WriteNumericalValue<uint32_t>("NODEID", _channel.node_id);
+        else if(_channel.joint_id != UINT32_MAX)
+            _WriteNumericalValue<uint32_t>("JOINTID", _channel.joint_id);
         _WriteNumericalValue<AnimationTarget>("TARGET", _channel.target);
         _WriteNumericalValue<InterpolationType>("INTERPOLATION", _channel.interpolation);
         _WriteNumericalValue<uint32_t>("KEYFRAMECOUNT", _channel.keyframe_count);
-        _WriteNumericalValue<uint32_t>("KEYFRAMEBUFFERID", _channel.keyframe_buffer_id);
-        _WriteNumericalValue<uint32_t>("KEYFRAMEBUFFEROFFSET", _channel.keyframe_buffer_offset);
-        _WriteNumericalValue<uint32_t>("TARGETVALUEBUFFERID", _channel.target_value_buffer_id);
-        _WriteNumericalValue<uint32_t>("TARGETVALUEBUFFEROFFSET", _channel.target_value_buffer_offset);
+        if(_channel.weight_count)
+            _WriteNumericalValue<uint32_t>("WEIGHTCOUNT", _channel.weight_count);
+        _WriteArrayValue<float>("KEYFRAMES", _channel.keyframe_count, _channel.keyframes);
 
+        uint32_t type_stride = 0;
+        switch(_channel.target) {
+            case LIBDAS_ANIMATION_TARGET_WEIGHTS:
+                type_stride = static_cast<uint32_t>(sizeof(float)) * _channel.weight_count;
+                break;
+
+            case LIBDAS_ANIMATION_TARGET_TRANSLATION:
+                type_stride = static_cast<uint32_t>(sizeof(Libdas::Vector3<float>));
+                break;
+
+            case LIBDAS_ANIMATION_TARGET_ROTATION:
+                type_stride = static_cast<uint32_t>(sizeof(Libdas::Quaternion));
+                break;
+
+            case LIBDAS_ANIMATION_TARGET_SCALE:
+                type_stride = static_cast<uint32_t>(sizeof(float));
+                break;
+
+            default:
+                LIBDAS_ASSERT(false);
+                break;
+        }
+
+        if(_channel.interpolation == LIBDAS_INTERPOLATION_VALUE_CUBICSPLINE)
+            _WriteArrayValue<char>("TANGENTS", type_stride * 2 * _channel.keyframe_count, _channel.tangents);
+        _WriteArrayValue<char>("TARGETVALUES", type_stride * _channel.keyframe_count, _channel.target_values);
+        
         _EndScope();
     }
 

@@ -395,7 +395,11 @@ void DASTool::_ListDasAnimationChannels(Libdas::DasParser &_parser) {
     for(uint32_t i = 0; i < _parser.GetAnimationChannelCount(); i++) {
         std::cout << std::endl << "-- Animation channel nr " << i << " --" << std::endl;
         const Libdas::DasAnimationChannel &channel = _parser.AccessAnimationChannel(i);
-        std::cout << "Referenced node id: " << channel.node_id << std::endl;
+
+        if(channel.node_id != UINT32_MAX)
+            std::cout << "Referenced node id: " << channel.node_id << std::endl;
+        else if(channel.joint_id != UINT32_MAX)
+            std::cout << "Referenced joint id: " << channel.joint_id << std::endl;
 
         // output information about animation target 
         std::cout << "Animation target: ";

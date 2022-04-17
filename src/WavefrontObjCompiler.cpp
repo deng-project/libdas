@@ -83,8 +83,11 @@ namespace Libdas {
                 primitives.back().vertex_buffer_offset = base_vertex_pos_offset;
 
                 if(_data.groups[i].indices.use_uv) {
-                    primitives.back().uv_buffer_id = buffer_id;
-                    primitives.back().uv_buffer_offset = base_uv_vertex_offset;
+                    primitives.back().texture_count = 1;
+                    primitives.back().uv_buffer_ids = new uint32_t[primitives.back().texture_count];
+                    primitives.back().uv_buffer_offsets = new uint32_t[primitives.back().texture_count];
+                    primitives.back().uv_buffer_ids[0] = buffer_id;
+                    primitives.back().uv_buffer_offsets[0] = base_uv_vertex_offset;
                 } 
 
                 if(_data.groups[i].indices.use_normals) {
@@ -110,7 +113,7 @@ namespace Libdas {
 
         for(auto it = _primitives.begin(); it != _primitives.end(); it++) {
             uint32_t type_mask = 0;
-            if(it->uv_buffer_id != UINT32_MAX)
+            if(it->texture_count)
                 type_mask |= 1;
             if(it->vertex_normal_buffer_id != UINT32_MAX)
                 type_mask |= 2;

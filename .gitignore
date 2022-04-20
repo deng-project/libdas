@@ -3,6 +3,7 @@ tags
 doxygen/
 compile_commands.json
 compile_flags.txt
+scripts/Compile_Test/
 *.o
 *.jpeg
 *.jpg

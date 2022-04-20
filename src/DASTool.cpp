@@ -12,7 +12,6 @@
 
 
 // incomplete method
-
 void DASTool::_ConvertDAS(const std::string &_input_file) {
     std::cerr << "Feature not yet implemented" << std::endl;
     LIBDAS_ASSERT(false);
@@ -320,13 +319,6 @@ void DASTool::_ListDasMeshes(Libdas::DasParser &_parser) {
             std::cout << "-- Vertex buffer id: " << prim.vertex_buffer_id << std::endl;
             std::cout << "-- Vertex buffer offset: " << prim.vertex_buffer_offset << std::endl;
 
-            if(prim.texture_id != UINT32_MAX)
-                std::cout << "-- Texture id: " << prim.texture_id << std::endl;
-            if(prim.uv_buffer_id != UINT32_MAX) {
-                std::cout << "-- Texture map buffer id: " << prim.uv_buffer_id << std::endl;
-                if(prim.uv_buffer_offset)
-                    std::cout << "-- Texture map buffer offset: " << prim.uv_buffer_offset << std::endl;
-            }
             if(prim.vertex_normal_buffer_id != UINT32_MAX) {
                 std::cout << "-- Vertex normal buffer id: " << prim.vertex_normal_buffer_id << std::endl;
                 if(prim.vertex_normal_buffer_offset)
@@ -337,15 +329,78 @@ void DASTool::_ListDasMeshes(Libdas::DasParser &_parser) {
                 if(prim.vertex_tangent_buffer_offset)
                     std::cout << "-- Vertex tangent buffer offset: " << prim.vertex_tangent_buffer_offset << std::endl;
             }
-            if(prim.joint_index_buffer_id != UINT32_MAX) {
-                std::cout << "-- Joint indices buffer id: " << prim.joint_index_buffer_id << std::endl;
-                if(prim.joint_index_buffer_offset)
-                    std::cout << "-- Joint indices buffer offset: " << prim.joint_index_buffer_offset << std::endl;
+
+            // texture data
+            if(prim.texture_count) {
+                std::cout << "-- Texture count: " << prim.texture_count << std::endl;
+                std::cout << "-- UV buffer ids: ";
+                for(uint32_t k = 0; k < prim.texture_count; k++)
+                    std::cout << prim.uv_buffer_ids[k] << " ";
+                std::cout << std::endl;
+
+                std::cout << "-- UV buffer offsets: ";
+                for(uint32_t k = 0; k < prim.texture_count; k++)
+                    std::cout << prim.uv_buffer_offsets[k] << " ";
+                std::cout << std::endl;
+
+                if(prim.texture_ids) {
+                    std::cout << "-- Associated texture ids: ";
+                    for(uint32_t k = 0; k < prim.texture_count; k++)
+                        std::cout << prim.texture_ids[k] << std::endl;
+                }
             }
-            if(prim.weight_buffer_id != UINT32_MAX) {
-                std::cout << "-- Joint weights buffer id: " << prim.weight_buffer_id << std::endl;
-                if(prim.weight_buffer_offset)
-                    std::cout << "-- Joint weights buffer offset: " << prim.weight_buffer_offset << std::endl;
+
+            // color multiplier data
+            if(prim.color_mul_count) {
+                std::cout << "-- Color multiplier count: " << prim.color_mul_count << std::endl;
+                std::cout << "-- Color multiplier buffer ids: ";
+                for(uint32_t k = 0; k < prim.color_mul_count; k++)
+                    std::cout << prim.color_mul_buffer_ids[k] << " ";
+                std::cout << std::endl;
+                
+                std::cout << "-- Color multiplier buffer offsets: ";
+                for(uint32_t k = 0; k < prim.color_mul_count; k++)
+                    std::cout << prim.color_mul_buffer_offsets[k] << " ";
+                std::cout << std::endl;
+            }
+
+            // joint sets data
+            if(prim.joint_set_count) {
+                std::cout << "-- Joint set count: " << prim.joint_set_count << std::endl;
+                std::cout << "-- Joint index buffer ids: ";
+                for(uint32_t k = 0; k < prim.joint_set_count; k++)
+                    std::cout << prim.joint_index_buffer_ids[k] << " ";
+                std::cout << std::endl;
+
+                std::cout << "-- Joint index buffer offsets: ";
+                for(uint32_t k = 0; k < prim.joint_set_count; k++)
+                    std::cout << prim.joint_index_buffer_offsets[k] << " ";
+                std::cout << std::endl;
+
+                std::cout << "-- Joint weight buffer ids: ";
+                for(uint32_t k = 0; k < prim.joint_set_count; k++)
+                    std::cout << prim.joint_weight_buffer_ids[k] << " ";
+                std::cout << std::endl;
+
+                std::cout << "-- Joint weight buffer offsets: ";
+                for(uint32_t k = 0; k < prim.joint_set_count; k++)
+                    std::cout << prim.joint_weight_buffer_offsets[k] << " ";
+                std::cout << std::endl;
+
+            }
+
+            // morph targets
+            if(prim.morph_target_count) {
+                std::cout << "-- Morph target count: " << prim.morph_target_count << std::endl;
+                std::cout << "-- Morph targets: ";
+                for(uint32_t k = 0; k < prim.morph_target_count; k++)
+                    std::cout << prim.morph_targets[k] << " ";
+                std::cout << std::endl;
+
+                std::cout << "-- Morph weights: ";
+                for(uint32_t k = 0; k < prim.morph_target_count; k++)
+                    std::cout << prim.morph_weights[k] << " ";
+                std::cout << std::endl;
             }
         }
     }
@@ -446,13 +501,120 @@ void DASTool::_ListDasAnimationChannels(Libdas::DasParser &_parser) {
         }
         
         std::cout << "Keyframe count: " << channel.keyframe_count << std::endl;
-        std::cout << "Keyframe buffer id: " << channel.keyframe_buffer_id << std::endl;
-        if(channel.keyframe_buffer_offset)
-            std::cout << "Keyframe buffer offset: " << channel.keyframe_buffer_offset << std::endl;
-        std::cout << "Target value buffer id: " << channel.target_value_buffer_id << std::endl;
+        if(channel.weight_count)
+            std::cout << "Morph target weight count: " << channel.weight_count << std::endl;
 
-        if(channel.target_value_buffer_offset)
-            std::cout << "Target value buffer offset: " << channel.target_value_buffer_offset << std::endl;
+        std::cout << "Keyframes: ";
+        for(uint32_t j = 0; j < channel.keyframe_count; j++)
+            std::cout << channel.keyframes[j] << " ";
+        std::cout << std::endl;
+
+        if(channel.interpolation == LIBDAS_INTERPOLATION_VALUE_CUBICSPLINE && channel.tangents) {
+            std::cout << "Keyframe tangents: ";
+            const char *tang = channel.tangents;
+            for(uint32_t j = 0; j < channel.keyframe_count; j++) {
+                switch(channel.target) {
+                    case LIBDAS_ANIMATION_TARGET_WEIGHTS:
+                        {
+                            const float *in = reinterpret_cast<const float*>(tang);
+                            tang += channel.weight_count * sizeof(float);
+                            const float *out = reinterpret_cast<const float*>(tang);
+                            tang += channel.weight_count * sizeof(float);
+
+                            std::cout << "{{ ";
+                            for(uint32_t k = 0; k < channel.weight_count; k++) {
+                                if(k != channel.weight_count - 1)
+                                    std::cout << in[k] << ", ";
+                                else std::cout << in[k] << "}, ";
+                            }
+                            for(uint32_t k = 0; k < channel.weight_count; k++) {
+                                if(k != channel.weight_count - 1)
+                                    std::cout << out[k] << ", ";
+                                else std::cout << out[k] << "}";
+                            }
+                            std::cout << "} ";
+                        }
+                        break;
+
+                    case LIBDAS_ANIMATION_TARGET_TRANSLATION:
+                        {
+                            const Libdas::Vector3<float> *in = reinterpret_cast<const Libdas::Vector3<float>*>(tang);
+                            tang += sizeof(Libdas::Vector3<float>);
+                            const Libdas::Vector3<float> *out = reinterpret_cast<const Libdas::Vector3<float>*>(tang);
+                            tang += sizeof(Libdas::Vector3<float>);
+                            std::cout << "{{ " << in->first << ", " << in->second << ", " << in->third << "}, " <<
+                                         "{" << out->first << ", " << out->second << ", " << out->third << "}} ";
+                        }
+                        break;
+
+                    case LIBDAS_ANIMATION_TARGET_ROTATION:
+                        {
+                            const Libdas::Quaternion *in = reinterpret_cast<const Libdas::Quaternion*>(tang); 
+                            tang += sizeof(Libdas::Quaternion);
+                            const Libdas::Quaternion *out = reinterpret_cast<const Libdas::Quaternion*>(tang);
+                            tang += sizeof(Libdas::Quaternion);
+                            std::cout << "{{ " << in->x << ", " << in->y << ", " << in->z << ", " << in->w << "}, " <<
+                                         "{" << out->x << ", " << out->y << ", " << out->z << ", " << out->w << "}} ";
+                        }
+                        break;
+
+                    case LIBDAS_ANIMATION_TARGET_SCALE:
+                        {
+                            float in = *reinterpret_cast<const float*>(tang);
+                            tang += sizeof(float);
+                            float out = *reinterpret_cast<const float*>(tang);
+                            tang += sizeof(float);
+                            std::cout << "{ " << in << ", " << out << "} ";
+                        }
+                        break;
+                }
+            }
+            std::cout << std::endl;
+        }
+
+        std::cout << "Keyframe values: ";
+        const char *target = channel.target_values;
+        for(uint32_t j = 0; j < channel.keyframe_count; j++) {
+            switch(channel.target) {
+                case LIBDAS_ANIMATION_TARGET_WEIGHTS:
+                    std::cout << "{ ";
+                    for(uint32_t k = 0; k < channel.weight_count; k++) {
+                        float w = *reinterpret_cast<const float*>(target);
+                        target += sizeof(float);
+
+                        if(k != channel.weight_count - 1)
+                            std::cout << w << ", ";
+                        else std::cout << w << " }";
+                    }
+                    std::cout << "} ";
+                    break;
+
+                case LIBDAS_ANIMATION_TARGET_ROTATION:
+                    {
+                        const Libdas::Quaternion *r = reinterpret_cast<const Libdas::Quaternion*>(target);
+                        target += sizeof(Libdas::Quaternion);
+                        std::cout << "{ " << r->x << ", " << r->y << ", " << r->z << ", " << r->w << " } ";
+                    }
+                    break;
+
+                case LIBDAS_ANIMATION_TARGET_TRANSLATION:
+                    {
+                        const Libdas::Vector3<float> *t = reinterpret_cast<const Libdas::Vector3<float>*>(target);
+                        target += sizeof(Libdas::Vector3<float>);
+                        std::cout << "{ " << t->first << ", " << t->second << ", " << t->third << " } ";
+                    }
+                    break;
+
+                case LIBDAS_ANIMATION_TARGET_SCALE:
+                    {
+                        float s = *reinterpret_cast<const float*>(target);
+                        std::cout << s << " " ;
+                    }
+                    break;
+            }
+        }
+
+        std::cout << std::endl;
     }
 }
 

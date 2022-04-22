@@ -145,15 +145,10 @@ namespace Libdas {
         _WriteNumericalValue<BufferType>("BUFFERTYPE", _buffer.type);
         _WriteNumericalValue<uint32_t>("DATALEN", _buffer.data_len);
 
-        for(size_t i = 0; i < _buffer.data_ptrs.size(); i++) {
-            if(!i && i != _buffer.data_ptrs.size() - 1) 
-                _WriteGenericDataValue(_buffer.data_ptrs[i].first, _buffer.data_ptrs[i].second, false, "DATA");
-            else if(!i)
-                _WriteGenericDataValue(_buffer.data_ptrs[i].first, _buffer.data_ptrs[i].second, true, "DATA");
-            else if(i != _buffer.data_ptrs.size() - 1)
-                _WriteGenericDataValue(_buffer.data_ptrs[i].first, _buffer.data_ptrs[i].second, false);
-            else _WriteGenericDataValue(_buffer.data_ptrs[i].first, _buffer.data_ptrs[i].second);
-        }
+        m_out_stream.write("DATA: ", 6);
+        for(auto it = _buffer.data_ptrs.begin(); it != _buffer.data_ptrs.end(); it++)
+            m_out_stream.write(it->first, it->second);
+        m_out_stream.write(LIBDAS_DAS_NEWLINE, strlen(LIBDAS_DAS_NEWLINE));
 
         _EndScope();
     }

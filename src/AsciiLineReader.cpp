@@ -71,7 +71,7 @@ namespace Libdas {
     bool AsciiLineReader::_SkipData(const size_t _skip_val) {
         if(m_buffer + m_buffer_size <= m_rd_ptr + _skip_val) {
             if(_ReadNewChunk()) {
-                m_rd_ptr = m_buffer + (m_rd_ptr + _skip_val - m_buffer + m_buffer_size);
+                m_rd_ptr = m_buffer + (m_rd_ptr + _skip_val - (m_buffer + m_buffer_size));
                 return true;
             }
 

@@ -828,7 +828,7 @@ void DASTool::Convert(const std::string &_input_file, const std::vector<std::str
 
     if(_input_file == "-h" || _input_file == "--help") {
         std::cout << GetHelpText() << std::endl;
-        EXIT_ON_ERROR(0);
+        std::exit(0);
     }
 
     std::string ext = Libdas::Algorithm::ExtractFileExtension(_input_file);

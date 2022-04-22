@@ -79,9 +79,7 @@ namespace Libdas {
 
                 struct less {
                     bool operator()(const BufferAccessorData &_s1, const BufferAccessorData &_s2) {
-                        if(_s1.buffer_offset == _s2.buffer_offset)
-                            return _s1.used_size > _s2.used_size;
-                        else return _s1.buffer_offset < _s2.buffer_offset;
+                        return _s1.buffer_offset < _s2.buffer_offset;
                     }
                 };
 
@@ -132,13 +130,6 @@ namespace Libdas {
             std::vector<uint32_t> m_scene_node_id_table;
             std::vector<uint32_t> m_skeleton_joint_id_table;
 
-            // data extracted from buffer for animation
-            // DATA LAYOUT:
-            //  * input data
-            //  * output data
-            // size is not specified here, refer to GLTFAnimationChannel
-            std::vector<std::vector<char>> m_animation_blobs;
-
             // data for n attribute types
             std::vector<uint32_t> m_texcoord_accessors;
             std::vector<uint32_t> m_colormul_accessors;
@@ -147,7 +138,7 @@ namespace Libdas {
 
         private:
             BufferAccessorData _FindAccessorData(const GLTFRoot &_root, int32_t _accessor_id);
-            void _CorrectOffsets(std::vector<GLTFAccessor*> &_accessors, size_t _diff, size_t _offset);
+            void _CorrectOffsets(std::vector<GLTFAccessor*> &_accessors, uint32_t _diff, size_t _offset);
             size_t _FindPrimitiveCount(const GLTFRoot &_root);
             std::vector<size_t> _FindMeshNodes(const GLTFRoot &_root, size_t _mesh_index); // O(n)
             const std::vector<float> _FindMorphWeightsFromNodes(const GLTFRoot &_root, size_t _mesh_index); // O(n)
@@ -193,6 +184,7 @@ namespace Libdas {
             // region finders
             std::vector<std::vector<GLTFAccessor*>> _GetAllBufferAccessorRegions(GLTFRoot &_root);
             std::vector<std::vector<BufferAccessorData>> _GetBufferIndexRegions(GLTFRoot &_root);
+            std::vector<std::vector<BufferAccessorData>> _GetBufferColorStrideRegions(GLTFRoot &_root);
             std::vector<std::vector<BufferAccessorData>> _GetBufferJointRegions(GLTFRoot &_root);
             std::vector<std::vector<BufferAccessorData>> _GetBufferWeightRegions(GLTFRoot &_root);
             std::vector<std::vector<BufferAccessorData>> _GetAnimationDataRegions(GLTFRoot &_root);
@@ -207,6 +199,7 @@ namespace Libdas {
 
             // supplementing methods
             uint32_t _SupplementIndices(const char *_odata, BufferAccessorData &_suppl_info, DasBuffer &_buffer);
+            uint32_t _SupplementColorStride(const char *_odata, BufferAccessorData &_suppl_info, DasBuffer &_buffer);
             uint32_t _SupplementJointIndices(const char *_odata, BufferAccessorData &_suppl_info, DasBuffer &_buffer);
             uint32_t _SupplementJointWeights(const char *_odata, BufferAccessorData &_suppl_info, DasBuffer &_buffer);
             uint32_t _SupplementAnimationKeyframeData(const char *_odata, BufferAccessorData &_suppl_info, DasBuffer &_buffer);
@@ -317,7 +310,7 @@ namespace Libdas {
              * Create DasAnimationChannel instances from given GLTF animations
              * @param _root specifies a reference to GLTFRoot object
              */
-            std::vector<DasAnimationChannel> _CreateAnimationChannels(const GLTFRoot &_root);
+            std::vector<DasAnimationChannel> _CreateAnimationChannels(const GLTFRoot &_root, const std::vector<DasBuffer> &_buffers);
 
             /**
              * Analyse and create DasAnimation instances from GLTF animations

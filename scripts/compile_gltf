@@ -20,7 +20,7 @@ fi
 
 # For each embedded file
 for f in ${GLTF_PATH}/2.0/**/glTF-Embedded/*.gltf; do
-    dastool convert $f -o $OUTDIR/Embedded/
+    dastool convert "$f" -o $OUTDIR/Embedded/
 
     ## Check if command succeeded
     if [ $? -eq 0 ]; then
@@ -34,7 +34,7 @@ done
 
 # For each non-embedded file
 for f in $GLTF_PATH/2.0/**/glTF/*.gltf; do
-    dastool convert $f -o $OUTDIR/Blobbed/
+    dastool convert "$f" -o $OUTDIR/Blobbed/
 
     ## Check if command succeeded
     if [ $? -eq 0 ]; then

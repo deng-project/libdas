@@ -7,6 +7,10 @@
 #include <GLTFCompiler.h>
 
 
+// There is a fundamental error in buffer striding.
+// Following BufferAccessorDatas do not get their offsets updated whenever Supplementation method is called
+
+
 namespace Libdas {
 
     GLTFCompiler::GLTFCompiler(const std::string &_in_path, const std::string &_out_file, bool _use_raw_textures) : 
@@ -14,7 +18,8 @@ namespace Libdas {
 
     GLTFCompiler::GLTFCompiler(const std::string &_in_path, GLTFRoot &_root, const DasProperties &_props, 
                                const std::string &_out_file, const std::vector<std::string> &_embedded_textures, bool _use_raw_textures) : 
-        m_use_raw_textures(_use_raw_textures), m_root_path(_in_path)
+        m_use_raw_textures(_use_raw_textures), 
+        m_root_path(_in_path)
     {
         Compile(_root, _props, _embedded_textures, _out_file);
     }
@@ -129,6 +134,51 @@ namespace Libdas {
     }
 
 
+    std::vector<std::vector<GLTFCompiler::BufferAccessorData>> GLTFCompiler::_GetBufferColorStrideRegions(GLTFRoot &_root) {
+        std::vector<std::vector<BufferAccessorData>> uv_regions(_root.buffers.size());
+
+        for(auto mesh_it = _root.meshes.begin(); mesh_it != _root.meshes.end(); mesh_it++) {
+            for(auto prim_it = mesh_it->primitives.begin(); prim_it != mesh_it->primitives.end(); prim_it++) {
+                // for each mesh primitive attribute
+                for(auto attr_it = prim_it->attributes.begin(); attr_it != prim_it->attributes.end(); attr_it++) {
+                    const std::string no_nr = Algorithm::RemoveNumbers(attr_it->first);
+                    if(m_attribute_type_map.find(no_nr) == m_attribute_type_map.end()) {
+                        std::cerr << "Invalid vertex attribute '" << attr_it->first << "'" << std::endl;
+                        std::exit(LIBDAS_ERROR_INVALID_KEYWORD);
+                    }
+
+                    if(m_attribute_type_map.find(no_nr)->second == LIBDAS_BUFFER_TYPE_TEXTURE_MAP ||
+                       m_attribute_type_map.find(no_nr)->second == LIBDAS_BUFFER_TYPE_COLOR) {
+                        BufferAccessorData accessor_data = _FindAccessorData(_root, attr_it->second);
+                        if(accessor_data.component_type == KHRONOS_UNSIGNED_BYTE || accessor_data.component_type == KHRONOS_UNSIGNED_SHORT)
+                            uv_regions[accessor_data.buffer_id].push_back(accessor_data);
+                    } 
+                }
+
+                // for each mesh primitive morph target
+                for(auto tar_it = prim_it->targets.begin(); tar_it != prim_it->targets.end(); tar_it++) {
+                    for(auto attr_it = tar_it->begin(); attr_it != tar_it->end(); attr_it++) {
+                        const std::string no_nr = Algorithm::RemoveNumbers(attr_it->first);
+                        if(m_attribute_type_map.find(no_nr) == m_attribute_type_map.end()) {
+                            std::cerr << "Invalid vertex attribute '" << attr_it->first << "'" << std::endl;
+                            std::exit(LIBDAS_ERROR_INVALID_KEYWORD);
+                        }
+
+                        if(m_attribute_type_map.find(no_nr)->second == LIBDAS_BUFFER_TYPE_TEXTURE_MAP ||
+                           m_attribute_type_map.find(no_nr)->second == LIBDAS_BUFFER_TYPE_COLOR) {
+                            BufferAccessorData accessor_data = _FindAccessorData(_root, attr_it->second);
+                            if(accessor_data.component_type == KHRONOS_UNSIGNED_BYTE || accessor_data.component_type == KHRONOS_UNSIGNED_SHORT)
+                                uv_regions[accessor_data.buffer_id].push_back(accessor_data);
+                        }
+                    }
+                }
+            }
+        }
+
+        return uv_regions;
+    }
+
+
     std::vector<std::vector<GLTFCompiler::BufferAccessorData>> GLTFCompiler::_GetBufferJointRegions(GLTFRoot &_root) {
         std::vector<std::vector<BufferAccessorData>> joint_regions(_root.buffers.size());
 
@@ -177,7 +227,6 @@ namespace Libdas {
         // first inner element: keyframe input
         // second inner element: keyframe output
         std::vector<std::vector<GLTFCompiler::BufferAccessorData>> regions;
-        m_animation_blobs.resize(_root.buffers.size());
         regions.resize(_root.buffers.size());
 
         // for each animation
@@ -211,13 +260,13 @@ namespace Libdas {
     }
 
 
-    void GLTFCompiler::_CorrectOffsets(std::vector<GLTFAccessor*> &_accessors, size_t _diff, size_t _offsets) {
+    void GLTFCompiler::_CorrectOffsets(std::vector<GLTFAccessor*> &_accessors, uint32_t _diff, size_t _offsets) {
         for(GLTFAccessor *accessor : _accessors) {
             if(accessor->accumulated_offset <= _offsets)
                 continue;
 
-            accessor->byte_offset += static_cast<uint32_t>(_diff);
-            accessor->accumulated_offset += static_cast<uint32_t>(_diff);
+            accessor->byte_offset += _diff;
+            accessor->accumulated_offset += _diff;
         }
     }
 
@@ -463,6 +512,46 @@ namespace Libdas {
     }
 
 
+    uint32_t GLTFCompiler::_SupplementColorStride(const char *_odata, BufferAccessorData &_suppl_info, DasBuffer &_buffer) {
+        char *buf = nullptr;
+        size_t len = 0;
+        size_t diff = 0;
+
+        switch(_suppl_info.component_type) {
+            case KHRONOS_UNSIGNED_BYTE:
+                len = (static_cast<size_t>(_suppl_info.used_size) / sizeof(unsigned char));
+                buf = new char[len * sizeof(float)];
+                diff = len * sizeof(float) - len * sizeof(unsigned char);
+
+                for(size_t i = 0; i < len; i++) {
+                    unsigned char val = reinterpret_cast<const unsigned char*>(_odata + _suppl_info.buffer_offset)[i];
+                    reinterpret_cast<float*>(buf)[i] = static_cast<float>(val) / 255.0f;
+                }
+                break;
+
+            case KHRONOS_UNSIGNED_SHORT:
+                len = static_cast<size_t>(_suppl_info.used_size) / sizeof(unsigned short);
+                buf = new char[len * sizeof(float)];
+                diff = len * sizeof(float) - len * sizeof(unsigned short);
+
+                for(size_t i = 0; i < len; i++) {
+                    unsigned short val = reinterpret_cast<const unsigned short*>(_odata + _suppl_info.buffer_offset)[i];
+                    reinterpret_cast<float*>(buf)[i] = static_cast<float>(val) / UINT16_MAX;
+                }
+                break;
+
+            default:
+                LIBDAS_ASSERT(false);
+                break;
+        }
+
+        _buffer.data_ptrs.push_back(std::make_pair(buf, len));
+        _buffer.data_len += diff;
+        m_supplemented_buffers.push_back(buf);
+        return static_cast<uint32_t>(diff);
+    }
+
+
     uint32_t GLTFCompiler::_SupplementJointIndices(const char *_odata, BufferAccessorData &_suppl_info, DasBuffer &_buffer) {
         char *buf = nullptr;
         size_t len = 0; // units
@@ -475,16 +564,16 @@ namespace Libdas {
                 diff = len * sizeof(uint16_t) - len * sizeof(unsigned char);
 
                 for(size_t i = 0; i < len; i++)
-                    reinterpret_cast<uint16_t*>(buf)[i] = static_cast<uint32_t>(reinterpret_cast<const unsigned char*>(_odata)[i]);
+                    reinterpret_cast<uint16_t*>(buf)[i] = static_cast<uint16_t>(reinterpret_cast<const unsigned char*>(_odata)[i]);
                 break;
 
             case KHRONOS_UNSIGNED_SHORT:
                 len = (static_cast<size_t>(_suppl_info.used_size) / sizeof(unsigned short));
-                buf = new char[len * sizeof(uint32_t)];
-                diff = len * sizeof(uint32_t) - len * sizeof(unsigned short);
+                buf = new char[len * sizeof(uint16_t)];
+                diff = len * sizeof(uint16_t) - len * sizeof(unsigned short);
 
                 for(size_t i = 0; i < len; i++)
-                    reinterpret_cast<uint32_t*>(buf)[i] = static_cast<uint32_t>(reinterpret_cast<const unsigned short*>(_odata)[i]);
+                    reinterpret_cast<uint16_t*>(buf)[i] = static_cast<uint16_t>(reinterpret_cast<const unsigned short*>(_odata)[i]);
                 break;
 
             default:
@@ -520,7 +609,7 @@ namespace Libdas {
                 diff = len * sizeof(float) - len * sizeof(unsigned short);
 
                 for(size_t i = 0; i < len; i++)
-                    reinterpret_cast<float*>(buf)[i] = static_cast<float>(reinterpret_cast<const unsigned short*>(_odata)[i]) / 65535.0f;
+                    reinterpret_cast<float*>(buf)[i] = static_cast<float>(reinterpret_cast<const unsigned short*>(_odata)[i]) / UINT16_MAX;
                 break;
 
             default:
@@ -537,13 +626,6 @@ namespace Libdas {
 
     uint32_t GLTFCompiler::_SupplementAnimationKeyframeData(const char *_odata, BufferAccessorData &_suppl_info, DasBuffer &_buffer) {
         const uint32_t diff = -_suppl_info.used_size;
-
-        // copy input data
-        m_animation_blobs[_suppl_info.buffer_id].reserve(m_animation_blobs.size() + _suppl_info.used_size);
-        for(size_t i = 0; i < _suppl_info.used_size; i++) {
-            m_animation_blobs[_suppl_info.buffer_id].push_back(_odata[i]);
-        }
-
         _buffer.data_len += diff;
         return diff;
     }
@@ -564,6 +646,7 @@ namespace Libdas {
 
         _buffer.data_ptrs.push_back(std::make_pair(buf, len));
         _buffer.data_len += diff;
+        m_supplemented_buffers.push_back(buf);
 
         return diff;
     }
@@ -584,6 +667,7 @@ namespace Libdas {
 
         _buffer.data_ptrs.push_back(std::make_pair(buf, len));
         _buffer.data_len += diff;
+        m_supplemented_buffers.push_back(buf);
 
         return diff;
     }
@@ -604,6 +688,7 @@ namespace Libdas {
 
         _buffer.data_ptrs.push_back(std::make_pair(buf, len));
         _buffer.data_len += diff;
+        m_supplemented_buffers.push_back(buf);
 
         return diff;
     }
@@ -624,6 +709,7 @@ namespace Libdas {
 
         _buffer.data_ptrs.push_back(std::make_pair(buf, len));
         _buffer.data_len += diff;
+        m_supplemented_buffers.push_back(buf);
 
         return diff;
     }
@@ -644,6 +730,7 @@ namespace Libdas {
 
         _buffer.data_ptrs.push_back(std::make_pair(buf, len));
         _buffer.data_len += diff;
+        m_supplemented_buffers.push_back(buf);
 
         return diff;
     }
@@ -664,6 +751,7 @@ namespace Libdas {
 
         _buffer.data_ptrs.push_back(std::make_pair(buf, len));
         _buffer.data_len += diff;
+        m_supplemented_buffers.push_back(buf);
 
         return diff;
     }
@@ -684,6 +772,7 @@ namespace Libdas {
 
         _buffer.data_ptrs.push_back(std::make_pair(buf, len));
         _buffer.data_len += diff;
+        m_supplemented_buffers.push_back(buf);
 
         return diff;
     }
@@ -717,10 +806,10 @@ namespace Libdas {
         std::vector<char*> prev_suppl = m_supplemented_buffers;
         m_supplemented_buffers.clear();
         bool is_aug = false;
-        uint32_t accumulated_diff = 0;
 
         // for each buffer with index regions, supplement its data
         for(size_t i = 0; i < _regions.size(); i++) {
+            uint32_t accumulated_diff = 0;
             uint32_t olen = _buffers[i].data_len; 
             // sort by offset size
             std::sort(_regions[i].begin(), _regions[i].end(), BufferAccessorData::less());
@@ -800,6 +889,9 @@ namespace Libdas {
 
         std::vector<std::vector<BufferAccessorData>> index_regions(_GetBufferIndexRegions(_root));
         _StrideBuffer(all_regions, index_regions, _buffers, &GLTFCompiler::_SupplementIndices);
+
+        std::vector<std::vector<BufferAccessorData>> color_stride_regions(_GetBufferColorStrideRegions(_root));
+        _StrideBuffer(all_regions, color_stride_regions, _buffers, &GLTFCompiler::_SupplementColorStride);
 
         std::vector<std::vector<BufferAccessorData>> joint_regions(_GetBufferJointRegions(_root));
         _StrideBuffer(all_regions, joint_regions, _buffers, &GLTFCompiler::_SupplementJointIndices);
@@ -1080,10 +1172,10 @@ namespace Libdas {
         for(auto it = _root.meshes.begin(); it != _root.meshes.end(); it++) {
             // for each primitive in mesh
             for(size_t i = 0; i < it->primitives.size(); i++) {
-                const int32_t index_buffer_id = _root.buffer_views[_root.accessors[it->primitives[i].indices].buffer_view].buffer;
-
-                if(it->primitives[i].indices != INT32_MAX)
+                if(it->primitives[i].indices != INT32_MAX) {
+                    int32_t index_buffer_id = _root.buffer_views[_root.accessors[it->primitives[i].indices].buffer_view].buffer;
                     _buffers[index_buffer_id].type |= LIBDAS_BUFFER_TYPE_INDICES;
+                }
 
                 // check into attributes
                 for(auto map_it = it->primitives[i].attributes.begin(); map_it != it->primitives[i].attributes.end(); map_it++) {
@@ -1127,8 +1219,6 @@ namespace Libdas {
             LIBDAS_ASSERT(buffer.data_len == buffer.data_ptrs.back().second);
             buffers.push_back(buffer);
         }
-
-        _StrideBuffers(_root, buffers);
 
         // append images
         for(auto it = _root.images.begin(); it != _root.images.end(); it++) {
@@ -1487,12 +1577,11 @@ namespace Libdas {
     }
 
 
-    std::vector<DasAnimationChannel> GLTFCompiler::_CreateAnimationChannels(const GLTFRoot &_root) {
+    std::vector<DasAnimationChannel> GLTFCompiler::_CreateAnimationChannels(const GLTFRoot &_root, const std::vector<DasBuffer> &_buffers) {
         std::vector<DasAnimationChannel> channels;
 
         // assuming that there are 2 channels for each animation object
         channels.reserve(_root.animations.size() * 2);
-        std::vector<uint32_t> rel_blob_offsets(_root.buffers.size(), 0);
 
         for(auto ani_it = _root.animations.begin(); ani_it != _root.animations.end(); ani_it++) {
             // for each channel in animation
@@ -1547,20 +1636,29 @@ namespace Libdas {
                 // allocate and copy keyframe inputs
                 channel.keyframes = new float[channel.keyframe_count];
                 auto accessor_data = _FindAccessorData(_root, sampler.input);
-                std::memcpy(channel.keyframes, m_animation_blobs[accessor_data.buffer_id].data() + rel_blob_offsets[accessor_data.buffer_id], channel.keyframe_count * sizeof(float));
-                rel_blob_offsets[accessor_data.buffer_id] += channel.keyframe_count * static_cast<uint32_t>(sizeof(float));
+                size_t offset = static_cast<size_t>(accessor_data.buffer_offset);
+                auto ptr = _FindDataPtrFromOffset(_buffers[accessor_data.buffer_id].data_ptrs, offset);
+                std::memcpy(channel.keyframes, ptr->first + offset, channel.keyframe_count * sizeof(float));
 
                 // allocate and copy keyframe outputs
                 accessor_data = _FindAccessorData(_root, sampler.output);
                 channel.target_values = new char[type_stride * channel.keyframe_count];
+
                 if(channel.interpolation == LIBDAS_INTERPOLATION_VALUE_CUBICSPLINE) {
-                    LIBDAS_ASSERT(false);
-                    // cubicspline interpolation requires extraction of tangent values
-                    //channel.tangents = new char[type_stride * 2 * channel.keyframe_count];
-                    //for()
+                    // tangent values need to be extracted
+                    offset = static_cast<size_t>(accessor_data.buffer_offset);
+                    ptr = _FindDataPtrFromOffset(_buffers[accessor_data.buffer_id].data_ptrs, offset);
+
+                    channel.tangents = new char[2 * type_stride * channel.keyframe_count];
+                    for(size_t i = 0; i < channel.keyframe_count; i++) {
+                        std::memcpy(channel.tangents + 2 * i * type_stride, ptr->first + 3 * i * type_stride, type_stride);
+                        std::memcpy(channel.target_values + type_stride * i, ptr->first + (3 * i + 1) * type_stride, type_stride);
+                        std::memcpy(channel.tangents + (2 * i + 1) * type_stride, ptr->first + (3 * i + 2) * type_stride, type_stride);
+                    }
                 } else {
-                    memcpy(channel.target_values, m_animation_blobs[accessor_data.buffer_id].data() + rel_blob_offsets[accessor_data.buffer_id], channel.keyframe_count * type_stride);
-                    rel_blob_offsets[accessor_data.buffer_id] += channel.keyframe_count * type_stride;
+                    offset = static_cast<size_t>(accessor_data.buffer_offset);
+                    ptr = _FindDataPtrFromOffset(_buffers[accessor_data.buffer_id].data_ptrs, offset);
+                    std::memcpy(channel.target_values, ptr->first + offset, channel.keyframe_count * type_stride);
                 }
 
                 channels.emplace_back(std::move(channel));
@@ -1600,6 +1698,9 @@ namespace Libdas {
 
         // write buffers to file
         std::vector<DasBuffer> buffers(_CreateBuffers(_root, _embedded_textures));
+        _FlagJointNodes(_root);
+        std::vector<DasAnimationChannel> channels(_CreateAnimationChannels(_root, buffers));
+        _StrideBuffers(_root, buffers);
         for(auto it = buffers.begin(); it != buffers.end(); it++)
             WriteBuffer(*it);
 
@@ -1617,9 +1718,6 @@ namespace Libdas {
         std::vector<DasMesh> meshes(_CreateMeshes(_root));
         for(auto it = meshes.begin(); it != meshes.end(); it++)
             WriteMesh(*it);
-
-        // flag all skeleton joint nodes
-        _FlagJointNodes(_root);
 
         // write scene nodes to the file
         std::vector<DasNode> nodes(_CreateNodes(_root)); 
@@ -1642,7 +1740,6 @@ namespace Libdas {
             WriteSkeleton(*it);
 
         // write animation channels to file
-        std::vector<DasAnimationChannel> channels(_CreateAnimationChannels(_root));
         for(auto it = channels.begin(); it != channels.end(); it++)
             WriteAnimationChannel(*it);
 

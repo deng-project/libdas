@@ -14,9 +14,11 @@
     #include <cerrno>
     #include <iostream>
 #if defined(_WIN32)
-    #include <Windows.h>
+    #include <direct.h>
+    #define GetCurrentWorkingDir _getcwd
 #elif defined(__linux__)
     #include <unistd.h>
+    #define GetCurrentWorkingDir getcwd
 #endif
 
     #include <Api.h>

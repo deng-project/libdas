@@ -78,7 +78,34 @@ namespace Libdas {
             m_last_read = instances.back() + m_end.size();
             m_stream.seekg(back, std::ios_base::cur);
         }
-        else m_last_read = m_buffer_size;
+        else {
+            // check if any chars of "\nENDSCOPE" are present at the end of buffer
+            std::string endscope_str = "\nENDSCOPE";
+            char e = endscope_str.back();
+
+            size_t offset = m_buffer_size - 1;
+            bool is_partial_match = true;
+            while(endscope_str.size()) {
+                if(m_buffer[offset] == e) {
+                    e = endscope_str.back();
+                    offset--;
+                } else if(offset != m_buffer_size - 1) {
+                    is_partial_match = false;
+                    break;
+                } else {
+                    e = endscope_str.back();
+                }
+                endscope_str.pop_back();
+            }
+
+            if(!is_partial_match)
+                m_last_read = m_buffer_size;
+            else {
+                int64_t back = m_buffer_size - offset - 1;
+                m_last_read = m_buffer_size - back;
+                m_stream.seekg(-back, std::ios_base::cur);
+            }
+        }
         return true;
     }
 

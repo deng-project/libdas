@@ -63,6 +63,8 @@ namespace Libdas {
         m_unique_val_map["TEXTURECOUNT"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_TEXTURE_COUNT;
         m_unique_val_map["TEXTUREIDS"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_TEXTURE_IDS;
         m_unique_val_map["COLORMULCOUNT"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_COLOR_MUL_COUNT;
+        m_unique_val_map["COLORMULBUFFERIDS"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_COLOR_MUL_BUFFER_IDS;
+        m_unique_val_map["COLORMULBUFFEROFFSETS"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_COLOR_MUL_BUFFER_OFFSETS;
         m_unique_val_map["JOINTSETCOUNT"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_JOINT_SET_COUNT;
         m_unique_val_map["JOINTINDEXBUFFERIDS"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_JOINT_INDEX_BUFFER_IDS;
         m_unique_val_map["JOINTINDEXBUFFEROFFSETS"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_JOINT_INDEX_BUFFER_OFFSETS;
@@ -592,6 +594,31 @@ namespace Libdas {
                 }
                 break;
 
+            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_COLOR_MUL_COUNT:
+                _primitive->color_mul_count = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+
+                // allocate enough memory for buffer ids / offsets
+                if(_primitive->color_mul_count) {
+                    _primitive->color_mul_buffer_ids = new uint32_t[_primitive->color_mul_count];
+                    _primitive->color_mul_buffer_offsets = new uint32_t[_primitive->color_mul_count];
+                }
+                break;
+
+            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_COLOR_MUL_BUFFER_IDS:
+                for(uint32_t i = 0; i < _primitive->color_mul_count; i++) {
+                    _primitive->color_mul_buffer_ids[i] = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                    if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                }
+                break;
+
+            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_COLOR_MUL_BUFFER_OFFSETS:
+                for(uint32_t i = 0; i < _primitive->color_mul_count; i++) {
+                    _primitive->color_mul_buffer_offsets[i] = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                    if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                }
+                break;
+
             case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_JOINT_SET_COUNT:
                 _primitive->joint_set_count = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                 if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
@@ -668,8 +695,12 @@ namespace Libdas {
     void DasReaderCore::_ReadMorphTargetValue(DasMorphTarget *_morph_target, DasMorphTarget::ValueType _type) {
         switch(_type) {
             case DasMorphTarget::LIBDAS_MORPH_TARGET_VERTEX_BUFFER_ID:
-                _morph_target->vertex_buffer_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                {
+                    _morph_target->vertex_buffer_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                    if(!_SkipData(sizeof(uint32_t))) {
+                        m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                    }
+                }
                 break;
 
             case DasMorphTarget::LIBDAS_MORPH_TARGET_VERTEX_BUFFER_OFFSET:
@@ -752,8 +783,6 @@ namespace Libdas {
                 break;
 
         }
-
-        if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
     }
 
 
@@ -1296,7 +1325,8 @@ namespace Libdas {
                     m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
                 else if(val_decl == "ENDSCOPE") 
                     break;
-                else m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                else 
+                    m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
             }
                 
             std::any value_info = _GetValueInformation(_type, val_statement);
@@ -1304,7 +1334,7 @@ namespace Libdas {
             // skip the whitespace following the declaration
             _SkipData(1);
 
-            // data is in correct type thus read its value
+            // data is in correct format type thus read its value
             _ReadScopeValueDataCaller(scope, _type, value_info, val_statement);
 
         } while(_GetReadPtr() < m_buffer + m_buffer_size);

@@ -23,27 +23,21 @@ namespace Libdas {
 
 
         std::string RelativePathToAbsolute(const std::string &_rel) {
-            char buf[256] = {};
-            size_t len = sizeof(buf);
+            if(_rel[0] != '/' || _rel.find(":\\\\") == 1) {
+                const size_t len = 512;
+                char buf[len] = {};
+                GetCurrentWorkingDir(buf, len);
+                std::string abs(buf);
+
 #ifdef _WIN32
-            if(_rel.find(":\\") == std::string::npos) {
-                GetModuleFileNameA(NULL, buf, len);
-                return ExtractRootPath(buf) + "\\" + _rel;
-            }
-            
-            return _rel;
-#else 
-            if(_rel[0] != '/') {
-                size_t val = readlink("/proc/self/exe", buf, len);
-                if(val == static_cast<size_t>(-1)) {
-                    std::cerr << "Could not find current executable location errno: " << errno << std::endl;
-                    EXIT_ON_ERROR(errno);
-                }
-                return ExtractRootPath(buf) + "/" + _rel;
+                abs += "\\" + _rel;
+#else
+                abs += "/" + _rel;
+#endif
+                return abs;
             }
 
             return _rel;
-#endif
         }
 
 

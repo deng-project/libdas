@@ -20,8 +20,8 @@
     #include <unordered_map>
     #include <algorithm>
 
-    #include <Hash.h>
     #include <Api.h>
+    #include <Hash.h>
     #include <Points.h>
     #include <Vector.h>
     #include <Matrix.h>

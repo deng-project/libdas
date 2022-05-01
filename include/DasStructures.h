@@ -236,6 +236,11 @@ namespace Libdas {
         uint32_t vertex_buffer_id = UINT32_MAX;
         uint32_t vertex_buffer_offset = 0;
 
+        uint32_t vertex_normal_buffer_id = UINT32_MAX;
+        uint32_t vertex_normal_buffer_offset = UINT32_MAX;
+        uint32_t vertex_tangent_buffer_id = UINT32_MAX;
+        uint32_t vertex_tangent_buffer_offset = 0;
+
         uint32_t texture_count = 0;
         uint32_t *uv_buffer_ids = nullptr;
         uint32_t *uv_buffer_offsets = nullptr;
@@ -243,11 +248,6 @@ namespace Libdas {
         uint32_t color_mul_count = 0;
         uint32_t *color_mul_buffer_ids = nullptr;
         uint32_t *color_mul_buffer_offsets = nullptr;
-
-        uint32_t vertex_normal_buffer_id = UINT32_MAX;
-        uint32_t vertex_normal_buffer_offset = UINT32_MAX;
-        uint32_t vertex_tangent_buffer_id = UINT32_MAX;
-        uint32_t vertex_tangent_buffer_offset = 0;
 
         enum ValueType {
             LIBDAS_MORPH_TARGET_VERTEX_BUFFER_ID,
@@ -420,27 +420,23 @@ namespace Libdas {
 
 
     struct DasAnimationChannel {
-        private:
-            uint32_t m_morph_target_count = 0;
-            
-        public:
-            DasAnimationChannel() = default;
-            DasAnimationChannel(const DasAnimationChannel &_ch);
-            DasAnimationChannel(DasAnimationChannel &&_ch);
-            ~DasAnimationChannel();
+        DasAnimationChannel() = default;
+        DasAnimationChannel(const DasAnimationChannel &_ch);
+        DasAnimationChannel(DasAnimationChannel &&_ch);
+        ~DasAnimationChannel();
 
-            void operator=(const DasAnimationChannel &_ch);
-            void operator=(DasAnimationChannel &&_ch);
+        void operator=(const DasAnimationChannel &_ch);
+        void operator=(DasAnimationChannel &&_ch);
 
-            uint32_t node_id = UINT32_MAX;
-            uint32_t joint_id = UINT32_MAX;
-            AnimationTarget target;
-            InterpolationType interpolation;
-            uint32_t keyframe_count = 0;
-            uint32_t weight_count = 0;
-            float *keyframes = nullptr;
-            char *tangents = nullptr;
-            char *target_values = nullptr;
+        uint32_t node_id = UINT32_MAX;
+        uint32_t joint_id = UINT32_MAX;
+        AnimationTarget target;
+        InterpolationType interpolation;
+        uint32_t keyframe_count = 0;
+        uint32_t weight_count = 0;
+        float *keyframes = nullptr;
+        char *tangents = nullptr;
+        char *target_values = nullptr;
 
         enum ValueType {
             LIBDAS_ANIMATION_CHANNEL_NODE_ID,

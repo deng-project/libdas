@@ -557,12 +557,12 @@ namespace Libdas {
 
     // **** DasAnimationChannel **** //
     DasAnimationChannel::DasAnimationChannel(const DasAnimationChannel &_ch) :
-        m_morph_target_count(_ch.m_morph_target_count),
         node_id(_ch.node_id),
         joint_id(_ch.joint_id),
         target(_ch.target),
         interpolation(_ch.interpolation),
-        keyframe_count(_ch.keyframe_count)
+        keyframe_count(_ch.keyframe_count),
+        weight_count(_ch.weight_count)
     {
         if(keyframe_count) {
             keyframes = new float[keyframe_count];
@@ -572,7 +572,7 @@ namespace Libdas {
             uint32_t type_stride = 0;
             switch(target) {
                 case LIBDAS_ANIMATION_TARGET_WEIGHTS:
-                    type_stride = static_cast<uint32_t>(sizeof(float)) * m_morph_target_count;
+                    type_stride = static_cast<uint32_t>(sizeof(float)) * weight_count;
                     break;
 
                 case LIBDAS_ANIMATION_TARGET_TRANSLATION:
@@ -604,12 +604,12 @@ namespace Libdas {
 
 
     DasAnimationChannel::DasAnimationChannel(DasAnimationChannel &&_ch) :
-        m_morph_target_count(_ch.m_morph_target_count),
         node_id(_ch.node_id),
         joint_id(_ch.joint_id),
         target(_ch.target),
         interpolation(_ch.interpolation),
         keyframe_count(_ch.keyframe_count),
+        weight_count(_ch.weight_count),
         keyframes(_ch.keyframes),
         tangents(_ch.tangents),
         target_values(_ch.target_values)

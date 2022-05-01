@@ -9,6 +9,7 @@
 #ifdef HASH_CPP
     #include <cstddef>
     #include <cstdint>
+    #include <Api.h>
     #define PRIME   0x9E3779B1   
 #endif
 
@@ -22,7 +23,7 @@ namespace Libdas {
     uint32_t HashFunc(char const* _data, size_t _len);
 
     template <class T>
-    struct Hash {
+    struct LIBDAS_API Hash {
         typedef T argument_type;
         typedef uint32_t result_type;
 

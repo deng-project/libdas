@@ -11,13 +11,11 @@
     #include <cstdint>
     #include <cmath>
     #include <climits>
-    #include <LibdasAssert.h>
 
     #include <iostream>
     #include <string>
     #include <vector>
 #endif
-
 #include <LibdasAssert.h>
 
 /// Termination definations

@@ -260,13 +260,12 @@ namespace Libdas {
     }
 
 
-    void GLTFCompiler::_CorrectOffsets(std::vector<GLTFAccessor*> &_accessors, uint32_t _diff, size_t _offsets) {
+    void GLTFCompiler::_CorrectOffsets(std::vector<GLTFAccessor*> &_accessors, uint32_t _diff, size_t _offset) {
         for(GLTFAccessor *accessor : _accessors) {
-            if(accessor->accumulated_offset <= _offsets)
-                continue;
-
-            accessor->byte_offset += _diff;
-            accessor->accumulated_offset += _diff;
+            if(accessor->accumulated_offset > _offset) {
+                accessor->byte_offset += _diff;
+                accessor->accumulated_offset += _diff;
+            } 
         }
     }
 
@@ -567,15 +566,6 @@ namespace Libdas {
                     reinterpret_cast<uint16_t*>(buf)[i] = static_cast<uint16_t>(reinterpret_cast<const unsigned char*>(_odata)[i]);
                 break;
 
-            case KHRONOS_UNSIGNED_SHORT:
-                len = (static_cast<size_t>(_suppl_info.used_size) / sizeof(unsigned short));
-                buf = new char[len * sizeof(uint16_t)];
-                diff = len * sizeof(uint16_t) - len * sizeof(unsigned short);
-
-                for(size_t i = 0; i < len; i++)
-                    reinterpret_cast<uint16_t*>(buf)[i] = static_cast<uint16_t>(reinterpret_cast<const unsigned short*>(_odata)[i]);
-                break;
-
             default:
                 LIBDAS_ASSERT(false);
                 break;
@@ -838,8 +828,11 @@ namespace Libdas {
                     len = 0;
                 }
 
-                // copy the area between two index regions
+                // copy the area between areas
                 else if(_regions[i][j - 1].buffer_offset + _regions[i][j - 1].used_size < _regions[i][j].buffer_offset) {
+                    // check if padding is needed
+                    
+                    if(_regions[i][j - 1].buffer_offset + _regions[i][j - 1].used_size)
                     offset = _regions[i][j - 1].buffer_offset + _regions[i][j - 1].used_size;
                     len = _regions[i][j].buffer_offset - offset;
                     buf = new char[len];
@@ -904,6 +897,29 @@ namespace Libdas {
 
         _GetUnindexedMeshPrimitives(_root);
         _IndexGeometry(_root, all_regions, _buffers);
+    }
+
+
+    void GLTFCompiler::_OmitEmptyBuffers(GLTFRoot &_root, std::vector<DasBuffer> &_buffers) {
+        std::vector<int32_t> buffer_id_offset_table(_buffers.size());
+        std::fill(buffer_id_offset_table.begin(), buffer_id_offset_table.end(), 0);
+
+        // omit unnecessary empty buffers
+        for(size_t i = 0; i < _buffers.size(); i++) {
+            if(!_buffers[i].data_len) {
+                _buffers.erase(_buffers.begin() + i);
+
+                for(size_t j = i; j < _buffers.size(); j++)
+                    buffer_id_offset_table[j]--;
+
+                i--;
+            }
+        }
+
+
+        // change buffer ids
+        for(size_t i = 0; i < _root.buffer_views.size(); i++)
+            _root.buffer_views[i].buffer += buffer_id_offset_table[i];
     }
 
 
@@ -1701,6 +1717,7 @@ namespace Libdas {
         _FlagJointNodes(_root);
         std::vector<DasAnimationChannel> channels(_CreateAnimationChannels(_root, buffers));
         _StrideBuffers(_root, buffers);
+        _OmitEmptyBuffers(_root, buffers);
         for(auto it = buffers.begin(); it != buffers.end(); it++)
             WriteBuffer(*it);
 

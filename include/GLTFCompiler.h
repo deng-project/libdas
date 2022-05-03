@@ -49,6 +49,9 @@ namespace Libdas {
 
     class LIBDAS_API GLTFCompiler : private DasWriterCore {
         private:
+            // bytes that are used for padding
+            const char m_pad[16] = {};
+            
             // images are always appended to the vector after buffers
             size_t m_buffers_size = 0;
             size_t m_images_size = 0;
@@ -220,6 +223,7 @@ namespace Libdas {
             typedef uint32_t (GLTFCompiler::*Supplement_PFN)(const char*, BufferAccessorData&, DasBuffer&);
             void _StrideBuffer(GLTFAccessors &_accessors, BufferAccessorDatas &_regions, std::vector<DasBuffer> &_buffers, Supplement_PFN _suppl_fn);
             void _StrideBuffers(GLTFRoot &_root, std::vector<DasBuffer> &_buffers);
+            void _OmitEmptyBuffers(GLTFRoot &_root, std::vector<DasBuffer> &_buffers);
 
             // indexing methods
             void _WriteIndexedData(GLTFRoot &_root, std::vector<DasBuffer> &_buffers, GenericVertexAttributeAccessors &_gen_acc);

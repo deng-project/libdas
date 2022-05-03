@@ -316,6 +316,7 @@ void DASTool::_ListDasMeshes(Libdas::DasParser &_parser) {
             std::cout << "---- Primitive nr " << j << " ----" << std::endl;
             std::cout << "-- Index buffer id: " << prim.index_buffer_id << std::endl;
             std::cout << "-- Index buffer offset: " << prim.index_buffer_offset << std::endl;
+            std::cout << "-- Indices count: " << prim.indices_count << std::endl;
             std::cout << "-- Vertex buffer id: " << prim.vertex_buffer_id << std::endl;
             std::cout << "-- Vertex buffer offset: " << prim.vertex_buffer_offset << std::endl;
 

@@ -140,8 +140,9 @@ namespace Libdas {
             std::vector<uint32_t> m_weights_accessors;
 
         private:
+            uint32_t _FindKhronosComponentSize(int32_t _component_type);
             BufferAccessorData _FindAccessorData(const GLTFRoot &_root, int32_t _accessor_id);
-            void _CorrectOffsets(std::vector<GLTFAccessor*> &_accessors, uint32_t _diff, size_t _offset);
+            uint32_t _CorrectOffsets(GLTFRoot &_root, std::vector<GLTFAccessor*> &_accessors, uint32_t _diff, size_t _offset, DasBuffer &_buffer);
             size_t _FindPrimitiveCount(const GLTFRoot &_root);
             std::vector<size_t> _FindMeshNodes(const GLTFRoot &_root, size_t _mesh_index); // O(n)
             const std::vector<float> _FindMorphWeightsFromNodes(const GLTFRoot &_root, size_t _mesh_index); // O(n)
@@ -221,7 +222,7 @@ namespace Libdas {
             typedef std::vector<std::vector<GLTFAccessor*>> GLTFAccessors;
             typedef std::vector<std::vector<BufferAccessorData>> BufferAccessorDatas;
             typedef uint32_t (GLTFCompiler::*Supplement_PFN)(const char*, BufferAccessorData&, DasBuffer&);
-            void _StrideBuffer(GLTFAccessors &_accessors, BufferAccessorDatas &_regions, std::vector<DasBuffer> &_buffers, Supplement_PFN _suppl_fn);
+            void _StrideBuffer(GLTFRoot &_root, GLTFAccessors &_accessors, BufferAccessorDatas &_regions, std::vector<DasBuffer> &_buffers, Supplement_PFN _suppl_fn);
             void _StrideBuffers(GLTFRoot &_root, std::vector<DasBuffer> &_buffers);
             void _OmitEmptyBuffers(GLTFRoot &_root, std::vector<DasBuffer> &_buffers);
 

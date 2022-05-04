@@ -30,6 +30,35 @@ namespace Libdas {
     }
 
 
+    uint32_t GLTFCompiler::_FindKhronosComponentSize(int32_t _component_type) {
+        uint32_t component = 0;
+        switch(_component_type) {
+            case KHRONOS_BYTE:
+            case KHRONOS_UNSIGNED_BYTE:
+                component = static_cast<uint32_t>(sizeof(char));
+                break;
+
+            case KHRONOS_SHORT:
+            case KHRONOS_UNSIGNED_SHORT:
+                component = static_cast<uint32_t>(sizeof(short));
+                break;
+
+            case KHRONOS_UNSIGNED_INT:
+                component = static_cast<uint32_t>(sizeof(unsigned int));
+                break;
+
+            case KHRONOS_FLOAT:
+                component = static_cast<uint32_t>(sizeof(float));
+                break;
+
+            default:
+                break;
+        }
+
+        return component;
+    }
+
+
     GLTFCompiler::BufferAccessorData GLTFCompiler::_FindAccessorData(const GLTFRoot &_root, int32_t _accessor_id) {
         GLTFCompiler::BufferAccessorData accessor_data;
         accessor_data.buffer_id = static_cast<uint32_t>(_root.buffer_views[_root.accessors[_accessor_id].buffer_view].buffer);
@@ -42,30 +71,7 @@ namespace Libdas {
         }
 
         // component type being 0 means, that the entire used buffer size calculation is comprimised
-        uint32_t component_mul = 0;
-        switch(_root.accessors[_accessor_id].component_type) {
-            case KHRONOS_BYTE:
-            case KHRONOS_UNSIGNED_BYTE:
-                component_mul = static_cast<uint32_t>(sizeof(char));
-                break;
-
-            case KHRONOS_SHORT:
-            case KHRONOS_UNSIGNED_SHORT:
-                component_mul = static_cast<uint32_t>(sizeof(short));
-                break;
-
-            case KHRONOS_UNSIGNED_INT:
-                component_mul = static_cast<uint32_t>(sizeof(unsigned int));
-                break;
-
-            case KHRONOS_FLOAT:
-                component_mul = static_cast<uint32_t>(sizeof(float));
-                break;
-
-            default:
-                break;
-        }
-
+        uint32_t component_mul = _FindKhronosComponentSize(_root.accessors[_accessor_id].component_type);;
         uint32_t type_mul = 0;
         if(_root.accessors[_accessor_id].type == "SCALAR")
             type_mul = 1;
@@ -260,12 +266,33 @@ namespace Libdas {
     }
 
 
-    void GLTFCompiler::_CorrectOffsets(std::vector<GLTFAccessor*> &_accessors, uint32_t _diff, size_t _offset) {
+    uint32_t GLTFCompiler::_CorrectOffsets(GLTFRoot &_root, std::vector<GLTFAccessor*> &_accessors, uint32_t _diff, size_t _offset, DasBuffer &_buffer) {
+        bool is_prev_unaligned = false;
+        uint32_t accumulated_pad = 0;
         for(GLTFAccessor *accessor : _accessors) {
             if(accessor->accumulated_offset > _offset) {
+                if(is_prev_unaligned) {
+                    const uint32_t id = static_cast<uint32_t>(accessor - _root.accessors.data());
+                    BufferAccessorData accessor_data = _FindAccessorData(_root, id);
+
+                    uint32_t component_size = _FindKhronosComponentSize(accessor_data.component_type);
+
+                    // check if offset alignment is necessary
+                    if((accessor_data.buffer_offset + _diff) % component_size) {
+                        uint32_t pad_size = component_size - ((accessor_data.buffer_offset + _diff) % component_size);
+                        _buffer.data_ptrs.push_back(std::make_pair(m_pad, pad_size));
+                        _buffer.data_len += pad_size;
+                        _diff += pad_size;
+                        accumulated_pad += pad_size;
+                    }
+                }
+
                 accessor->byte_offset += _diff;
                 accessor->accumulated_offset += _diff;
-            } 
+                is_prev_unaligned = false;
+            } else {
+                is_prev_unaligned = true;
+            }
         }
     }
 
@@ -792,7 +819,7 @@ namespace Libdas {
     }
 
 
-    void GLTFCompiler::_StrideBuffer(GLTFCompiler::GLTFAccessors &_accessors, GLTFCompiler::BufferAccessorDatas &_regions, std::vector<DasBuffer> &_buffers, Supplement_PFN _suppl_fn) {
+    void GLTFCompiler::_StrideBuffer(GLTFRoot &_root, GLTFCompiler::GLTFAccessors &_accessors, GLTFCompiler::BufferAccessorDatas &_regions, std::vector<DasBuffer> &_buffers, Supplement_PFN _suppl_fn) {
         std::vector<char*> prev_suppl = m_supplemented_buffers;
         m_supplemented_buffers.clear();
         bool is_aug = false;
@@ -830,9 +857,6 @@ namespace Libdas {
 
                 // copy the area between areas
                 else if(_regions[i][j - 1].buffer_offset + _regions[i][j - 1].used_size < _regions[i][j].buffer_offset) {
-                    // check if padding is needed
-                    
-                    if(_regions[i][j - 1].buffer_offset + _regions[i][j - 1].used_size)
                     offset = _regions[i][j - 1].buffer_offset + _regions[i][j - 1].used_size;
                     len = _regions[i][j].buffer_offset - offset;
                     buf = new char[len];
@@ -853,7 +877,7 @@ namespace Libdas {
                 _regions[i][j].buffer_offset = old_offset;
 
                 // correct changed offsets
-                _CorrectOffsets(_accessors[_regions[i][j].buffer_id], diff, _regions[i][j].buffer_offset + accumulated_diff);
+                diff += _CorrectOffsets(_root, _accessors[_regions[i][j].buffer_id], diff, _regions[i][j].buffer_offset + accumulated_diff, _buffers[i]);
                 accumulated_diff += diff;
 
                 // copy the area between last element and the end of the buffer
@@ -881,19 +905,19 @@ namespace Libdas {
         std::vector<std::vector<GLTFAccessor*>> all_regions(_GetAllBufferAccessorRegions(_root));
 
         std::vector<std::vector<BufferAccessorData>> index_regions(_GetBufferIndexRegions(_root));
-        _StrideBuffer(all_regions, index_regions, _buffers, &GLTFCompiler::_SupplementIndices);
+        _StrideBuffer(_root, all_regions, index_regions, _buffers, &GLTFCompiler::_SupplementIndices);
 
         std::vector<std::vector<BufferAccessorData>> color_stride_regions(_GetBufferColorStrideRegions(_root));
-        _StrideBuffer(all_regions, color_stride_regions, _buffers, &GLTFCompiler::_SupplementColorStride);
+        _StrideBuffer(_root, all_regions, color_stride_regions, _buffers, &GLTFCompiler::_SupplementColorStride);
 
         std::vector<std::vector<BufferAccessorData>> joint_regions(_GetBufferJointRegions(_root));
-        _StrideBuffer(all_regions, joint_regions, _buffers, &GLTFCompiler::_SupplementJointIndices);
+        _StrideBuffer(_root, all_regions, joint_regions, _buffers, &GLTFCompiler::_SupplementJointIndices);
 
         std::vector<std::vector<BufferAccessorData>> joint_weight_regions(_GetBufferJointRegions(_root));
-        _StrideBuffer(all_regions, joint_weight_regions, _buffers, &GLTFCompiler::_SupplementJointWeights);
+        _StrideBuffer(_root, all_regions, joint_weight_regions, _buffers, &GLTFCompiler::_SupplementJointWeights);
 
         std::vector<std::vector<BufferAccessorData>> animation_regions(_GetAnimationDataRegions(_root));
-        _StrideBuffer(all_regions, animation_regions, _buffers, &GLTFCompiler::_SupplementAnimationKeyframeData);
+        _StrideBuffer(_root, all_regions, animation_regions, _buffers, &GLTFCompiler::_SupplementAnimationKeyframeData);
 
         _GetUnindexedMeshPrimitives(_root);
         _IndexGeometry(_root, all_regions, _buffers);
@@ -929,48 +953,48 @@ namespace Libdas {
         
         // push position accessor
         indexed_regions[_gen_acc.pos_accessor.buffer_id].push_back(_gen_acc.pos_accessor);
-        _StrideBuffer(all_regions, indexed_regions, _buffers, &GLTFCompiler::_SupplementPositionVertices);
+        _StrideBuffer(_root, all_regions, indexed_regions, _buffers, &GLTFCompiler::_SupplementPositionVertices);
         indexed_regions[_gen_acc.pos_accessor.buffer_id].clear();
 
         // push vertex normal accessor
         if(_gen_acc.normal_accessor.buffer_id != UINT32_MAX) {
             indexed_regions[_gen_acc.normal_accessor.buffer_id].push_back(_gen_acc.normal_accessor);
-            _StrideBuffer(all_regions, indexed_regions, _buffers, &GLTFCompiler::_SupplementVertexNormals);
+            _StrideBuffer(_root, all_regions, indexed_regions, _buffers, &GLTFCompiler::_SupplementVertexNormals);
             indexed_regions[_gen_acc.normal_accessor.buffer_id].clear();
         }
 
         // push vertex tangent accessor
         if(_gen_acc.tangent_accessor.buffer_id != UINT32_MAX) {
             indexed_regions[_gen_acc.tangent_accessor.buffer_id].push_back(_gen_acc.tangent_accessor);
-            _StrideBuffer(all_regions, indexed_regions, _buffers, &GLTFCompiler::_SupplementVertexTangents);
+            _StrideBuffer(_root, all_regions, indexed_regions, _buffers, &GLTFCompiler::_SupplementVertexTangents);
             indexed_regions[_gen_acc.tangent_accessor.buffer_id].clear();
         }
 
         // push uv accessors
         for(auto it = _gen_acc.uv_accessors.begin(); it != _gen_acc.uv_accessors.end(); it++)
             indexed_regions[it->buffer_id].push_back(*it);
-        _StrideBuffer(all_regions, indexed_regions, _buffers, &GLTFCompiler::_SupplementUVVertices);
+        _StrideBuffer(_root, all_regions, indexed_regions, _buffers, &GLTFCompiler::_SupplementUVVertices);
         indexed_regions.clear();
         indexed_regions.resize(_root.buffers.size());
 
         // push color accessors
         for(auto it = _gen_acc.color_mul_accessors.begin(); it != _gen_acc.color_mul_accessors.end(); it++)
             indexed_regions[it->buffer_id].push_back(*it);
-        _StrideBuffer(all_regions, indexed_regions, _buffers, &GLTFCompiler::_SupplementColorVertices);
+        _StrideBuffer(_root, all_regions, indexed_regions, _buffers, &GLTFCompiler::_SupplementColorVertices);
         indexed_regions.clear();
         indexed_regions.resize(_root.buffers.size());
 
         // push joints accessors
         for(auto it = _gen_acc.joints_accessors.begin(); it != _gen_acc.joints_accessors.end(); it++)
             indexed_regions[it->buffer_id].push_back(*it);
-        _StrideBuffer(all_regions, indexed_regions, _buffers, &GLTFCompiler::_SupplementJointsVertices);
+        _StrideBuffer(_root, all_regions, indexed_regions, _buffers, &GLTFCompiler::_SupplementJointsVertices);
         indexed_regions.clear();
         indexed_regions.resize(_root.buffers.size());
 
         // push weights accessors
         for(auto it = _gen_acc.weights_accessors.begin(); it != _gen_acc.weights_accessors.end(); it++)
             indexed_regions[it->buffer_id].push_back(*it);
-        _StrideBuffer(all_regions, indexed_regions, _buffers, &GLTFCompiler::_SupplementWeightsVertices);
+        _StrideBuffer(_root, all_regions, indexed_regions, _buffers, &GLTFCompiler::_SupplementWeightsVertices);
         indexed_regions.clear();
         indexed_regions.resize(_root.buffers.size());
 

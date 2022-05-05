@@ -893,9 +893,14 @@ namespace Libdas {
                 _skeleton->name = _ExtractString();
                 break;
 
+            case DasSkeleton::LIBDAS_SKELETON_PARENT:
+                _skeleton->parent = *reinterpret_cast<uint32_t*>(_GetReadPtr());
+                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                break;
+
             case DasSkeleton::LIBDAS_SKELETON_JOINT_COUNT:
                 _skeleton->joint_count = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                _SkipData(sizeof(uint32_t));
+                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
 
                 // allocate memory for skeletons
                 _skeleton->joints = new uint32_t[_skeleton->joint_count];

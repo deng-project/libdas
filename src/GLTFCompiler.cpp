@@ -294,6 +294,8 @@ namespace Libdas {
                 is_prev_unaligned = true;
             }
         }
+
+        return accumulated_pad;
     }
 
 
@@ -533,7 +535,7 @@ namespace Libdas {
 
         _buffer.data_ptrs.push_back(std::make_pair(reinterpret_cast<const char*>(buf), len * sizeof(uint32_t)));
         _buffer.data_len += static_cast<uint32_t>(diff);
-        m_supplemented_buffers.push_back(buf);
+        m_supplemented_buffers[_suppl_info.buffer_id].push_back(buf);
         return static_cast<uint32_t>(diff);
     }
 
@@ -573,7 +575,7 @@ namespace Libdas {
 
         _buffer.data_ptrs.push_back(std::make_pair(buf, len));
         _buffer.data_len += diff;
-        m_supplemented_buffers.push_back(buf);
+        m_supplemented_buffers[_suppl_info.buffer_id].push_back(buf);
         return static_cast<uint32_t>(diff);
     }
 
@@ -600,7 +602,7 @@ namespace Libdas {
 
         _buffer.data_ptrs.push_back(std::make_pair(reinterpret_cast<const char*>(buf), len * sizeof(uint32_t)));
         _buffer.data_len += static_cast<uint32_t>(diff);
-        m_supplemented_buffers.push_back(buf);
+        m_supplemented_buffers[_suppl_info.buffer_id].push_back(buf);
         return static_cast<uint32_t>(diff);
     }
 
@@ -636,7 +638,7 @@ namespace Libdas {
 
         _buffer.data_ptrs.push_back(std::make_pair(reinterpret_cast<const char*>(buf), len * sizeof(float)));
         _buffer.data_len += static_cast<uint32_t>(diff);
-        m_supplemented_buffers.push_back(buf);
+        m_supplemented_buffers[_suppl_info.buffer_id].push_back(buf);
         return diff;
     }
 
@@ -663,7 +665,7 @@ namespace Libdas {
 
         _buffer.data_ptrs.push_back(std::make_pair(buf, len));
         _buffer.data_len += diff;
-        m_supplemented_buffers.push_back(buf);
+        m_supplemented_buffers[_suppl_info.buffer_id].push_back(buf);
 
         return diff;
     }
@@ -684,7 +686,7 @@ namespace Libdas {
 
         _buffer.data_ptrs.push_back(std::make_pair(buf, len));
         _buffer.data_len += diff;
-        m_supplemented_buffers.push_back(buf);
+        m_supplemented_buffers[_suppl_info.buffer_id].push_back(buf);
 
         return diff;
     }
@@ -705,7 +707,7 @@ namespace Libdas {
 
         _buffer.data_ptrs.push_back(std::make_pair(buf, len));
         _buffer.data_len += diff;
-        m_supplemented_buffers.push_back(buf);
+        m_supplemented_buffers[_suppl_info.buffer_id].push_back(buf);
 
         return diff;
     }
@@ -726,7 +728,7 @@ namespace Libdas {
 
         _buffer.data_ptrs.push_back(std::make_pair(buf, len));
         _buffer.data_len += diff;
-        m_supplemented_buffers.push_back(buf);
+        m_supplemented_buffers[_suppl_info.buffer_id].push_back(buf);
 
         return diff;
     }
@@ -747,7 +749,7 @@ namespace Libdas {
 
         _buffer.data_ptrs.push_back(std::make_pair(buf, len));
         _buffer.data_len += diff;
-        m_supplemented_buffers.push_back(buf);
+        m_supplemented_buffers[_suppl_info.buffer_id].push_back(buf);
 
         return diff;
     }
@@ -768,7 +770,7 @@ namespace Libdas {
 
         _buffer.data_ptrs.push_back(std::make_pair(buf, len));
         _buffer.data_len += diff;
-        m_supplemented_buffers.push_back(buf);
+        m_supplemented_buffers[_suppl_info.buffer_id].push_back(buf);
 
         return diff;
     }
@@ -789,13 +791,13 @@ namespace Libdas {
 
         _buffer.data_ptrs.push_back(std::make_pair(buf, len));
         _buffer.data_len += diff;
-        m_supplemented_buffers.push_back(buf);
+        m_supplemented_buffers[_suppl_info.buffer_id].push_back(buf);
 
         return diff;
     }
 
 
-    void GLTFCompiler::_CopyToBuffer(const std::vector<std::pair<const char*, size_t>> &_optrs, char *_dst, size_t _len, size_t _offset, DasBuffer &_buffer) {
+    void GLTFCompiler::_CopyToBuffer(const std::vector<std::pair<const char*, size_t>> &_optrs, char *_dst, size_t _len, size_t _offset, DasBuffer &_buffer, uint32_t _buffer_id) {
         auto it = _FindDataPtrFromOffset(_optrs, _offset);
         size_t orig_len = _len;
         size_t dst_offset = 0;
@@ -815,13 +817,12 @@ namespace Libdas {
         }
 
         _buffer.data_ptrs.push_back(std::make_pair(_dst, orig_len));
-        m_supplemented_buffers.push_back(_dst);
+        m_supplemented_buffers[_buffer_id].push_back(_dst);
     }
 
 
     void GLTFCompiler::_StrideBuffer(GLTFRoot &_root, GLTFCompiler::GLTFAccessors &_accessors, GLTFCompiler::BufferAccessorDatas &_regions, std::vector<DasBuffer> &_buffers, Supplement_PFN _suppl_fn) {
-        std::vector<char*> prev_suppl = m_supplemented_buffers;
-        m_supplemented_buffers.clear();
+        std::vector<std::vector<char*>> prev_suppl(_buffers.size());
         bool is_aug = false;
 
         // for each buffer with index regions, supplement its data
@@ -835,6 +836,8 @@ namespace Libdas {
             if(!_regions[i].size())
                 continue;
 
+            prev_suppl[i] = m_supplemented_buffers[i];
+            m_supplemented_buffers[i].clear();
             std::vector<std::pair<const char*, size_t>> optrs = _buffers[i].data_ptrs;
             _buffers[i].data_ptrs.clear();
 
@@ -850,7 +853,7 @@ namespace Libdas {
                     buf = new char[len];
                     offset = 0;
 
-                    _CopyToBuffer(optrs, buf, len, offset, _buffers[i]);
+                    _CopyToBuffer(optrs, buf, len, offset, _buffers[i], i);
                     buf = nullptr;
                     len = 0;
                 }
@@ -861,7 +864,7 @@ namespace Libdas {
                     len = _regions[i][j].buffer_offset - offset;
                     buf = new char[len];
 
-                    _CopyToBuffer(optrs, buf, len, offset, _buffers[i]);
+                    _CopyToBuffer(optrs, buf, len, offset, _buffers[i], i);
                     buf = nullptr;
                     len = 0;
                     offset = 0;
@@ -886,7 +889,7 @@ namespace Libdas {
                     len = olen - offset;
                     buf = new char[len];
 
-                    _CopyToBuffer(optrs, buf, len, offset, _buffers[i]);
+                    _CopyToBuffer(optrs, buf, len, offset, _buffers[i], i);
                     buf = nullptr;
                     len = 0;
                     offset = 0;
@@ -895,7 +898,6 @@ namespace Libdas {
         }
 
         if(is_aug) _FreeSupplementedBuffers(prev_suppl);
-        else m_supplemented_buffers = prev_suppl;
     }
 
 
@@ -903,6 +905,7 @@ namespace Libdas {
     // right now only supplementation is done
     void GLTFCompiler::_StrideBuffers(GLTFRoot &_root, std::vector<DasBuffer> &_buffers) {
         std::vector<std::vector<GLTFAccessor*>> all_regions(_GetAllBufferAccessorRegions(_root));
+        m_supplemented_buffers.resize(_buffers.size());
 
         std::vector<std::vector<BufferAccessorData>> index_regions(_GetBufferIndexRegions(_root));
         _StrideBuffer(_root, all_regions, index_regions, _buffers, &GLTFCompiler::_SupplementIndices);
@@ -1187,9 +1190,12 @@ namespace Libdas {
     }
 
     
-    void GLTFCompiler::_FreeSupplementedBuffers(std::vector<char*> _mem_areas) {
-        for(auto it = _mem_areas.begin(); it != _mem_areas.end(); it++)
-            delete [] *it;
+    void GLTFCompiler::_FreeSupplementedBuffers(std::vector<std::vector<char*>> _mem_areas) {
+        for(auto buf_it = _mem_areas.begin(); buf_it != _mem_areas.end(); buf_it++) {
+            for(auto mem_it = buf_it->begin(); mem_it != buf_it->end(); mem_it++) {
+                delete [] *mem_it;
+            }
+        }
 
         _mem_areas.clear();
     }
@@ -1233,18 +1239,6 @@ namespace Libdas {
     }
 
 
-    void GLTFCompiler::_FlagBuffersAccordingToAnimations(const GLTFRoot &_root, std::vector<DasBuffer> &_buffers) {
-        for(auto it = _root.animations.begin(); it != _root.animations.end(); it++) {
-            for(size_t i = 0; i < it->samplers.size(); i++) {
-                const int32_t input = _root.buffer_views[_root.accessors[it->samplers[i].input].buffer_view].buffer;
-                const int32_t output = _root.buffer_views[_root.accessors[it->samplers[i].output].buffer_view].buffer;
-                _buffers[input].type |= LIBDAS_BUFFER_TYPE_TIMESTAMPS;
-                _buffers[output].type |= LIBDAS_BUFFER_TYPE_KEYFRAME;
-            }
-        }
-    }
-
-
     std::vector<DasBuffer> GLTFCompiler::_CreateBuffers(GLTFRoot &_root, const std::vector<std::string> &_embedded_textures) {
         std::vector<DasBuffer> buffers;
 
@@ -1278,7 +1272,6 @@ namespace Libdas {
 
         AppendTextures(buffers, _embedded_textures);
         _FlagBuffersAccordingToMeshes(_root, buffers);
-        _FlagBuffersAccordingToAnimations(_root, buffers);
 
         return buffers;
     }

@@ -309,6 +309,7 @@ namespace Libdas {
     void DasWriterCore::WriteSkeleton(const DasSkeleton &_skeleton) {
         _WriteScopeBeginning("SKELETON");
         if(_skeleton.name != "") _WriteStringValue("NAME", _skeleton.name);
+        _WriteNumericalValue<uint32_t>("PARENT", _skeleton.parent);
         _WriteNumericalValue<uint32_t>("JOINTCOUNT", _skeleton.joint_count);
         _WriteArrayValue<uint32_t>("JOINTS", _skeleton.joint_count, _skeleton.joints);
 

@@ -60,7 +60,7 @@ namespace Libdas {
 
             // buffer related
             std::vector<URIResolver> m_uri_resolvers;
-            std::vector<char*> m_supplemented_buffers; // cleanup bookmarking
+            std::vector<std::vector<char*>> m_supplemented_buffers; // cleanup bookmarking
             std::vector<TextureReader> m_tex_readers;
 
             const std::unordered_map<std::string, BufferType> m_attribute_type_map = {
@@ -216,7 +216,7 @@ namespace Libdas {
             uint32_t _SupplementJointsVertices(const char *_odata, BufferAccessorData &_suppl_info, DasBuffer &_buffer);
             uint32_t _SupplementWeightsVertices(const char *_odata, BufferAccessorData &_suppl_info, DasBuffer &_buffer);
 
-            void _CopyToBuffer(const std::vector<std::pair<const char*, size_t>> &_optrs, char *_dst, size_t _len, size_t _offset, DasBuffer &_buffer);
+            void _CopyToBuffer(const std::vector<std::pair<const char*, size_t>> &_optrs, char *_dst, size_t _len, size_t _offset, DasBuffer &_buffer, uint32_t _buffer_id);
 
             // striding methods
             typedef std::vector<std::vector<GLTFAccessor*>> GLTFAccessors;
@@ -234,7 +234,7 @@ namespace Libdas {
             void _CreateNewIndexRegion(GLTFRoot &_root, std::vector<GLTFAccessor*> &_accessors, GLTFMeshPrimitive &_prim, DasBuffer &_buffer);
 
 
-            void _FreeSupplementedBuffers(std::vector<char*> _mem_areas);
+            void _FreeSupplementedBuffers(std::vector<std::vector<char*>> _mem_areas);
 
             /**
              * Check if any properties are empty and if they are, supplement values from GLTFRoot::asset into it
@@ -249,13 +249,6 @@ namespace Libdas {
              * @param _buffers specifies a reference to std::vector object, containing all generated buffer instances
              */
             void _FlagBuffersAccordingToMeshes(const GLTFRoot &_root, std::vector<DasBuffer> &_buffers);
-
-            /**
-             * Give buffers appropriate flags according to animations
-             * @param _root specifies a reference to GLTFRoot object
-             * @param _buffers specifies a reference to std::vector object, containing all generated buffer instances
-             */
-            void _FlagBuffersAccordingToAnimations(const GLTFRoot &_root, std::vector<DasBuffer> &_buffers);
 
             /**
              * Create all buffer objects from given root node

@@ -245,10 +245,6 @@ void DASTool::_ListDasBuffers(Libdas::DasParser &_parser) {
             types += " bmp";
         if((_parser.AccessBuffer(i).type & LIBDAS_BUFFER_TYPE_TEXTURE_RAW) == LIBDAS_BUFFER_TYPE_TEXTURE_RAW)
             types += " textureraw";
-        if((_parser.AccessBuffer(i).type & LIBDAS_BUFFER_TYPE_KEYFRAME) == LIBDAS_BUFFER_TYPE_KEYFRAME)
-            types += " keyframe";
-        if((_parser.AccessBuffer(i).type & LIBDAS_BUFFER_TYPE_TIMESTAMPS) == LIBDAS_BUFFER_TYPE_TIMESTAMPS)
-            types += " timestamps";
 
         std::cout << "Buffer types:" << types << std::endl;
         std::cout << "Data length: " << _parser.AccessBuffer(i).data_len << std::endl;
@@ -413,6 +409,7 @@ void DASTool::_ListDasSkeletons(Libdas::DasParser &_parser) {
         std::cout << std::endl << "-- Skeleton nr " << i << " --" << std::endl;
         const Libdas::DasSkeleton &skeleton = _parser.AccessSkeleton(i);
         if(skeleton.name != "") std::cout << "Name: " << skeleton.name << std::endl;
+        std::cout << "Parent: " << skeleton.parent << std::endl;
         std::cout << "Joint count: " << skeleton.joint_count << std::endl;
 
         std::cout << "Joints: ";

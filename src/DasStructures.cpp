@@ -260,12 +260,12 @@ namespace Libdas {
     DasMorphTarget::DasMorphTarget(const DasMorphTarget &_morph) :
         vertex_buffer_id(_morph.vertex_buffer_id),
         vertex_buffer_offset(_morph.vertex_buffer_offset),
-        texture_count(_morph.texture_count),
-        color_mul_count(_morph.color_mul_count),
         vertex_normal_buffer_id(_morph.vertex_normal_buffer_id),
         vertex_normal_buffer_offset(_morph.vertex_normal_buffer_offset),
         vertex_tangent_buffer_id(_morph.vertex_tangent_buffer_id),
-        vertex_tangent_buffer_offset(_morph.vertex_tangent_buffer_offset)
+        vertex_tangent_buffer_offset(_morph.vertex_tangent_buffer_offset),
+        texture_count(_morph.texture_count),
+        color_mul_count(_morph.color_mul_count)
     {
         // copy texture data
         if(texture_count) {
@@ -294,16 +294,16 @@ namespace Libdas {
     DasMorphTarget::DasMorphTarget(DasMorphTarget &&_morph) :
         vertex_buffer_id(_morph.vertex_buffer_id),
         vertex_buffer_offset(_morph.vertex_buffer_offset),
+        vertex_normal_buffer_id(_morph.vertex_normal_buffer_id),
+        vertex_normal_buffer_offset(_morph.vertex_normal_buffer_offset),
+        vertex_tangent_buffer_id(_morph.vertex_tangent_buffer_id),
+        vertex_tangent_buffer_offset(_morph.vertex_tangent_buffer_offset),
         texture_count(_morph.texture_count),
         uv_buffer_ids(_morph.uv_buffer_ids),
         uv_buffer_offsets(_morph.uv_buffer_offsets),
         color_mul_count(_morph.color_mul_count),
         color_mul_buffer_ids(_morph.color_mul_buffer_ids),
-        color_mul_buffer_offsets(_morph.color_mul_buffer_offsets),
-        vertex_normal_buffer_id(_morph.vertex_normal_buffer_id),
-        vertex_normal_buffer_offset(_morph.vertex_normal_buffer_offset),
-        vertex_tangent_buffer_id(_morph.vertex_tangent_buffer_id),
-        vertex_tangent_buffer_offset(_morph.vertex_tangent_buffer_offset)
+        color_mul_buffer_offsets(_morph.color_mul_buffer_offsets)
     {
         _morph.uv_buffer_ids = nullptr;
         _morph.uv_buffer_offsets = nullptr;
@@ -432,6 +432,7 @@ namespace Libdas {
     // **** DasSkeleton **** //
     DasSkeleton::DasSkeleton(const DasSkeleton &_skel) : 
         name(_skel.name), 
+        parent(_skel.parent),
         joint_count(_skel.joint_count) 
     {
         if(_skel.joint_count) {
@@ -444,6 +445,7 @@ namespace Libdas {
 
     DasSkeleton::DasSkeleton(DasSkeleton &&_skel) : 
         name(std::move(_skel.name)), 
+        parent(_skel.parent),
         joint_count(_skel.joint_count), 
         joints(_skel.joints) 
     {

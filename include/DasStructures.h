@@ -43,8 +43,6 @@ typedef uint16_t BufferType;
 #define LIBDAS_BUFFER_TYPE_TEXTURE_BMP              0x0800
 #define LIBDAS_BUFFER_TYPE_TEXTURE_PPM              0x1000
 #define LIBDAS_BUFFER_TYPE_TEXTURE_RAW              0x2000
-#define LIBDAS_BUFFER_TYPE_KEYFRAME                 0x4000  // can be either morph target keyframe or skinned animation keyframe
-#define LIBDAS_BUFFER_TYPE_TIMESTAMPS               0x8000  // used only for identifying timestamp buffers from GLTF format parsing
 
 
 /// Animation interpolation technique definitions 

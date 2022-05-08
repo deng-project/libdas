@@ -126,6 +126,8 @@ class DASTool {
         void _ListDasProperties(const Libdas::DasProperties &_props);
         void _ListDasBuffers(Libdas::DasParser &_parser);
         void _ListDasMeshes(Libdas::DasParser &_parser);
+        void _ListDasMeshPrimitive(Libdas::DasParser &_parser, uint32_t _rel_id, uint32_t _id); // called from _ListDasMeshes()
+        void _ListDasMorphTarget(Libdas::DasParser &_parser, uint32_t _rel_id, uint32_t _id);   // called from _ListDasMeshPrimitive()
         void _ListDasSkeletons(Libdas::DasParser &_parser);
         void _ListDasSkeletonJoints(Libdas::DasParser &_parser);
         void _ListDasScenes(Libdas::DasParser &_parser);

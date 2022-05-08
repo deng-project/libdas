@@ -203,7 +203,7 @@ namespace Libdas {
         int32_t buffer;                                 // required
         uint32_t byte_offset = 0;                       // not required (default: 0)
         uint32_t byte_length;                           // required
-        uint32_t byte_stride = 1;                       // not required
+        uint32_t byte_stride = 0;                       // not required
         uint32_t target = 0;                            // not required
         std::string name;                               // not required
         std::vector<std::any> extensions;               // ignored

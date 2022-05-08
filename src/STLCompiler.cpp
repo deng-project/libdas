@@ -123,7 +123,6 @@ namespace Libdas {
             NewFile(_out_file);
 
         InitialiseFile(_props);
-
         _IndexVertices(_objects);
 
         // write all buffers to the file

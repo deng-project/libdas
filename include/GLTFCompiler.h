@@ -79,6 +79,7 @@ namespace Libdas {
                 int32_t component_type = INT32_MAX; 
                 uint32_t used_size = UINT32_MAX;     // bytes
                 uint32_t unit_size = UINT32_MAX;     // bytes
+                uint32_t unit_stride = 0;            // if this is specified then compiler executes a lot of cpu instructions for no other reason that gltf just being a shit format
 
                 struct less {
                     bool operator()(const BufferAccessorData &_s1, const BufferAccessorData &_s2) {
@@ -187,6 +188,7 @@ namespace Libdas {
 
             // region finders
             std::vector<std::vector<GLTFAccessor*>> _GetAllBufferAccessorRegions(GLTFRoot &_root);
+            std::vector<std::vector<BufferAccessorData>> _GetInvalidStridedBufferRegions(GLTFRoot &_root);
             std::vector<std::vector<BufferAccessorData>> _GetBufferIndexRegions(GLTFRoot &_root);
             std::vector<std::vector<BufferAccessorData>> _GetBufferColorStrideRegions(GLTFRoot &_root);
             std::vector<std::vector<BufferAccessorData>> _GetBufferJointRegions(GLTFRoot &_root);
@@ -203,19 +205,21 @@ namespace Libdas {
 
             // supplementing methods
             uint32_t _SupplementIndices(const char *_odata, BufferAccessorData &_suppl_info, DasBuffer &_buffer);
-            uint32_t _SupplementColorStride(const char *_odata, BufferAccessorData &_suppl_info, DasBuffer &_buffer);
+            uint32_t _SupplementInvalidStridedData(const char *_odata, BufferAccessorData &_suppl_info, DasBuffer &_buffer);
+            uint32_t _SupplementColorMultipliers(const char *_odata, BufferAccessorData &_suppl_info, DasBuffer &_buffer);
             uint32_t _SupplementJointIndices(const char *_odata, BufferAccessorData &_suppl_info, DasBuffer &_buffer);
             uint32_t _SupplementJointWeights(const char *_odata, BufferAccessorData &_suppl_info, DasBuffer &_buffer);
             uint32_t _SupplementAnimationKeyframeData(const char *_odata, BufferAccessorData &_suppl_info, DasBuffer &_buffer);
 
-            uint32_t _SupplementPositionVertices(const char *_odata, BufferAccessorData &_suppl_info, DasBuffer &_buffer);
-            uint32_t _SupplementVertexNormals(const char *_odata, BufferAccessorData &_suppl_info, DasBuffer &_buffer);
-            uint32_t _SupplementVertexTangents(const char *_odata, BufferAccessorData &_suppl_info, DasBuffer &_buffer);
-            uint32_t _SupplementUVVertices(const char *_odata, BufferAccessorData &_suppl_info, DasBuffer &_buffer);
-            uint32_t _SupplementColorVertices(const char *_odata, BufferAccessorData &_suppl_info, DasBuffer &_buffer);
-            uint32_t _SupplementJointsVertices(const char *_odata, BufferAccessorData &_suppl_info, DasBuffer &_buffer);
-            uint32_t _SupplementWeightsVertices(const char *_odata, BufferAccessorData &_suppl_info, DasBuffer &_buffer);
+            uint32_t _SupplementIndexedPositionVertices(const char *_odata, BufferAccessorData &_suppl_info, DasBuffer &_buffer);
+            uint32_t _SupplementIndexedVertexNormals(const char *_odata, BufferAccessorData &_suppl_info, DasBuffer &_buffer);
+            uint32_t _SupplementIndexedVertexTangents(const char *_odata, BufferAccessorData &_suppl_info, DasBuffer &_buffer);
+            uint32_t _SupplementIndexedUVVertices(const char *_odata, BufferAccessorData &_suppl_info, DasBuffer &_buffer);
+            uint32_t _SupplementIndexedColorMultipliers(const char *_odata, BufferAccessorData &_suppl_info, DasBuffer &_buffer);
+            uint32_t _SupplementIndexedJointsIndices(const char *_odata, BufferAccessorData &_suppl_info, DasBuffer &_buffer);
+            uint32_t _SupplementIndexedJointWeights(const char *_odata, BufferAccessorData &_suppl_info, DasBuffer &_buffer);
 
+            void _AdjustBufferViewStrides(GLTFRoot &_root);
             void _CopyToBuffer(const std::vector<std::pair<const char*, size_t>> &_optrs, char *_dst, size_t _len, size_t _offset, DasBuffer &_buffer, uint32_t _buffer_id);
 
             // striding methods

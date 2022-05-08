@@ -216,7 +216,7 @@ void DASTool::_ListDasProperties(const Libdas::DasProperties &_props) {
 
 void DASTool::_ListDasBuffers(Libdas::DasParser &_parser) {
     for(uint32_t i = 0; i < _parser.GetBufferCount(); i++) {
-        std::cout << std::endl << "-- Buffer nr " << i + 1 << " --" << std::endl;
+        std::cout << std::endl << "-- Buffer nr " << i << " --" << std::endl;
         std::string types;
 
         if((_parser.AccessBuffer(i).type & LIBDAS_BUFFER_TYPE_VERTEX) == LIBDAS_BUFFER_TYPE_VERTEX)
@@ -305,101 +305,162 @@ void DASTool::_ListDasMeshes(Libdas::DasParser &_parser) {
         std::cout << std::endl << "-- Mesh nr " << i << " --" << std::endl;
         const Libdas::DasMesh &mesh = _parser.AccessMesh(i);
         std::cout << "Mesh name: " << mesh.name << std::endl;
+        std::cout << "Mesh primitive count: " << mesh.primitive_count << std::endl;
+        std::cout << "Mesh primitives: ";
+        for(uint32_t j = 0; j < mesh.primitive_count; j++)
+            std::cout << mesh.primitives[j] << " ";
+        std::cout << std::endl;
 
         // for each primitive in mesh output its data
-        for(uint32_t j = 0; j < mesh.primitive_count; j++) {
-            const Libdas::DasMeshPrimitive &prim = _parser.AccessMeshPrimitive(mesh.primitives[j]);
-            std::cout << "---- Primitive nr " << j << " ----" << std::endl;
-            std::cout << "-- Index buffer id: " << prim.index_buffer_id << std::endl;
-            std::cout << "-- Index buffer offset: " << prim.index_buffer_offset << std::endl;
-            std::cout << "-- Indices count: " << prim.indices_count << std::endl;
-            std::cout << "-- Vertex buffer id: " << prim.vertex_buffer_id << std::endl;
-            std::cout << "-- Vertex buffer offset: " << prim.vertex_buffer_offset << std::endl;
+        for(uint32_t j = 0; j < mesh.primitive_count; j++)
+            _ListDasMeshPrimitive(_parser, j, mesh.primitives[j]);
+    }
+}
 
-            if(prim.vertex_normal_buffer_id != UINT32_MAX) {
-                std::cout << "-- Vertex normal buffer id: " << prim.vertex_normal_buffer_id << std::endl;
-                if(prim.vertex_normal_buffer_offset)
-                    std::cout << "-- Vertex normal buffer offset: " << prim.vertex_normal_buffer_offset << std::endl;
-            }
-            if(prim.vertex_tangent_buffer_id != UINT32_MAX) {
-                std::cout << "-- Vertex tangent buffer id: " << prim.vertex_tangent_buffer_id << std::endl;
-                if(prim.vertex_tangent_buffer_offset)
-                    std::cout << "-- Vertex tangent buffer offset: " << prim.vertex_tangent_buffer_offset << std::endl;
-            }
 
-            // texture data
-            if(prim.texture_count) {
-                std::cout << "-- Texture count: " << prim.texture_count << std::endl;
-                std::cout << "-- UV buffer ids: ";
-                for(uint32_t k = 0; k < prim.texture_count; k++)
-                    std::cout << prim.uv_buffer_ids[k] << " ";
-                std::cout << std::endl;
+void DASTool::_ListDasMeshPrimitive(Libdas::DasParser &_parser, uint32_t _rel_id, uint32_t _id) {
+    const Libdas::DasMeshPrimitive &prim = _parser.AccessMeshPrimitive(_id);
+    std::cout << "---- Primitive nr " << _rel_id << " ----" << std::endl;
+    std::cout << "-- Index buffer id: " << prim.index_buffer_id << std::endl;
+    std::cout << "-- Index buffer offset: " << prim.index_buffer_offset << std::endl;
+    std::cout << "-- Indices count: " << prim.indices_count << std::endl;
+    std::cout << "-- Vertex buffer id: " << prim.vertex_buffer_id << std::endl;
+    std::cout << "-- Vertex buffer offset: " << prim.vertex_buffer_offset << std::endl;
 
-                std::cout << "-- UV buffer offsets: ";
-                for(uint32_t k = 0; k < prim.texture_count; k++)
-                    std::cout << prim.uv_buffer_offsets[k] << " ";
-                std::cout << std::endl;
+    if(prim.vertex_normal_buffer_id != UINT32_MAX) {
+        std::cout << "-- Vertex normal buffer id: " << prim.vertex_normal_buffer_id << std::endl;
+        if(prim.vertex_normal_buffer_offset)
+            std::cout << "-- Vertex normal buffer offset: " << prim.vertex_normal_buffer_offset << std::endl;
+    }
+    if(prim.vertex_tangent_buffer_id != UINT32_MAX) {
+        std::cout << "-- Vertex tangent buffer id: " << prim.vertex_tangent_buffer_id << std::endl;
+        if(prim.vertex_tangent_buffer_offset)
+            std::cout << "-- Vertex tangent buffer offset: " << prim.vertex_tangent_buffer_offset << std::endl;
+    }
 
-                if(prim.texture_ids) {
-                    std::cout << "-- Associated texture ids: ";
-                    for(uint32_t k = 0; k < prim.texture_count; k++)
-                        std::cout << prim.texture_ids[k] << std::endl;
-                }
-            }
+    // texture data
+    if(prim.texture_count) {
+        std::cout << "-- Texture count: " << prim.texture_count << std::endl;
+        std::cout << "-- UV buffer ids: ";
+        for(uint32_t i = 0; i < prim.texture_count; i++)
+            std::cout << prim.uv_buffer_ids[i] << " ";
+        std::cout << std::endl;
 
-            // color multiplier data
-            if(prim.color_mul_count) {
-                std::cout << "-- Color multiplier count: " << prim.color_mul_count << std::endl;
-                std::cout << "-- Color multiplier buffer ids: ";
-                for(uint32_t k = 0; k < prim.color_mul_count; k++)
-                    std::cout << prim.color_mul_buffer_ids[k] << " ";
-                std::cout << std::endl;
-                
-                std::cout << "-- Color multiplier buffer offsets: ";
-                for(uint32_t k = 0; k < prim.color_mul_count; k++)
-                    std::cout << prim.color_mul_buffer_offsets[k] << " ";
-                std::cout << std::endl;
-            }
+        std::cout << "-- UV buffer offsets: ";
+        for(uint32_t i = 0; i < prim.texture_count; i++)
+            std::cout << prim.uv_buffer_offsets[i] << " ";
+        std::cout << std::endl;
 
-            // joint sets data
-            if(prim.joint_set_count) {
-                std::cout << "-- Joint set count: " << prim.joint_set_count << std::endl;
-                std::cout << "-- Joint index buffer ids: ";
-                for(uint32_t k = 0; k < prim.joint_set_count; k++)
-                    std::cout << prim.joint_index_buffer_ids[k] << " ";
-                std::cout << std::endl;
-
-                std::cout << "-- Joint index buffer offsets: ";
-                for(uint32_t k = 0; k < prim.joint_set_count; k++)
-                    std::cout << prim.joint_index_buffer_offsets[k] << " ";
-                std::cout << std::endl;
-
-                std::cout << "-- Joint weight buffer ids: ";
-                for(uint32_t k = 0; k < prim.joint_set_count; k++)
-                    std::cout << prim.joint_weight_buffer_ids[k] << " ";
-                std::cout << std::endl;
-
-                std::cout << "-- Joint weight buffer offsets: ";
-                for(uint32_t k = 0; k < prim.joint_set_count; k++)
-                    std::cout << prim.joint_weight_buffer_offsets[k] << " ";
-                std::cout << std::endl;
-
-            }
-
-            // morph targets
-            if(prim.morph_target_count) {
-                std::cout << "-- Morph target count: " << prim.morph_target_count << std::endl;
-                std::cout << "-- Morph targets: ";
-                for(uint32_t k = 0; k < prim.morph_target_count; k++)
-                    std::cout << prim.morph_targets[k] << " ";
-                std::cout << std::endl;
-
-                std::cout << "-- Morph weights: ";
-                for(uint32_t k = 0; k < prim.morph_target_count; k++)
-                    std::cout << prim.morph_weights[k] << " ";
-                std::cout << std::endl;
-            }
+        if(prim.texture_ids) {
+            std::cout << "-- Associated texture ids: ";
+            for(uint32_t i = 0; i < prim.texture_count; i++)
+                std::cout << prim.texture_ids[i] << std::endl;
         }
+    }
+
+    // color multiplier data
+    if(prim.color_mul_count) {
+        std::cout << "-- Color multiplier count: " << prim.color_mul_count << std::endl;
+        std::cout << "-- Color multiplier buffer ids: ";
+        for(uint32_t i = 0; i < prim.color_mul_count; i++)
+            std::cout << prim.color_mul_buffer_ids[i] << " ";
+        std::cout << std::endl;
+        
+        std::cout << "-- Color multiplier buffer offsets: ";
+        for(uint32_t i = 0; i < prim.color_mul_count; i++)
+            std::cout << prim.color_mul_buffer_offsets[i] << " ";
+        std::cout << std::endl;
+    }
+
+    // joint sets data
+    if(prim.joint_set_count) {
+        std::cout << "-- Joint set count: " << prim.joint_set_count << std::endl;
+        std::cout << "-- Joint index buffer ids: ";
+        for(uint32_t i = 0; i < prim.joint_set_count; i++)
+            std::cout << prim.joint_index_buffer_ids[i] << " ";
+        std::cout << std::endl;
+
+        std::cout << "-- Joint index buffer offsets: ";
+        for(uint32_t i = 0; i < prim.joint_set_count; i++)
+            std::cout << prim.joint_index_buffer_offsets[i] << " ";
+        std::cout << std::endl;
+
+        std::cout << "-- Joint weight buffer ids: ";
+        for(uint32_t i = 0; i < prim.joint_set_count; i++)
+            std::cout << prim.joint_weight_buffer_ids[i] << " ";
+        std::cout << std::endl;
+
+        std::cout << "-- Joint weight buffer offsets: ";
+        for(uint32_t i = 0; i < prim.joint_set_count; i++)
+            std::cout << prim.joint_weight_buffer_offsets[i] << " ";
+        std::cout << std::endl;
+
+    }
+
+    // morph targets
+    if(prim.morph_target_count) {
+        std::cout << "-- Morph target count: " << prim.morph_target_count << std::endl;
+        std::cout << "-- Morph targets: ";
+        for(uint32_t i = 0; i < prim.morph_target_count; i++)
+            std::cout << prim.morph_targets[i] << " ";
+        std::cout << std::endl;
+
+        std::cout << "-- Morph weights: ";
+        for(uint32_t i = 0; i < prim.morph_target_count; i++)
+            std::cout << prim.morph_weights[i] << " ";
+        std::cout << std::endl;
+
+        for(uint32_t i = 0; i < prim.morph_target_count; i++)
+            _ListDasMorphTarget(_parser, i, prim.morph_targets[i]);
+    }
+}
+
+
+void DASTool::_ListDasMorphTarget(Libdas::DasParser &_parser, uint32_t _rel_id, uint32_t _id) {
+    std::cout << "------ Morph target nr " << _rel_id << " ------" << std::endl;
+    const Libdas::DasMorphTarget &morph = _parser.AccessMorphTarget(_id);
+    if(morph.vertex_buffer_id != UINT32_MAX) {
+        std::cout << "---- Vertex buffer id: " << morph.vertex_buffer_id << std::endl;
+        if(morph.vertex_buffer_offset)
+            std::cout << "---- Vertex buffer offset: " << morph.vertex_buffer_offset << std::endl;
+    }
+
+    if(morph.vertex_normal_buffer_id != UINT32_MAX) {
+        std::cout << "---- Vertex normal buffer id: " << morph.vertex_normal_buffer_id << std::endl;
+        if(morph.vertex_normal_buffer_offset)
+            std::cout << "---- Vertex normal buffer offset: " << morph.vertex_normal_buffer_offset << std::endl;
+    }
+
+    if(morph.vertex_tangent_buffer_id != UINT32_MAX) {
+        std::cout << "---- Vertex tangent buffer id: " << morph.vertex_tangent_buffer_id << std::endl;
+        if(morph.vertex_tangent_buffer_offset)
+            std::cout << "---- Vertex tangent buffer offset: " << morph.vertex_tangent_buffer_offset << std::endl;
+    }
+
+    if(morph.texture_count) {
+        std::cout << "---- Texture count: " << morph.texture_count << std::endl;
+        std::cout << "---- UV buffer ids: ";
+        for(uint32_t i = 0; i < morph.texture_count; i++)
+            std::cout << morph.uv_buffer_ids[i] << " ";
+        std::cout << std::endl;
+
+        std::cout << "---- UV buffer offsets: ";
+        for(uint32_t i = 0; i < morph.texture_count; i++)
+            std::cout << morph.uv_buffer_offsets[i] << " ";
+        std::cout << std::endl;
+    }
+
+    if(morph.color_mul_count) {
+        std::cout << "---- Color multiplier count: " << morph.color_mul_count << std::endl;
+        std::cout << "---- Color multiplier buffer ids: ";
+        for(uint32_t i = 0; i < morph.color_mul_count; i++)
+            std::cout << morph.color_mul_buffer_ids[i] << " ";
+        std::cout << std::endl;
+
+        std::cout << "---- Color multiplier buffer offsets: ";
+        for(uint32_t i = 0; i < morph.color_mul_count; i++)
+            std::cout << morph.color_mul_buffer_offsets[i] << " ";
+        std::cout << std::endl;
     }
 }
 

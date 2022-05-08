@@ -4,6 +4,7 @@ doxygen/
 compile_commands.json
 compile_flags.txt
 scripts/Compile_Test/
+.clangd/
 *.o
 *.jpeg
 *.jpg

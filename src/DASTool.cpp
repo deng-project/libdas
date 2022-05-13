@@ -500,6 +500,7 @@ void DASTool::_ListDasSkeletonJoints(Libdas::DasParser &_parser) {
         std::cout << std::endl;
 
         std::cout << "Scale: " << joint.scale << std::endl;
+        std::cout << "Rotation: {" << joint.rotation.x << ", " << joint.rotation.y << ", " << joint.rotation.z << ", " << joint.rotation.w <<  "}" << std::endl;
         std::cout << "Translation: {" << joint.translation.x << ", " << joint.translation.y << ", " << joint.translation.z << "}" << std::endl;
     }
 }

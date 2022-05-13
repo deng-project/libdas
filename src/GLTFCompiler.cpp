@@ -1629,7 +1629,7 @@ namespace Libdas {
             skeleton.name = _root.skins[i].name;
 
             if(_root.skins[i].skeleton != INT32_MAX)
-                skeleton.parent = static_cast<uint32_t>(_root.skins[i].skeleton);
+                skeleton.parent = static_cast<uint32_t>(m_skeleton_joint_id_table[_root.skins[i].skeleton]);
             else {
                 if((skeleton.parent = _FindCommonRootJoint(_root, _root.skins[i])) == UINT32_MAX) {
                     std::cerr << "Could not find parent skeletal joint for skin " << i << std::endl;
@@ -1703,6 +1703,7 @@ namespace Libdas {
 
                 // check path value
                 uint32_t type_stride = 0;
+                bool scale = false;
                 if(ch_it->target.path == "translation") {
                     channel.target = LIBDAS_ANIMATION_TARGET_TRANSLATION;
                     type_stride = static_cast<uint32_t>(sizeof(Libdas::Vector3<float>));
@@ -1714,6 +1715,7 @@ namespace Libdas {
                 else if(ch_it->target.path == "scale") {
                     channel.target = LIBDAS_ANIMATION_TARGET_SCALE;
                     type_stride = static_cast<uint32_t>(sizeof(float));
+                    scale = true;
                 }
                 else if(ch_it->target.path == "weights") {
                     channel.target = LIBDAS_ANIMATION_TARGET_WEIGHTS;
@@ -1762,6 +1764,15 @@ namespace Libdas {
                         std::memcpy(channel.tangents + 2 * i * type_stride, ptr->first + 3 * i * type_stride, type_stride);
                         std::memcpy(channel.target_values + type_stride * i, ptr->first + (3 * i + 1) * type_stride, type_stride);
                         std::memcpy(channel.tangents + (2 * i + 1) * type_stride, ptr->first + (3 * i + 2) * type_stride, type_stride);
+                    }
+                } else if(scale) {  // convert vec3 scaling into uniform scale
+                    offset = static_cast<size_t>(accessor_data.buffer_offset);
+                    ptr = _FindDataPtrFromOffset(_buffers[accessor_data.buffer_id].data_ptrs, offset);
+
+                    for(uint32_t i = 0; i < channel.keyframe_count; i++) {
+                        const Libdas::Vector3<float> &s = reinterpret_cast<const Libdas::Vector3<float>*>(ptr->first + offset)[i];
+                        float fscale = (s.first + s.second + s.third) / 3;
+                        reinterpret_cast<float*>(channel.target_values)[i] = fscale;
                     }
                 } else {
                     offset = static_cast<size_t>(accessor_data.buffer_offset);

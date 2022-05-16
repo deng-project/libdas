@@ -1542,7 +1542,8 @@ namespace Libdas {
 
     std::vector<DasNode> GLTFCompiler::_CreateNodes(const GLTFRoot &_root) {
         std::vector<DasNode> nodes;
-        nodes.reserve(_root.nodes.size());
+        const int32_t max = *std::max_element(reinterpret_cast<int32_t*>(m_scene_node_id_table.data()), reinterpret_cast<int32_t*>(m_scene_node_id_table.data() + m_scene_node_id_table.size()));
+        nodes.resize(max + 1);
 
         for(size_t i = 0; i < _root.nodes.size(); i++) {
             if(m_scene_node_id_table[i] == UINT32_MAX) continue;
@@ -1574,19 +1575,27 @@ namespace Libdas {
             if(_root.nodes[i].matrix != def_mat) {
                 node.transform = _root.nodes[i].matrix;
             } else {
-                node.transform = Matrix4<float> {
-                    { _root.nodes[i].scale.x, 0.0f, 0.0f, _root.nodes[i].translation.x },
-                    { 0.0f, _root.nodes[i].scale.y, 0.0f, _root.nodes[i].translation.y },
-                    { 0.0f, 0.0f, _root.nodes[i].scale.z, _root.nodes[i].translation.z },
+                const Libdas::Matrix4<float> t = {
+                    { 1.0f, 0.0f, 0.0f, _root.nodes[i].translation.x },
+                    { 0.0f, 1.0f, 0.0f, _root.nodes[i].translation.y },
+                    { 0.0f, 0.0f, 1.0f, _root.nodes[i].translation.z },
+                    { 0.0f, 0.0f, 0.0f, 1.0f },
+                };
+                const Libdas::Matrix4<float> r = _root.nodes[i].rotation.ExpandToMatrix4();
+                const float uni_scale = (_root.nodes[i].scale.x + _root.nodes[i].scale.y + _root.nodes[i].scale.z) / 3;
+                const Libdas::Matrix4<float> s = {
+                    { uni_scale, 0.0f, 0.0f, 0.0f },
+                    { 0.0f, uni_scale, 0.0f, 0.0f },
+                    { 0.0f, 0.0f, uni_scale, 0.0f },
                     { 0.0f, 0.0f, 0.0f, 1.0f }
                 };
-                node.transform *= _root.nodes[i].rotation.ExpandToMatrix4();
+
+                node.transform = t * r * s;
             }
 
-            nodes.emplace_back(std::move(node));
+            nodes[m_scene_node_id_table[i]] = std::move(node);
         }
 
-        nodes.shrink_to_fit();
         return nodes;
     }
 
@@ -1650,7 +1659,8 @@ namespace Libdas {
 
     std::vector<DasSkeletonJoint> GLTFCompiler::_CreateSkeletonJoints(const GLTFRoot &_root, const std::vector<DasBuffer> &_buffers) {
         std::vector<DasSkeletonJoint> joints;
-        joints.reserve(_root.nodes.size());
+        const int32_t max = *std::max_element(reinterpret_cast<int32_t*>(m_skeleton_joint_id_table.data()), reinterpret_cast<int32_t*>(m_skeleton_joint_id_table.data() + m_skeleton_joint_id_table.size()));
+        joints.resize(max + 1);
         
         for(auto skin_it = _root.skins.begin(); skin_it != _root.skins.end(); skin_it++) {
             BufferAccessorData accessor_data = _FindAccessorData(_root, skin_it->inverse_bind_matrices);
@@ -1661,7 +1671,7 @@ namespace Libdas {
                 if(m_skeleton_joint_id_table[skin_it->joints[i]] == UINT32_MAX) continue;
 
                 DasSkeletonJoint joint;
-                joint.inverse_bind_pos = reinterpret_cast<const Matrix4<float>*>(it->first + ptr_offset)[i];
+                joint.inverse_bind_pos = reinterpret_cast<const Matrix4<float>*>(it->first + ptr_offset)[i].Transpose();
                 joint.rotation = _root.nodes[skin_it->joints[i]].rotation;
 
                 // for each child in joint
@@ -1675,11 +1685,10 @@ namespace Libdas {
                 joint.scale = (x + y + z) / 3;
                 joint.translation = _root.nodes[skin_it->joints[i]].translation;
 
-                joints.emplace_back(std::move(joint));
+                joints[m_skeleton_joint_id_table[skin_it->joints[i]]] = std::move(joint);
             }
         }
 
-        joints.shrink_to_fit();
         return joints;
     }
 

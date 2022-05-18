@@ -1489,25 +1489,25 @@ namespace Libdas {
                         default:
                             break;
                     }
+                }
 
-                    // set morph targets with their correct counts
-                    prim.morph_target_count = static_cast<uint32_t>(prim_it->targets.size());
-                    if(prim.morph_target_count) {
-                        prim.morph_targets = new uint32_t[prim.morph_target_count];
-                        for(uint32_t i = 0; i < prim.morph_target_count; i++, used_targets++) 
-                            prim.morph_targets[i] = used_targets;
+                // set morph targets with their correct counts
+                prim.morph_target_count = static_cast<uint32_t>(prim_it->targets.size());
+                if(prim.morph_target_count) {
+                    prim.morph_targets = new uint32_t[prim.morph_target_count];
+                    for(uint32_t i = 0; i < prim.morph_target_count; i++, used_targets++) 
+                        prim.morph_targets[i] = used_targets;
 
-                        // weights are contained inside the mesh structure, where morph targets are contained in mesh.primitives structure
-                        // this means that there can be multiple mesh.primitive objects with multiple morph targets in all of them
-                        if(static_cast<uint32_t>(mesh_it->weights.size()) - used_weights == prim.morph_target_count) {
+                    // weights are contained inside the mesh structure, where morph targets are contained in mesh.primitives structure
+                    // this means that there can be multiple mesh.primitive objects with multiple morph targets in all of them
+                    if(static_cast<uint32_t>(mesh_it->weights.size()) - used_weights == prim.morph_target_count) {
+                        prim.morph_weights = new float[prim.morph_target_count];
+                        std::memcpy(prim.morph_weights, mesh_it->weights.data(), static_cast<size_t>(prim.morph_target_count) * sizeof(float));
+                    } else {
+                        const std::vector<float> &&node_weights = _FindMorphWeightsFromNodes(_root, mesh_it - _root.meshes.begin());
+                        if(static_cast<uint32_t>(node_weights.size()) == prim.morph_target_count) {
                             prim.morph_weights = new float[prim.morph_target_count];
                             std::memcpy(prim.morph_weights, mesh_it->weights.data(), static_cast<size_t>(prim.morph_target_count) * sizeof(float));
-                        } else {
-                            const std::vector<float> &&node_weights = _FindMorphWeightsFromNodes(_root, mesh_it - _root.meshes.begin());
-                            if(static_cast<uint32_t>(node_weights.size()) == prim.morph_target_count) {
-                                prim.morph_weights = new float[prim.morph_target_count];
-                                std::memcpy(prim.morph_weights, mesh_it->weights.data(), static_cast<size_t>(prim.morph_target_count) * sizeof(float));
-                            }
                         }
                     }
                 }

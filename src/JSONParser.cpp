@@ -10,7 +10,9 @@
 namespace Libdas {
     
     JSONParser::JSONParser(ModelFormat _format, const std::string &_file_name) : 
-        AsciiStreamReader(_file_name, DEFAULT_CHUNK, "}"), m_error(_format), m_file_name(_file_name) {}
+        AsciiStreamReader(_file_name, DEFAULT_CHUNK, "}"), 
+        m_file_name(_file_name),
+        m_error(_format) {}
 
 
     JSONToken JSONParser::_CheckForToken() {

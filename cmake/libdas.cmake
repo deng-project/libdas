@@ -86,3 +86,5 @@ add_library(${LIBDAS_SHARED_TARGET} SHARED
 
 target_include_directories(${LIBDAS_STATIC_TARGET} PUBLIC include)
 target_include_directories(${LIBDAS_SHARED_TARGET} PUBLIC include)
+
+install(TARGETS ${LIBDAS_STATIC_TARGET} ${LIBDAS_SHARED_TARGET})

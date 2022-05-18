@@ -1020,7 +1020,7 @@ namespace Libdas {
 
         // change buffer ids
         for(size_t i = 0; i < _root.buffer_views.size(); i++)
-            _root.buffer_views[i].buffer += buffer_id_offset_table[i];
+            _root.buffer_views[i].buffer += buffer_id_offset_table[_root.buffer_views[i].buffer];
     }
 
 
@@ -1573,7 +1573,7 @@ namespace Libdas {
 
             const Matrix4<float> def_mat;
             if(_root.nodes[i].matrix != def_mat) {
-                node.transform = _root.nodes[i].matrix;
+                node.transform = _root.nodes[i].matrix.Transpose();
             } else {
                 const Libdas::Matrix4<float> t = {
                     { 1.0f, 0.0f, 0.0f, _root.nodes[i].translation.x },

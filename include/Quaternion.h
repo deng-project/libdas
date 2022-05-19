@@ -119,29 +119,31 @@ namespace Libdas {
 
 #ifdef MATRIX_H
         // not using simd here for now
-        Matrix3<float> ExpandToMatrix3() const {
-            float dxx = 2 * x * x, dyy = 2 * y * y, dzz = 2 * z * z;
-            float dxy = 2 * x * y, dxz = 2 * x * z, dxw = 2 * x * w;
-            float dyz = 2 * y * z, dyw = 2 * y * w;
-            float dzw = 2 * z * w;
+        inline Matrix3<float> ExpandToMatrix3() const {
+            const float dxx = 2 * x * x, dyy = 2 * y * y, dzz = 2 * z * z;
+            const float dxy = 2 * x * y, dxz = 2 * x * z, dxw = 2 * x * w;
+            const float dyz = 2 * y * z, dyw = 2 * y * w;
+            const float dzw = 2 * z * w;
+
             return Matrix3<float> {
-                {1 - dyy - dzz, dxy + dzw, dxz - dyw},
-                {dxy - dzw, 1 - dxx - dzz, dyz + dxw},
-                {dxz + dyw, dyz - dxw, 1 - dxx - dyy}
+                { 1 - dyy - dzz, dxy - dzw, dxz + dyw },
+                { dxy + dzw, 1 - dxx - dzz, dyz - dxw },
+                { dxz - dyz, dyz + dxw, 1 - dxx - dyy }
             };
         }
 
 
-        Matrix4<float> ExpandToMatrix4() const {
-            float dxx = 2 * x * x, dyy = 2 * y * y, dzz = 2 * z * z;
-            float dxy = 2 * x * y, dxz = 2 * x * z, dxw = 2 * x * w;
-            float dyz = 2 * y * z, dyw = 2 * y * w;
-            float dzw = 2 * z * w;
+        inline Matrix4<float> ExpandToMatrix4() const {
+            const float dxx = 2 * x * x, dyy = 2 * y * y, dzz = 2 * z * z;
+            const float dxy = 2 * x * y, dxz = 2 * x * z, dxw = 2 * x * w;
+            const float dyz = 2 * y * z, dyw = 2 * y * w;
+            const float dzw = 2 * z * w;
+
             return Matrix4<float> {
-                {1 - dyy - dzz, dxy + dzw, dxz - dyw, 0},
-                {dxy - dzw, 1 - dxx - dzz, dyz + dxw, 0},
-                {dxz + dyw, dyz - dxw, 1 - dxx - dyy, 0},
-                {0,         0,         0,             1}
+                { 1 - dyy - dzz, dxy - dzw, dxz + dyw, 0 },
+                { dxy + dzw, 1 - dxx -dzz, dyz - dxw, 0 },
+                { dxz - dyw, dyz + dxw, 1 - dxx - dyy, 0 },
+                { 0, 0, 0, 1 }
             };
         }
 

@@ -203,6 +203,10 @@ namespace Libdas {
         inline Quaternion Inverse() const {
             return Conjugate() / Magnitude();
         }
+
+        inline Quaternion Normalise() const {
+            return (*this) / this->Magnitude();
+        }
     };
 }
 

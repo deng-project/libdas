@@ -47,7 +47,7 @@ if(LIBDAS_BUILD_DASTOOL)
 endif()
 
 # Add test configurations
-if(BUILD_TESTS)
+if(LIBDAS_BUILD_TESTS)
     include(cmake/tests/AsciiSTLParser.cmake)
     include(cmake/tests/BinarySTLParser.cmake)
     include(cmake/tests/HuffmanCompression.cmake)

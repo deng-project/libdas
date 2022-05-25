@@ -10,7 +10,10 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_GENERATOR_PLATFORM x64)
 
-option(BUILD_TESTS "Build all tests along with main libdas library" OFF)
+option(LIBDAS_BUILD_TESTS "Build all tests along with main libdas libraries" OFF)
+option(LIBDAS_BUILD_STATIC_LIB "Build static libdas library" ON)
+option(LIBDAS_BUILD_SHARED_LIB "Build shared libdas library" ON)
+option(LIBDAS_BUILD_DASTOOL "Build dastool application" ON)
 
 # Set appropriate compiler flags
 if(MSVC)
@@ -38,7 +41,10 @@ endif()
 
 # Include main library build config
 include(cmake/libdas.cmake)
-include(cmake/dastool.cmake)
+
+if(LIBDAS_BUILD_DASTOOL)
+	include(cmake/dastool.cmake)
+endif()
 
 # Add test configurations
 if(BUILD_TESTS)

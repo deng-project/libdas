@@ -19,6 +19,7 @@
     #include <cstring>
     #include <unordered_map>
     #include <algorithm>
+    #include <string>
 
     #include <Api.h>
     #include <Hash.h>

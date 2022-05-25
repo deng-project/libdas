@@ -98,7 +98,7 @@ namespace Libdas {
             std::string m_loose_string = "";
 
             // variable for accounting lines
-            size_t m_line_nr = 1;
+            int32_t m_line_nr = 1;
             bool m_prev_decl = false; // boolean flag for identifying previous key value statement
 
         protected:

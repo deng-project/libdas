@@ -74,17 +74,25 @@ set(LIBDAS_HEADERS
     include/WavefrontObjStructures.h
 )
 
-add_library(${LIBDAS_STATIC_TARGET} STATIC 
-    ${LIBDAS_HEADERS} 
-    ${LIBDAS_SOURCES}
-)
+# Static library configuration
+if(LIBDAS_BUILD_STATIC_LIB)
+	add_library(${LIBDAS_STATIC_TARGET} STATIC 
+		${LIBDAS_HEADERS} 
+		${LIBDAS_SOURCES}
+	)
 
-add_library(${LIBDAS_SHARED_TARGET} SHARED 
-    ${LIBDAS_HEADERS} 
-    ${LIBDAS_SOURCES}
-)
+	target_include_directories(${LIBDAS_STATIC_TARGET} PUBLIC include)
+	target_compile_definitions(${LIBDAS_STATIC_TARGET} PUBLIC LIBDAS_STATIC)
+endif()
 
-target_include_directories(${LIBDAS_STATIC_TARGET} PUBLIC include)
-target_include_directories(${LIBDAS_SHARED_TARGET} PUBLIC include)
 
-install(TARGETS ${LIBDAS_STATIC_TARGET} ${LIBDAS_SHARED_TARGET})
+# Shared library configuration
+if(LIBDAS_BUILD_SHARED_LIB)
+	add_library(${LIBDAS_SHARED_TARGET} SHARED 
+		${LIBDAS_HEADERS} 
+		${LIBDAS_SOURCES}
+	)
+
+	target_include_directories(${LIBDAS_SHARED_TARGET} PUBLIC include)
+	target_compile_definitions(${LIBDAS_SHARED_TARGET} PRIVATE LIBDAS_EXPORT_LIBRARY)
+endif()

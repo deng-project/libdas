@@ -58,7 +58,7 @@ namespace Libdas {
      * Structure pointing to a buffer view containing the values of deviating accessor values
      */
     struct GLTFAccessorSparseValues {
-        int32_t buffer_view;                            // required
+        int32_t buffer_view = 0;                        // required
         uint32_t byte_offset = 0;                       // not required (default: 0)
         std::vector<std::any> extensions;               // ignored
         std::vector<std::any> extras;                   // ignored
@@ -69,9 +69,9 @@ namespace Libdas {
      * Structure pointing to a buffer view containing the indices of deviating accessor values
      */
     struct GLTFAccessorSparseIndices {
-        int32_t buffer_view;                            // required
+        int32_t buffer_view = 0;                        // required
         uint32_t byte_offset = 0;                       // not required (default: 0)
-        int32_t component_type;                         // required
+        int32_t component_type = INT32_MAX;             // required
         std::vector<std::any> extension;                // ignored
         std::vector<std::any> extras;                   // ignored
     };
@@ -95,9 +95,9 @@ namespace Libdas {
     struct GLTFAccessor {
         int32_t buffer_view = INT32_MAX;                // not required
         uint32_t byte_offset = 0;                       // not required (default: 0)
-        int32_t component_type;                         // required
+        int32_t component_type = INT32_MAX;             // required
         bool normalized = false;                        // not required (default: false)
-        int32_t count;                                  // required
+        int32_t count = 0;                              // required
         std::string type;                               // required
         std::vector<float> max;                         // not required
         std::vector<float> min;                         // not required
@@ -125,9 +125,9 @@ namespace Libdas {
      * defining the interpolation algorithm
      */
     struct GLTFAnimationSampler {
-        int32_t input;                                  // required
+        int32_t input = INT32_MAX;                      // required
         std::string interpolation = "LINEAR";           // not required (default: "LINEAR")
-        int32_t output;                                 // required
+        int32_t output = INT32_MAX;                     // required
         std::vector<std::any> extensions;               // ignored
         std::vector<std::any> extras;                   // ignored
     };
@@ -148,7 +148,7 @@ namespace Libdas {
      * Structure tha combines an animation sampler with a target property that is being animated
      */
     struct GLTFAnimationChannel {
-        int32_t sampler;                                // required
+        int32_t sampler = INT32_MAX;                    // required
         GLTFAnimationChannelTarget target;              // required
         std::vector<std::any> extensions;               // ignored
         std::vector<std::any> extras;                   // ignored
@@ -189,7 +189,7 @@ namespace Libdas {
      */
     struct GLTFBuffer {
         std::string uri;                                // not required (really khronos?)
-        uint32_t byte_length;                           // required
+        uint32_t byte_length = 0;                       // required
         std::string name;                               // not required
         std::vector<std::any> extensions;               // ignored
         std::vector<std::any> extras;                   // ignored
@@ -200,9 +200,9 @@ namespace Libdas {
      * Structure containing a view into a subset of buffer
      */
     struct GLTFBufferView {
-        int32_t buffer;                                 // required
+        int32_t buffer = INT32_MAX;                     // required
         uint32_t byte_offset = 0;                       // not required (default: 0)
-        uint32_t byte_length;                           // required
+        uint32_t byte_length = 0;                       // required
         uint32_t byte_stride = 0;                       // not required
         uint32_t target = 0;                            // not required
         std::string name;                               // not required
@@ -248,8 +248,8 @@ namespace Libdas {
      * Texture sampler properties for filtering and wrapping models
      */
     struct GLTFSampler {
-        uint32_t mag_filter;                            // not required
-        uint32_t min_filter;                            // not required
+        uint32_t mag_filter = UINT32_MAX;               // not required
+        uint32_t min_filter = UINT32_MAX;               // not required
         uint32_t wrap_s = KHRONOS_REPEAT;               // not required (default: 10497)
         uint32_t wrap_t = KHRONOS_REPEAT;               // not required (default: 10497)
         std::string name = "";                          // not required
@@ -327,9 +327,9 @@ namespace Libdas {
      */
     struct GLTFCameraPerspective {
         float aspect_ratio = 16.0f / 9.0f;              // not required
-        float yfov;                                     // required
+        float yfov = 0.0f;                              // required
         float zfar = FLT_MAX;                           // not required
-        float znear;                                    // required
+        float znear = FLT_MIN;                          // required
         std::vector<std::any> extensions;               // ignored
         std::vector<std::any> extras;                   // ignored
     };

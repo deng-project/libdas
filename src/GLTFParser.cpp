@@ -114,7 +114,7 @@ namespace Libdas {
                     bool is_num = _VerifySourceData(_src, JSON_TYPE_NUMBER, false);
 
                     if(is_num)
-                        *reinterpret_cast<int32_t*>(_dst.val_ptr) = std::get<JSONNumber>(_src->values.back());
+                        *reinterpret_cast<int32_t*>(_dst.val_ptr) = static_cast<int32_t>(std::get<JSONNumber>(_src->values.back()));
                     else m_error.Error(LIBDAS_ERROR_INVALID_TYPE, _src->key_val_decl_line, _src->name, "integer");
                 }
                 break;

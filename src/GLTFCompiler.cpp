@@ -571,7 +571,7 @@ namespace Libdas {
     uint32_t GLTFCompiler::_SupplementInvalidStridedData(const char *_odata, BufferAccessorData &_suppl_info, DasBuffer &_buffer) {
         char *buf = new char[_suppl_info.used_size];
         size_t len = static_cast<size_t>(_suppl_info.used_size);
-        const size_t diff = _suppl_info.used_size - _suppl_info.unit_stride * (_suppl_info.used_size / _suppl_info.unit_size);
+        const uint32_t diff = _suppl_info.used_size - _suppl_info.unit_stride * (_suppl_info.used_size / _suppl_info.unit_size);
 
         size_t rd_offset = _suppl_info.buffer_offset;
         for(uint32_t i = 0; i < _suppl_info.used_size / _suppl_info.unit_size; i++) {
@@ -620,7 +620,7 @@ namespace Libdas {
         }
 
         _buffer.data_ptrs.push_back(std::make_pair(buf, len));
-        _buffer.data_len += diff;
+        _buffer.data_len += static_cast<uint32_t>(diff);
         m_supplemented_buffers[_suppl_info.buffer_id].push_back(buf);
         return static_cast<uint32_t>(diff);
     }
@@ -685,7 +685,7 @@ namespace Libdas {
         _buffer.data_ptrs.push_back(std::make_pair(reinterpret_cast<const char*>(buf), len * sizeof(float)));
         _buffer.data_len += static_cast<uint32_t>(diff);
         m_supplemented_buffers[_suppl_info.buffer_id].push_back(buf);
-        return diff;
+        return static_cast<uint32_t>(diff);
     }
 
 
@@ -918,7 +918,7 @@ namespace Libdas {
                     buf = new char[len];
                     offset = 0;
 
-                    _CopyToBuffer(optrs, buf, len, offset, _buffers[i], i);
+                    _CopyToBuffer(optrs, buf, len, offset, _buffers[i], static_cast<uint32_t>(i));
                     buf = nullptr;
                     len = 0;
                 }
@@ -931,7 +931,7 @@ namespace Libdas {
                     len = _regions[i][j].buffer_offset - offset;
                     buf = new char[len];
 
-                    _CopyToBuffer(optrs, buf, len, offset, _buffers[i], i);
+                    _CopyToBuffer(optrs, buf, len, offset, _buffers[i], static_cast<uint32_t>(i));
                     buf = nullptr;
                     len = 0;
                     offset = 0;
@@ -958,7 +958,7 @@ namespace Libdas {
                     len = olen - offset;
                     buf = new char[len];
 
-                    _CopyToBuffer(optrs, buf, len, offset, _buffers[i], i);
+                    _CopyToBuffer(optrs, buf, len, offset, _buffers[i], static_cast<uint32_t>(i));
                     buf = nullptr;
                     len = 0;
                     offset = 0;
@@ -1337,7 +1337,7 @@ namespace Libdas {
                 m_uri_resolvers.push_back(URIResolver(it->uri, m_root_path));
                 DasBuffer buffer;
                 buffer.type |= m_uri_resolvers.back().GetParsedDataType();
-                buffer.data_len = m_uri_resolvers.back().GetBuffer().second;
+                buffer.data_len = static_cast<uint32_t>(m_uri_resolvers.back().GetBuffer().second);
                 buffer.data_ptrs.push_back(m_uri_resolvers.back().GetBuffer());
 
                 buffers.push_back(buffer);
@@ -1438,7 +1438,7 @@ namespace Libdas {
                 _FindMultiSpecVertexAttributeAccessors(prim_it->attributes);
                 _CopyUniversalMultiSpecVertexAttributes(_root, prim);
     
-                prim.joint_set_count = m_joints_accessors.size();
+                prim.joint_set_count = static_cast<uint32_t>(m_joints_accessors.size());
                 if(prim.joint_set_count) {
                     prim.joint_index_buffer_ids = new uint32_t[prim.joint_set_count];
                     prim.joint_index_buffer_offsets = new uint32_t[prim.joint_set_count];
@@ -1805,7 +1805,7 @@ namespace Libdas {
         for(auto ani_it = _root.animations.begin(); ani_it != _root.animations.end(); ani_it++) {
             DasAnimation ani;
             ani.name = ani_it->name;
-            ani.channel_count = ani_it->channels.size();
+            ani.channel_count = static_cast<uint32_t>(ani_it->channels.size());
             ani.channels = new uint32_t[ani.channel_count];
             for(uint32_t i = 0; i < ani.channel_count; i++, channel_count++)
                 ani.channels[i] = channel_count;

@@ -69,7 +69,7 @@ namespace Libdas {
 
         void ShiftToLSB(unsigned char *bytes, size_t len, int shift) {
             if(shift >= 8) {
-                ShiftBytesLeft(std::make_pair(reinterpret_cast<char*>(bytes), len), len, shift / 8);
+                ShiftBytesLeft(std::make_pair(reinterpret_cast<char*>(bytes), len), len, static_cast<size_t>(shift / 8));
                 shift %= 8;
             }
 
@@ -247,7 +247,7 @@ namespace Libdas {
                 BinaryKey key = m_entable[(int) ch];
                 
                 // for each byte in bits, check its value
-                unsigned char bc = key.used_bits / 8 + (key.used_bits % 8 ? 1 : 0);
+                unsigned char bc = static_cast<unsigned char>(key.used_bits / 8 + (key.used_bits % 8 ? 1 : 0));
                 for(int i = LIBDAS_MAX_KEY_BYTES - bc; i < LIBDAS_MAX_KEY_BYTES; i++) {
 
                     // if the first MSB is the current byte, check the key remainer and previous LSB remainer and 
@@ -436,7 +436,7 @@ namespace Libdas {
             _FreeBuffer();
 
             // allocate memory for decoded buffer
-            char *m_buffer = reinterpret_cast<char*>(malloc(fsize + 1));
+            char *buffer = reinterpret_cast<char*>(malloc(fsize + 1));
             *_o_size = 0;
 
             while(!_ifile.eof()) {
@@ -449,13 +449,13 @@ namespace Libdas {
                     if(root->IsLeaf() && root->ch < LIBDAS_ASCII_ALPHABET_SIZE) {
                         cur_size++;
                         if(cur_size == fsize) return m_buffer;
-                        m_buffer[*_o_size] = static_cast<char>(root->ch);
+                        buffer[*_o_size] = static_cast<char>(root->ch);
                         root = m_root;
                     }
                 }
             }
 
-            return m_buffer;
+            return buffer;
         }
     }
 }

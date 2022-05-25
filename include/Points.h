@@ -33,7 +33,7 @@ namespace Libdas {
 
         Point2D<T>(Point2D<T> &&_val) : x(std::move(_val.x)), y(std::move(_val.y)) {}
 
-        Point2D<T>(T &&_x, T &&_y = T()) : x(std::move(_x)), y(std::move(_y)){}
+        Point2D<T>(T &&_x, T &&_y = T()) : x(std::move(_x)), y(std::move(_y)) {}
 
         Point2D<T>(const T &_val1, const T &_val2 = T()) : x(_val1), y(_val2) {}
 

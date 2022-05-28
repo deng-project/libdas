@@ -23,7 +23,7 @@ namespace Libdas {
             if(fsep != std::string::npos)
                 ssep = _block.find("/", fsep + 1);
 
-            Point3D<uint32_t> index_block(-1, -1, -1);
+            Point3D<uint32_t> index_block(UINT32_MAX, UINT32_MAX, UINT32_MAX);
             std::string pos, tex, normal;
 
             // first seperator was found

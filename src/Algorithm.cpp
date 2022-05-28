@@ -23,10 +23,11 @@ namespace Libdas {
 
 
         std::string RelativePathToAbsolute(const std::string &_rel) {
-            if(_rel[0] != '/' || _rel.find(":\\\\") == 1) {
+            if(_rel[0] != '/' && _rel.find(":\\") != 1) {
                 const size_t len = 512;
                 char buf[len] = {};
-                GetCurrentWorkingDir(buf, len);
+                char *ret  = GetCurrentWorkingDir(buf, len);
+                LIBDAS_ASSERT(ret);
                 std::string abs(buf);
 
 #ifdef _WIN32
@@ -38,6 +39,33 @@ namespace Libdas {
             }
 
             return _rel;
+        }
+
+
+        std::string GetProgramPath() {
+            std::string path;
+#ifdef _WIN32
+            std::vector<char> path_buf;
+            DWORD copied = 0;
+            do {
+                path_buf.resize(path_buf.size() + _MAX_PATH);
+                GetModuleFileNameA(NULL, path_buf.data(), static_cast<DWORD>(path_buf.size()));
+            } while (copied >= path_buf.size());
+
+            std::transform(path_buf.begin(), path_buf.end(), std::back_inserter(path),
+                [](char c) {
+                    return c;
+                });
+                
+// linux
+#else
+            pid_t pid = getpid(void);
+            std::string link = "/proc/" + std::to_string(pid) + "/exe";
+            path.resize(PATH_MAX);
+            readlink(link.c_str(), path.data(), path.size());
+#endif
+
+            return ExtractRootPath(path);
         }
 
 

@@ -32,7 +32,7 @@ namespace Libdas {
          * @param _file_name specifies the relative file path used for reading
          * @return std::string instance containing all file contents
          */
-        std::string ReadFileToString(const std::string &_file_name);
+        LIBDAS_API std::string ReadFileToString(const std::string &_file_name);
     }
 
     /**

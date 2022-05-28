@@ -9,7 +9,7 @@
 namespace Libdas {
 
     DasReaderCore::DasReaderCore(const std::string &_file_name) : 
-        AsciiLineReader(_file_name, DEFAULT_CHUNK, "ENDSCOPE\n"), 
+        AsciiLineReader(_file_name, DEFAULT_CHUNK, std::string("ENDSCOPE") + LIBDAS_DAS_NEWLINE), 
         m_error(MODEL_FORMAT_DAS) 
     {
         _CreateScopeNameMap();

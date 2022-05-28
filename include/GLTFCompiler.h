@@ -94,13 +94,13 @@ namespace Libdas {
             };
 
             struct GenericVertexAttributeAccessors {
-                BufferAccessorData pos_accessor;
-                BufferAccessorData normal_accessor;
-                BufferAccessorData tangent_accessor;
-                std::vector<BufferAccessorData> uv_accessors;
-                std::vector<BufferAccessorData> color_mul_accessors;
-                std::vector<BufferAccessorData> joints_accessors;
-                std::vector<BufferAccessorData> weights_accessors;
+                uint32_t pos_accessor = UINT32_MAX;
+                uint32_t normal_accessor = UINT32_MAX;
+                uint32_t tangent_accessor = UINT32_MAX;
+                std::vector<uint32_t> uv_accessors;
+                std::vector<uint32_t> color_mul_accessors;
+                std::vector<uint32_t> joints_accessors;
+                std::vector<uint32_t> weights_accessors;
             };
 
 
@@ -200,6 +200,9 @@ namespace Libdas {
             // node flagging method
             void _FlagJointNodes(const GLTFRoot &_root);
 
+            // non-texture buffer search method
+            uint32_t _FindFirstNonTextureBuffer(const std::vector<DasBuffer> &_buffers);
+
             // common parent root finding methods
             bool _IsRootNode(const GLTFRoot &_root, int32_t _node_id, const std::vector<int32_t> &_pool);
             uint32_t _FindCommonRootJoint(const GLTFRoot &_root, const GLTFSkin &_skin);
@@ -233,10 +236,10 @@ namespace Libdas {
 
             // indexing methods
             void _WriteIndexedData(GLTFRoot &_root, std::vector<DasBuffer> &_buffers, GenericVertexAttributeAccessors &_gen_acc);
-            GenericVertexAttribute _GenerateGenericVertexAttribute(GenericVertexAttributeAccessors &_gen_acc, std::vector<DasBuffer> &_buffers, uint32_t _index);
+            GenericVertexAttribute _GenerateGenericVertexAttribute(GLTFRoot &_root, GenericVertexAttributeAccessors &_gen_acc, std::vector<DasBuffer> &_buffers, uint32_t _index);
             void _IndexMeshPrimitive(GLTFRoot &_root, GLTFMeshPrimitive &_prim, std::vector<DasBuffer> &_buffers, GLTFAccessors &_accessors, GenericVertexAttributeAccessors &_gen_acc);
             void _IndexGeometry(GLTFRoot &_root, GLTFAccessors &_accessors, std::vector<DasBuffer> &_buffers);
-            void _CreateNewIndexRegion(GLTFRoot &_root, std::vector<GLTFAccessor*> &_accessors, GLTFMeshPrimitive &_prim, DasBuffer &_buffer);
+            void _CreateNewIndexRegion(GLTFRoot &_root, std::vector<GLTFAccessor*> &_accessors, GLTFMeshPrimitive &_prim, DasBuffer &_buffer, const uint32_t _id);
 
 
             void _FreeSupplementedBuffers(std::vector<std::vector<char*>> _mem_areas);

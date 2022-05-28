@@ -44,12 +44,17 @@ typedef uint16_t BufferType;
 #define LIBDAS_BUFFER_TYPE_TEXTURE_PPM              0x1000
 #define LIBDAS_BUFFER_TYPE_TEXTURE_RAW              0x2000
 
+#define LIBDAS_BUFFER_TYPE_TEXTURE                  (LIBDAS_BUFFER_TYPE_TEXTURE_JPEG | LIBDAS_BUFFER_TYPE_TEXTURE_PNG |\
+                                                     LIBDAS_BUFFER_TYPE_TEXTURE_TGA | LIBDAS_BUFFER_TYPE_TEXTURE_BMP |\
+                                                     LIBDAS_BUFFER_TYPE_TEXTURE_PPM | LIBDAS_BUFFER_TYPE_TEXTURE_RAW)
+
 
 /// Animation interpolation technique definitions 
 typedef uint8_t InterpolationType;
 #define LIBDAS_INTERPOLATION_VALUE_LINEAR       0
 #define LIBDAS_INTERPOLATION_VALUE_STEP         1
 #define LIBDAS_INTERPOLATION_VALUE_CUBICSPLINE  2
+#define LIBDAS_INTERPOLATION_VALUE_UNKNOWN      3
 
 /// Animation target definitions
 typedef uint8_t AnimationTarget;
@@ -57,6 +62,7 @@ typedef uint8_t AnimationTarget;
 #define LIBDAS_ANIMATION_TARGET_TRANSLATION     1
 #define LIBDAS_ANIMATION_TARGET_ROTATION        2
 #define LIBDAS_ANIMATION_TARGET_SCALE           3
+#define LIBDAS_ANIMATION_TARGET_UNKNOWN         4
 
 #ifndef LIBDAS_DEFS_ONLY
 namespace Libdas {
@@ -428,8 +434,8 @@ namespace Libdas {
 
         uint32_t node_id = UINT32_MAX;
         uint32_t joint_id = UINT32_MAX;
-        AnimationTarget target;
-        InterpolationType interpolation;
+        AnimationTarget target = LIBDAS_ANIMATION_TARGET_UNKNOWN;
+        InterpolationType interpolation = LIBDAS_INTERPOLATION_VALUE_UNKNOWN;
         uint32_t keyframe_count = 0;
         uint32_t weight_count = 0;
         float *keyframes = nullptr;

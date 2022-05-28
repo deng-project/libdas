@@ -80,7 +80,7 @@ namespace Libdas {
         }
         else {
             // check if any chars of "\nENDSCOPE" are present at the end of buffer
-            std::string endscope_str = "\nENDSCOPE";
+            std::string endscope_str = LIBDAS_DAS_NEWLINE + std::string("ENDSCOPE");
             char e = endscope_str.back();
 
             size_t offset = m_buffer_size - 1;
@@ -118,7 +118,7 @@ namespace Libdas {
         std::string abs_file = Algorithm::RelativePathToAbsolute(_file_name);
         m_stream.open(abs_file.c_str(), std::ios::binary);
 
-        if(!m_stream.is_open()) {
+        if(!m_stream.is_open() || !m_stream.good()) {
             std::cerr << "Failed to open file " << abs_file << std::endl;
             EXIT_ON_ERROR(LIBDAS_ERROR_INVALID_FILE);
         }

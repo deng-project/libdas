@@ -20,4 +20,12 @@
 	#define LIBDAS_API
 #endif
 
+
+// make sure that carriage return is respected in windows
+#ifdef _WIN32
+	#define LIBDAS_DAS_NEWLINE "\r\n"
+#else
+	#define LIBDAS_DAS_NEWLINE "\n"
+#endif
+
 #endif

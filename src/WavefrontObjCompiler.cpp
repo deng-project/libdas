@@ -31,22 +31,22 @@ namespace Libdas {
         buffers.reserve(1 + _embedded_textures.size());
 
         buffers.back().type = LIBDAS_BUFFER_TYPE_VERTEX | LIBDAS_BUFFER_TYPE_INDICES;
-        buffers.back().data_len = m_unique_pos.size() * sizeof(Point3D<float>);
+        buffers.back().data_len = static_cast<uint32_t>(m_unique_pos.size() * sizeof(Point3D<float>));
         buffers.back().data_ptrs.push_back(std::make_pair(reinterpret_cast<const char*>(m_unique_pos.data()), m_unique_pos.size() * sizeof(Point3D<float>)));
 
         if(m_unique_uv.size()) {
-            buffers.back().data_len += m_unique_uv.size() * sizeof(Point2D<float>);
+            buffers.back().data_len += static_cast<uint32_t>(m_unique_uv.size() * sizeof(Point2D<float>));
             buffers.back().data_ptrs.push_back(std::make_pair(reinterpret_cast<const char*>(m_unique_uv.data()), m_unique_uv.size() * sizeof(Point2D<float>)));
             buffers.back().type |= LIBDAS_BUFFER_TYPE_TEXTURE_MAP;
         }
 
         if(m_unique_normals.size()) {
-            buffers.back().data_len += m_unique_normals.size() * sizeof(Point3D<float>);
+            buffers.back().data_len += static_cast<uint32_t>(m_unique_normals.size() * sizeof(Point3D<float>));
             buffers.back().type |= LIBDAS_BUFFER_TYPE_VERTEX_NORMAL;
             buffers.back().data_ptrs.push_back(std::make_pair(reinterpret_cast<const char*>(m_unique_normals.data()), m_unique_normals.size() * sizeof(Point3D<float>)));
         }
 
-        buffers.back().data_len += m_indices.size() * sizeof(uint32_t);
+        buffers.back().data_len += static_cast<uint32_t>(m_indices.size() * sizeof(uint32_t));
         buffers.back().data_ptrs.push_back(std::make_pair(reinterpret_cast<const char*>(m_indices.data()), m_indices.size() * sizeof(uint32_t)));
 
         // append all textures to buffers vector
@@ -56,7 +56,7 @@ namespace Libdas {
             size_t size;
             const char *data = reader.GetBuffer(size);
             buffers.back().type = reader.GetImageBufferType();
-            buffers.back().data_len = size;
+            buffers.back().data_len = static_cast<uint32_t>(size);
             buffers.back().data_ptrs.push_back(std::make_pair(data, size));
         }
 
@@ -131,7 +131,7 @@ namespace Libdas {
         for(size_t i = 0; i < _meshes.size(); i++) {
             if(_meshes[i].primitive_count) {
                 DasNode node;
-                node.mesh = i - offset;
+                node.mesh = static_cast<uint32_t>(i) - offset;
                 WriteNode(node);
             } else {
                 offset++;
@@ -146,7 +146,7 @@ namespace Libdas {
 
         scene.nodes = new uint32_t[_meshes.size()];
         for(size_t i = 0; i < _meshes.size(); i++) {
-            scene.nodes[i] = i;
+            scene.nodes[i] = static_cast<uint32_t>(i);
         }
 
         WriteScene(scene);

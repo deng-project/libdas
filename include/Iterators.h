@@ -63,7 +63,7 @@ namespace Libdas {
             size_t m_index = 0;
             pointer m_data;
 
-            int i, j;
+            int i = 0, j = 0;
 
         public:
             MatrixIterator(pointer _data, size_t _mat_size, bool _is_row_major = true) :

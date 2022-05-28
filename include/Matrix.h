@@ -95,7 +95,7 @@ namespace Libdas {
     
     template<typename T>
     Matrix2<T>::Matrix2() {
-        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
+        if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value) {
             row1 = Vector2<T>(1, 0);
             row2 = Vector2<T>(0, 1);
         }
@@ -140,7 +140,7 @@ namespace Libdas {
     /// Add two matrices together
     template<typename T>
     Matrix2<T> Matrix2<T>::operator+(const Matrix2<T> &_mat) const {
-        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
+        if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Matrix2<T> out{}; 
             out.row1 = Vector2<T>{row1.first + _mat.row1.first, row1.second + _mat.row1.second};
             out.row2 = Vector2<T>{row2.first + _mat.row2.first, row1.second + _mat.row2.second};
@@ -155,7 +155,7 @@ namespace Libdas {
     /// Add constant to the current matrix
     template<typename T>
     Matrix2<T> Matrix2<T>::operator+(const T &_c) const {
-        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
+        if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Matrix2<T> out{};
             out.row1 = Vector2<T>{row1.first + _c, row1.second + _c};
             out.row1 = Vector2<T>{row2.first + _c, row2.second + _c};
@@ -170,7 +170,7 @@ namespace Libdas {
     /// Substract current matrix with given matrix
     template<typename T>
     Matrix2<T> Matrix2<T>::operator-(const Matrix2<T> &_mat) const {
-        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
+        if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Matrix2<T> out{};
             out.row1 = Vector2<T>{row1.first - _mat.row1.first, row1.second - _mat.row1.second};
             out.row2 = Vector2<T>{row2.first - _mat.row2.first, row2.second - _mat.row2.second};
@@ -185,7 +185,7 @@ namespace Libdas {
     /// Substract a constant number from the current matrix
     template<typename T>
     Matrix2<T> Matrix2<T>::operator-(const T &_c) const {  
-        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
+        if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Matrix2<T> out{};
             out.row1 = Vector2<T>{row1.first - _c, row1.second - _c};
             out.row2 = Vector2<T>{row2.first - _c, row2.second - _c};
@@ -200,7 +200,7 @@ namespace Libdas {
     /// Multiply all matrix members with a constant
     template<typename T>
     Matrix2<T> Matrix2<T>::operator*(const T &_c) const {
-        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
+        if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Matrix2<T> out;
             out.row1 = {row1.first * _c, row1.second * _c};
             out.row2 = {row2.first * _c, row2.second * _c};
@@ -215,7 +215,7 @@ namespace Libdas {
     /// Find the dot product of two matrices
     template<typename T>
     Matrix2<T> Matrix2<T>::operator*(const Matrix2<T> &_mat) const {
-        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
+        if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Matrix2<T> out_mat;
             out_mat.row1 = Vector2<float>{
                 ((row1.first * _mat.row1.first) + (row1.second * _mat.row2.first)),
@@ -237,7 +237,7 @@ namespace Libdas {
     /// Find the dot product of current matrix and a vector
     template<typename T>
     Vector2<T> Matrix2<T>::operator*(const Vector2<T> &_vec) const {
-        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
+        if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Vector2<T> out = Vector2<T>{
                 (row1.first * _vec.first + row1.second * _vec.second),
                 (row2.first * _vec.first + row2.second * _vec.second)
@@ -253,7 +253,7 @@ namespace Libdas {
     /// Divide all matrix elements with constant
     template<typename T>
     Matrix2<T> Matrix2<T>::operator/(const T &_c) const { 
-        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
+        if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Matrix2<T> out;
             out.row1 = Vector2<T>{row1.first / _c, row1.second / _c};
             out.row2 = Vector2<T>{row2.first / _c, row2.second / _c};
@@ -269,7 +269,7 @@ namespace Libdas {
     /// set the product as the value of the current matrix instance
 	template<typename T>
     void Matrix2<T>::operator*=(const T &_c) {
-        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
+        if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value) {
             row1.first *= _c;
             row1.second *= _c;
             row2.first *= _c;
@@ -282,7 +282,7 @@ namespace Libdas {
     /// instance value to it
 	template<typename T>
     void Matrix2<T>::operator*=(const Matrix2<T> &_mat) {
-        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
+        if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Matrix2<T> new_mat{};
             new_mat.row1 = Vector2<float>{
                 (
@@ -314,7 +314,7 @@ namespace Libdas {
     /// Add constant value to matrix and store the value in current matrix instance
 	template<typename T>
     void Matrix2<T>::operator+=(const T &_c) {
-        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
+        if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value) {
             row1.first += _c;
             row1.second += _c;
             row2.first += _c;
@@ -326,7 +326,7 @@ namespace Libdas {
     /// Add two matrices together and store the value in current matrix instance
 	template<typename T>
     void Matrix2<T>::operator+=(const Matrix2<T> &_mat) {
-        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
+        if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value) {
             row1.first += _mat.row1.first;
             row1.second += _mat.row1.second;
             row2.first += _mat.row2.first;
@@ -338,7 +338,7 @@ namespace Libdas {
     /// Substract constant value from matrix and store the result in current matrix instance
 	template<typename T>
     void Matrix2<T>::operator-=(const T &_c) {
-        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
+        if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value) {
             row1.first -= _c;
             row1.second -= _c;
             row2.first -= _c;
@@ -350,7 +350,7 @@ namespace Libdas {
     /// Substract a matrix from current matrix and store the result in current matrix instance
 	template<typename T>
     void Matrix2<T>::operator-=(const Matrix2<T> &_mat) {
-        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
+        if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value) {
             row1.first -= _mat.row1.first;
             row1.second -= _mat.row1.second;
             row2.first -= _mat.row2.first;
@@ -362,7 +362,7 @@ namespace Libdas {
     /// Divide all matrix elements with constant and store the value in current matrix instance
 	template<typename T>
     void Matrix2<T>::operator/=(const T &_c) {
-        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
+        if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value) {
             row1.first /= _c;
             row1.second /= _c;
             row2.first /= _c;
@@ -399,7 +399,7 @@ namespace Libdas {
         Matrix2<T> out_mat;
 
         // attempt to use gaussian elimination instead
-        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
+        if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value) {
             T new_row1[4] = { row1.first, row1.second, 1, 0 };
             T new_row2[4] = { row2.first, row2.second, 0, 1 };
 
@@ -424,7 +424,7 @@ namespace Libdas {
     /// Transpose the current matrix
     template<typename T>
     Matrix2<T> Matrix2<T>::Transpose() const {
-        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
+        if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Matrix2<T> new_mat{};
             new_mat.row1 = Vector2<T>{row1.first, row2.first};
             new_mat.row2 = Vector2<T>{row1.second, row2.second};
@@ -527,7 +527,7 @@ namespace Libdas {
 
     template<typename T>
     Matrix3<T>::Matrix3() {
-        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
+        if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value) {
             row1 = Vector3<T>{1, 0, 0};
             row2 = Vector3<T>{0, 1, 0};
             row3 = Vector3<T>{0, 0, 1};
@@ -578,7 +578,7 @@ namespace Libdas {
     /// Add two matrices together
     template<typename T>
     Matrix3<T> Matrix3<T>::operator+(const Matrix3<T> &_mat) const {
-        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
+        if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Matrix3<T> out;
             out.row1 = Vector3<T>{row1.first + _mat.row1.first, row1.second + _mat.row1.second, row1.third + _mat.row1.third};
             out.row2 = Vector3<T>{row2.first + _mat.row2.first, row2.second + _mat.row2.second, row2.third + _mat.row2.third};
@@ -593,7 +593,7 @@ namespace Libdas {
     /// Add constant to the current matrix
     template<typename T>
     Matrix3<T> Matrix3<T>::operator+(const T &_c) const {
-        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
+        if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Matrix3<T> out{};
             out.row1 = Vector3<T>{row1.first + _c, row1.second + _c, row1.third + _c};
             out.row2 = Vector3<T>{row2.first + _c, row2.second + _c, row2.third + _c};
@@ -609,7 +609,7 @@ namespace Libdas {
     /// Substract current matrix with given matrix
     template<typename T>
     Matrix3<T> Matrix3<T>::operator-(const Matrix3<T> &_mat) const {
-        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
+        if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Matrix3<T> out{};
             out.row1 = Vector3<T>{row1.first - _mat.row1.first, row1.second - _mat.row1.second, row1.third - _mat.row1.third};
             out.row2 = Vector3<T>{row2.first - _mat.row2.first, row2.second - _mat.row2.second, row2.second - _mat.row2.third};
@@ -625,7 +625,7 @@ namespace Libdas {
     /// Substract a constant number from the current matrix
     template<typename T>
     Matrix3<T> Matrix3<T>::operator-(const T &_c) const {
-        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
+        if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Matrix3<T> out{};
             out.row1 = Vector3<T>{row1.first - _c, row1.second - _c, row1.third - _c};
             out.row2 = Vector3<T>{row2.first - _c, row2.second - _c, row2.third - _c};
@@ -641,7 +641,7 @@ namespace Libdas {
     /// Multiply all matrix members with a constant
     template<typename T>
     Matrix3<T> Matrix3<T>::operator*(const T &_c) const {
-        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
+        if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Matrix3<T> out;
             out.row1 = {row1.first * _c, row1.second * _c, row1.third * _c};
             out.row2 = {row2.first * _c, row2.second * _c, row2.third * _c};
@@ -656,7 +656,7 @@ namespace Libdas {
     /// Find the dot product of two matrices
     template<typename T>
     Matrix3<T> Matrix3<T>::operator*(const Matrix3<T> &matrix) const {
-        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
+        if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Matrix3<T> out_mat;
             out_mat.row1 = Vector3<float>{
                 ((row1.first * matrix.row1.first) + (row1.second * matrix.row2.first) + (row1.third * matrix.row3.first)), 
@@ -686,7 +686,7 @@ namespace Libdas {
     /// Find the dot product of current matrix and a vector
     template<typename T>
     Vector3<T> Matrix3<T>::operator*(const Vector3<T> &_vec) const {
-        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
+        if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Vector3<T> out = {
                 (row1.first * _vec.first + row1.second * _vec.second + row1.third * _vec.third),
                 (row2.first * _vec.first + row2.second * _vec.second + row2.third * _vec.third),
@@ -703,7 +703,7 @@ namespace Libdas {
     /// Divide all matrix elements with a constant
     template<typename T>
     Matrix3<T> Matrix3<T>::operator/(const T &_c) const { 
-        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
+        if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Matrix3<T> out;
             out.row1 = Vector3<T>{row1.first / _c, row1.second / _c, row1.third / _c};
             out.row2 = Vector3<T>{row2.first / _c, row2.second / _c, row2.third / _c};
@@ -719,7 +719,7 @@ namespace Libdas {
     /// Multiply all matrix members with a constant and set the product as the value of the current matrix instance
 	template<typename T>
     void Matrix3<T>::operator*=(const T &_c) {
-        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
+        if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value) {
             row1.first *= _c;
             row1.second *= _c;
             row1.third *= _c;
@@ -738,7 +738,7 @@ namespace Libdas {
     /// Find the cross product of two matrices and set the current matrix instance value to it
     template<typename T>
     void Matrix3<T>::operator*=(const Matrix3<T> &_mat) {
-        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
+        if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Matrix3<T> new_mat{};
             new_mat.row1 = {
                 ((row1.first * _mat.row1.first) + (row1.second * _mat.row2.first) + (row1.third * _mat.row3.first)), 
@@ -766,7 +766,7 @@ namespace Libdas {
     /// Add constant value to matrix and store the value in current matrix instance
     template<typename T>
     void Matrix3<T>::operator+=(const T &_c) {
-        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
+        if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value) {
             row1.first += _c;
             row1.second += _c;
             row1.third += _c;
@@ -785,7 +785,7 @@ namespace Libdas {
     /// Add two matrices together and store the value in current matrix instance
     template<typename T>
     void Matrix3<T>::operator+=(const Matrix3<T> &_mat) {
-        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
+        if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value) {
             row1.first += _mat.row1.first;
             row1.second += _mat.row1.second;
             row1.third += _mat.row1.third;
@@ -803,7 +803,7 @@ namespace Libdas {
     /// Substract constant value from matrix and store the result in current matrix instance
     template<typename T>
     void Matrix3<T>::operator-=(const T &_c) {
-        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
+        if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value) {
             row1.first -= _c;
             row1.second -= _c;
             row1.third -= _c;
@@ -822,7 +822,7 @@ namespace Libdas {
     /// Substract a matrix from current matrix and store the result in current matrix instance
     template<typename T>
     void Matrix3<T>::operator-=(const Matrix3<T> &_mat) {
-        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
+        if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value) {
             row1.first -= _mat.row1.first;
             row1.second -= _mat.row1.second;
             row1.third -= _mat.row1.third;
@@ -841,7 +841,7 @@ namespace Libdas {
     /// Divide all matrix elements with constant and store the value in current matrix instance
     template<typename T>
     void Matrix3<T>::operator/=(const T &_c) {
-        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
+        if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value) {
             row1.first /= _c;
             row1.second /= _c;
             row1.third /= _c;
@@ -923,7 +923,7 @@ namespace Libdas {
     /// Transpose the current matrix
     template<typename T>
     Matrix3<T> Matrix3<T>::Transpose() const {
-        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
+        if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Matrix3<T> new_mat{};
             new_mat.row1 = Vector3<T>{row1.first, row2.first, row3.first};
             new_mat.row2 = Vector3<T>{row1.second, row2.second, row3.second};
@@ -1029,7 +1029,7 @@ namespace Libdas {
 
     template<typename T>
     Matrix4<T>::Matrix4() {
-        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
+        if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value) {
             row1 = Vector4<T>{1, 0, 0, 0};
             row2 = Vector4<T>{0, 1, 0, 0};
             row3 = Vector4<T>{0, 0, 1, 0};
@@ -1086,7 +1086,7 @@ namespace Libdas {
     /// Add two matrices together
     template<typename T>
     Matrix4<T> Matrix4<T>::operator+(const Matrix4<T> &_mat) const {
-        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
+        if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Matrix4<T> out;
             out.row1 = {row1.first + _mat.row1.first, row1.second + _mat.row1.second, row1.third + _mat.row1.third, row1.fourth + _mat.row1.fourth};
             out.row2 = {row2.first + _mat.row2.first, row2.second + _mat.row2.second, row2.third + _mat.row2.third, row2.fourth + _mat.row2.fourth};
@@ -1103,7 +1103,7 @@ namespace Libdas {
     /// Add constant to the current matrix
     template<typename T>
     Matrix4<T> Matrix4<T>::operator+(const T &_c) const {
-        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
+        if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Matrix4<T> out{};
             out.row1 = Vector4<T>{row1.first + _c, row1.second + _c, row1.third + _c, row1.fourth + _c};
             out.row2 = Vector4<T>{row2.first + _c, row2.second + _c, row2.third + _c, row2.fourth + _c};
@@ -1120,7 +1120,7 @@ namespace Libdas {
     /// Substract current matrix with given matrix
     template<typename T>
     Matrix4<T> Matrix4<T>::operator-(const Matrix4<T> &_mat) const {
-        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
+        if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Matrix4<T> out{};
             out.row1 = Vector4<T>{row1.first - _mat.row1.first, row1.second - _mat.row1.second, row1.third - _mat.row1.third, row1.fourth - _mat.row1.fourth};
             out.row2 = Vector4<T>{row2.first - _mat.row2.first, row2.second - _mat.row2.second, row2.second - _mat.row2.third, row2.fourth - _mat.row2.fourth};
@@ -1137,7 +1137,7 @@ namespace Libdas {
     /// Substract a constant number from the current matrix
     template<typename T>
     Matrix4<T> Matrix4<T>::operator-(const T &_c) const {
-        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
+        if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Matrix4<T> out{};
             out.row1 = Vector4<T>{row1.first - _c, row1.second - _c, row1.third - _c, row1.fourth - _c};
             out.row2 = Vector4<T>{row2.first - _c, row2.second - _c, row2.third - _c, row2.fourth - _c};
@@ -1154,7 +1154,7 @@ namespace Libdas {
     /// Multiply all matrix members with a constant
     template<typename T>
     Matrix4<T> Matrix4<T>::operator*(const T &_c) const {
-        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
+        if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Matrix4<T> out;
             out.row1 = {row1.first * _c, row1.second * _c, row1.third * _c, row1.fourth * _c};
             out.row2 = {row2.first * _c, row2.second * _c, row2.third * _c, row2.fourth * _c};
@@ -1170,7 +1170,7 @@ namespace Libdas {
     /// Find the dot product of two matrices
     template<typename T>
     Matrix4<T> Matrix4<T>::operator*(const Matrix4<T> &_mat) const {
-        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
+        if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Matrix4<T> out_mat;
             out_mat.row1 = Vector4<T>{
                 ((row1.first * _mat.row1.first) + (row1.second * _mat.row2.first) + (row1.third * _mat.row3.first) + (row1.fourth * _mat.row4.first)), 
@@ -1210,7 +1210,7 @@ namespace Libdas {
     /// Multiply with column vector
     template<typename T>
     Vector4<T> Matrix4<T>::operator*(const Vector4<T> &_vec) const {
-        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
+        if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Vector4<T> out_vec;
             out_vec.first = { _vec.first * row1.first + _vec.second * row1.second + _vec.third * row1.third + _vec.fourth * row1.fourth };
             out_vec.second = { _vec.first * row2.first + _vec.second * row2.second + _vec.third * row2.third + _vec.fourth * row2.fourth };
@@ -1227,7 +1227,7 @@ namespace Libdas {
     /// Divide all matrix elements with a constant
     template<typename T>
     Matrix4<T> Matrix4<T>::operator/(const T &_c) const {
-        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
+        if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Matrix4<T> out;
             out.row1 = Vector4<T>{row1.first / _c, row1.second / _c, row1.third / _c, row1.fourth / _c};
             out.row2 = Vector4<T>{row2.first / _c, row2.second / _c, row2.third / _c, row2.fourth / _c};
@@ -1244,7 +1244,7 @@ namespace Libdas {
     /// Multiply all matrix members with a constant and set the product as the value of the current matrix instance
 	template<typename T>
     void Matrix4<T>::operator*=(const T &_c) {
-        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
+        if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value) {
             row1.first *= _c;
             row1.second *= _c;
             row1.third *= _c;
@@ -1271,7 +1271,7 @@ namespace Libdas {
     /// Find the cross product of two matrices and set the current matrix instance value to it
     template<typename T>
     void Matrix4<T>::operator*=(const Matrix4<T> &_mat) {
-        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
+        if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Matrix4<T> new_mat{};
             new_mat.row1 = Vector4<T>{
                 ((row1.first * _mat.row1.first) + (row1.second * _mat.row2.first) + (row1.third * _mat.row3.first) + (row1.fourth * _mat.row4.first)), 
@@ -1309,7 +1309,7 @@ namespace Libdas {
     /// Add constant value to matrix and store the value in current matrix instance
     template<typename T>
     void Matrix4<T>::operator+=(const T &_c) {
-        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
+        if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value) {
             row1.first += _c;
             row1.second += _c;
             row1.third += _c;
@@ -1336,7 +1336,7 @@ namespace Libdas {
     /// Add two matrices together and store the value in current matrix instance
     template<typename T>
     void Matrix4<T>::operator+=(const Matrix4<T> &_mat) {
-        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
+        if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value) {
             row1.first += _mat.row1.first;
             row1.second += _mat.row1.second;
             row1.third += _mat.row1.third;
@@ -1363,7 +1363,7 @@ namespace Libdas {
     /// Substract constant value from matrix and store the result in current matrix instance
     template<typename T>
     void Matrix4<T>::operator-=(const T &_c) {
-        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
+        if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value) {
             row1.first -= _c;
             row1.second -= _c;
             row1.third -= _c;
@@ -1390,7 +1390,7 @@ namespace Libdas {
     /// Substract a matrix from current matrix and store the result in current matrix instance
     template<typename T>
     void Matrix4<T>::operator-=(const Matrix4<T> &_mat) {
-        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
+        if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value) {
             row1.first -= _mat.row1.first;
             row1.second -= _mat.row1.second;
             row1.third -= _mat.row1.third;
@@ -1417,7 +1417,7 @@ namespace Libdas {
     /// Divide all matrix elements with constant and store the value in current matrix instance
     template<typename T>
     void Matrix4<T>::operator/=(const T &_c) {
-        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
+        if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value) {
             row1.first /= _c;
             row1.second /= _c;
             row1.third /= _c;
@@ -1617,7 +1617,7 @@ namespace Libdas {
     /// Transpose the current matrix
     template<typename T>
     Matrix4<T> Matrix4<T>::Transpose() const {
-        if(std::is_floating_point<T>::value || std::is_integral<T>::value) {
+        if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value) {
             Matrix4<T> new_mat;
             new_mat.row1 = Vector4<T>{row1.first, row2.first, row3.first, row4.first};
             new_mat.row2 = Vector4<T>{row1.second, row2.second, row3.second, row4.second};
@@ -1625,9 +1625,9 @@ namespace Libdas {
             new_mat.row4 = Vector4<T>{row1.fourth, row2.fourth, row3.fourth, row4.fourth};
 
             return new_mat;
+        } else {
+            return Matrix4<T>();
         }
-
-        return Matrix4<T>{};
     }
 
 

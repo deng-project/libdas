@@ -13,8 +13,11 @@
     #include <climits>
     #include <cerrno>
     #include <iostream>
+    #include <algorithm>
 #if defined(_WIN32)
     #include <direct.h>
+    #include <Windows.h>
+    #include <libloaderapi.h>
     #define GetCurrentWorkingDir _getcwd
 #elif defined(__linux__)
     #include <unistd.h>
@@ -48,6 +51,7 @@ namespace Libdas {
         /**
          * Remove duplicate entries from sorted vector
          * @param _vec specifies the vector where to perform removal actions
+         * @complexity O(n^2)
          */
         template<typename _T>
         void RemoveDuplicates(std::vector<_T> &_vec) {
@@ -75,6 +79,12 @@ namespace Libdas {
          * @return std::string instance containing the generated absolute path
          */
         LIBDAS_API std::string RelativePathToAbsolute(const std::string& _rel);
+
+        /**
+         * Get the program executable path
+         * @return std::string instance containing the executable path
+         */
+        LIBDAS_API std::string GetProgramPath();
 
         /**
          * Create Knutt-Morris-Pratt LSP array

@@ -15,9 +15,9 @@ namespace Libdas {
             std::ifstream file(_file_name, std::ios_base::binary);
 
             // skip whitespaces
-            char ch = file.get();
+            char ch = static_cast<char>(file.get());
             while(ch == ' ' || ch == '\n' || ch == '\r')
-                ch = file.get();
+                ch = static_cast<char>(file.get());
 
             file.seekg(-1, std::ios_base::cur);
 

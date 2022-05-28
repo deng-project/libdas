@@ -37,7 +37,7 @@ namespace Libdas {
         void ShiftToMSB(unsigned char *bytes, size_t len, int shift) {
             LIBDAS_ASSERT(shift <= 8);
             if(shift >= 8) {
-                ShiftBytesRight(std::make_pair(reinterpret_cast<char*>(bytes), len), len, shift);
+                ShiftBytesRight(std::make_pair(reinterpret_cast<char*>(bytes), len), static_cast<int>(len), shift);
                 shift %= 8;
             }
 
@@ -69,7 +69,7 @@ namespace Libdas {
 
         void ShiftToLSB(unsigned char *bytes, size_t len, int shift) {
             if(shift >= 8) {
-                ShiftBytesLeft(std::make_pair(reinterpret_cast<char*>(bytes), len), len, static_cast<size_t>(shift / 8));
+                ShiftBytesLeft(std::make_pair(reinterpret_cast<char*>(bytes), len), static_cast<int>(len), shift / 8);
                 shift %= 8;
             }
 
@@ -360,7 +360,7 @@ namespace Libdas {
             for(int i = 0; i < size; i++) {
                 unsigned char k; 
                 uint32_t f;
-                k = ifile.get();
+                k = static_cast<unsigned char>(ifile.get());
                 ifile.read(reinterpret_cast<char*>(&f), sizeof(uint32_t));
                 m_freq[k] = f;
 
@@ -399,7 +399,7 @@ namespace Libdas {
             Node *root = m_root;
 
             while(!_ifile.eof()) {
-                b = _ifile.get();
+                b = static_cast<unsigned char>(_ifile.get());
                 // For each bit in the byte try to read its output
                 for(int i = 7; i >= 0; i--) {
                     if(((b >> i) & 1))
@@ -437,6 +437,7 @@ namespace Libdas {
 
             // allocate memory for decoded buffer
             char *buffer = reinterpret_cast<char*>(malloc(fsize + 1));
+            LIBDAS_ASSERT(buffer);
             *_o_size = 0;
 
             while(!_ifile.eof()) {

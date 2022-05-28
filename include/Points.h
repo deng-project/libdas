@@ -91,10 +91,10 @@ namespace Libdas {
 #ifdef ITERATORS_H
         typedef VectorIterator<T> iterator;
 #endif
-        T x, y, z;
+        T x = T(), y = T(), z = T();
 
         Point3D<T>() {
-            if(std::is_floating_point<T>::value || std::is_integral<T>::value)
+            if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value)
                 x = 0, y = 0, z = 0;
             else x = T(), y = T(), z = T();
         }
@@ -194,7 +194,7 @@ namespace Libdas {
             y = _pt.y;
             z = _pt.z;
 
-            if(std::is_floating_point<T>::value || std::is_integral<T>::value)
+            if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value)
                 w = 1;
             else w = T();
         }
@@ -243,8 +243,8 @@ namespace Libdas {
             return x != _pt.x || y != _pt.y || z != _pt.z;
         }
 
-        static T GetNormalizedValue() {
-            if(std::is_floating_point<T>::value || std::is_integral<T>::value)
+        static constexpr T GetNormalizedValue() {
+            if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value)
                 return 1;
             else return T();
         }

@@ -534,7 +534,7 @@ namespace Libdas {
     DasAnimation::DasAnimation(DasAnimation &&_ani) : 
         name(std::move(_ani.name)), 
         channel_count(_ani.channel_count), 
-        channels(_ani.channels) 
+        channels(_ani.channels)
     {
         _ani.channels = nullptr;
     }

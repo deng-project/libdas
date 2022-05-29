@@ -19,11 +19,11 @@ namespace Libdas {
 
         Vector2<T> row1, row2;
 
-        Matrix2();
-        Matrix2(const Vector2<T> &r1, const Vector2<T> &r2);
-        Matrix2(Vector2<T> &&r1, Vector2<T> &&r2);
-        Matrix2(const Matrix2<T> &val);
-        Matrix2(Matrix2<T> &&val);
+        Matrix2() noexcept;
+        Matrix2(const Vector2<T> &r1, const Vector2<T> &r2) noexcept;
+        Matrix2(Vector2<T> &&r1, Vector2<T> &&r2) noexcept;
+        Matrix2(const Matrix2<T> &val) noexcept;
+        Matrix2(Matrix2<T> &&val) noexcept;
         void operator=(const Matrix2<T> &val);
 
     
@@ -94,7 +94,7 @@ namespace Libdas {
 
     
     template<typename T>
-    Matrix2<T>::Matrix2() {
+    Matrix2<T>::Matrix2() noexcept {
         if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value) {
             row1 = Vector2<T>(1, 0);
             row2 = Vector2<T>(0, 1);
@@ -103,28 +103,28 @@ namespace Libdas {
 
 
     template<typename T>
-    Matrix2<T>::Matrix2(const Vector2<T> &_r1, const Vector2<T> &_r2) {
+    Matrix2<T>::Matrix2(const Vector2<T> &_r1, const Vector2<T> &_r2) noexcept {
         row1 = _r1;
         row2 = _r2;
     }
 
 
     template<typename T>
-    Matrix2<T>::Matrix2(Vector2<T> &&_r1, Vector2<T> &&_r2) {
+    Matrix2<T>::Matrix2(Vector2<T> &&_r1, Vector2<T> &&_r2) noexcept {
         row1 = std::move(_r1);
         row2 = std::move(_r2);
     }
 
 
     template<typename T>
-    Matrix2<T>::Matrix2(const Matrix2<T> &_val) {
+    Matrix2<T>::Matrix2(const Matrix2<T> &_val) noexcept {
         row1 = _val.row1;
         row2 = _val.row2;
     }
 
 
     template<typename T>
-    Matrix2<T>::Matrix2(Matrix2<T> &&_val) {
+    Matrix2<T>::Matrix2(Matrix2<T> &&_val) noexcept {
         row1 = std::move(_val.row1);
         row2 = std::move(_val.row2);
     }
@@ -456,11 +456,11 @@ namespace Libdas {
 #endif
         Vector3<T> row1, row2, row3;
 
-        Matrix3();
-        Matrix3(const Vector3<T> &r1, const Vector3<T> &r2, const Vector3<T> &r3);
-        Matrix3(Vector3<T> &&r1, Vector3<T> &&r2, Vector3<T> &&r3);
-        Matrix3(const Matrix3<T> &val);
-        Matrix3(Matrix3<T>&& val);
+        Matrix3() noexcept;
+        Matrix3(const Vector3<T> &r1, const Vector3<T> &r2, const Vector3<T> &r3) noexcept;
+        Matrix3(Vector3<T> &&r1, Vector3<T> &&r2, Vector3<T> &&r3) noexcept;
+        Matrix3(const Matrix3<T> &val) noexcept;
+        Matrix3(Matrix3<T>&& val) noexcept;
         void operator=(const Matrix3<T> &val);
         
         
@@ -526,7 +526,7 @@ namespace Libdas {
 
 
     template<typename T>
-    Matrix3<T>::Matrix3() {
+    Matrix3<T>::Matrix3() noexcept {
         if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value) {
             row1 = Vector3<T>{1, 0, 0};
             row2 = Vector3<T>{0, 1, 0};
@@ -536,7 +536,7 @@ namespace Libdas {
 
 
     template<typename T>
-    Matrix3<T>::Matrix3(const Vector3<T> &r1, const Vector3<T> &r2, const Vector3<T> &r3) {
+    Matrix3<T>::Matrix3(const Vector3<T> &r1, const Vector3<T> &r2, const Vector3<T> &r3) noexcept {
         row1 = r1;
         row2 = r2;
         row3 = r3;
@@ -544,7 +544,7 @@ namespace Libdas {
 
 
     template<typename T>
-    Matrix3<T>::Matrix3(Vector3<T> &&r1, Vector3<T> &&r2, Vector3<T> &&r3) {
+    Matrix3<T>::Matrix3(Vector3<T> &&r1, Vector3<T> &&r2, Vector3<T> &&r3) noexcept {
         row1 = std::move(r1);
         row2 = std::move(r2);
         row3 = std::move(r3);
@@ -552,7 +552,7 @@ namespace Libdas {
 
 
     template<typename T>
-    Matrix3<T>::Matrix3(const Matrix3<T> &val) {
+    Matrix3<T>::Matrix3(const Matrix3<T> &val) noexcept {
         row1 = val.row1;
         row2 = val.row2;
         row3 = val.row3;
@@ -560,7 +560,7 @@ namespace Libdas {
 
 
     template<typename T>
-    Matrix3<T>::Matrix3(Matrix3<T> &&val) {
+    Matrix3<T>::Matrix3(Matrix3<T> &&val) noexcept {
         row1 = std::move(val.row1);
         row2 = std::move(val.row2);
         row3 = std::move(val.row3);
@@ -955,11 +955,11 @@ namespace Libdas {
 #ifdef ITERATORS_H
         typedef MatrixIterator<T> iterator;
 #endif
-        Matrix4();
-        Matrix4(const Vector4<T> &_r1, const Vector4<T> &_r2, const Vector4<T> &_r3, const Vector4<T> &_r4);
-        Matrix4(Vector4<T> &&_r1, Vector4<T> &&_r2, Vector4<T> &&_r3, Vector4<T> &&_r4);
-        Matrix4(const Matrix4<T> &_val);
-        Matrix4(Matrix4<T>&& _val);
+        Matrix4() noexcept;
+        Matrix4(const Vector4<T> &_r1, const Vector4<T> &_r2, const Vector4<T> &_r3, const Vector4<T> &_r4) noexcept;
+        Matrix4(Vector4<T> &&_r1, Vector4<T> &&_r2, Vector4<T> &&_r3, Vector4<T> &&_r4) noexcept;
+        Matrix4(const Matrix4<T> &_val) noexcept;
+        Matrix4(Matrix4<T>&& _val) noexcept;
         void operator=(const Matrix4<T> &_val);
 
         Vector4<T> row1, row2, row3, row4; 
@@ -1028,7 +1028,7 @@ namespace Libdas {
 
 
     template<typename T>
-    Matrix4<T>::Matrix4() {
+    Matrix4<T>::Matrix4() noexcept {
         if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value) {
             row1 = Vector4<T>{1, 0, 0, 0};
             row2 = Vector4<T>{0, 1, 0, 0};
@@ -1039,7 +1039,7 @@ namespace Libdas {
 
 
     template<typename T>
-    Matrix4<T>::Matrix4(const Vector4<T> &_r1, const Vector4<T> &_r2, const Vector4<T> &_r3, const Vector4<T> &_r4) {
+    Matrix4<T>::Matrix4(const Vector4<T> &_r1, const Vector4<T> &_r2, const Vector4<T> &_r3, const Vector4<T> &_r4) noexcept {
         row1 = _r1;
         row2 = _r2;
         row3 = _r3;
@@ -1048,7 +1048,7 @@ namespace Libdas {
 
 
     template<typename T>
-    Matrix4<T>::Matrix4(Vector4<T> &&_r1, Vector4<T> &&_r2, Vector4<T> &&_r3, Vector4<T> &&_r4) {
+    Matrix4<T>::Matrix4(Vector4<T> &&_r1, Vector4<T> &&_r2, Vector4<T> &&_r3, Vector4<T> &&_r4) noexcept {
         row1 = std::move(_r1);
         row2 = std::move(_r2);
         row3 = std::move(_r3);
@@ -1057,7 +1057,7 @@ namespace Libdas {
 
 
     template<typename T>
-    Matrix4<T>::Matrix4(const Matrix4<T> &_val) {
+    Matrix4<T>::Matrix4(const Matrix4<T> &_val) noexcept {
         row1 = _val.row1;
         row2 = _val.row2;
         row3 = _val.row3;
@@ -1066,7 +1066,7 @@ namespace Libdas {
 
 
     template<typename T>
-    Matrix4<T>::Matrix4(Matrix4<T> &&_val) {
+    Matrix4<T>::Matrix4(Matrix4<T> &&_val) noexcept {
         row1 = std::move(_val.row1);
         row2 = std::move(_val.row2);
         row3 = std::move(_val.row3);

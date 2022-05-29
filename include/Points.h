@@ -23,30 +23,30 @@ namespace Libdas {
 #endif
         T x, y;
 
-        Point2D<T>() {
-            if(std::is_floating_point<T>::value || std::is_integral<T>::value)
+        Point2D<T>() noexcept {
+            if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value)
                 x = 0, y = 0;
             else x = T(), y = T();
         }
 
-        Point2D<T>(const Point2D<T> &_val) : x(_val.x), y(_val.y) {}
+        Point2D<T>(const Point2D<T> &_val)  noexcept : x(_val.x), y(_val.y) {}
 
-        Point2D<T>(Point2D<T> &&_val) : x(std::move(_val.x)), y(std::move(_val.y)) {}
+        Point2D<T>(Point2D<T> &&_val) noexcept : x(std::move(_val.x)), y(std::move(_val.y)) {}
 
-        Point2D<T>(T &&_x, T &&_y = T()) : x(std::move(_x)), y(std::move(_y)) {}
+        Point2D<T>(T &&_x, T &&_y = T()) noexcept : x(std::move(_x)), y(std::move(_y)) {}
 
-        Point2D<T>(const T &_val1, const T &_val2 = T()) : x(_val1), y(_val2) {}
+        Point2D<T>(const T &_val1, const T &_val2 = T()) noexcept : x(_val1), y(_val2) {}
 
         Point2D<T> operator+(const Point2D<T> &_pt) const {
             return Point2D<T>{x + _pt.x, y + _pt.y};
         }
 
-        void operator=(const Point2D<T> &_pt) {
+        void operator=(const Point2D<T> &_pt) noexcept {
             x = _pt.x;
             y = _pt.y;
         }
 
-        void operator=(Point2D<T> &&_pt) {
+        void operator=(Point2D<T> &&_pt) noexcept {
             x = std::move(_pt.x);
             y = std::move(_pt.y);
         }
@@ -93,31 +93,31 @@ namespace Libdas {
 #endif
         T x = T(), y = T(), z = T();
 
-        Point3D<T>() {
+        Point3D<T>() noexcept {
             if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value)
                 x = 0, y = 0, z = 0;
             else x = T(), y = T(), z = T();
         }
 
-        Point3D<T>(const Point3D<T> &_val) : x(_val.x), y(_val.y), z(_val.z) {}
+        Point3D<T>(const Point3D<T> &_val) noexcept : x(_val.x), y(_val.y), z(_val.z) {}
 
-        Point3D<T>(Point3D<T> &&_val) : x(std::move(_val.x)), y(std::move(_val.y)), z(std::move(_val.z)) {}
+        Point3D<T>(Point3D<T> &&_val) noexcept : x(std::move(_val.x)), y(std::move(_val.y)), z(std::move(_val.z)) {}
 
-        Point3D<T>(T &&_x, T &&_y = T(), T &&_z = T()) : x(std::move(_x)), y(std::move(_y)), z(std::move(_z)) {}
+        Point3D<T>(T &&_x, T &&_y = T(), T &&_z = T()) noexcept : x(std::move(_x)), y(std::move(_y)), z(std::move(_z)) {}
 
-        Point3D<T>(const T &_x, const T &_y = T(), const T &_z = T()) : x(_x), y(_y), z(_z) {}
+        Point3D<T>(const T &_x, const T &_y = T(), const T &_z = T()) noexcept : x(_x), y(_y), z(_z) {}
 
         Point3D<T> operator+(const Point3D<T> &_pt) const {
             return Point3D<T>{_pt.x + x, y + _pt.y, z + _pt.z};
         }
 
-        void operator=(const Point3D<T> &_pt) {
+        void operator=(const Point3D<T> &_pt) noexcept {
             x = _pt.x;
             y = _pt.y;
             z = _pt.z;
         }
 
-        void operator=(Point3D<T> &&_pt) {
+        void operator=(Point3D<T> &&_pt) noexcept {
             x = std::move(_pt.x);
             y = std::move(_pt.y);
             z = std::move(_pt.z);
@@ -173,23 +173,23 @@ namespace Libdas {
 #endif
         T x, y, z, w;
 
-        Point4D<T>() {
+        Point4D<T>() noexcept {
             if(std::is_floating_point<T>::value || std::is_integral<T>::value)
                 x = 0, y = 0, z = 0, w = 1;
             else x = T(), y = T(), z = T(), w = T();
         }
 
-        Point4D<T>(const Point4D<T> &_val) : x(_val.x), y(_val.y), z(_val.z), w(_val.w) {}
+        Point4D<T>(const Point4D<T> &_val) noexcept : x(_val.x), y(_val.y), z(_val.z), w(_val.w) {}
 
-        Point4D<T>(Point4D<T> &&_val) : x(std::move(_val.x)), y(std::move(_val.y)), z(std::move(_val.z)), w(std::move(_val.w)) {}
+        Point4D<T>(Point4D<T> &&_val) noexcept : x(std::move(_val.x)), y(std::move(_val.y)), z(std::move(_val.z)), w(std::move(_val.w)) {}
 
-        Point4D<T>(T &&_x, T &&_y = T(), T &&_z = T(), T &&_w = T()) : 
+        Point4D<T>(T &&_x, T &&_y = T(), T &&_z = T(), T &&_w = T()) noexcept :
             x(std::move(_x)), y(std::move(_y)), z(std::move(_z)), w(std::move(_w)) {}
 
-        Point4D<T>(const T &_x, const T &_y = T(), const T &_z = T(), const T &_w = T()) : 
+        Point4D<T>(const T &_x, const T &_y = T(), const T &_z = T(), const T &_w = T()) noexcept :
             x(_x), y(_y), z(_z), w(_w) {}
 
-        Point4D<T>(const Point3D<T> &_pt) {
+        Point4D<T>(const Point3D<T> &_pt) noexcept {
             x = _pt.x;
             y = _pt.y;
             z = _pt.z;
@@ -203,14 +203,14 @@ namespace Libdas {
             return Point4D<T>{x + _pt.x, y + _pt.y, z + _pt.z, w + _pt.w};
         }
 
-        void operator=(const Point4D<T> &_pt) {
+        void operator=(const Point4D<T> &_pt) noexcept {
             x = _pt.x;
             y = _pt.y;
             z = _pt.z;
             w = _pt.w;
         }
 
-        void operator=(Point4D<T> &&_pt) {
+        void operator=(Point4D<T> &&_pt) noexcept {
             x = std::move(_pt.x);
             y = std::move(_pt.y);
             z = std::move(_pt.z);

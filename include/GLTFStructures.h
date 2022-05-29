@@ -106,13 +106,6 @@ namespace Libdas {
         std::vector<std::any> extensions;               // ignored
         std::vector<std::any> extras;                   // ignored
         uint32_t accumulated_offset = 0;                // custom
-
-        // less operator
-        struct less {
-            bool operator()(const GLTFAccessor *_a1, const GLTFAccessor *_a2) {
-                return _a1->accumulated_offset < _a2->accumulated_offset;
-            }
-        };
     };
 
 

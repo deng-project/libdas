@@ -28,21 +28,21 @@
 
 /// Buffer type definitions
 typedef uint16_t BufferType;
-#define LIBDAS_BUFFER_TYPE_UNKNOWN                  0x0000
-#define LIBDAS_BUFFER_TYPE_VERTEX                   0x0001
-#define LIBDAS_BUFFER_TYPE_TEXTURE_MAP              0x0002
-#define LIBDAS_BUFFER_TYPE_VERTEX_NORMAL            0x0004
-#define LIBDAS_BUFFER_TYPE_VERTEX_TANGENT           0x0008
-#define LIBDAS_BUFFER_TYPE_COLOR                    0x0010
-#define LIBDAS_BUFFER_TYPE_JOINTS                   0x0020
-#define LIBDAS_BUFFER_TYPE_WEIGHTS                  0x0040
-#define LIBDAS_BUFFER_TYPE_INDICES                  0x0080
-#define LIBDAS_BUFFER_TYPE_TEXTURE_JPEG             0x0100
-#define LIBDAS_BUFFER_TYPE_TEXTURE_PNG              0x0200
-#define LIBDAS_BUFFER_TYPE_TEXTURE_TGA              0x0400
-#define LIBDAS_BUFFER_TYPE_TEXTURE_BMP              0x0800
-#define LIBDAS_BUFFER_TYPE_TEXTURE_PPM              0x1000
-#define LIBDAS_BUFFER_TYPE_TEXTURE_RAW              0x2000
+#define LIBDAS_BUFFER_TYPE_UNKNOWN                  ((BufferType) 0x0000)
+#define LIBDAS_BUFFER_TYPE_VERTEX                   ((BufferType) 0x0001)
+#define LIBDAS_BUFFER_TYPE_TEXTURE_MAP              ((BufferType) 0x0002)
+#define LIBDAS_BUFFER_TYPE_VERTEX_NORMAL            ((BufferType) 0x0004)
+#define LIBDAS_BUFFER_TYPE_VERTEX_TANGENT           ((BufferType) 0x0008)
+#define LIBDAS_BUFFER_TYPE_COLOR                    ((BufferType) 0x0010)
+#define LIBDAS_BUFFER_TYPE_JOINTS                   ((BufferType) 0x0020)
+#define LIBDAS_BUFFER_TYPE_WEIGHTS                  ((BufferType) 0x0040)
+#define LIBDAS_BUFFER_TYPE_INDICES                  ((BufferType) 0x0080)
+#define LIBDAS_BUFFER_TYPE_TEXTURE_JPEG             ((BufferType) 0x0100)
+#define LIBDAS_BUFFER_TYPE_TEXTURE_PNG              ((BufferType) 0x0200)
+#define LIBDAS_BUFFER_TYPE_TEXTURE_TGA              ((BufferType) 0x0400)
+#define LIBDAS_BUFFER_TYPE_TEXTURE_BMP              ((BufferType) 0x0800)
+#define LIBDAS_BUFFER_TYPE_TEXTURE_PPM              ((BufferType) 0x1000)
+#define LIBDAS_BUFFER_TYPE_TEXTURE_RAW              ((BufferType) 0x2000)
 
 #define LIBDAS_BUFFER_TYPE_TEXTURE                  (LIBDAS_BUFFER_TYPE_TEXTURE_JPEG | LIBDAS_BUFFER_TYPE_TEXTURE_PNG |\
                                                      LIBDAS_BUFFER_TYPE_TEXTURE_TGA | LIBDAS_BUFFER_TYPE_TEXTURE_BMP |\

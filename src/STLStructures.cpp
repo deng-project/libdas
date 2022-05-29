@@ -90,8 +90,12 @@ namespace Libdas {
         }
 
 
-        void _OuterLoopCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args, void *custom) {
-            const std::array<std::string, 2> keywords = {"outer", "loop"};
+        void _OuterLoopCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args, void *_custom) {
+            const std::array<std::string, 2> keywords = { "outer", "loop" };
+            
+            if (!_groups.size())
+                _error.Error(LIBDAS_ERROR_INVALID_KEYWORD, _args.first, keywords[0], "", TERMINATE);
+
             const std::string con_keyword = keywords[0] + " " + keywords[1];
             _error.ArgCountCheck(keywords[0], _args.first, static_cast<uint32_t>(_args.second.size()), 1, 1, TERMINATE);
             
@@ -99,7 +103,7 @@ namespace Libdas {
             if(_args.second[0] != keywords[1])
                 _error.Error(LIBDAS_ERROR_INVALID_KEYWORD, _args.first, keywords[0], "", TERMINATE);
 
-            bool *p_is_loop = reinterpret_cast<bool*>(custom);
+            bool *p_is_loop = reinterpret_cast<bool*>(_custom);
             if(*p_is_loop)
                 _error.Error(LIBDAS_ERROR_INCOMPLETE_SCOPE, _args.first, con_keyword);
 
@@ -109,6 +113,11 @@ namespace Libdas {
 
         void _VertexCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args, void *custom) {
             const std::string keyword = "vertex";
+            LIBDAS_ASSERT(custom == nullptr);
+
+            if (!_groups.size())
+                _error.Error(LIBDAS_ERROR_INVALID_KEYWORD, _args.first, keyword);
+            
             _error.ArgCountCheck(keyword, _args.first, static_cast<uint32_t>(_args.second.size()), 3, 3, TERMINATE);
 
             Point3D<float> vertex;
@@ -125,6 +134,10 @@ namespace Libdas {
 
         void _EndLoopCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args, void *custom) {
             const std::string keyword = "endloop";
+
+            if (!_groups.size())
+                _error.Error(LIBDAS_ERROR_INVALID_KEYWORD, _args.first, keyword);
+            
             _error.ArgCountCheck(keyword, _args.first, static_cast<uint32_t>(_args.second.size()), 0, 0, TERMINATE);
             
             bool *p_is_loop = reinterpret_cast<bool*>(custom);
@@ -137,6 +150,10 @@ namespace Libdas {
 
         void _EndFacetCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args, void *custom) {
             const std::string keyword = "endfacet";
+            
+            if (!_groups.size())
+                _error.Error(LIBDAS_ERROR_INVALID_KEYWORD, _args.first, keyword);
+
             _error.ArgCountCheck(keyword, _args.first, static_cast<uint32_t>(_args.second.size()), 0, 0, TERMINATE);
 
             bool *p_is_facet = reinterpret_cast<bool*>(custom);
@@ -149,6 +166,10 @@ namespace Libdas {
 
         void _EndSolidCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args, void *custom) {
             const std::string keyword = "endsolid";
+
+            if (!_groups.size())
+                _error.Error(LIBDAS_ERROR_INVALID_KEYWORD, _args.first, keyword);
+
             _error.ArgCountCheck(keyword, _args.first, static_cast<uint32_t>(_args.second.size()), 0, UINT32_MAX, TERMINATE);
             std::string con_name = _ConcatenateArgs(_args);
             bool *p_is_solid = reinterpret_cast<bool*>(custom);

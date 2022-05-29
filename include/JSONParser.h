@@ -60,14 +60,14 @@ namespace Libdas {
     struct JSONNode {
         JSONNode() = default;
 
-        JSONNode(const JSONNode &_node) : 
+        JSONNode(const JSONNode &_node) noexcept :
             parent(_node.parent), 
             name(_node.name), 
             sub_nodes(_node.sub_nodes),
             values(_node.values), 
             key_val_decl_line(_node.key_val_decl_line) {}
 
-        JSONNode(JSONNode &&_node) : 
+        JSONNode(JSONNode &&_node) noexcept : 
             parent(_node.parent), 
             name(std::move(_node.name)), 
             sub_nodes(std::move(_node.sub_nodes)), 

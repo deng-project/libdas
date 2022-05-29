@@ -20,11 +20,11 @@ namespace Libdas {
 #ifdef ITERATORS_H
         typedef VectorIterator<T> iterator;
 #endif
-        Vector2();
-        Vector2(const T &r1, const T &r2);
-        Vector2(T &&r1, T &&r2);
-        Vector2(const Vector2<T> &val);
-        Vector2(Vector2<T>&& val);
+        Vector2() noexcept;
+        Vector2(const T &r1, const T &r2) noexcept;
+        Vector2(T &&r1, T &&r2) noexcept;
+        Vector2(const Vector2<T> &val) noexcept;
+        Vector2(Vector2<T>&& val) noexcept;
         inline void operator=(const Vector2<T> &val);
 
         T first, second;
@@ -80,35 +80,35 @@ namespace Libdas {
 
 
     template<typename T>
-    Vector2<T>::Vector2() {
+    Vector2<T>::Vector2() noexcept {
         memset(&first, 0, sizeof(T));
         memset(&second, 0, sizeof(T));
     }
 
     
     template<typename T>
-    Vector2<T>::Vector2(const T &r1, const T &r2) {
+    Vector2<T>::Vector2(const T &r1, const T &r2) noexcept {
         first = r1;
         second = r2;
     }
 
 
     template<typename T>
-    Vector2<T>::Vector2(T &&r1, T &&r2) {
+    Vector2<T>::Vector2(T &&r1, T &&r2) noexcept {
         first = std::move(r1);
         second = std::move(r2);
     }
 
 
     template<typename T>
-    Vector2<T>::Vector2(const Vector2<T> &val) {
+    Vector2<T>::Vector2(const Vector2<T> &val) noexcept {
         first = val.first;
         second = val.second;
     }
 
 
     template<typename T>
-    Vector2<T>::Vector2(Vector2<T> &&val) {
+    Vector2<T>::Vector2(Vector2<T> &&val) noexcept {
         first = std::move(val.first);
         second = std::move(val.second);
     }
@@ -317,11 +317,11 @@ namespace Libdas {
 #ifdef ITERATORS_H
         typedef VectorIterator<T> iterator;
 #endif
-        Vector3();
-        Vector3(const T &r1, const T &r2, const T &r3);
-        Vector3(T &&r1, T &&r2, T &&r3);
-        Vector3(const Vector3<T> &val);
-        Vector3(Vector3<T>&& val);
+        Vector3() noexcept;
+        Vector3(const T &r1, const T &r2, const T &r3) noexcept;
+        Vector3(T &&r1, T &&r2, T &&r3) noexcept;
+        Vector3(const Vector3<T> &val) noexcept;
+        Vector3(Vector3<T>&& val) noexcept;
         inline void operator=(const Vector3<T> &val);
 
         T first, second, third;
@@ -382,7 +382,7 @@ namespace Libdas {
     /*********************************************/
 
     template<typename T>
-    Vector3<T>::Vector3() {
+    Vector3<T>::Vector3() noexcept {
         memset(&first, 0 , sizeof(T));
         memset(&second, 0 , sizeof(T));
         memset(&third, 0 , sizeof(T));
@@ -390,7 +390,7 @@ namespace Libdas {
 
 
     template<typename T>
-    Vector3<T>::Vector3(const T &r1, const T &r2, const T &r3) {
+    Vector3<T>::Vector3(const T &r1, const T &r2, const T &r3) noexcept {
         first = r1;
         second = r2;
         third = r3;
@@ -398,7 +398,7 @@ namespace Libdas {
 
 
     template<typename T>
-    Vector3<T>::Vector3(T &&r1, T &&r2, T &&r3) {
+    Vector3<T>::Vector3(T &&r1, T &&r2, T &&r3) noexcept {
         first = std::move(r1);
         second = std::move(r2);
         third = std::move(r3);
@@ -406,7 +406,7 @@ namespace Libdas {
 
 
     template<typename T>
-    Vector3<T>::Vector3(const Vector3<T> &val) {
+    Vector3<T>::Vector3(const Vector3<T> &val) noexcept {
         first = val.first;
         second = val.second;
         third = val.third;
@@ -414,7 +414,7 @@ namespace Libdas {
 
 
     template<typename T>
-    Vector3<T>::Vector3(Vector3<T> &&val) {
+    Vector3<T>::Vector3(Vector3<T> &&val) noexcept {
         first = std::move(val.first);
         second = std::move(val.second);
         third = std::move(val.third);
@@ -438,9 +438,9 @@ namespace Libdas {
                 third + _vec.third
             };
             return out; 
+        } else {
+            return Vector3<T>{};
         }
-
-        return Vector3<T>{};
     }
 
 
@@ -515,9 +515,9 @@ namespace Libdas {
                 _c * third,
             };
             return out; 
+        } else {
+            return Vector3<T>{};
         }
-
-        return Vector3<T>{};
     }
 
 
@@ -530,9 +530,9 @@ namespace Libdas {
                 third / _c,
             };
             return out; 
+        } else {
+            return Vector3<T>{};
         }
-
-        return Vector3<T>{};
     }
 
 
@@ -544,13 +544,6 @@ namespace Libdas {
             third *= _c;
         }
     }
-
-
-    //template<typename T>
-    //void Vector3<T>::operator*=(const Matrix3<T> &_mat) {
-        //if constexpr (std::is_floating_point<T>::value || std::is_integral<T>::value)
-            //*this = _mat * (*this);
-    //}
 
 
     template<typename T>
@@ -696,11 +689,11 @@ namespace Libdas {
 #ifdef ITERATORS_H
         typedef VectorIterator<T> iterator;
 #endif
-        Vector4();
-        Vector4(const T &r1, const T &r2, const T &r3, const T &r4);
-        Vector4(T &&r1, T &&r2, T &&r3, T &&r4);
-        Vector4(const Vector4<T> &val);
-        Vector4(Vector4<T>&& val);
+        Vector4() noexcept;
+        Vector4(const T &r1, const T &r2, const T &r3, const T &r4) noexcept;
+        Vector4(T &&r1, T &&r2, T &&r3, T &&r4) noexcept;
+        Vector4(const Vector4<T> &val) noexcept;
+        Vector4(Vector4<T>&& val) noexcept;
         void operator=(const Vector4<T> &val);
 
         T first, second, third, fourth;
@@ -768,7 +761,7 @@ namespace Libdas {
 
 
     template<typename T>
-    Vector4<T>::Vector4() {
+    Vector4<T>::Vector4() noexcept {
         memset(&first, 0, sizeof(T));
         memset(&second, 0, sizeof(T));
         memset(&third, 0, sizeof(T));
@@ -777,7 +770,7 @@ namespace Libdas {
 
 
     template<typename T>
-    Vector4<T>::Vector4(const T &r1, const T &r2, const T &r3, const T &r4) {
+    Vector4<T>::Vector4(const T &r1, const T &r2, const T &r3, const T &r4) noexcept {
         first = r1;
         second = r2;
         third = r3;
@@ -786,7 +779,7 @@ namespace Libdas {
 
 
     template<typename T>
-    Vector4<T>::Vector4(T &&r1, T &&r2, T &&r3, T &&r4) {
+    Vector4<T>::Vector4(T &&r1, T &&r2, T &&r3, T &&r4) noexcept {
         first = std::move(r1);
         second = std::move(r2);
         third = std::move(r3);
@@ -795,7 +788,7 @@ namespace Libdas {
 
 
     template<typename T>
-    Vector4<T>::Vector4(const Vector4<T> &val) {
+    Vector4<T>::Vector4(const Vector4<T> &val) noexcept {
         first = val.first;
         second = val.second;
         third = val.third;
@@ -804,7 +797,7 @@ namespace Libdas {
 
 
     template<typename T>
-    Vector4<T>::Vector4(Vector4<T> &&val) {
+    Vector4<T>::Vector4(Vector4<T> &&val) noexcept {
         first = std::move(val.first);
         second = std::move(val.second);
         third = std::move(val.third);

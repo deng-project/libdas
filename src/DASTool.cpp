@@ -32,13 +32,13 @@ void DASTool::_ConvertSTL(const std::string &_input_file) {
     if(is_ascii) {
         Libdas::AsciiSTLParser parser(_input_file);
         parser.Parse();
-        Libdas::STLCompiler(parser.GetObjects(), m_props, m_out_file);
+        Libdas::STLCompiler cmp(parser.GetObjects(), m_props, m_out_file);
     } else {
         Libdas::BinarySTLParser parser(_input_file);
         parser.Parse();
 
         std::vector<Libdas::STLObject> objects = {parser.GetObject()};
-        Libdas::STLCompiler(objects, m_props, m_out_file);
+        Libdas::STLCompiler cmp(objects, m_props, m_out_file);
     }
 }
 
@@ -49,7 +49,7 @@ void DASTool::_ConvertWavefrontObj(const std::string &_input_file) {
 
     Libdas::WavefrontObjParser parser(_input_file);
     parser.Parse();
-    Libdas::WavefrontObjCompiler(parser.GetParsedData(), m_props, m_out_file, m_embedded_textures);
+    Libdas::WavefrontObjCompiler cmp(parser.GetParsedData(), m_props, m_out_file, m_embedded_textures);
 }
 
 
@@ -254,7 +254,7 @@ void DASTool::_ListDasBuffers(Libdas::DasParser &_parser) {
 
 void DASTool::_ListDasScenes(Libdas::DasParser &_parser) {
     for(size_t i = 0; i < _parser.GetSceneCount(); i++) {
-        const Libdas::DasScene &scene = _parser.AccessScene(i);
+        const Libdas::DasScene &scene = _parser.AccessScene(static_cast<uint32_t>(i));
         std::cout << std::endl << "-- Scene nr " << i << " --" << std::endl;
 
         if(scene.name != "")
@@ -495,8 +495,8 @@ void DASTool::_ListDasSkeletonJoints(Libdas::DasParser &_parser) {
         if(joint.name != "") std::cout << "Name: " << joint.name << std::endl;
         std::cout << "Children count: " << joint.children_count << std::endl;
         std::cout << "Children: ";
-        for(uint32_t i = 0; i < joint.children_count; i++)
-            std::cout << joint.children[i] << " ";
+        for(uint32_t j = 0; j < joint.children_count; j++)
+            std::cout << joint.children[j] << " ";
         std::cout << std::endl;
 
         std::cout << "Scale: " << joint.scale << std::endl;
@@ -687,8 +687,8 @@ void DASTool::_ListDasAnimations(Libdas::DasParser &_parser) {
         
         std::cout << "Channel count: " << animation.channel_count << std::endl;
         std::cout << "Channels: ";
-        for(uint32_t i = 0; i < animation.channel_count; i++)
-            std::cout << animation.channels[i] << " ";
+        for(uint32_t j = 0; j < animation.channel_count; j++)
+            std::cout << animation.channels[j] << " ";
         std::cout << std::endl;
     }
 }

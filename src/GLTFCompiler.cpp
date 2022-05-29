@@ -112,8 +112,12 @@ namespace Libdas {
         }
 
         // sort results
-        for(size_t i = 0; i < all_regions.size(); i++)
-            std::sort(all_regions[i].begin(), all_regions[i].end(), GLTFAccessor::less());
+        for (size_t i = 0; i < all_regions.size(); i++) {
+            std::sort(all_regions[i].begin(), all_regions[i].end(),
+                [](const GLTFAccessor* _a1, const GLTFAccessor* _a2) {
+                    return _a1->accumulated_offset < _a2->accumulated_offset;
+                });
+        }
 
 
         return all_regions;
@@ -295,6 +299,9 @@ namespace Libdas {
         uint32_t accumulated_pad = 0;
         for(GLTFAccessor *accessor : _accessors) {
             if(accessor->accumulated_offset > _offset) {
+                accessor->byte_offset += _diff;
+                accessor->accumulated_offset += _diff;
+
                 if(is_prev_unaligned) {
                     const uint32_t id = static_cast<uint32_t>(accessor - _root.accessors.data());
                     BufferAccessorData accessor_data = _FindAccessorData(_root, id);
@@ -302,19 +309,20 @@ namespace Libdas {
                     uint32_t component_size = _FindKhronosComponentSize(accessor_data.component_type);
 
                     // check if offset alignment is necessary
-                    if((accessor_data.buffer_offset + _diff) % component_size) {
-                        uint32_t pad_size = component_size - ((accessor_data.buffer_offset + _diff) % component_size);
-                        _buffer.data_ptrs.push_back(std::make_pair(m_pad, pad_size));
+                    if((accessor_data.buffer_offset % component_size) != 0) {
+                        uint32_t pad_size = component_size - (accessor_data.buffer_offset % component_size);
+                        accessor->byte_offset += pad_size;
+                        accessor->accumulated_offset += pad_size;
+                        _buffer.data_ptrs.push_back(std::make_pair(m_pad, static_cast<size_t>(pad_size)));
                         _buffer.data_len += pad_size;
                         _diff += pad_size;
                         accumulated_pad += pad_size;
                     }
-                }
 
-                accessor->byte_offset += _diff;
-                accessor->accumulated_offset += _diff;
-                is_prev_unaligned = false;
-            } else {
+                    is_prev_unaligned = false;
+                }
+            } 
+            else {
                 is_prev_unaligned = true;
             }
         }
@@ -699,10 +707,13 @@ namespace Libdas {
     }
 
 
-    uint32_t GLTFCompiler::_SupplementAnimationKeyframeData(const char *_odata, BufferAccessorData &_suppl_info, DasBuffer &_buffer) {
-        const uint32_t diff = -_suppl_info.used_size;
-        _buffer.data_len += diff;
-        return diff;
+    uint32_t GLTFCompiler::_SupplementAnimationKeyframeData(const char* _odata, BufferAccessorData& _suppl_info, DasBuffer& _buffer) {
+        if (_odata) {
+            const uint32_t diff = UINT32_MAX - _suppl_info.used_size + 1;
+            _buffer.data_len += diff;
+            return diff;
+        } 
+        return 0;
     }
 
     /************************************************/
@@ -903,6 +914,7 @@ namespace Libdas {
         // for each buffer with index regions, supplement its data
         for(size_t i = 0; i < _regions.size(); i++) {
             uint32_t accumulated_diff = 0;
+            uint32_t padding = 0;
             uint32_t olen = _buffers[i].data_len; 
             // sort by offset size
             std::sort(_regions[i].begin(), _regions[i].end(), BufferAccessorData::less());
@@ -953,11 +965,11 @@ namespace Libdas {
                 uint32_t old_offset = _regions[i][j].buffer_offset;
                 len = _buffers[i].data_len;
                 _regions[i][j].buffer_offset = static_cast<uint32_t>(offset);
-                uint32_t diff = (this->*_suppl_fn)(it->first, _regions[i][j], _buffers[i]);
+                uint32_t diff = (this->*_suppl_fn)(it->first, _regions[i][j], _buffers[i]) + padding;
                 _regions[i][j].buffer_offset = old_offset;
 
                 // correct changed offsets
-                diff += _CorrectOffsets(_root, _accessors[_regions[i][j].buffer_id], diff, _regions[i][j].buffer_offset + accumulated_diff, _buffers[i]);
+                padding += _CorrectOffsets(_root, _accessors[_regions[i][j].buffer_id], diff, _regions[i][j].buffer_offset + accumulated_diff, _buffers[i]);
                 accumulated_diff += diff;
 
                 // copy the area between last element and the end of the buffer

@@ -149,7 +149,7 @@ namespace Libdas {
      * Libdas parser consideres objects and groups to be same structures
      */
     struct WavefrontObjGroup {
-        WavefrontObjGroup(const std::vector<std::string> &names) : names(std::move(names)) {}
+        WavefrontObjGroup(const std::vector<std::string> &names) : names(names) {}
 
         std::vector<std::string> names;
         WavefrontObjRenderAttributes rend_attrs;

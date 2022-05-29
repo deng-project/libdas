@@ -173,7 +173,7 @@ namespace Libdas {
                     }
                 }
 
-                _prim.color_mul_count = m_colormul_accessors.size();
+                _prim.color_mul_count = static_cast<uint32_t>(m_colormul_accessors.size());
                 if(_prim.color_mul_count) {
                     _prim.color_mul_buffer_ids = new uint32_t[_prim.color_mul_count];
                     _prim.color_mul_buffer_offsets = new uint32_t[_prim.color_mul_count];

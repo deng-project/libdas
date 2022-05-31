@@ -64,6 +64,20 @@ namespace Libdas {
     }
 
 
+    DasParser::DasParser(DasParser &&_parser) noexcept :
+        m_props(std::move(_parser.m_props)),
+        m_buffers(std::move(_parser.m_buffers)),
+        m_meshes(std::move(_parser.m_meshes)),
+        m_mesh_primitives(std::move(_parser.m_mesh_primitives)),
+        m_morph_targets(std::move(_parser.m_morph_targets)),
+        m_nodes(std::move(_parser.m_nodes)),
+        m_scenes(std::move(_parser.m_scenes)),
+        m_joints(std::move(_parser.m_joints)),
+        m_skeletons(std::move(_parser.m_skeletons)),
+        m_channels(std::move(_parser.m_channels)),
+        m_animations(std::move(_parser.m_animations)) {}
+
+
     void DasParser::_DataCast(std::any &_any_scope, DasScopeType _type) {
         switch(_type) {
             case LIBDAS_DAS_SCOPE_PROPERTIES:
@@ -170,5 +184,7 @@ namespace Libdas {
         // search and find root nodes for each given scene
         for(auto it = m_scenes.begin(); it != m_scenes.end(); it++)
             _FindSceneNodeRoots(*it);
+
+        Clear();
     }
 }

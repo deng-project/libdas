@@ -18,6 +18,14 @@ namespace Libdas {
     }
 
 
+    DasReaderCore::DasReaderCore(DasReaderCore &&_drc) noexcept :
+        AsciiLineReader(std::move(_drc)),
+        m_error(std::move(_drc.m_error)),
+        m_scope_name_map(std::move(_drc.m_scope_name_map)),
+        m_unique_val_map(std::move(_drc.m_unique_val_map)),
+        m_buffer_blobs(std::move(_drc.m_buffer_blobs)) {}
+
+
     DasReaderCore::~DasReaderCore() {
         for(char *buf : m_buffer_blobs)
             std::free(buf); 
@@ -1383,5 +1391,12 @@ namespace Libdas {
 
             return m_scope_name_map[_scope_str];
         }
+    }
+
+
+    void DasReaderCore::Clear() {
+        CloseFile();
+        m_scope_name_map.clear();
+        m_unique_val_map.clear();
     }
 }

@@ -36,8 +36,6 @@ namespace Libdas {
         m_end(_end), m_buffer_size(_chunk_size) 
     {
         LIBDAS_ASSERT(_chunk_size > 0);
-        m_buffer = (char*) std::calloc(m_buffer_size, sizeof(char));
-        std::memset(m_buffer, 0, m_buffer_size);
 
         if(_file_name != "") {
             NewFile(_file_name);
@@ -46,10 +44,20 @@ namespace Libdas {
     }
 
 
+    AsciiStreamReader::AsciiStreamReader(AsciiStreamReader &&_asr) noexcept :
+        m_end(std::move(_asr.m_end)),
+        m_stream(std::move(_asr.m_stream)),
+        m_buffer(_asr.m_buffer),
+        m_buffer_size(_asr.m_buffer_size),
+        m_last_read(_asr.m_last_read),
+        m_stream_size(_asr.m_stream_size) 
+    {
+        _asr.m_buffer = nullptr;
+    }
+
+
     AsciiStreamReader::~AsciiStreamReader() {
-        std::free(m_buffer);
-        if(m_stream.is_open())
-            m_stream.close();
+        CloseFile();
     }
 
 
@@ -112,9 +120,9 @@ namespace Libdas {
 
     void AsciiStreamReader::NewFile(const std::string &_file_name) {
         // check if stream was previously opened, and if it was, close it
-        if(m_stream.is_open())
-            m_stream.close();
+        CloseFile();
 
+        m_buffer = new char[m_buffer_size]{};
         std::string abs_file = Algorithm::RelativePathToAbsolute(_file_name);
         m_stream.open(abs_file.c_str(), std::ios::binary);
 
@@ -132,8 +140,11 @@ namespace Libdas {
 
 
     void AsciiStreamReader::CloseFile() {
-        if(m_stream.is_open())
+        if(m_stream.is_open()) {
             m_stream.close();
+            delete [] m_buffer;
+            m_buffer = nullptr;
+        }
     }
 
 

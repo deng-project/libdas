@@ -7,6 +7,13 @@ namespace Libdas {
         AsciiStreamReader(_file_name, _chunk_size, _end), m_rd_ptr(m_buffer) {}
 
 
+    AsciiLineReader::AsciiLineReader(AsciiLineReader &&_alr) noexcept :
+        m_file_name(std::move(_alr.m_file_name)),
+        m_line_beg(_alr.m_line_beg),
+        m_line_end(_alr.m_line_end),
+        m_rd_ptr(_alr.m_rd_ptr) {}
+
+
     bool AsciiLineReader::_NextLine() {
         char *new_end = nullptr;
 

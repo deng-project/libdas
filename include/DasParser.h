@@ -61,6 +61,8 @@ namespace Libdas {
 
         public:
             DasParser(const std::string &_file_name = "");
+            DasParser(DasParser &&_parser) noexcept;
+
             /**
              * Parse contents from provided DAS file into scene array.
              * If the file contains no scenes, a default scene will be created that should be considered as a

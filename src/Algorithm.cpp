@@ -59,7 +59,7 @@ namespace Libdas {
                 
 // linux
 #else
-            pid_t pid = getpid(void);
+            pid_t pid = getpid();
             std::string link = "/proc/" + std::to_string(pid) + "/exe";
             path.resize(PATH_MAX);
             readlink(link.c_str(), path.data(), path.size());

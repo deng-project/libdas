@@ -271,6 +271,7 @@ namespace Libdas {
 
         public:
             DasReaderCore(const std::string &_file_name = "");
+            DasReaderCore(DasReaderCore &&_drc) noexcept;
             ~DasReaderCore();
             /**
              * Read and verify file signature
@@ -287,6 +288,7 @@ namespace Libdas {
              * @return DasScopeType value that specifies currently parsed scope
              */
             DasScopeType ParseScopeDeclaration(const std::string &_scope_str = "");
+            void Clear();
     };
 }
 

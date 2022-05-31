@@ -45,13 +45,14 @@ namespace Libdas {
             std::ifstream m_stream;
 
         protected:
-            char *m_buffer;
+            char *m_buffer = nullptr;
             size_t m_buffer_size;
             size_t m_last_read = 0;
             size_t m_stream_size = 0;
 
         protected:
             AsciiStreamReader(const std::string &_file_name = "", size_t _chunk_size = DEFAULT_CHUNK, const std::string &_end = "\n");
+            AsciiStreamReader(AsciiStreamReader &&_asr) noexcept;
             ~AsciiStreamReader();
             /**
              * Read new buffer chunk from the stream
@@ -87,6 +88,11 @@ namespace Libdas {
              * @return Starting address of the chunk buffer
              */
             char *GetBufferAddress();
+            /**
+             * Get the current open file name
+             * @return std::string instance containing the file name
+             */
+            const std::string GetFileName();
     };
 }
 

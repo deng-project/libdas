@@ -92,6 +92,8 @@ namespace Libdas {
 
         public:
             AsciiLineReader(const std::string &_file_name, size_t _chunk_size = DEFAULT_CHUNK, const std::string &_end = "\n");
+            AsciiLineReader(AsciiLineReader &&_alr) noexcept;
+
             /**
              * Get the current file name that is being read
              * @return file name in std::string class format

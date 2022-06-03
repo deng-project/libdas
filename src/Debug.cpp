@@ -17,5 +17,16 @@ namespace Libdas {
 
             return s;
         }
+
+
+        void PrintAccumulatedOffsets(std::vector<std::vector<GLTFAccessor*>> &_all_regions) {
+            for(auto buf_it = _all_regions.begin(); buf_it != _all_regions.end(); buf_it++) {
+                const size_t id = buf_it - _all_regions.begin();
+                std::cout << "Buffer id: " << id << std::endl;
+                for(auto acc_it = buf_it->begin(); acc_it != buf_it->end(); acc_it++) {
+                    std::cout << (*acc_it)->accumulated_offset << std::endl;
+                }
+            }
+        }
     }
 }

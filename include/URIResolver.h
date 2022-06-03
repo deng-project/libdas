@@ -62,6 +62,7 @@ namespace Libdas {
 
         public:
             URIResolver(const std::string &_uri = "", const std::string &_root_path = "", UnresolvedUriSeverity _severity = UNRESOLVED_SEVERITY_ERROR);
+            URIResolver(URIResolver &&_ur) noexcept;
             /**
              * Resolve the uri and read data into URI data buffer
              * @param _uri optionally specifies the given uri to read data from

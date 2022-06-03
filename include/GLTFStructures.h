@@ -105,7 +105,10 @@ namespace Libdas {
         std::string name = "";                          // not required
         std::vector<std::any> extensions;               // ignored
         std::vector<std::any> extras;                   // ignored
-        uint32_t accumulated_offset = 0;                // custom
+
+        // custom properties not present in official specification
+        uint32_t accumulated_offset = 0;
+        uint32_t buffer_id = UINT32_MAX;
     };
 
 

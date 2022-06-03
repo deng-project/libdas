@@ -7,10 +7,6 @@
 #include <GLTFCompiler.h>
 
 
-// There is a fundamental error in buffer striding.
-// Following BufferAccessorDatas do not get their offsets updated whenever Supplementation method is called
-
-
 namespace Libdas {
 
     GLTFCompiler::GLTFCompiler(const std::string &_in_path, const std::string &_out_file, bool _use_raw_textures) : 
@@ -26,7 +22,8 @@ namespace Libdas {
 
 
     GLTFCompiler::~GLTFCompiler() {
-        _FreeSupplementedBuffers(m_supplemented_buffers);
+        for(auto it = m_allocated_memory.begin(); it != m_allocated_memory.end(); it++)
+            delete [] *it;
     }
 
 
@@ -62,7 +59,7 @@ namespace Libdas {
     GLTFCompiler::BufferAccessorData GLTFCompiler::_FindAccessorData(const GLTFRoot &_root, int32_t _accessor_id) {
         GLTFCompiler::BufferAccessorData accessor_data;
         accessor_data.buffer_id = static_cast<uint32_t>(_root.buffer_views[_root.accessors[_accessor_id].buffer_view].buffer);
-        accessor_data.unit_stride = _root.buffer_views[_root.accessors[_accessor_id].buffer_view].byte_stride;
+
 
         if(!_root.accessors[_accessor_id].accumulated_offset) {
             accessor_data.buffer_offset = static_cast<uint32_t>(_root.buffer_views[_root.accessors[_accessor_id].buffer_view].byte_offset +
@@ -92,242 +89,12 @@ namespace Libdas {
         accessor_data.used_size = _root.accessors[_accessor_id].count * type_mul * component_mul;
         accessor_data.component_type = _root.accessors[_accessor_id].component_type;
         accessor_data.unit_size = type_mul * component_mul;
+      
+        if(_root.buffer_views[_root.accessors[_accessor_id].buffer_view].byte_stride)
+            accessor_data.unit_stride = _root.buffer_views[_root.accessors[_accessor_id].buffer_view].byte_stride;
+        else accessor_data.unit_stride = accessor_data.unit_size;
+
         return accessor_data;
-    }
-
-
-    /*****************************************/
-    /***** Buffer region finder methods ******/
-    /*****************************************/
-
-
-    std::vector<std::vector<GLTFAccessor*>> GLTFCompiler::_GetAllBufferAccessorRegions(GLTFRoot &_root) {
-        std::vector<std::vector<GLTFAccessor*>> all_regions(_root.buffers.size());
-
-        // find buffer offsets from accessors
-        for(int32_t i = 0; i < static_cast<int32_t>(_root.accessors.size()); i++) {
-            BufferAccessorData accessor_data = _FindAccessorData(_root, i);
-            all_regions[accessor_data.buffer_id].push_back(&_root.accessors[i]);
-            all_regions[accessor_data.buffer_id].back()->accumulated_offset = accessor_data.buffer_offset;
-        }
-
-        // sort results
-        for (size_t i = 0; i < all_regions.size(); i++) {
-            std::sort(all_regions[i].begin(), all_regions[i].end(),
-                [](const GLTFAccessor* _a1, const GLTFAccessor* _a2) {
-                    return _a1->accumulated_offset < _a2->accumulated_offset;
-                });
-        }
-
-
-        return all_regions;
-    }
-
-
-    std::vector<std::vector<GLTFCompiler::BufferAccessorData>> GLTFCompiler::_GetInvalidStridedBufferRegions(GLTFRoot &_root) {
-        std::vector<std::vector<BufferAccessorData>> invalid_strided_regions(_root.buffers.size());
-        for(uint32_t i = 0; i < _root.accessors.size(); i++) {
-            BufferAccessorData accessor_data = _FindAccessorData(_root, i);
-
-            if(accessor_data.unit_stride != 0 && accessor_data.unit_size != accessor_data.unit_stride)
-                invalid_strided_regions[accessor_data.buffer_id].push_back(accessor_data);
-        }
-
-        return invalid_strided_regions;
-    }
-
-
-    std::vector<std::vector<GLTFCompiler::BufferAccessorData>> GLTFCompiler::_GetBufferIndexRegions(GLTFRoot &_root) {
-        std::vector<std::vector<BufferAccessorData>> index_regions(_root.buffers.size());
-
-        // find all index regions
-        for(auto it = _root.meshes.begin(); it != _root.meshes.end(); it++) {
-            for(size_t i = 0; i < it->primitives.size(); i++) {
-                // error if non-indexed geometry is used
-                if(it->primitives[i].indices == INT32_MAX)
-                    continue;
-
-                if(_root.accessors[it->primitives[i].indices].component_type == KHRONOS_BYTE ||
-                   _root.accessors[it->primitives[i].indices].component_type == KHRONOS_UNSIGNED_BYTE ||
-                   _root.accessors[it->primitives[i].indices].component_type == KHRONOS_SHORT ||
-                   _root.accessors[it->primitives[i].indices].component_type == KHRONOS_UNSIGNED_SHORT) 
-                {
-                    BufferAccessorData accessor_data = _FindAccessorData(_root, it->primitives[i].indices);
-                    index_regions[accessor_data.buffer_id].push_back(accessor_data);
-                    _root.accessors[it->primitives[i].indices].component_type = KHRONOS_UNSIGNED_INT;
-                }
-            }
-        }
-
-        return index_regions;
-    }
-
-
-    std::vector<std::vector<GLTFCompiler::BufferAccessorData>> GLTFCompiler::_GetBufferColorStrideRegions(GLTFRoot &_root) {
-        std::vector<std::vector<BufferAccessorData>> uv_regions(_root.buffers.size());
-
-        for(auto mesh_it = _root.meshes.begin(); mesh_it != _root.meshes.end(); mesh_it++) {
-            for(auto prim_it = mesh_it->primitives.begin(); prim_it != mesh_it->primitives.end(); prim_it++) {
-                // for each mesh primitive attribute
-                for(auto attr_it = prim_it->attributes.begin(); attr_it != prim_it->attributes.end(); attr_it++) {
-                    const std::string no_nr = Algorithm::RemoveNumbers(attr_it->first);
-                    if(m_attribute_type_map.find(no_nr) == m_attribute_type_map.end()) {
-                        std::cerr << "Invalid vertex attribute '" << attr_it->first << "'" << std::endl;
-                        std::exit(LIBDAS_ERROR_INVALID_KEYWORD);
-                    }
-
-                    if(m_attribute_type_map.find(no_nr)->second == LIBDAS_BUFFER_TYPE_TEXTURE_MAP ||
-                       m_attribute_type_map.find(no_nr)->second == LIBDAS_BUFFER_TYPE_COLOR) {
-                        BufferAccessorData accessor_data = _FindAccessorData(_root, attr_it->second);
-                        if(accessor_data.component_type == KHRONOS_UNSIGNED_BYTE || accessor_data.component_type == KHRONOS_UNSIGNED_SHORT)
-                            uv_regions[accessor_data.buffer_id].push_back(accessor_data);
-                    } 
-                }
-
-                // for each mesh primitive morph target
-                for(auto tar_it = prim_it->targets.begin(); tar_it != prim_it->targets.end(); tar_it++) {
-                    for(auto attr_it = tar_it->begin(); attr_it != tar_it->end(); attr_it++) {
-                        const std::string no_nr = Algorithm::RemoveNumbers(attr_it->first);
-                        if(m_attribute_type_map.find(no_nr) == m_attribute_type_map.end()) {
-                            std::cerr << "Invalid vertex attribute '" << attr_it->first << "'" << std::endl;
-                            std::exit(LIBDAS_ERROR_INVALID_KEYWORD);
-                        }
-
-                        if(m_attribute_type_map.find(no_nr)->second == LIBDAS_BUFFER_TYPE_TEXTURE_MAP ||
-                           m_attribute_type_map.find(no_nr)->second == LIBDAS_BUFFER_TYPE_COLOR) {
-                            BufferAccessorData accessor_data = _FindAccessorData(_root, attr_it->second);
-                            if(accessor_data.component_type == KHRONOS_UNSIGNED_BYTE || accessor_data.component_type == KHRONOS_UNSIGNED_SHORT)
-                                uv_regions[accessor_data.buffer_id].push_back(accessor_data);
-                        }
-                    }
-                }
-            }
-        }
-
-        return uv_regions;
-    }
-
-
-    std::vector<std::vector<GLTFCompiler::BufferAccessorData>> GLTFCompiler::_GetBufferJointRegions(GLTFRoot &_root) {
-        std::vector<std::vector<BufferAccessorData>> joint_regions(_root.buffers.size());
-
-        // find all joint regions
-        for(auto mesh_it = _root.meshes.begin(); mesh_it != _root.meshes.end(); mesh_it++) {
-            for(auto prim_it = mesh_it->primitives.begin(); prim_it != mesh_it->primitives.end(); prim_it++) {
-                // find JOINTS_ objects
-                for(auto attr_it = prim_it->attributes.begin(); attr_it != prim_it->attributes.end(); attr_it++) {
-                    const std::string attr_wo_num = Algorithm::RemoveNumbers(attr_it->first);
-                    if(attr_wo_num == "JOINTS_") {
-                        BufferAccessorData accessor_data = _FindAccessorData(_root, attr_it->second);
-                        if(accessor_data.component_type != KHRONOS_UNSIGNED_SHORT)
-                            joint_regions[accessor_data.buffer_id].push_back(accessor_data);
-                    }
-                }
-            }
-        }
-
-        return joint_regions;
-    }
-
-
-    std::vector<std::vector<GLTFCompiler::BufferAccessorData>> GLTFCompiler::_GetBufferWeightRegions(GLTFRoot &_root) {
-        std::vector<std::vector<BufferAccessorData>> weight_regions(_root.buffers.size());
-
-        // find all weight regions
-        for(auto mesh_it = _root.meshes.begin(); mesh_it != _root.meshes.end(); mesh_it++) {
-            for(auto prim_it = mesh_it->primitives.begin(); prim_it != mesh_it->primitives.end(); prim_it++) {
-                // find WEIGHTS_ objects
-                for(auto attr_it = prim_it->attributes.begin(); attr_it != prim_it->attributes.end(); attr_it++) {
-                    const std::string attr_wo_num = Algorithm::RemoveNumbers(attr_it->first);
-                    if(attr_wo_num == "WEIGHTS_") {
-                        BufferAccessorData accessor_data = _FindAccessorData(_root, attr_it->second);
-                        if(accessor_data.component_type != KHRONOS_FLOAT)
-                            weight_regions[accessor_data.buffer_id].push_back(accessor_data);
-                    }
-                }
-            }
-        }
-
-        return weight_regions;
-    }
-
-
-    std::vector<std::vector<GLTFCompiler::BufferAccessorData>> GLTFCompiler::_GetAnimationDataRegions(GLTFRoot &_root) {
-        // first inner element: keyframe input
-        // second inner element: keyframe output
-        std::vector<std::vector<GLTFCompiler::BufferAccessorData>> regions;
-        regions.resize(_root.buffers.size());
-
-        // for each animation
-        for(auto ani_it = _root.animations.begin(); ani_it != _root.animations.end(); ani_it++) {
-            // for each animation channel
-            for(auto ch_it = ani_it->channels.begin(); ch_it != ani_it->channels.end(); ch_it++) {
-                LIBDAS_ASSERT(ch_it->sampler < static_cast<int32_t>(ani_it->samplers.size()));
-                GLTFAnimationSampler &sampler = ani_it->samplers[ch_it->sampler];
-
-                auto input = _FindAccessorData(_root, sampler.input);
-                auto output = _FindAccessorData(_root, sampler.output);
-                regions[input.buffer_id].push_back(input);
-                regions[output.buffer_id].push_back(output);
-            }
-        }
-
-        return regions;
-    }
-
-
-    /**********************************************/
-    /***** End of buffer data regions finders *****/
-    /**********************************************/
-
-
-    void GLTFCompiler::_GetUnindexedMeshPrimitives(GLTFRoot &_root) {
-        // find all unindexed mesh primitives
-        m_unindexed_primitives.resize(_root.meshes.size());
-        for(size_t i = 0; i < _root.meshes.size(); i++) {
-            uint32_t j = 0;
-            for(auto prim_it = _root.meshes[i].primitives.begin(); prim_it != _root.meshes[i].primitives.end(); prim_it++, j++) {
-                if(prim_it->indices == INT32_MAX)
-                    m_unindexed_primitives[i].push_back(j);
-            }
-        }
-    }
-
-
-    uint32_t GLTFCompiler::_CorrectOffsets(GLTFRoot &_root, std::vector<GLTFAccessor*> &_accessors, uint32_t _diff, size_t _offset, DasBuffer &_buffer) {
-        bool is_prev_unaligned = false;
-        uint32_t accumulated_pad = 0;
-        for(GLTFAccessor *accessor : _accessors) {
-            if(accessor->accumulated_offset > _offset) {
-                accessor->byte_offset += _diff;
-                accessor->accumulated_offset += _diff;
-
-                if(is_prev_unaligned) {
-                    const uint32_t id = static_cast<uint32_t>(accessor - _root.accessors.data());
-                    BufferAccessorData accessor_data = _FindAccessorData(_root, id);
-
-                    uint32_t component_size = _FindKhronosComponentSize(accessor_data.component_type);
-
-                    // check if offset alignment is necessary
-                    if((accessor_data.buffer_offset % component_size) != 0) {
-                        uint32_t pad_size = component_size - (accessor_data.buffer_offset % component_size);
-                        accessor->byte_offset += pad_size;
-                        accessor->accumulated_offset += pad_size;
-                        _buffer.data_ptrs.push_back(std::make_pair(m_pad, static_cast<size_t>(pad_size)));
-                        _buffer.data_len += pad_size;
-                        _diff += pad_size;
-                        accumulated_pad += pad_size;
-                    }
-
-                    is_prev_unaligned = false;
-                }
-            } 
-            else {
-                is_prev_unaligned = true;
-            }
-        }
-
-        return accumulated_pad;
     }
 
 
@@ -340,128 +107,30 @@ namespace Libdas {
     }
 
 
-    std::vector<size_t> GLTFCompiler::_FindMeshNodes(const GLTFRoot &_root, size_t _mesh_index) {
-        std::vector<size_t> nodes;
-        nodes.reserve(_root.nodes.size());
-
-        for(size_t i = 0; i < _root.nodes.size(); i++) {
-            if(_root.nodes[i].mesh == static_cast<int32_t>(_mesh_index))
-                nodes.push_back(i);
-        }
-
-        nodes.shrink_to_fit();
-        return nodes;
-    }
-
-
-    const std::vector<float> GLTFCompiler::_FindMorphWeightsFromNodes(const GLTFRoot &_root, size_t _mesh_index) {
-        std::vector<size_t> nodes = _FindMeshNodes(_root, _mesh_index);
-
-        if(nodes.size() > 1)
-            return std::vector<float>();
-
-        return _root.nodes[nodes.back()].weights;
-    }
-
-
-    auto GLTFCompiler::_FindDataPtrFromOffset(const std::vector<std::pair<const char*, size_t>> &_ptrs, size_t &_offset) {
-        size_t current_offset = 0;
-        for(auto it = _ptrs.begin(); it != _ptrs.end(); it++) {
-            if(current_offset <= _offset && current_offset + it->second > _offset) {
-                _offset -= current_offset;
-                return it;
-            }
-
-            current_offset += it->second;
-        }
-
-        LIBDAS_ASSERT(false);
-        return _ptrs.end();
-    }
-
-
-    uint32_t GLTFCompiler::_FindMultiSpecVertexAttributeIndex(const std::string &_attr_name) {
-        const std::string texcoord_str = "TEXCOORD_";
-        const std::string color_str = "COLOR_";
-        const std::string joints_str = "JOINTS_";
-        const std::string weights_str = "WEIGHTS_";
-
-        uint32_t idx = UINT32_MAX;
-        if(_attr_name.find(texcoord_str) == 0)
-            idx = std::stoi(_attr_name.substr(texcoord_str.size()));
-        else if(_attr_name.find(color_str) == 0)
-            idx = std::stoi(_attr_name.substr(color_str.size()));
-        else if(_attr_name.find(joints_str) == 0)
-            idx = std::stoi(_attr_name.substr(joints_str.size()));
-        else if(_attr_name.find(weights_str) == 0)
-            idx = std::stoi(_attr_name.substr(weights_str.size()));
-
-        LIBDAS_ASSERT(idx != UINT32_MAX);
-        return idx;
-    }
-
-
-    uint32_t GLTFCompiler::_EnumerateMultiSpecVertexAttributes(const GLTFMeshPrimitive::AttributesType &_attrs, const std::string &_attr_name_core) {
-        uint32_t count = 0, max = 0;
-        for(auto it = _attrs.begin(); it != _attrs.end(); it++) {
-            if(it->first.find(_attr_name_core) != std::string::npos) {
-                count++;
-                const uint32_t tmp = _FindMultiSpecVertexAttributeIndex(it->first);
-                if(tmp >= max)
-                    max = tmp;
+    size_t GLTFCompiler::_FindMorphTargetCount(const GLTFRoot &_root) {
+        size_t count = 0;
+        for(auto mesh_it = _root.meshes.begin(); mesh_it != _root.meshes.end(); mesh_it++) {
+            for(auto prim_it = mesh_it->primitives.begin(); prim_it != mesh_it->primitives.end(); prim_it++) {
+                count += prim_it->targets.size();
             }
         }
-
-        LIBDAS_ASSERT(!count || max == count - 1);
         return count;
     }
 
 
-    void GLTFCompiler::_FindMultiSpecVertexAttributeAccessors(const GLTFMeshPrimitive::AttributesType &_attrs) {
-        const std::string texcoord_str = "TEXCOORD_";
-        const std::string color_str = "COLOR_";
-        const std::string joints_str = "JOINTS_";
-        const std::string weights_str = "WEIGHTS_";
-
-        // TODO: Find TEXCOORD_n, COLOR_n, JOINTS_n and WEIGHTS_n counts and associated accessors
-        m_texcoord_accessors.resize(_EnumerateMultiSpecVertexAttributes(_attrs, "TEXCOORD_"));
-        m_colormul_accessors.resize(_EnumerateMultiSpecVertexAttributes(_attrs, "COLOR_"));
-        m_joints_accessors.resize(_EnumerateMultiSpecVertexAttributes(_attrs, "JOINTS_"));
-        m_weights_accessors.resize(_EnumerateMultiSpecVertexAttributes(_attrs, "WEIGHTS_"));
-
-        // error: weights and joints don't match
-        if(m_joints_accessors.size() != m_weights_accessors.size()) {
-            std::cerr << "Vertex joints count doesn't match vertex joint weights count" << std::endl;
-            EXIT_ON_ERROR(LIBDAS_ERROR_INVALID_DATA_LENGTH);
-        }
-
+    uint32_t GLTFCompiler::_EnumerateAttributes(const std::string &_attr_name, const GLTFMeshPrimitive::AttributesType &_attrs) {
+        uint32_t max = 0;
         for(auto it = _attrs.begin(); it != _attrs.end(); it++) {
-            if(it->first.find(texcoord_str) == 0) {
-                uint32_t index = _FindMultiSpecVertexAttributeIndex(it->first);
-                m_texcoord_accessors[index] = it->second;
-            } else if(it->first.find(color_str) == 0) {
-                uint32_t index = _FindMultiSpecVertexAttributeIndex(it->first);
-                m_colormul_accessors[index] = it->second;
-            } else if(it->first.find(joints_str) == 0) {
-                uint32_t index = _FindMultiSpecVertexAttributeIndex(it->first);
-                m_joints_accessors[index] = it->second;
-            } else if(it->first.find(weights_str) == 0) {
-                uint32_t index = _FindMultiSpecVertexAttributeIndex(it->first);
-                m_weights_accessors[index] = it->second;
-            }
-        }
-    }
+            const std::string no_nr = Libdas::Algorithm::RemoveNumbers(it->first);
+            if(no_nr != _attr_name)
+                continue;
 
-
-    uint32_t GLTFCompiler::_FindFirstNonTextureBuffer(const std::vector<DasBuffer>& _buffers) {
-        for (uint32_t i = 0; i < static_cast<uint32_t>(_buffers.size()); i++) {
-            if ((_buffers[i].type & LIBDAS_BUFFER_TYPE_TEXTURE) == 0)
-                return i;
+            max++;
         }
 
-        return UINT32_MAX;
+        return max;
     }
-
+    
 
     void GLTFCompiler::_FlagJointNodes(const GLTFRoot &_root) {
         std::vector<bool> skin_joint_table(_root.nodes.size());
@@ -528,634 +197,432 @@ namespace Libdas {
     }
 
 
-    /*********************************************/
-    /***** Universal supplementation methods *****/
-    /*********************************************/
+    void GLTFCompiler::_CreateMeshPrimitive(const GLTFRoot &_root, GenericVertexAttributeAccessors &_gen_acc, size_t _mesh_id, size_t _prim_id) {
+        m_mesh_primitives.emplace_back();
 
-    uint32_t GLTFCompiler::_SupplementIndices(const char *_odata, BufferAccessorData &_suppl_info, DasBuffer &_buffer) {
-        char *buf = nullptr;
-        size_t len = 0; // in units not in bytes
-        size_t diff = 0;
+        // indices
+        m_mesh_primitives.back().index_buffer_id = _root.accessors.back().buffer_id;
+        m_mesh_primitives.back().index_buffer_offset = _root.accessors.back().accumulated_offset;
+        m_mesh_primitives.back().indices_count = _root.accessors.back().count;
 
-        switch(_suppl_info.component_type) {
-            case KHRONOS_BYTE:
-                len = (static_cast<size_t>(_suppl_info.used_size) / sizeof(char));
-                buf = new char[len * sizeof(uint32_t)];
-                diff = len * sizeof(uint32_t) - len * sizeof(char);
+        // position vertices
+        m_mesh_primitives.back().vertex_buffer_id = _root.accessors[_gen_acc.pos_accessor].buffer_id;
+        m_mesh_primitives.back().vertex_buffer_offset = _root.accessors[_gen_acc.pos_accessor].accumulated_offset;
 
-                for(size_t i = 0; i < len; i++)
-                    reinterpret_cast<uint32_t*>(buf)[i] = static_cast<uint32_t>((_odata + _suppl_info.buffer_offset)[i]);
-                break;
-
-            case KHRONOS_UNSIGNED_BYTE:
-                len = (static_cast<size_t>(_suppl_info.used_size) / sizeof(unsigned char));
-                buf = new char[len * sizeof(uint32_t)];
-                diff = len * sizeof(uint32_t) - len * sizeof(unsigned char);
-
-                for(size_t i = 0; i < len; i++)
-                    reinterpret_cast<uint32_t*>(buf)[i] = static_cast<uint32_t>((reinterpret_cast<const unsigned char*>(_odata + _suppl_info.buffer_offset))[i]);
-                break;
-
-            case KHRONOS_SHORT:
-                len = (static_cast<size_t>(_suppl_info.used_size) / sizeof(short));
-                buf = new char[len * sizeof(uint32_t)];
-                diff = len * sizeof(uint32_t) - len * sizeof(short);
-
-                for(size_t i = 0; i < len; i++)
-                    reinterpret_cast<uint32_t*>(buf)[i] = static_cast<uint32_t>((reinterpret_cast<const short*>(_odata + _suppl_info.buffer_offset))[i]);
-                break;
-
-            case KHRONOS_UNSIGNED_SHORT:
-                len = (static_cast<size_t>(_suppl_info.used_size) / sizeof(unsigned short));
-                buf = new char[len * sizeof(uint32_t)];
-                diff = len * sizeof(uint32_t) - len * sizeof(unsigned short);
-
-                for(size_t i = 0; i < len; i++)
-                    reinterpret_cast<uint32_t*>(buf)[i] = static_cast<uint32_t>((reinterpret_cast<const unsigned short*>(_odata + _suppl_info.buffer_offset))[i]);
-                break;
-
-            default:
-                LIBDAS_ASSERT(false);
-                break;
+        // vertex normals
+        if(_gen_acc.normal_accessor != UINT32_MAX) {
+            m_mesh_primitives.back().vertex_normal_buffer_id = _root.accessors[_gen_acc.normal_accessor].buffer_id;
+            m_mesh_primitives.back().vertex_normal_buffer_offset = _root.accessors[_gen_acc.normal_accessor].accumulated_offset;
         }
 
-        _buffer.data_ptrs.push_back(std::make_pair(reinterpret_cast<const char*>(buf), len * sizeof(uint32_t)));
-        _buffer.data_len += static_cast<uint32_t>(diff);
-        m_supplemented_buffers[_suppl_info.buffer_id].push_back(buf);
-        return static_cast<uint32_t>(diff);
-    }
-
-
-    uint32_t GLTFCompiler::_SupplementInvalidStridedData(const char *_odata, BufferAccessorData &_suppl_info, DasBuffer &_buffer) {
-        char *buf = new char[_suppl_info.used_size];
-        size_t len = static_cast<size_t>(_suppl_info.used_size);
-        const uint32_t diff = _suppl_info.used_size - _suppl_info.unit_stride * (_suppl_info.used_size / _suppl_info.unit_size);
-
-        size_t rd_offset = _suppl_info.buffer_offset;
-        for(uint32_t i = 0; i < _suppl_info.used_size / _suppl_info.unit_size; i++) {
-            const char *const rd_ptr = _odata + rd_offset;
-            std::memcpy(buf + i * _suppl_info.unit_size, rd_ptr, _suppl_info.unit_size);
-            rd_offset += _suppl_info.unit_stride;
+        // vertex tangents
+        if(_gen_acc.tangent_accessor != UINT32_MAX) {
+            m_mesh_primitives.back().vertex_tangent_buffer_id = _root.accessors[_gen_acc.tangent_accessor].buffer_id;
+            m_mesh_primitives.back().vertex_tangent_buffer_id = _root.accessors[_gen_acc.tangent_accessor].accumulated_offset;
         }
 
-        _buffer.data_ptrs.push_back(std::make_pair(buf, len));
-        _buffer.data_len += diff;
-        return diff;
-    }
-
-
-    uint32_t GLTFCompiler::_SupplementColorMultipliers(const char *_odata, BufferAccessorData &_suppl_info, DasBuffer &_buffer) {
-        char *buf = nullptr;
-        size_t len = 0;
-        size_t diff = 0;
-
-        switch(_suppl_info.component_type) {
-            case KHRONOS_UNSIGNED_BYTE:
-                len = (static_cast<size_t>(_suppl_info.used_size) / sizeof(unsigned char));
-                buf = new char[len * sizeof(float)];
-                diff = len * sizeof(float) - len * sizeof(unsigned char);
-
-                for(size_t i = 0; i < len; i++) {
-                    unsigned char val = reinterpret_cast<const unsigned char*>(_odata + _suppl_info.buffer_offset)[i];
-                    reinterpret_cast<float*>(buf)[i] = static_cast<float>(val) / 255.0f;
-                }
-                break;
-
-            case KHRONOS_UNSIGNED_SHORT:
-                len = static_cast<size_t>(_suppl_info.used_size) / sizeof(unsigned short);
-                buf = new char[len * sizeof(float)];
-                diff = len * sizeof(float) - len * sizeof(unsigned short);
-
-                for(size_t i = 0; i < len; i++) {
-                    unsigned short val = reinterpret_cast<const unsigned short*>(_odata + _suppl_info.buffer_offset)[i];
-                    reinterpret_cast<float*>(buf)[i] = static_cast<float>(val) / UINT16_MAX;
-                }
-                break;
-
-            default:
-                LIBDAS_ASSERT(false);
-                break;
-        }
-
-        _buffer.data_ptrs.push_back(std::make_pair(buf, len));
-        _buffer.data_len += static_cast<uint32_t>(diff);
-        m_supplemented_buffers[_suppl_info.buffer_id].push_back(buf);
-        return static_cast<uint32_t>(diff);
-    }
-
-
-    uint32_t GLTFCompiler::_SupplementJointIndices(const char *_odata, BufferAccessorData &_suppl_info, DasBuffer &_buffer) {
-        char *buf = nullptr;
-        size_t len = 0; // units
-        size_t diff = 0;
-
-        switch(_suppl_info.component_type) {
-            case KHRONOS_UNSIGNED_BYTE:
-                len = (static_cast<size_t>(_suppl_info.used_size) / sizeof(unsigned char));
-                buf = new char[len * sizeof(uint16_t)];
-                diff = len * sizeof(uint16_t) - len * sizeof(unsigned char);
-
-                for(size_t i = 0; i < len; i++)
-                    reinterpret_cast<uint16_t*>(buf)[i] = static_cast<uint16_t>(reinterpret_cast<const unsigned char*>(_odata)[i]);
-                break;
-
-            default:
-                LIBDAS_ASSERT(false);
-                break;
-        }
-
-        _buffer.data_ptrs.push_back(std::make_pair(reinterpret_cast<const char*>(buf), len * sizeof(uint32_t)));
-        _buffer.data_len += static_cast<uint32_t>(diff);
-        m_supplemented_buffers[_suppl_info.buffer_id].push_back(buf);
-        return static_cast<uint32_t>(diff);
-    }
-
-
-    uint32_t GLTFCompiler::_SupplementJointWeights(const char *_odata, BufferAccessorData &_suppl_info, DasBuffer &_buffer) {
-        char *buf = nullptr;
-        size_t len = 0;
-        size_t diff = 0;
-
-        switch(_suppl_info.component_type) {
-            case KHRONOS_UNSIGNED_BYTE:
-                len = (static_cast<size_t>(_suppl_info.used_size) / sizeof(unsigned char));
-                buf = new char[len * sizeof(float)];
-                diff = len * sizeof(float) - len * sizeof(unsigned char);
-
-                for(size_t i = 0; i < len; i++)
-                    reinterpret_cast<float*>(buf)[i] = static_cast<float>(reinterpret_cast<const unsigned char*>(_odata)[i]) / 255.0f;
-                break;
-
-            case KHRONOS_UNSIGNED_SHORT:
-                len = (static_cast<size_t>(_suppl_info.used_size) / sizeof(unsigned short));
-                buf = new char[len * sizeof(float)];
-                diff = len * sizeof(float) - len * sizeof(unsigned short);
-
-                for(size_t i = 0; i < len; i++)
-                    reinterpret_cast<float*>(buf)[i] = static_cast<float>(reinterpret_cast<const unsigned short*>(_odata)[i]) / UINT16_MAX;
-                break;
-
-            default:
-                LIBDAS_ASSERT(false);
-                break;
-        }
-
-        _buffer.data_ptrs.push_back(std::make_pair(reinterpret_cast<const char*>(buf), len * sizeof(float)));
-        _buffer.data_len += static_cast<uint32_t>(diff);
-        m_supplemented_buffers[_suppl_info.buffer_id].push_back(buf);
-        return static_cast<uint32_t>(diff);
-    }
-
-
-    uint32_t GLTFCompiler::_SupplementAnimationKeyframeData(const char* _odata, BufferAccessorData& _suppl_info, DasBuffer& _buffer) {
-        if (_odata) {
-            const uint32_t diff = UINT32_MAX - _suppl_info.used_size + 1;
-            _buffer.data_len += diff;
-            return diff;
-        } 
-        return 0;
-    }
-
-    /************************************************/
-    /***** End of universal supplementation methods *****/
-    /************************************************/
-
-
-    /************************************************/
-    /***** Indexed data supplementation methods *****/
-    /************************************************/
-
-
-    uint32_t GLTFCompiler::_SupplementIndexedPositionVertices(const char *_odata, BufferAccessorData &_suppl_info, DasBuffer &_buffer) {
-        LIBDAS_ASSERT(_odata);
-        const size_t len = m_indexed_attributes.size() * sizeof(Vector3<float>);
-        char *buf = new char[len];
-        size_t offset = 0;
-        uint32_t diff = static_cast<uint32_t>(len) - _suppl_info.used_size;
-
-        // copy data over
-        for(auto it = m_indexed_attributes.begin(); it != m_indexed_attributes.end(); it++) {
-            *reinterpret_cast<Vector3<float>*>(buf + offset) = it->pos;
-            offset += static_cast<uint32_t>(sizeof(Vector3<float>));
-        }
-
-        _buffer.data_ptrs.push_back(std::make_pair(buf, len));
-        _buffer.data_len += diff;
-        m_supplemented_buffers[_suppl_info.buffer_id].push_back(buf);
-
-        return diff;
-    }
-
-
-    uint32_t GLTFCompiler::_SupplementIndexedVertexNormals(const char *_odata, BufferAccessorData &_suppl_info, DasBuffer &_buffer) {
-        LIBDAS_ASSERT(_odata);
-        const size_t len = m_indexed_attributes.size() * sizeof(Vector3<float>);
-        char *buf = new char[len];
-        size_t offset = 0;
-        uint32_t diff = static_cast<uint32_t>(len) - _suppl_info.used_size;
-
-        // copy data over
-        for(auto it = m_indexed_attributes.begin(); it != m_indexed_attributes.end(); it++) {
-            *reinterpret_cast<Vector3<float>*>(buf + offset) = it->normal;
-            offset += static_cast<uint32_t>(sizeof(Vector3<float>));
-        }
-
-        _buffer.data_ptrs.push_back(std::make_pair(buf, len));
-        _buffer.data_len += diff;
-        m_supplemented_buffers[_suppl_info.buffer_id].push_back(buf);
-
-        return diff;
-    }
-
-
-    uint32_t GLTFCompiler::_SupplementIndexedVertexTangents(const char *_odata, BufferAccessorData &_suppl_info, DasBuffer &_buffer) {
-        LIBDAS_ASSERT(_odata);
-        const size_t len = m_indexed_attributes.size() * sizeof(Vector4<float>);
-        char *buf = new char[len];
-        size_t offset = 0;
-        uint32_t diff = static_cast<uint32_t>(len) - _suppl_info.used_size;
-
-        // copy data over
-        for(auto it = m_indexed_attributes.begin(); it != m_indexed_attributes.end(); it++) {
-            *reinterpret_cast<Vector4<float>*>(buf + offset) = it->tangent;
-            offset += static_cast<uint32_t>(sizeof(Vector4<float>));
-        }
-
-        _buffer.data_ptrs.push_back(std::make_pair(buf, len));
-        _buffer.data_len += diff;
-        m_supplemented_buffers[_suppl_info.buffer_id].push_back(buf);
-
-        return diff;
-    }
-
-
-    uint32_t GLTFCompiler::_SupplementIndexedUVVertices(const char *_odata, BufferAccessorData &_suppl_info, DasBuffer &_buffer) {
-        LIBDAS_ASSERT(_odata);
-        const size_t len = m_indexed_attributes.size() * sizeof(Vector2<float>);
-        char *buf = new char[len];
-        size_t offset = 0;
-        uint32_t diff = static_cast<uint32_t>(len) - _suppl_info.used_size;
-
-        // copy data over
-        for(auto it = m_indexed_attributes.begin(); it != m_indexed_attributes.end(); it++) {
-            *reinterpret_cast<Vector2<float>*>(buf + offset) = it->uv[m_multi_spec_vertex_attribute_index];
-            offset += static_cast<uint32_t>(sizeof(Vector2<float>));
-        }
-
-        _buffer.data_ptrs.push_back(std::make_pair(buf, len));
-        _buffer.data_len += diff;
-        m_supplemented_buffers[_suppl_info.buffer_id].push_back(buf);
-
-        return diff;
-    }
-
-
-    uint32_t GLTFCompiler::_SupplementIndexedColorMultipliers(const char *_odata, BufferAccessorData &_suppl_info, DasBuffer &_buffer) {
-        LIBDAS_ASSERT(_odata);
-        const size_t len = m_indexed_attributes.size() * sizeof(Vector4<float>);
-        char *buf = new char[len];
-        size_t offset = 0;
-        uint32_t diff = static_cast<uint32_t>(len) - _suppl_info.used_size;
-
-        // copy data over
-        for(auto it = m_indexed_attributes.begin(); it != m_indexed_attributes.end(); it++) {
-            *reinterpret_cast<Vector4<float>*>(buf + offset) = it->color[m_multi_spec_vertex_attribute_index];
-            offset += static_cast<uint32_t>(sizeof(Vector4<float>));
-        }
-
-        _buffer.data_ptrs.push_back(std::make_pair(buf, len));
-        _buffer.data_len += diff;
-        m_supplemented_buffers[_suppl_info.buffer_id].push_back(buf);
-
-        return diff;
-    }
-
-
-    uint32_t GLTFCompiler::_SupplementIndexedJointsIndices(const char *_odata, BufferAccessorData &_suppl_info, DasBuffer &_buffer) {
-        LIBDAS_ASSERT(_odata);
-        const size_t len = m_indexed_attributes.size() * sizeof(Vector4<uint16_t>);
-        char *buf = new char[len];
-        size_t offset = 0;
-        uint32_t diff = static_cast<uint32_t>(len) - _suppl_info.used_size;
-
-        // copy data over
-        for(auto it = m_indexed_attributes.begin(); it != m_indexed_attributes.end(); it++) {
-            *reinterpret_cast<Vector4<uint16_t>*>(buf + offset) = it->joints[m_multi_spec_vertex_attribute_index];
-            offset += static_cast<uint32_t>(sizeof(Vector4<uint16_t>));
-        }
-
-        _buffer.data_ptrs.push_back(std::make_pair(buf, len));
-        _buffer.data_len += diff;
-        m_supplemented_buffers[_suppl_info.buffer_id].push_back(buf);
-
-        return diff;
-    }
-
-
-    uint32_t GLTFCompiler::_SupplementIndexedJointWeights(const char *_odata, BufferAccessorData &_suppl_info, DasBuffer &_buffer) {
-        LIBDAS_ASSERT(_odata);
-        const size_t len = m_indexed_attributes.size() * sizeof(Vector4<float>);
-        char *buf = new char[len];
-        size_t offset = 0;
-        uint32_t diff = static_cast<uint32_t>(len) - _suppl_info.used_size;
-
-        // copy data over
-        for(auto it = m_indexed_attributes.begin(); it != m_indexed_attributes.end(); it++) {
-            *reinterpret_cast<Vector4<float>*>(buf + offset) = it->weights[m_multi_spec_vertex_attribute_index];
-            offset += static_cast<uint32_t>(sizeof(Vector4<float>));
-        }
-
-        _buffer.data_ptrs.push_back(std::make_pair(buf, len));
-        _buffer.data_len += diff;
-        m_supplemented_buffers[_suppl_info.buffer_id].push_back(buf);
-
-        return diff;
-    }
-
-    /*******************************************************/
-    /***** End of indexed data supplementation methods *****/
-    /*******************************************************/
-
-
-    void GLTFCompiler::_AdjustBufferViewStrides(GLTFRoot &_root) {
-        for(auto it = _root.buffer_views.begin(); it != _root.buffer_views.end(); it++)
-            it->byte_stride = 0;
-    }
-
-
-    void GLTFCompiler::_CopyToBuffer(const std::vector<std::pair<const char*, size_t>> &_optrs, char *_dst, size_t _len, size_t _offset, DasBuffer &_buffer, uint32_t _buffer_id) {
-        auto it = _FindDataPtrFromOffset(_optrs, _offset);
-        size_t orig_len = _len;
-        size_t dst_offset = 0;
-
-        while(_len) {
-            // invalid iterator reached
-            if(it == _optrs.end()) {
-                LIBDAS_ASSERT(false);
-            }
-
-            size_t written = _len <= it->second ? _len : it->second - _offset;
-            std::memcpy(_dst + dst_offset, it->first + _offset, written);
-            _offset = 0;
-            dst_offset = written;
-            _len -= written;
-            it++;
-        }
-
-        _buffer.data_ptrs.push_back(std::make_pair(_dst, orig_len));
-        m_supplemented_buffers[_buffer_id].push_back(_dst);
-    }
-
-
-    void GLTFCompiler::_StrideBuffer(GLTFRoot &_root, GLTFCompiler::GLTFAccessors &_accessors, GLTFCompiler::BufferAccessorDatas &_regions, std::vector<DasBuffer> &_buffers, Supplement_PFN _suppl_fn) {
-        std::vector<std::vector<char*>> prev_suppl(_buffers.size());
-        bool is_aug = false;
-
-        // for each buffer with index regions, supplement its data
-        for(size_t i = 0; i < _regions.size(); i++) {
-            uint32_t accumulated_diff = 0;
-            uint32_t padding = 0;
-            uint32_t olen = _buffers[i].data_len; 
-            // sort by offset size
-            std::sort(_regions[i].begin(), _regions[i].end(), BufferAccessorData::less());
-            Algorithm::RemoveDuplicates(_regions[i], BufferAccessorData::IsDuplicate);
-
-            if(!_regions[i].size())
-                continue;
-
-            prev_suppl[i] = m_supplemented_buffers[i];
-            m_supplemented_buffers[i].clear();
-            std::vector<std::pair<const char*, size_t>> optrs = _buffers[i].data_ptrs;
-            _buffers[i].data_ptrs.clear();
-
-            for(size_t j = 0; j < _regions[i].size(); j++) {
-                is_aug = true;
-                char *buf = nullptr;
-                size_t len = 0;
-                size_t offset;
-
-                // copy the area before first element
-                if(j == 0 && _regions[i][j].buffer_offset > 0) {
-                    len = _regions[i][j].buffer_offset;
-                    buf = new char[len];
-                    offset = 0;
-
-                    _CopyToBuffer(optrs, buf, len, offset, _buffers[i], static_cast<uint32_t>(i));
-                    buf = nullptr;
-                    len = 0;
-                }
-
-                // copy the area between areas
-                else if(j > 0 && _regions[i][j - 1].buffer_offset + _regions[i][j - 1].used_size < _regions[i][j].buffer_offset) {
-                    if(_regions[i][j - 1].unit_stride > _regions[i][j - 1].unit_size)
-                        offset = _regions[i][j - 1].buffer_offset + _regions[i][j - 1].used_size;
-                    else offset = _regions[i][j - 1].buffer_offset + (_regions[i][j - 1].used_size / _regions[i][j - 1].unit_size) * _regions[i][j - 1].unit_stride;
-                    len = _regions[i][j].buffer_offset - offset;
-                    buf = new char[len];
-
-                    _CopyToBuffer(optrs, buf, len, offset, _buffers[i], static_cast<uint32_t>(i));
-                    buf = nullptr;
-                    len = 0;
-                    offset = 0;
-                }
-
-                // supplement buffer
-                offset = static_cast<size_t>(_regions[i][j].buffer_offset);
-                auto it = _FindDataPtrFromOffset(optrs, offset);
-                uint32_t old_offset = _regions[i][j].buffer_offset;
-                len = _buffers[i].data_len;
-                _regions[i][j].buffer_offset = static_cast<uint32_t>(offset);
-                uint32_t diff = (this->*_suppl_fn)(it->first, _regions[i][j], _buffers[i]) + padding;
-                _regions[i][j].buffer_offset = old_offset;
-
-                // correct changed offsets
-                padding += _CorrectOffsets(_root, _accessors[_regions[i][j].buffer_id], diff, _regions[i][j].buffer_offset + accumulated_diff, _buffers[i]);
-                accumulated_diff += diff;
-
-                // copy the area between last element and the end of the buffer
-                if(j == _regions[i].size() - 1 && _regions[i][j].buffer_offset + _regions[i][j].used_size < olen) {
-                    if(_regions[i][j].unit_stride > _regions[i][j].unit_size) 
-                        offset = _regions[i][j].buffer_offset + (_regions[i][j].used_size / _regions[i][j].unit_size) * _regions[i][j].unit_stride;
-                    else offset = _regions[i][j].buffer_offset + _regions[i][j].used_size;
-                    len = olen - offset;
-                    buf = new char[len];
-
-                    _CopyToBuffer(optrs, buf, len, offset, _buffers[i], static_cast<uint32_t>(i));
-                    buf = nullptr;
-                    len = 0;
-                    offset = 0;
-                }
+        // uv coordinates
+        if(_gen_acc.uv_accessors.size()) {
+            m_mesh_primitives.back().texture_count = static_cast<uint32_t>(_gen_acc.uv_accessors.size());
+            m_mesh_primitives.back().uv_buffer_ids = new uint32_t[_gen_acc.uv_accessors.size()];
+            m_mesh_primitives.back().uv_buffer_offsets = new uint32_t[_gen_acc.uv_accessors.size()];
+            for(size_t i = 0; i < _gen_acc.uv_accessors.size(); i++) {
+                m_mesh_primitives.back().uv_buffer_ids[i] = _root.accessors[_gen_acc.uv_accessors[i]].buffer_id;
+                m_mesh_primitives.back().uv_buffer_offsets[i] = _root.accessors[_gen_acc.uv_accessors[i]].accumulated_offset;
             }
         }
 
-        if(is_aug) _FreeSupplementedBuffers(prev_suppl);
+        // color multipliers
+        if(_gen_acc.color_mul_accessors.size()) {
+            m_mesh_primitives.back().color_mul_count = static_cast<uint32_t>(_gen_acc.color_mul_accessors.size());
+            m_mesh_primitives.back().color_mul_buffer_ids = new uint32_t[_gen_acc.color_mul_accessors.size()];
+            m_mesh_primitives.back().color_mul_buffer_offsets = new uint32_t[_gen_acc.color_mul_accessors.size()];
+            for(size_t i = 0; i < _gen_acc.color_mul_accessors.size(); i++) {
+                m_mesh_primitives.back().color_mul_buffer_ids[i] = _root.accessors[_gen_acc.color_mul_accessors[i]].buffer_id;
+                m_mesh_primitives.back().color_mul_buffer_offsets[i] = _root.accessors[_gen_acc.color_mul_accessors[i]].accumulated_offset;
+            }
+        }
+
+
+        // joint indices and weights
+        if(_gen_acc.joints_accessors.size()) {
+            LIBDAS_ASSERT(_gen_acc.joints_accessors.size() == _gen_acc.weights_accessors.size());
+            m_mesh_primitives.back().joint_set_count = static_cast<uint32_t>(_gen_acc.joints_accessors.size());
+            m_mesh_primitives.back().joint_index_buffer_ids = new uint32_t[_gen_acc.joints_accessors.size()];
+            m_mesh_primitives.back().joint_index_buffer_offsets = new uint32_t[_gen_acc.joints_accessors.size()];
+            m_mesh_primitives.back().joint_weight_buffer_ids = new uint32_t[_gen_acc.weights_accessors.size()];
+            m_mesh_primitives.back().joint_weight_buffer_offsets = new uint32_t[_gen_acc.weights_accessors.size()];
+            for(size_t i = 0; i < _gen_acc.joints_accessors.size(); i++) {
+                m_mesh_primitives.back().joint_index_buffer_ids[i] = _root.accessors[_gen_acc.joints_accessors[i]].buffer_id;
+                m_mesh_primitives.back().joint_index_buffer_offsets[i] = _root.accessors[_gen_acc.joints_accessors[i]].accumulated_offset;
+                m_mesh_primitives.back().joint_weight_buffer_ids[i] = _root.accessors[_gen_acc.weights_accessors[i]].buffer_id;
+                m_mesh_primitives.back().joint_weight_buffer_offsets[i] = _root.accessors[_gen_acc.weights_accessors[i]].accumulated_offset;
+            }
+        }
+
+        m_meshes[_mesh_id].primitives[_prim_id] = static_cast<uint32_t>(m_mesh_primitives.size() - 1);
+    }
+
+
+    void GLTFCompiler::_CreateMorphTarget(const GLTFRoot &_root, GenericVertexAttributeAccessors &_gen_acc, size_t _mesh_id, size_t _prim_id, size_t _morph_id) {
+        m_morph_targets.emplace_back();
+
+        // position vertices
+        m_morph_targets.back().vertex_buffer_id = _root.accessors[_gen_acc.pos_accessor].buffer_id;
+        m_morph_targets.back().vertex_buffer_offset = _root.accessors[_gen_acc.pos_accessor].accumulated_offset;
+
+        // vertex normals
+        if(_gen_acc.normal_accessor != UINT32_MAX) {
+            m_morph_targets.back().vertex_normal_buffer_id = _root.accessors[_gen_acc.normal_accessor].buffer_id;
+            m_morph_targets.back().vertex_normal_buffer_offset = _root.accessors[_gen_acc.normal_accessor].accumulated_offset;
+        }
+
+        // vertex tangents
+        if(_gen_acc.tangent_accessor != UINT32_MAX) {
+            m_morph_targets.back().vertex_tangent_buffer_id = _root.accessors[_gen_acc.tangent_accessor].buffer_id;
+            m_morph_targets.back().vertex_tangent_buffer_id = _root.accessors[_gen_acc.tangent_accessor].accumulated_offset;
+        }
+
+        // uv coordinates
+        if(_gen_acc.uv_accessors.size()) {
+            m_morph_targets.back().texture_count = static_cast<uint32_t>(_gen_acc.uv_accessors.size());
+            m_morph_targets.back().uv_buffer_ids = new uint32_t[_gen_acc.uv_accessors.size()];
+            m_morph_targets.back().uv_buffer_offsets = new uint32_t[_gen_acc.uv_accessors.size()];
+            for(size_t i = 0; i < _gen_acc.uv_accessors.size(); i++) {
+                m_morph_targets.back().uv_buffer_ids[i] = _root.accessors[_gen_acc.uv_accessors[i]].buffer_id;
+                m_morph_targets.back().uv_buffer_offsets[i] = _root.accessors[_gen_acc.uv_accessors[i]].accumulated_offset;
+            }
+        }
+
+        // color multipliers
+        if(_gen_acc.color_mul_accessors.size()) {
+            m_morph_targets.back().color_mul_count = static_cast<uint32_t>(_gen_acc.color_mul_accessors.size());
+            m_morph_targets.back().color_mul_buffer_ids = new uint32_t[_gen_acc.color_mul_accessors.size()];
+            m_morph_targets.back().color_mul_buffer_offsets = new uint32_t[_gen_acc.color_mul_accessors.size()];
+            for(size_t i = 0; i < _gen_acc.color_mul_accessors.size(); i++) {
+                m_morph_targets.back().color_mul_buffer_ids[i] = _root.accessors[_gen_acc.color_mul_accessors[i]].buffer_id;
+                m_morph_targets.back().color_mul_buffer_offsets[i] = _root.accessors[_gen_acc.color_mul_accessors[i]].accumulated_offset;
+            }
+        }
+
+        // calculate mesh relative morph id
+        uint32_t mesh_rel_morph_id = 0;
+        for(auto prim_it = _root.meshes[_mesh_id].primitives.begin(); prim_it != _root.meshes[_mesh_id].primitives.end(); prim_it++) {
+            const size_t id = prim_it - _root.meshes[_mesh_id].primitives.begin();
+            if(id == static_cast<size_t>(_prim_id))
+                break;
+
+            mesh_rel_morph_id += static_cast<uint32_t>(prim_it->targets.size());
+        }
+
+
+        // write morph target id to mesh primitive
+        m_mesh_primitives[_prim_id].morph_targets[_morph_id] = static_cast<uint32_t>(m_morph_targets.size() - 1);
+        m_mesh_primitives[_prim_id].morph_weights[_morph_id] = _root.meshes[_mesh_id].weights[mesh_rel_morph_id];
     }
 
 
     // TODO: add accessor buffer offset correction to the implementation
     // right now only supplementation is done
-    void GLTFCompiler::_StrideBuffers(GLTFRoot &_root, std::vector<DasBuffer> &_buffers) {
-        std::vector<std::vector<GLTFAccessor*>> all_regions(_GetAllBufferAccessorRegions(_root));
-        m_supplemented_buffers.resize(_buffers.size());
+    DasBuffer GLTFCompiler::_RewriteMeshBuffer(GLTFRoot &_root) {
+        DasBuffer buffer;
+        m_meshes.reserve(_root.meshes.size());
+        m_mesh_primitives.reserve(_FindPrimitiveCount(_root));
+        m_morph_targets.reserve(_FindMorphTargetCount(_root));
 
-        std::vector<std::vector<BufferAccessorData>> invalid_stride_regions(_GetInvalidStridedBufferRegions(_root));
-        _StrideBuffer(_root, all_regions, invalid_stride_regions, _buffers, &GLTFCompiler::_SupplementInvalidStridedData);
+        // for each mesh
+        for(auto mesh_it = _root.meshes.begin(); mesh_it != _root.meshes.end(); mesh_it++) {
+            const size_t mesh_id = mesh_it - _root.meshes.begin();
+            m_meshes.emplace_back();
+            m_meshes[mesh_id].primitives = new uint32_t[mesh_it->primitives.size()];
+            m_meshes[mesh_id].primitive_count = mesh_it->primitives.size();
 
-        _AdjustBufferViewStrides(_root);
+            // for each mesh primitive
+            for(auto prim_it = mesh_it->primitives.begin(); prim_it != mesh_it->primitives.end(); prim_it++) {
+                const size_t prim_id = prim_it - mesh_it->primitives.begin();
+                auto gen_acc = _GenerateGenericVertexAttributeAccessors(prim_it->attributes);
 
-        std::vector<std::vector<BufferAccessorData>> index_regions(_GetBufferIndexRegions(_root));
-        _StrideBuffer(_root, all_regions, index_regions, _buffers, &GLTFCompiler::_SupplementIndices);
+                // check if indexing is required
+                if(prim_it->indices == INT32_MAX) {
+                    // check if morph targets are used and throw an error
+                    if(prim_it->targets.size()) {
+                        std::cerr << "GLTF error: Morph targets are not allowed for unindexed mesh primitives" << std::endl;
+                        std::exit(LIBDAS_ERROR_INVALID_TYPE);
+                    }
 
-        std::vector<std::vector<BufferAccessorData>> color_stride_regions(_GetBufferColorStrideRegions(_root));
-        _StrideBuffer(_root, all_regions, color_stride_regions, _buffers, &GLTFCompiler::_SupplementColorMultipliers);
+                    _IndexMeshPrimitive(_root, gen_acc);
+                    prim_it->indices = _root.accessors.size() - 1;
+                } else {
+                    BufferAccessorData acc_data = _FindAccessorData(_root, gen_acc.pos_accessor);
+                    for(uint32_t i = 0; i < acc_data.used_size / acc_data.unit_stride; i++) {
+                        const GenericVertexAttribute v = _GenerateGenericVertexAttribute(_root, gen_acc, i);
+                        m_indexed_attrs.push_back(v);
+                    }
 
-        std::vector<std::vector<BufferAccessorData>> joint_regions(_GetBufferJointRegions(_root));
-        _StrideBuffer(_root, all_regions, joint_regions, _buffers, &GLTFCompiler::_SupplementJointIndices);
+                    // get indices
+                    acc_data = _FindAccessorData(_root, prim_it->indices);
+                    for(uint32_t i = 0; i < acc_data.used_size / acc_data.unit_stride; i++) {
+                        m_generated_indices.push_back(_GetIndex(acc_data, i));
+                    }
+                }
 
-        std::vector<std::vector<BufferAccessorData>> joint_weight_regions(_GetBufferJointRegions(_root));
-        _StrideBuffer(_root, all_regions, joint_weight_regions, _buffers, &GLTFCompiler::_SupplementJointWeights);
+                _WriteIndexedData(_root, gen_acc, buffer);
+                _CreateMeshPrimitive(_root, gen_acc, mesh_id, prim_id);
 
-        std::vector<std::vector<BufferAccessorData>> animation_regions(_GetAnimationDataRegions(_root));
-        _StrideBuffer(_root, all_regions, animation_regions, _buffers, &GLTFCompiler::_SupplementAnimationKeyframeData);
+                // check if morph targets were used
+                if(prim_it->targets.size()) {
+                    m_mesh_primitives.back().morph_target_count = static_cast<uint32_t>(prim_it->targets.size());
+                    m_mesh_primitives.back().morph_targets = new uint32_t[prim_it->targets.size()];
+                    m_mesh_primitives.back().morph_weights = new float[prim_it->targets.size()];
 
-        _GetUnindexedMeshPrimitives(_root);
-        _IndexGeometry(_root, all_regions, _buffers);
-    }
+                    for(auto morph_it = prim_it->targets.begin(); morph_it != prim_it->targets.end(); morph_it++) {
+                        const size_t morph_id = morph_it - prim_it->targets.begin();
+                        gen_acc = _GenerateGenericVertexAttributeAccessors(*morph_it);
+                        BufferAccessorData acc_data;
 
+                        // check if either position, normal or tangent properties are morphed to get BufferAccessorData from
+                        if(gen_acc.pos_accessor != UINT32_MAX)
+                            acc_data = _FindAccessorData(_root, gen_acc.pos_accessor);
+                        else if(gen_acc.normal_accessor != UINT32_MAX)
+                            acc_data = _FindAccessorData(_root, gen_acc.normal_accessor);
+                        else if(gen_acc.tangent_accessor != UINT32_MAX)
+                            acc_data = _FindAccessorData(_root, gen_acc.tangent_accessor);
+                        else {
+                            std::cerr << "GLTF Error: Morph target with no position, normal or tangent properties specified" << std::endl;
+                            std::exit(LIBDAS_ERROR_INVALID_TYPE);
+                        }
+                        
+                        for(uint32_t i = 0; i < acc_data.used_size / acc_data.unit_stride; i++) {
+                            const GenericVertexAttribute v = _GenerateGenericVertexAttribute(_root, gen_acc, i);
+                            m_indexed_attrs.push_back(v);
+                        }
 
-    void GLTFCompiler::_OmitEmptyBuffers(GLTFRoot &_root, std::vector<DasBuffer> &_buffers) {
-        std::vector<int32_t> buffer_id_offset_table(_buffers.size());
-        std::fill(buffer_id_offset_table.begin(), buffer_id_offset_table.end(), 0);
-
-        // omit unnecessary empty buffers
-        for(size_t i = 0; i < _buffers.size(); i++) {
-            if(!_buffers[i].data_len) {
-                _buffers.erase(_buffers.begin() + i);
-
-                for(size_t j = i; j < _buffers.size(); j++)
-                    buffer_id_offset_table[j]--;
-
-                i--;
+                        _WriteIndexedData(_root, gen_acc, buffer, false);
+                        _CreateMorphTarget(_root, gen_acc, mesh_id, prim_id, morph_id);
+                    }
+                }
             }
         }
 
-
-        // change buffer ids
-        for(size_t i = 0; i < _root.buffer_views.size(); i++)
-            _root.buffer_views[i].buffer += buffer_id_offset_table[_root.buffer_views[i].buffer];
+        return buffer;
     }
 
 
-    void GLTFCompiler::_WriteIndexedData(GLTFRoot &_root, std::vector<DasBuffer> &_buffers, GLTFCompiler::GenericVertexAttributeAccessors &_gen_acc) {
-        std::vector<std::vector<BufferAccessorData>> indexed_regions(_root.buffers.size());
-        std::vector<std::vector<GLTFAccessor*>> all_regions(_GetAllBufferAccessorRegions(_root));
-        
-        BufferAccessorData accessor_data;
+    Libdas::Vector2<float> GLTFCompiler::_GetUV(BufferAccessorData &_ad, uint32_t index) {
+        // access correct buffer entry point
+        const char *ptr = m_uri_resolvers[_ad.buffer_id].GetBuffer().first + _ad.buffer_offset + index * _ad.unit_stride;
+        Libdas::Vector2<float> uv;
+        switch(_ad.component_type) {
+            case KHRONOS_UNSIGNED_BYTE:
+                uv.first = (float) (*reinterpret_cast<const unsigned char*>(ptr));
+                uv.second = (float) (*reinterpret_cast<const unsigned char*>(ptr + sizeof(unsigned char)));
 
-        // push position accessor
-        LIBDAS_ASSERT(_gen_acc.pos_accessor != UINT32_MAX);
-        accessor_data = _FindAccessorData(_root, _gen_acc.pos_accessor);
-        indexed_regions[accessor_data.buffer_id].push_back(accessor_data);
-        _StrideBuffer(_root, all_regions, indexed_regions, _buffers, &GLTFCompiler::_SupplementIndexedPositionVertices);
-        indexed_regions[accessor_data.buffer_id].clear();
+                uv /= 255.0f;
+                break;
 
-        // push vertex normal accessor
-        if(_gen_acc.normal_accessor != UINT32_MAX) {
-            accessor_data = _FindAccessorData(_root, _gen_acc.normal_accessor);
-            indexed_regions[accessor_data.buffer_id].push_back(accessor_data);
-            _StrideBuffer(_root, all_regions, indexed_regions, _buffers, &GLTFCompiler::_SupplementIndexedVertexNormals);
-            indexed_regions[accessor_data.buffer_id].clear();
+            case KHRONOS_UNSIGNED_SHORT:
+                uv.first = (float) (*reinterpret_cast<const unsigned short*>(ptr));
+                uv.second = (float) (*reinterpret_cast<const unsigned short*>(ptr + sizeof(unsigned short)));
+
+                uv /= 65535.0f;
+                break;
+
+            case KHRONOS_FLOAT:
+                uv.first = *reinterpret_cast<const float*>(ptr);
+                uv.second = *reinterpret_cast<const float*>(ptr + sizeof(float));
+                break;
+
+            default:
+                std::cerr << "GLTF error: UV coordinate type must be VEC2 with component type of unsigned char, unsigned short or float" << std::endl;
+                std::exit(LIBDAS_ERROR_INVALID_TYPE);
+                break;
         }
 
-        // push vertex tangent accessor
-        if(_gen_acc.tangent_accessor != UINT32_MAX) {
-            accessor_data = _FindAccessorData(_root, _gen_acc.tangent_accessor);
-            indexed_regions[accessor_data.buffer_id].push_back(accessor_data);
-            _StrideBuffer(_root, all_regions, indexed_regions, _buffers, &GLTFCompiler::_SupplementIndexedVertexTangents);
-            indexed_regions[accessor_data.buffer_id].clear();
-        }
-
-        // push uv accessors
-        for (auto it = _gen_acc.uv_accessors.begin(); it != _gen_acc.uv_accessors.end(); it++) {
-            accessor_data = _FindAccessorData(_root, *it);
-            indexed_regions[accessor_data.buffer_id].push_back(accessor_data);
-        }
-        _StrideBuffer(_root, all_regions, indexed_regions, _buffers, &GLTFCompiler::_SupplementIndexedUVVertices);
-        indexed_regions.clear();
-        indexed_regions.resize(_root.buffers.size());
-
-        // push color accessors
-        for (auto it = _gen_acc.color_mul_accessors.begin(); it != _gen_acc.color_mul_accessors.end(); it++) {
-            accessor_data = _FindAccessorData(_root, *it);
-            indexed_regions[accessor_data.buffer_id].push_back(accessor_data);
-        }
-        _StrideBuffer(_root, all_regions, indexed_regions, _buffers, &GLTFCompiler::_SupplementIndexedColorMultipliers);
-        indexed_regions.clear();
-        indexed_regions.resize(_root.buffers.size());
-
-        // push joints accessors
-        for (auto it = _gen_acc.joints_accessors.begin(); it != _gen_acc.joints_accessors.end(); it++) {
-            accessor_data = _FindAccessorData(_root, *it);
-            indexed_regions[accessor_data.buffer_id].push_back(accessor_data);
-        }
-        _StrideBuffer(_root, all_regions, indexed_regions, _buffers, &GLTFCompiler::_SupplementIndexedJointsIndices);
-        indexed_regions.clear();
-        indexed_regions.resize(_root.buffers.size());
-
-        // push weights accessors
-        for (auto it = _gen_acc.weights_accessors.begin(); it != _gen_acc.weights_accessors.end(); it++) {
-            accessor_data = _FindAccessorData(_root, *it);
-            indexed_regions[accessor_data.buffer_id].push_back(accessor_data);
-        }
-        _StrideBuffer(_root, all_regions, indexed_regions, _buffers, &GLTFCompiler::_SupplementIndexedJointWeights);
+        return uv;
     }
 
 
-    GLTFCompiler::GenericVertexAttribute GLTFCompiler::_GenerateGenericVertexAttribute(GLTFRoot &_root, GLTFCompiler::GenericVertexAttributeAccessors &_gen_acc, std::vector<DasBuffer> &_buffers, uint32_t _index) {
+
+    Libdas::Vector4<float> GLTFCompiler::_GetColorMultiplier(BufferAccessorData &_ad, uint32_t _index) {
+        const char *ptr = m_uri_resolvers[_ad.buffer_id].GetBuffer().first + _ad.buffer_offset + _index * _ad.unit_stride;
+        Libdas::Vector4<float> color;
+        switch(_ad.component_type) {
+            case KHRONOS_UNSIGNED_BYTE:
+                color.first = (float)(*reinterpret_cast<const unsigned char*>(ptr));
+                color.second = (float)(*reinterpret_cast<const unsigned char*>(ptr + sizeof(unsigned char)));
+                color.third = (float)(*reinterpret_cast<const unsigned char*>(ptr + 2 * sizeof(unsigned char)));
+
+                if(_ad.unit_size / static_cast<uint32_t>(sizeof(unsigned char)) == 4)
+                    color.fourth = (float)(*reinterpret_cast<const unsigned char*>(ptr + 3 * sizeof(unsigned char)));
+                else color.fourth = 1.0f; // opacity 100%
+
+                color /= 255.0f;
+                break;
+
+            case KHRONOS_UNSIGNED_SHORT:
+                color.first = (float)(*reinterpret_cast<const unsigned short*>(ptr));
+                color.second = (float)(*reinterpret_cast<const unsigned short*>(ptr + sizeof(unsigned short)));
+                color.third = (float)(*reinterpret_cast<const unsigned short*>(ptr + 2 * sizeof(unsigned short)));
+
+                if(_ad.unit_size / static_cast<uint32_t>(sizeof(unsigned short)) == 4)
+                    color.fourth = (float)(*reinterpret_cast<const unsigned short*>(ptr + 3 * sizeof(unsigned short)));
+                else color.fourth = 1.0f; // -"-
+
+                color /= 65535.0f;
+                break;
+
+            case KHRONOS_FLOAT:
+                color.first = (float)(*reinterpret_cast<const float*>(ptr));
+                color.second = (float)(*reinterpret_cast<const float*>(ptr + sizeof(float)));
+                color.third = (float)(*reinterpret_cast<const float*>(ptr + 2 * sizeof(float)));
+
+                if(_ad.unit_size / static_cast<uint32_t>(sizeof(float)) == 4)
+                    color.fourth = (float)(*reinterpret_cast<const float*>(ptr + 3 * sizeof(float)));
+                else color.fourth = 1.0f; // -"-
+                break;
+
+            default:
+                std::cerr << "GLTF error: Color multiplier type must be VEC4 with component type of unsigned char, unsigned short or float" << std::endl;
+                std::exit(LIBDAS_ERROR_INVALID_TYPE);
+                break;
+        }
+
+        return color;
+    }
+
+
+    Libdas::Vector4<uint16_t> GLTFCompiler::_GetJointIndices(BufferAccessorData &_ad, uint32_t _index) {
+        const char *ptr = m_uri_resolvers[_ad.buffer_id].GetBuffer().first + _ad.buffer_offset + _index * _ad.unit_stride;
+        Libdas::Vector4<uint16_t> jindex;
+        switch(_ad.component_type) {
+            case KHRONOS_UNSIGNED_BYTE:
+                jindex.first = (uint16_t)(*reinterpret_cast<const unsigned char*>(ptr));
+                jindex.second = (uint16_t)(*reinterpret_cast<const unsigned char*>(ptr + sizeof(unsigned char)));
+                jindex.third = (uint16_t)(*reinterpret_cast<const unsigned char*>(ptr + 2 * sizeof(unsigned char)));
+                jindex.fourth = (uint16_t)(*reinterpret_cast<const unsigned char*>(ptr + 3 * sizeof(unsigned char)));
+                break;
+
+            case KHRONOS_UNSIGNED_SHORT:
+                jindex.first = (uint16_t)(*reinterpret_cast<const unsigned short*>(ptr));
+                jindex.second = (uint16_t)(*reinterpret_cast<const unsigned short*>(ptr + sizeof(unsigned short)));
+                jindex.third = (uint16_t)(*reinterpret_cast<const unsigned short*>(ptr + 2 * sizeof(unsigned short)));
+                jindex.fourth = (uint16_t)(*reinterpret_cast<const unsigned short*>(ptr + 3 * sizeof(unsigned short)));
+                break;
+
+            default:
+                std::cerr << "GLTF error: Joint index type must be VEC4 with component type of unsigned char or unsigned short" << std::endl;
+                std::exit(LIBDAS_ERROR_INVALID_TYPE);
+                break;
+        }
+
+        return jindex;
+    }
+
+
+    Libdas::Vector4<float> GLTFCompiler::_GetJointWeights(BufferAccessorData &_ad, uint32_t _index) {
+        const char *ptr = m_uri_resolvers[_ad.buffer_id].GetBuffer().first + _ad.buffer_offset + _index * _ad.unit_stride;
+        Libdas::Vector4<float> weights;
+        switch(_ad.component_type) {
+            case KHRONOS_UNSIGNED_BYTE:
+                weights.first = (float)(*reinterpret_cast<const unsigned char*>(ptr));
+                weights.second = (float)(*reinterpret_cast<const unsigned char*>(ptr + sizeof(unsigned char)));
+                weights.third = (float)(*reinterpret_cast<const unsigned char*>(ptr + 2 * sizeof(unsigned char)));
+                weights.fourth = (float)(*reinterpret_cast<const unsigned char*>(ptr + 3 * sizeof(unsigned char)));
+
+                weights /= 255.0f;
+                break;
+
+            case KHRONOS_UNSIGNED_SHORT:
+                weights.first = (float)(*reinterpret_cast<const unsigned char*>(ptr));
+                weights.second = (float)(*reinterpret_cast<const unsigned char*>(ptr + sizeof(unsigned char)));
+                weights.third = (float)(*reinterpret_cast<const unsigned char*>(ptr + 2 * sizeof(unsigned char)));
+                weights.fourth = (float)(*reinterpret_cast<const unsigned char*>(ptr + 3 * sizeof(unsigned char)));
+
+                weights /= 65535.0f;
+                break;
+
+            case KHRONOS_FLOAT:
+                weights.first = (float)(*reinterpret_cast<const float*>(ptr));
+                weights.second = (float)(*reinterpret_cast<const float*>(ptr + sizeof(float)));
+                weights.third = (float)(*reinterpret_cast<const float*>(ptr + 2 * sizeof(float)));
+                weights.fourth = (float)(*reinterpret_cast<const float*>(ptr + 3 * sizeof(float)));
+                break;
+
+            default:
+                std::cerr << "GLTF error: Joint weight type must be VEC4 with component type of unsigned char, unsigned short or float" << std::endl;
+                std::exit(LIBDAS_ERROR_INVALID_TYPE);
+                break;
+        }
+
+        return weights;
+    }
+
+
+    uint32_t GLTFCompiler::_GetIndex(BufferAccessorData &_ad, uint32_t _index) {
+        const char *ptr = m_uri_resolvers[_ad.buffer_id].GetBuffer().first + _ad.buffer_offset + _index * _ad.unit_stride;
+        uint32_t attr_id = 0;
+        switch(_ad.component_type) {
+            case KHRONOS_UNSIGNED_BYTE:
+                attr_id = (uint32_t)(*reinterpret_cast<const unsigned char*>(ptr));
+                break;
+
+            case KHRONOS_UNSIGNED_SHORT:
+                attr_id = (uint32_t)(*reinterpret_cast<const unsigned short*>(ptr));
+                break;
+
+            case KHRONOS_UNSIGNED_INT:
+                break;
+
+            default:
+                std::cerr << "GLTF error: Index type must be SCALAR with component type of unsigned char, unsigned short or unsigned int" << std::endl;
+                std::exit(LIBDAS_ERROR_INVALID_TYPE);
+                break;
+        };
+
+        return attr_id;
+    }
+
+
+    GLTFCompiler::GenericVertexAttribute GLTFCompiler::_GenerateGenericVertexAttribute(GLTFRoot &_root, GLTFCompiler::GenericVertexAttributeAccessors &_gen_acc, uint32_t _index) {
         GenericVertexAttribute v;
         BufferAccessorData accessor_data;
+        size_t offset = 0;
 
         // position vertex
-        LIBDAS_ASSERT(_gen_acc.pos_accessor != UINT32_MAX);
-        accessor_data = _FindAccessorData(_root, _gen_acc.pos_accessor);
-        size_t offset = accessor_data.buffer_offset + sizeof(Vector3<float>) * _index;
-
-        // bit is short for buffer iterator in this case
-        auto bit = _FindDataPtrFromOffset(_buffers[accessor_data.buffer_id].data_ptrs, offset);
-        v.pos = *reinterpret_cast<const Vector3<float>*>(bit->first + offset);
+        if(_gen_acc.pos_accessor != UINT32_MAX) {
+            LIBDAS_ASSERT(_gen_acc.pos_accessor != UINT32_MAX);
+            accessor_data = _FindAccessorData(_root, _gen_acc.pos_accessor);
+            size_t offset = accessor_data.buffer_offset + accessor_data.unit_stride * _index;
+            v.pos = *reinterpret_cast<const Libdas::Vector3<float>*>(m_uri_resolvers[accessor_data.buffer_id].GetBuffer().first + offset);
+        }
         
         // vertex normal
         if(_gen_acc.normal_accessor != UINT32_MAX) {
             accessor_data = _FindAccessorData(_root, _gen_acc.normal_accessor);
-            offset = accessor_data.buffer_offset + sizeof(Vector3<float>) * _index;
-            bit = _FindDataPtrFromOffset(_buffers[accessor_data.buffer_id].data_ptrs, offset);
-            v.normal = *reinterpret_cast<const Vector3<float>*>(bit->first + offset);
+            offset = accessor_data.buffer_offset + accessor_data.unit_stride * _index;
+            v.normal = *reinterpret_cast<const Vector3<float>*>(m_uri_resolvers[accessor_data.buffer_id].GetBuffer().first + offset);
         }
 
         // vertex tangent
         if(_gen_acc.tangent_accessor != UINT32_MAX) {
             accessor_data = _FindAccessorData(_root, _gen_acc.tangent_accessor);
-            offset = accessor_data.buffer_offset + sizeof(Vector3<float>) * _index;
-            bit = _FindDataPtrFromOffset(_buffers[accessor_data.buffer_id].data_ptrs, offset);
-            v.normal = *reinterpret_cast<const Vector3<float>*>(bit->first + offset);
+            offset = accessor_data.buffer_offset + accessor_data.unit_stride * _index;
+            v.tangent = *reinterpret_cast<const Vector4<float>*>(m_uri_resolvers[accessor_data.buffer_id].GetBuffer().first + offset);
         }
 
         // uv accessors
         v.uv.reserve(_gen_acc.uv_accessors.size());
         for(auto it = _gen_acc.uv_accessors.begin(); it != _gen_acc.uv_accessors.end(); it++) {
             accessor_data = _FindAccessorData(_root, *it);
-            offset = accessor_data.buffer_offset + sizeof(Vector2<float>) * _index;
-            bit = _FindDataPtrFromOffset(_buffers[accessor_data.buffer_id].data_ptrs, offset);
-            v.uv.push_back(*reinterpret_cast<const Vector2<float>*>(bit->first + offset));
+            v.uv.push_back(_GetUV(accessor_data, _index));
         }
 
         // color accessors
         v.color.reserve(_gen_acc.color_mul_accessors.size());
         for(auto it = _gen_acc.color_mul_accessors.begin(); it != _gen_acc.color_mul_accessors.end(); it++) {
             accessor_data = _FindAccessorData(_root, *it);
-            offset = accessor_data.buffer_offset + sizeof(Vector4<float>) * _index;
-            bit = _FindDataPtrFromOffset(_buffers[accessor_data.buffer_id].data_ptrs, offset);
-            v.color.push_back(*reinterpret_cast<const Vector4<float>*>(bit->first + offset));
+            offset = accessor_data.buffer_offset + accessor_data.unit_stride * _index;
+            v.color.push_back(_GetColorMultiplier(accessor_data, _index));
         }
 
         // joints accessors
@@ -1163,8 +630,7 @@ namespace Libdas {
         for(auto it = _gen_acc.joints_accessors.begin(); it != _gen_acc.joints_accessors.end(); it++) {
             accessor_data = _FindAccessorData(_root, *it);
             offset = accessor_data.buffer_offset + sizeof(Vector4<uint16_t>) * _index;
-            bit = _FindDataPtrFromOffset(_buffers[accessor_data.buffer_id].data_ptrs, offset);
-            v.joints.push_back(*reinterpret_cast<const Vector4<uint16_t>*>(bit->first + offset));
+            v.joints.push_back(_GetJointIndices(accessor_data, _index));
         }
 
         // weights accessors
@@ -1172,155 +638,259 @@ namespace Libdas {
         for(auto it = _gen_acc.weights_accessors.begin(); it != _gen_acc.weights_accessors.end(); it++) {
             accessor_data = _FindAccessorData(_root, *it);
             offset = accessor_data.buffer_offset + sizeof(Vector4<float>) * _index;
-            bit = _FindDataPtrFromOffset(_buffers[accessor_data.buffer_id].data_ptrs, offset);
-            v.weights.push_back(*reinterpret_cast<const Vector4<float>*>(bit->first + offset));
+            v.weights.push_back(_GetJointWeights(accessor_data, _index));
         }
 
         return v;
     }
 
 
-    void GLTFCompiler::_IndexMeshPrimitive(GLTFRoot &_root, GLTFMeshPrimitive &_prim, std::vector<DasBuffer> &_buffers, GLTFAccessors &_accessors, GenericVertexAttributeAccessors &_gen_acc) {
+
+    GLTFCompiler::GenericVertexAttributeAccessors GLTFCompiler::_GenerateGenericVertexAttributeAccessors(GLTFMeshPrimitive::AttributesType &_attrs) {
+        GenericVertexAttributeAccessors attr_accessors;
+
+        // for each attribute
+        for(auto attr_it = _attrs.begin(); attr_it != _attrs.end(); attr_it++) {
+            const std::string no_nr = Libdas::Algorithm::RemoveNumbers(attr_it->first);
+            if(m_attribute_type_map.find(no_nr) == m_attribute_type_map.end()) {
+                std::cerr << "GLTF error: invalid attribute vertex attribute '" << attr_it->first << "'" << std::endl;
+                std::exit(LIBDAS_ERROR_INVALID_ARGUMENT);
+            }
+
+            switch(m_attribute_type_map.find(no_nr)->second) {
+                case LIBDAS_BUFFER_TYPE_VERTEX:
+                    attr_accessors.pos_accessor = attr_it->second;
+                    break;
+
+                case LIBDAS_BUFFER_TYPE_VERTEX_NORMAL:
+                    attr_accessors.normal_accessor = attr_it->second;
+                    break;
+
+                case LIBDAS_BUFFER_TYPE_VERTEX_TANGENT:
+                    attr_accessors.tangent_accessor = attr_it->second;
+                    break;
+
+                case LIBDAS_BUFFER_TYPE_TEXTURE_MAP: 
+                    {
+                        const uint32_t index = std::stoi(attr_it->first.substr(no_nr.size()));
+                        if(index + 1 > static_cast<uint32_t>(attr_accessors.uv_accessors.size()))
+                            attr_accessors.uv_accessors.resize(index + 1);
+                        attr_accessors.uv_accessors[index] = attr_it->second;
+                    }
+                    break;
+
+                case LIBDAS_BUFFER_TYPE_COLOR:
+                    {
+                        const uint32_t index = std::stoi(attr_it->first.substr(no_nr.size()));
+                        if(index + 1 > static_cast<uint32_t>(attr_accessors.color_mul_accessors.size()))
+                            attr_accessors.color_mul_accessors.resize(index + 1);
+                        attr_accessors.color_mul_accessors[index] = attr_it->second;
+                    }
+                    break;
+
+                case LIBDAS_BUFFER_TYPE_JOINTS:
+                    {
+                        const uint32_t index = std::stoi(attr_it->first.substr(no_nr.size()));
+                        if(index + 1 > static_cast<uint32_t>(attr_accessors.joints_accessors.size()))
+                            attr_accessors.joints_accessors.resize(index + 1);
+                        attr_accessors.joints_accessors[index] = attr_it->second;
+                    }
+                    break;
+
+                case LIBDAS_BUFFER_TYPE_WEIGHTS:
+                    {
+                        const uint32_t index = std::stoi(attr_it->first.substr(no_nr.size()));
+                        if(index + 1 > static_cast<uint32_t>(attr_accessors.weights_accessors.size()))
+                            attr_accessors.weights_accessors.resize(index + 1);
+                        attr_accessors.weights_accessors[index] = attr_it->second;
+                    }
+                    break;
+
+                default:
+                    LIBDAS_ASSERT(false);
+                    break;
+            }
+        }
+
+        return attr_accessors;
+    }
+
+
+    void GLTFCompiler::_IndexMeshPrimitive(GLTFRoot &_root, GenericVertexAttributeAccessors &_gen_acc) {
         std::array<uint32_t, 6> offsets;
         std::fill(offsets.begin(), offsets.end(), UINT32_MAX);
 
         std::unordered_map<GenericVertexAttribute, uint32_t, Hash<GenericVertexAttribute>> m;
         LIBDAS_ASSERT(_gen_acc.pos_accessor != UINT32_MAX);
         BufferAccessorData pos = _FindAccessorData(_root, _gen_acc.pos_accessor);
-        m.reserve(static_cast<size_t>(pos.used_size / pos.unit_size));
+        m.reserve(static_cast<size_t>(pos.used_size / pos.unit_stride));
 
         uint32_t max = 0;
-        m_indexed_attributes.clear();
-        m_supplemented_indices.clear();
-        m_indexed_attributes.reserve(static_cast<size_t>(pos.used_size / pos.unit_size));
-        m_supplemented_indices.reserve(static_cast<size_t>(pos.used_size / pos.unit_size));
+        m_indexed_attrs.clear();
+        m_generated_indices.clear();
+        m_indexed_attrs.reserve(static_cast<size_t>(pos.used_size / pos.unit_size));
+        m_generated_indices.reserve(static_cast<size_t>(pos.used_size / pos.unit_size));
 
-        for(uint32_t i = 0; i < pos.used_size / pos.unit_size; i++) {
-            GenericVertexAttribute v = _GenerateGenericVertexAttribute(_root, _gen_acc, _buffers, i);
+        for(uint32_t i = 0; i < pos.used_size / pos.unit_stride; i++) {
+            GenericVertexAttribute v = _GenerateGenericVertexAttribute(_root, _gen_acc, i);
 
             // 1. vertex was not found to be in hashmap thus push it there
             // 2. vertex was found add index to supplemented_indices array
             if(m.find(v) == m.end()) {
                 m[v] = max;
-                m_indexed_attributes.push_back(std::move(v));
-                m_supplemented_indices.push_back(max++);
+                m_indexed_attrs.push_back(std::move(v));
+                m_generated_indices.push_back(max++);
             } else {
-                m_supplemented_indices.push_back(m[v]);
-            }
-        }
-
-        const uint32_t index = _FindFirstNonTextureBuffer(_buffers);
-        LIBDAS_ASSERT(index != UINT32_MAX);
-        _WriteIndexedData(_root, _buffers, _gen_acc);
-        _CreateNewIndexRegion(_root, _accessors[index], _prim, _buffers[index], index);
-    }
-
-
-    void GLTFCompiler::_IndexGeometry(GLTFRoot &_root, GLTFAccessors &_accessors, std::vector<DasBuffer> &_buffers) {
-        // for each mesh
-        for(auto mesh_it = _root.meshes.begin(); mesh_it != _root.meshes.end(); mesh_it++) {
-            // for each primitive
-            for(auto prim_it = mesh_it->primitives.begin(); prim_it != mesh_it->primitives.end(); prim_it++) {
-                if(prim_it->indices == INT32_MAX) {
-                    // TODO: Calculate GenericVertexAttributeAccessors object to pass into indexing method
-                    GenericVertexAttributeAccessors gen_acc;
-                    gen_acc.uv_accessors.resize(_EnumerateMultiSpecVertexAttributes(prim_it->attributes, "TEXCOORD_"));
-                    gen_acc.color_mul_accessors.resize(_EnumerateMultiSpecVertexAttributes(prim_it->attributes, "COLOR_"));
-                    gen_acc.joints_accessors.resize(_EnumerateMultiSpecVertexAttributes(prim_it->attributes, "JOINTS_"));
-                    gen_acc.weights_accessors.resize(_EnumerateMultiSpecVertexAttributes(prim_it->attributes, "WEIGHTS_"));
-
-                    for(auto attr_it = prim_it->attributes.begin(); attr_it != prim_it->attributes.end(); attr_it++) {
-                        // check if the attribute exists in attribute type map   
-                        const std::string no_nr = Algorithm::RemoveNumbers(attr_it->first);
-                        if(m_attribute_type_map.find(no_nr) == m_attribute_type_map.end()) {
-                            std::cerr << "Invalid attribute with name '" << attr_it->first << "'" << std::endl;
-                            std::exit(LIBDAS_ERROR_INVALID_DATA_LENGTH);
-                        }
-
-                        switch(m_attribute_type_map.find(no_nr)->second) {
-                            case LIBDAS_BUFFER_TYPE_VERTEX:
-                                gen_acc.pos_accessor = attr_it->second;
-                                break;
-
-                            case LIBDAS_BUFFER_TYPE_VERTEX_NORMAL:
-                                gen_acc.normal_accessor = attr_it->second;
-                                break;
-
-                            case LIBDAS_BUFFER_TYPE_VERTEX_TANGENT:
-                                gen_acc.tangent_accessor = attr_it->second;
-                                break;
-
-                            case LIBDAS_BUFFER_TYPE_TEXTURE_MAP:
-                                {
-                                    uint32_t index = _FindMultiSpecVertexAttributeIndex(attr_it->first);
-                                    gen_acc.uv_accessors[index] = attr_it->second;
-                                }
-                                break;
-
-                            case LIBDAS_BUFFER_TYPE_COLOR:
-                                {
-                                    uint32_t index = _FindMultiSpecVertexAttributeIndex(attr_it->first);
-                                    gen_acc.color_mul_accessors[index] = attr_it->second;
-                                }
-                                break;
-
-                            case LIBDAS_BUFFER_TYPE_JOINTS:
-                                {
-                                    uint32_t index = _FindMultiSpecVertexAttributeIndex(attr_it->first);
-                                    gen_acc.joints_accessors[index] = attr_it->second;
-                                }
-                                break;
-
-                            case LIBDAS_BUFFER_TYPE_WEIGHTS:
-                                {
-                                    uint32_t index = _FindMultiSpecVertexAttributeIndex(attr_it->first);
-                                    gen_acc.weights_accessors[index] = attr_it->second;
-                                }
-                                break;
-
-                            default:
-                                break;
-                        }
-                    }
-
-                    // index the accessor region
-                    _IndexMeshPrimitive(_root, *prim_it, _buffers, _accessors, gen_acc);
-                }
+                m_generated_indices.push_back(m[v]);
             }
         }
     }
 
 
-    void GLTFCompiler::_CreateNewIndexRegion(GLTFRoot &_root, std::vector<GLTFAccessor*> &_accessors, GLTFMeshPrimitive &_prim, DasBuffer &_buffer, const uint32_t _id) {
-        _root.buffer_views.emplace_back();
-        _root.buffer_views.back().buffer = _id;
-        _root.buffer_views.back().byte_offset = _buffer.data_len;
-        _root.buffer_views.back().byte_length = static_cast<uint32_t>(m_supplemented_indices.size() * sizeof(uint32_t));
+    void GLTFCompiler::_WriteIndexedData(GLTFRoot &_root, GenericVertexAttributeAccessors &_gen_acc, DasBuffer &_buffer, bool _write_indices) {
+        size_t len = 0;
+        char *buf = nullptr;
+        GLTFAccessor *acc = nullptr;
 
-        _root.accessors.emplace_back();
-        _root.accessors.back().buffer_view = static_cast<int32_t>(_root.buffer_views.size() - 1);
-        _root.accessors.back().byte_offset = 0;
-        _root.accessors.back().component_type = KHRONOS_UNSIGNED_INT;
-        _root.accessors.back().count = static_cast<int32_t>(m_supplemented_indices.size());
-        _root.accessors.back().type = "SCALAR";
+        // pos
+        if(_gen_acc.pos_accessor != UINT32_MAX && _root.accessors[_gen_acc.pos_accessor].buffer_id == UINT32_MAX) {
+            acc = &_root.accessors[_gen_acc.pos_accessor];
+            len = m_indexed_attrs.size() * sizeof(Libdas::Vector3<float>);
+            buf = new char[len];
+            acc->buffer_id = 0;
+            acc->accumulated_offset = _buffer.data_len;
+            for(size_t i = 0; i < m_indexed_attrs.size(); i++)
+                reinterpret_cast<Libdas::Vector3<float>*>(buf)[i] = m_indexed_attrs[i].pos;
+            
+            m_allocated_memory.push_back(buf);
+            _buffer.data_len += static_cast<uint32_t>(len);
+            _buffer.data_ptrs.push_back(std::make_pair(buf, len));
+        }
 
-        _accessors.push_back(&_root.accessors.back());
+        // normal
+        if(_gen_acc.normal_accessor != UINT32_MAX && _root.accessors[_gen_acc.normal_accessor].buffer_id == UINT32_MAX) {
+            acc = &_root.accessors[_gen_acc.normal_accessor];
+            len = m_indexed_attrs.size() * sizeof(Libdas::Vector3<float>);
+            buf = new char[len];
+            acc->buffer_id = 0;
+            acc->accumulated_offset = _buffer.data_len;
+            for(size_t i = 0; i < m_indexed_attrs.size(); i++)
+                reinterpret_cast<Libdas::Vector3<float>*>(buf)[i] = m_indexed_attrs[i].normal;
 
-        _buffer.data_ptrs.push_back(std::make_pair(reinterpret_cast<const char*>(m_supplemented_indices.data()), m_supplemented_indices.size() * sizeof(uint32_t)));
-        _buffer.data_len += static_cast<uint32_t>(m_supplemented_indices.size() * sizeof(uint32_t));
+            m_allocated_memory.push_back(buf);
+            _buffer.data_len += static_cast<uint32_t>(len);
+            _buffer.data_ptrs.push_back(std::make_pair(buf, len));
+        }
 
-        _prim.indices = static_cast<int32_t>(_root.accessors.size() - 1);
-    }
+        // tangent
+        if(_gen_acc.tangent_accessor != UINT32_MAX && _root.accessors[_gen_acc.tangent_accessor].buffer_id == UINT32_MAX) {
+            acc = &_root.accessors[_gen_acc.tangent_accessor];
+            len = m_indexed_attrs.size() * sizeof(Libdas::Vector4<float>);
+            buf = new char[len];
+            acc->buffer_id = 0;
+            acc->accumulated_offset = _buffer.data_len;
+            for(size_t i = 0; i < m_indexed_attrs.size(); i++)
+                reinterpret_cast<Libdas::Vector4<float>*>(buf)[i] = m_indexed_attrs[i].tangent;
 
-    
-    void GLTFCompiler::_FreeSupplementedBuffers(std::vector<std::vector<char*>> _mem_areas) {
-        for(auto buf_it = _mem_areas.begin(); buf_it != _mem_areas.end(); buf_it++) {
-            for(auto mem_it = buf_it->begin(); mem_it != buf_it->end(); mem_it++) {
-                delete [] *mem_it;
+            m_allocated_memory.push_back(buf);
+            _buffer.data_len += static_cast<uint32_t>(len);
+            _buffer.data_ptrs.push_back(std::make_pair(buf, len));
+        }
+
+        // uvs
+        for(auto uv_it = _gen_acc.uv_accessors.begin(); uv_it != _gen_acc.uv_accessors.end(); uv_it++) {
+            if(_root.accessors[*uv_it].buffer_id == UINT32_MAX) {
+                acc = &_root.accessors[*uv_it];
+                const size_t id = uv_it - _gen_acc.uv_accessors.begin();
+                len = m_indexed_attrs.size() * sizeof(Libdas::Vector2<float>);
+                buf = new char[len];
+                acc->buffer_id = 0;
+                acc->accumulated_offset = _buffer.data_len;
+                for(size_t i = 0; i < m_indexed_attrs.size(); i++)
+                    reinterpret_cast<Libdas::Vector2<float>*>(buf)[i] = m_indexed_attrs[i].uv[id];
+
+                m_allocated_memory.push_back(buf);
+                _buffer.data_len += static_cast<uint32_t>(len);
+                _buffer.data_ptrs.push_back(std::make_pair(buf, len));
             }
         }
 
-        _mem_areas.clear();
+        // color multipliers
+        for(auto cl_it = _gen_acc.color_mul_accessors.begin(); cl_it != _gen_acc.color_mul_accessors.end(); cl_it++) {
+            if(_root.accessors[*cl_it].buffer_id == UINT32_MAX) {
+                acc = &_root.accessors[*cl_it];
+                const size_t id = cl_it - _gen_acc.color_mul_accessors.begin();
+                len = m_indexed_attrs.size() * sizeof(Libdas::Vector4<float>);
+                buf = new char[len];
+                acc->buffer_id = 0;
+                acc->accumulated_offset = _buffer.data_len;
+                for(size_t i = 0; i < m_indexed_attrs.size(); i++)
+                    reinterpret_cast<Libdas::Vector4<float>*>(buf)[i] = m_indexed_attrs[i].color[id];
+
+                m_allocated_memory.push_back(buf);
+                _buffer.data_len += static_cast<uint32_t>(len);
+                _buffer.data_ptrs.push_back(std::make_pair(buf, len));
+            }
+        }
+
+        // joint indices
+        for(auto ji_it = _gen_acc.joints_accessors.begin(); ji_it != _gen_acc.joints_accessors.end(); ji_it++) {
+            if(_root.accessors[*ji_it].buffer_id == UINT32_MAX) {
+                acc = &_root.accessors[*ji_it];
+                const size_t id = ji_it - _gen_acc.joints_accessors.begin();
+                len = m_indexed_attrs.size() * sizeof(Libdas::Vector4<uint16_t>);
+                buf = new char[len];
+                acc->buffer_id = 0;
+                acc->accumulated_offset = _buffer.data_len;
+                for(size_t i = 0; i < m_indexed_attrs.size(); i++)
+                    reinterpret_cast<Libdas::Vector4<uint16_t>*>(buf)[i] = m_indexed_attrs[i].joints[id];
+
+                m_allocated_memory.push_back(buf);
+                _buffer.data_len += static_cast<uint32_t>(len);
+                _buffer.data_ptrs.push_back(std::make_pair(buf, len));
+            }
+        }
+
+        // joint weights
+        for(auto we_it = _gen_acc.weights_accessors.begin(); we_it != _gen_acc.weights_accessors.end(); we_it++) {
+            if(_root.accessors[*we_it].buffer_id == UINT32_MAX) {
+                acc = &_root.accessors[*we_it];
+                const size_t id = we_it - _gen_acc.weights_accessors.begin();
+                len = m_indexed_attrs.size() * sizeof(Libdas::Vector4<float>);
+                buf = new char[len];
+                acc->buffer_id = 0;
+                acc->accumulated_offset = _buffer.data_len;
+                for(size_t i = 0; i < m_indexed_attrs.size(); i++)
+                    reinterpret_cast<Libdas::Vector4<float>*>(buf)[i] = m_indexed_attrs[i].weights[id];
+
+                m_allocated_memory.push_back(buf);
+                _buffer.data_len += static_cast<uint32_t>(len);
+                _buffer.data_ptrs.push_back(std::make_pair(buf, len));
+            }
+        }
+
+        m_indexed_attrs.clear();
+
+        // indices
+        if(_write_indices) {
+            len = m_generated_indices.size() * sizeof(uint32_t);
+            buf = new char[len];
+            std::memcpy(buf, m_generated_indices.data(), m_generated_indices.size() * sizeof(uint32_t));
+            m_allocated_memory.push_back(buf);
+
+            // create a new accessor for index components
+            _root.accessors.emplace_back();
+            _root.accessors.back().type = "SCALAR";
+            _root.accessors.back().count = m_generated_indices.size();
+            _root.accessors.back().component_type = KHRONOS_UNSIGNED_INT;
+            _root.accessors.back().accumulated_offset = _buffer.data_len;
+            _root.accessors.back().buffer_id = 0;
+
+            _buffer.data_len += static_cast<uint32_t>(len);
+            _buffer.data_ptrs.push_back(std::make_pair(buf, len));
+
+            m_generated_indices.clear();
+        }
     }
 
 
@@ -1368,14 +938,9 @@ namespace Libdas {
         // append buffers
         for(auto it = _root.buffers.begin(); it != _root.buffers.end(); it++) {
             m_uri_resolvers.push_back(URIResolver(it->uri, m_root_path));
-            DasBuffer buffer;
-            buffer.type = LIBDAS_BUFFER_TYPE_UNKNOWN;
-            buffer.data_len = it->byte_length;
-            buffer.data_ptrs.push_back(m_uri_resolvers.back().GetBuffer());
-
-            LIBDAS_ASSERT(buffer.data_len == buffer.data_ptrs.back().second);
-            buffers.push_back(buffer);
         }
+
+        buffers.push_back(_RewriteMeshBuffer(_root));
 
         // append images
         for(auto it = _root.images.begin(); it != _root.images.end(); it++) {
@@ -1383,7 +948,7 @@ namespace Libdas {
             // 1. the image is defined with its uri
             // 2. the image is defined in some buffer view
             if(it->uri != "") {
-                m_uri_resolvers.push_back(URIResolver(it->uri, m_root_path));
+                m_uri_resolvers.emplace_back(it->uri, m_root_path);
                 DasBuffer buffer;
                 buffer.type |= m_uri_resolvers.back().GetParsedDataType();
                 buffer.data_len = static_cast<uint32_t>(m_uri_resolvers.back().GetBuffer().second);
@@ -1397,195 +962,6 @@ namespace Libdas {
         _FlagBuffersAccordingToMeshes(_root, buffers);
 
         return buffers;
-    }
-
-
-    std::vector<DasMorphTarget> GLTFCompiler::_CreateMorphTargets(const GLTFRoot &_root) {
-        std::vector<DasMorphTarget> morph_targets;
-
-        for(auto it = _root.meshes.begin(); it != _root.meshes.end(); it++) {
-            for(auto primitive_it = it->primitives.begin(); primitive_it != it->primitives.end(); primitive_it++) {
-                for(auto target_it = primitive_it->targets.begin(); target_it != primitive_it->targets.end(); target_it++) {
-
-                    DasMorphTarget morph_target;
-                    bool is_attr = false;
-
-                    _FindMultiSpecVertexAttributeAccessors(*target_it);   
-                    _CopyUniversalMultiSpecVertexAttributes(_root, morph_target);
-
-                    for(size_t i = 0; i < target_it->size(); i++) {
-                        const std::string no_nr = Algorithm::RemoveNumbers(target_it->at(i).first);
-
-                        if(m_attribute_type_map.find(no_nr) == m_attribute_type_map.end()) {
-                            std::cerr << "GLTF error: No valid morph target attribute '" << no_nr << "' available for current implementation" << std::endl;
-                            EXIT_ON_ERROR(LIBDAS_ERROR_INVALID_DATA_LENGTH);
-                        }
-
-                        BufferAccessorData accessor_data = _FindAccessorData(_root, target_it->at(i).second);
-
-                        switch(m_attribute_type_map.find(no_nr)->second) {
-                            case LIBDAS_BUFFER_TYPE_VERTEX:
-                                morph_target.vertex_buffer_id = accessor_data.buffer_id;
-                                morph_target.vertex_buffer_offset = accessor_data.buffer_offset;
-                                is_attr = true;
-                                break;
-
-                            case LIBDAS_BUFFER_TYPE_VERTEX_NORMAL:
-                                morph_target.vertex_normal_buffer_id = accessor_data.buffer_id;
-                                morph_target.vertex_normal_buffer_offset = accessor_data.buffer_offset;
-                                is_attr = true;
-                                break;
-
-                            case LIBDAS_BUFFER_TYPE_VERTEX_TANGENT:
-                                morph_target.vertex_tangent_buffer_id = accessor_data.buffer_id;
-                                morph_target.vertex_tangent_buffer_offset = accessor_data.buffer_offset;
-                                break;
-
-                            default:
-                                break;
-                        }
-                    }
-
-                    // ignore empty targets
-                    if(is_attr) morph_targets.push_back(morph_target);
-                }
-            }
-        }
-
-        return morph_targets;
-    }
-
-
-    std::vector<DasMeshPrimitive> GLTFCompiler::_CreateMeshPrimitives(const GLTFRoot &_root) {
-        std::vector<DasMeshPrimitive> primitives;
-        primitives.reserve(_FindPrimitiveCount(_root));
-        uint32_t used_targets = 0, used_weights = 0;
-
-        // for TEXCOORD_n, COLOR_n, JOINTS_n and WEIGHTS_n
-        std::vector<uint32_t> texcoord_accessors;
-        std::vector<uint32_t> colormul_accessors;
-        std::vector<uint32_t> joints_accessors;
-        std::vector<uint32_t> weights_accessors;
-
-        // for each mesh
-        for(auto mesh_it = _root.meshes.begin(); mesh_it != _root.meshes.end(); mesh_it++) {
-            // for each mesh primitive
-            for(auto prim_it = mesh_it->primitives.begin(); prim_it != mesh_it->primitives.end(); prim_it++) {
-                DasMeshPrimitive prim;
-
-                // check if the primitive mode is correct
-                if(prim_it->mode != KHRONOS_TRIANGLES) {
-                    std::cerr << "Non-triangle geometry is not supported" << std::endl;
-                    EXIT_ON_ERROR(LIBDAS_ERROR_INVALID_DATA_LENGTH);
-                }
-
-                // write index buffer data
-                BufferAccessorData accessor_data = _FindAccessorData(_root, prim_it->indices);
-                prim.index_buffer_id = accessor_data.buffer_id;
-                prim.index_buffer_offset = accessor_data.buffer_offset;
-                prim.indices_count = _root.accessors[prim_it->indices].count;
-                _FindMultiSpecVertexAttributeAccessors(prim_it->attributes);
-                _CopyUniversalMultiSpecVertexAttributes(_root, prim);
-    
-                prim.joint_set_count = static_cast<uint32_t>(m_joints_accessors.size());
-                if(prim.joint_set_count) {
-                    prim.joint_index_buffer_ids = new uint32_t[prim.joint_set_count];
-                    prim.joint_index_buffer_offsets = new uint32_t[prim.joint_set_count];
-                    prim.joint_weight_buffer_ids = new uint32_t[prim.joint_set_count];
-                    prim.joint_weight_buffer_offsets = new uint32_t[prim.joint_set_count];
-
-                    // write joint indices data to das mesh primitive
-                    for(uint32_t i = 0; i < prim.joint_set_count; i++) {
-                        accessor_data = _FindAccessorData(_root, m_joints_accessors[i]);
-                        prim.joint_index_buffer_ids[i] = accessor_data.buffer_id;
-                        prim.joint_index_buffer_offsets[i] = accessor_data.buffer_offset;
-                    }
-
-                    // write joint weights to das mesh primitive
-                    for(uint32_t i = 0; i < prim.joint_set_count; i++) {
-                        accessor_data = _FindAccessorData(_root, m_weights_accessors[i]);
-                        prim.joint_weight_buffer_ids[i] = accessor_data.buffer_id;
-                        prim.joint_weight_buffer_offsets[i] = accessor_data.buffer_offset;
-                    }
-                }
-
-                // for each attribute write its data into mesh primitive structure
-                for(auto attr_it = prim_it->attributes.begin(); attr_it != prim_it->attributes.end(); attr_it++) {
-                    // no attribute found, display an error
-                    const std::string no_nr = Algorithm::RemoveNumbers(attr_it->first);
-                    if(m_attribute_type_map.find(no_nr) == m_attribute_type_map.end()) {
-                        std::cerr << "Invalid attribute " << attr_it->first << std::endl;
-                        EXIT_ON_ERROR(LIBDAS_ERROR_INVALID_DATA_LENGTH);
-                    }
-
-                    accessor_data = _FindAccessorData(_root, attr_it->second);
-                    switch(m_attribute_type_map.find(no_nr)->second) {
-                        case LIBDAS_BUFFER_TYPE_VERTEX:
-                            prim.vertex_buffer_id = accessor_data.buffer_id;
-                            prim.vertex_buffer_offset = accessor_data.buffer_offset;
-                            break;
-
-                        case LIBDAS_BUFFER_TYPE_VERTEX_NORMAL:
-                            prim.vertex_normal_buffer_id = accessor_data.buffer_id;
-                            prim.vertex_normal_buffer_offset = accessor_data.buffer_offset;
-                            break;
-
-                        case LIBDAS_BUFFER_TYPE_VERTEX_TANGENT:
-                            prim.vertex_tangent_buffer_id = accessor_data.buffer_id;
-                            prim.vertex_tangent_buffer_offset = accessor_data.buffer_offset;
-                            break;
-
-                        default:
-                            break;
-                    }
-                }
-
-                // set morph targets with their correct counts
-                prim.morph_target_count = static_cast<uint32_t>(prim_it->targets.size());
-                if(prim.morph_target_count) {
-                    prim.morph_targets = new uint32_t[prim.morph_target_count];
-                    for(uint32_t i = 0; i < prim.morph_target_count; i++, used_targets++) 
-                        prim.morph_targets[i] = used_targets;
-
-                    // weights are contained inside the mesh structure, where morph targets are contained in mesh.primitives structure
-                    // this means that there can be multiple mesh.primitive objects with multiple morph targets in all of them
-                    if(static_cast<uint32_t>(mesh_it->weights.size()) - used_weights == prim.morph_target_count) {
-                        prim.morph_weights = new float[prim.morph_target_count];
-                        std::memcpy(prim.morph_weights, mesh_it->weights.data(), static_cast<size_t>(prim.morph_target_count) * sizeof(float));
-                    } else {
-                        const std::vector<float> &&node_weights = _FindMorphWeightsFromNodes(_root, mesh_it - _root.meshes.begin());
-                        if(static_cast<uint32_t>(node_weights.size()) == prim.morph_target_count) {
-                            prim.morph_weights = new float[prim.morph_target_count];
-                            std::memcpy(prim.morph_weights, mesh_it->weights.data(), static_cast<size_t>(prim.morph_target_count) * sizeof(float));
-                        }
-                    }
-                }
-
-                primitives.emplace_back(std::move(prim));
-            }
-        }
-
-        return primitives;
-    }
-
-
-    std::vector<DasMesh> GLTFCompiler::_CreateMeshes(const GLTFRoot &_root) {
-        std::vector<DasMesh> meshes;
-        meshes.reserve(_root.meshes.size());
-        uint32_t used_prims = 0;
-
-        for(auto it = _root.meshes.begin(); it != _root.meshes.end(); it++) {
-            DasMesh mesh;
-            mesh.primitive_count = static_cast<uint32_t>(it->primitives.size());
-            mesh.primitives = new uint32_t[mesh.primitive_count];
-
-            for(uint32_t i = 0; i < mesh.primitive_count; i++, used_prims++)
-                mesh.primitives[i] = used_prims;
-
-            meshes.emplace_back(std::move(mesh));
-        }
-
-        return meshes;
     }
 
 
@@ -1706,7 +1082,7 @@ namespace Libdas {
     }
 
 
-    std::vector<DasSkeletonJoint> GLTFCompiler::_CreateSkeletonJoints(const GLTFRoot &_root, const std::vector<DasBuffer> &_buffers) {
+    std::vector<DasSkeletonJoint> GLTFCompiler::_CreateSkeletonJoints(const GLTFRoot &_root) {
         std::vector<DasSkeletonJoint> joints;
         const int32_t max = *std::max_element(reinterpret_cast<int32_t*>(m_skeleton_joint_id_table.data()), reinterpret_cast<int32_t*>(m_skeleton_joint_id_table.data() + m_skeleton_joint_id_table.size()));
         joints.resize(max + 1);
@@ -1714,13 +1090,12 @@ namespace Libdas {
         for(auto skin_it = _root.skins.begin(); skin_it != _root.skins.end(); skin_it++) {
             BufferAccessorData accessor_data = _FindAccessorData(_root, skin_it->inverse_bind_matrices);
 
-            size_t ptr_offset = accessor_data.buffer_offset;
-            auto it = _FindDataPtrFromOffset(_buffers[accessor_data.buffer_id].data_ptrs, ptr_offset);
+            const char *buf = m_uri_resolvers[accessor_data.buffer_id].GetBuffer().first + accessor_data.buffer_offset;
             for(size_t i = 0; i < skin_it->joints.size(); i++) {
                 if(m_skeleton_joint_id_table[skin_it->joints[i]] == UINT32_MAX) continue;
 
                 DasSkeletonJoint joint;
-                joint.inverse_bind_pos = reinterpret_cast<const Matrix4<float>*>(it->first + ptr_offset)[i].Transpose();
+                joint.inverse_bind_pos = reinterpret_cast<const Matrix4<float>*>(buf)[i].Transpose();
                 joint.rotation = _root.nodes[skin_it->joints[i]].rotation;
 
                 // for each child in joint
@@ -1729,8 +1104,11 @@ namespace Libdas {
                 for(uint32_t j = 0; j < joint.children_count; j++)
                     joint.children[j] = m_skeleton_joint_id_table[_root.nodes[skin_it->joints[i]].children[j]];
 
-                // non-uniform scaling is not supported, so just take the vector magnitude of scaling properties
-                const float x = _root.nodes[skin_it->joints[i]].scale.x , y = _root.nodes[skin_it->joints[i]].scale.y, z = _root.nodes[skin_it->joints[i]].scale.z;
+                const float x = _root.nodes[skin_it->joints[i]].scale.x , 
+                            y = _root.nodes[skin_it->joints[i]].scale.y, 
+                            z = _root.nodes[skin_it->joints[i]].scale.z;
+
+                // convert non-uniform scale to uniform scale
                 joint.scale = (x + y + z) / 3;
                 joint.translation = _root.nodes[skin_it->joints[i]].translation;
 
@@ -1742,7 +1120,7 @@ namespace Libdas {
     }
 
 
-    std::vector<DasAnimationChannel> GLTFCompiler::_CreateAnimationChannels(const GLTFRoot &_root, const std::vector<DasBuffer> &_buffers) {
+    std::vector<DasAnimationChannel> GLTFCompiler::_CreateAnimationChannels(const GLTFRoot &_root) {
         std::vector<DasAnimationChannel> channels;
 
         // assuming that there are 2 channels for each animation object
@@ -1804,9 +1182,8 @@ namespace Libdas {
                 // allocate and copy keyframe inputs
                 channel.keyframes = new float[channel.keyframe_count];
                 auto accessor_data = _FindAccessorData(_root, sampler.input);
-                size_t offset = static_cast<size_t>(accessor_data.buffer_offset);
-                auto ptr = _FindDataPtrFromOffset(_buffers[accessor_data.buffer_id].data_ptrs, offset);
-                std::memcpy(channel.keyframes, ptr->first + offset, channel.keyframe_count * sizeof(float));
+                const char *buf = m_uri_resolvers[accessor_data.buffer_id].GetBuffer().first + accessor_data.buffer_offset;
+                std::memcpy(channel.keyframes, buf, channel.keyframe_count * sizeof(float));
 
                 // allocate and copy keyframe outputs
                 accessor_data = _FindAccessorData(_root, sampler.output);
@@ -1814,28 +1191,25 @@ namespace Libdas {
 
                 if(channel.interpolation == LIBDAS_INTERPOLATION_VALUE_CUBICSPLINE) {
                     // tangent values need to be extracted
-                    offset = static_cast<size_t>(accessor_data.buffer_offset);
-                    ptr = _FindDataPtrFromOffset(_buffers[accessor_data.buffer_id].data_ptrs, offset);
-
+                    buf = m_uri_resolvers[accessor_data.buffer_id].GetBuffer().first + accessor_data.buffer_offset;
                     channel.tangents = new char[2 * type_stride * channel.keyframe_count];
+
                     for(size_t i = 0; i < channel.keyframe_count; i++) {
-                        std::memcpy(channel.tangents + 2 * i * type_stride, ptr->first + 3 * i * type_stride, type_stride);
-                        std::memcpy(channel.target_values + type_stride * i, ptr->first + (3 * i + 1) * type_stride, type_stride);
-                        std::memcpy(channel.tangents + (2 * i + 1) * type_stride, ptr->first + (3 * i + 2) * type_stride, type_stride);
+                        std::memcpy(channel.tangents + 2 * i * type_stride, buf + 3 * i * type_stride, type_stride);
+                        std::memcpy(channel.target_values + type_stride * i, buf + (3 * i + 1) * type_stride, type_stride);
+                        std::memcpy(channel.tangents + (2 * i + 1) * type_stride, buf + (3 * i + 2) * type_stride, type_stride);
                     }
                 } else if(scale) {  // convert vec3 scaling into uniform scale
-                    offset = static_cast<size_t>(accessor_data.buffer_offset);
-                    ptr = _FindDataPtrFromOffset(_buffers[accessor_data.buffer_id].data_ptrs, offset);
+                    buf = m_uri_resolvers[accessor_data.buffer_id].GetBuffer().first + accessor_data.buffer_offset;
 
                     for(uint32_t i = 0; i < channel.keyframe_count; i++) {
-                        const Libdas::Vector3<float> &s = reinterpret_cast<const Libdas::Vector3<float>*>(ptr->first + offset)[i];
+                        const Libdas::Vector3<float> &s = reinterpret_cast<const Libdas::Vector3<float>*>(buf)[i];
                         float fscale = (s.first + s.second + s.third) / 3;
                         reinterpret_cast<float*>(channel.target_values)[i] = fscale;
                     }
                 } else {
-                    offset = static_cast<size_t>(accessor_data.buffer_offset);
-                    ptr = _FindDataPtrFromOffset(_buffers[accessor_data.buffer_id].data_ptrs, offset);
-                    std::memcpy(channel.target_values, ptr->first + offset, channel.keyframe_count * type_stride);
+                    buf = m_uri_resolvers[accessor_data.buffer_id].GetBuffer().first + accessor_data.buffer_offset;
+                    std::memcpy(channel.target_values, buf, channel.keyframe_count * type_stride);
                 }
 
                 channels.emplace_back(std::move(channel));
@@ -1872,29 +1246,23 @@ namespace Libdas {
 
         _CheckAndSupplementProperties(const_cast<GLTFRoot&>(_root), const_cast<DasProperties&>(_props));
         InitialiseFile(_props);
+        _FlagJointNodes(_root);
 
         // write buffers to file
         std::vector<DasBuffer> buffers(_CreateBuffers(_root, _embedded_textures));
-        _FlagJointNodes(_root);
-        std::vector<DasAnimationChannel> channels(_CreateAnimationChannels(_root, buffers));
-        _StrideBuffers(_root, buffers);
-        _OmitEmptyBuffers(_root, buffers);
         for(auto it = buffers.begin(); it != buffers.end(); it++)
             WriteBuffer(*it);
 
         // write mesh primitives to the file
-        std::vector<DasMeshPrimitive> primitives(_CreateMeshPrimitives(_root));
-        for(auto it = primitives.begin(); it != primitives.end(); it++)
+        for(auto it = m_mesh_primitives.begin(); it != m_mesh_primitives.end(); it++)
             WriteMeshPrimitive(*it);
 
         // write morph targets to the file
-        std::vector<DasMorphTarget> morph_targets(_CreateMorphTargets(_root));
-        for(auto it = morph_targets.begin(); it != morph_targets.end(); it++)
+        for(auto it = m_morph_targets.begin(); it != m_morph_targets.end(); it++)
             WriteMorphTarget(*it);
 
         // write meshes to the file
-        std::vector<DasMesh> meshes(_CreateMeshes(_root));
-        for(auto it = meshes.begin(); it != meshes.end(); it++)
+        for(auto it = m_meshes.begin(); it != m_meshes.end(); it++)
             WriteMesh(*it);
 
         // write scene nodes to the file
@@ -1908,7 +1276,7 @@ namespace Libdas {
             WriteScene(*it);
 
         // write skeleton joints to the file
-        std::vector<DasSkeletonJoint> joints(_CreateSkeletonJoints(_root, buffers));
+        std::vector<DasSkeletonJoint> joints(_CreateSkeletonJoints(_root));
         for(auto it = joints.begin(); it != joints.end(); it++)
             WriteSkeletonJoint(*it);
 
@@ -1918,6 +1286,7 @@ namespace Libdas {
             WriteSkeleton(*it);
 
         // write animation channels to file
+        std::vector<DasAnimationChannel> channels(_CreateAnimationChannels(_root));
         for(auto it = channels.begin(); it != channels.end(); it++)
             WriteAnimationChannel(*it);
 

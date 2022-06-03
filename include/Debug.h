@@ -13,18 +13,22 @@
     #include <iostream>
     #include <cstring>
     #include <cmath>
+    #include <cfloat>
+    #include <any>
 
     #include <Vector.h>
     #include <Matrix.h>
     #include <Points.h>
     #include <Quaternion.h>
     #include <DasStructures.h>
+    #include <GLTFStructures.h>
 #endif
 
 namespace Libdas {
 
     namespace DEBUG {
         size_t CaclulateBufferSize(DasBuffer &_buffer);
+        void PrintAccumulatedOffsets(std::vector<std::vector<GLTFAccessor*>> &_all_regions);
     }
 }
 

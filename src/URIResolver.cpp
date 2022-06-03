@@ -10,10 +10,21 @@
 namespace Libdas {
 
     URIResolver::URIResolver(const std::string &_uri, const std::string &_root_path, UnresolvedUriSeverity _severity) :
-        m_uri(_uri), m_root_path(_root_path), m_unresolved_severity(_severity)
+        m_uri(_uri), 
+        m_root_path(_root_path), 
+        m_unresolved_severity(_severity)
     {
         if(m_uri != "") Resolve();
     }
+
+
+    URIResolver::URIResolver(URIResolver &&_ur) noexcept :
+        m_uri(std::move(_ur.m_uri)),
+        m_root_path(std::move(_ur.m_root_path)),
+        m_buffer(std::move(_ur.m_buffer)),
+        m_stream(std::move(_ur.m_stream)),
+        m_uri_buffer_type(_ur.m_uri_buffer_type),
+        m_unresolved_severity(_ur.m_unresolved_severity) {}
 
 
     void URIResolver::_ResolveFileURI() {

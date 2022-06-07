@@ -20,6 +20,7 @@
     #include <cstring>
     #include <cmath>
     #include <vector>
+    #include <stack>
     #include <stdexcept>
     #include <filesystem>
     #include <unordered_map>
@@ -56,20 +57,19 @@
     #include <WavefrontObjStructures.h>
     #include <WavefrontObjParser.h>
     #include <WavefrontObjCompiler.h>
+    #include <DasValidator.h>
 #endif
 
 typedef uint16_t FlagType;
 #define USAGE_FLAG_NONE             0x0000
-#define USAGE_FLAG_COMPRESSED       0x0001
-#define USAGE_FLAG_AUTHOR           0x0002
-#define USAGE_FLAG_COPYRIGHT        0x0004
-#define USAGE_FLAG_COPYRIGHT_FILE   0x0008
-#define USAGE_FLAG_EMBED_TEXTURE    0x0010
-#define USAGE_FLAG_REMOVE_TEXTURE   0x0020
-#define USAGE_FLAG_MODEL            0x0040
-#define USAGE_FLAG_OUT_FILE         0x0080
-#define USAGE_FLAG_HELP             0x0100
-#define USAGE_FLAG_VERBOSE          0x0200
+#define USAGE_FLAG_AUTHOR           0x0001
+#define USAGE_FLAG_COPYRIGHT        0x0002
+#define USAGE_FLAG_COPYRIGHT_FILE   0x0004
+#define USAGE_FLAG_EMBED_TEXTURE    0x0008
+#define USAGE_FLAG_MODEL            0x0010
+#define USAGE_FLAG_OUT_FILE         0x0020
+#define USAGE_FLAG_HELP             0x0040
+#define USAGE_FLAG_VERBOSE          0x0080
 
 #define VERSION_MAJOR       0
 #define VERSION_MINOR       1
@@ -78,14 +78,12 @@ typedef uint16_t FlagType;
 class DASTool {
     private:
         const std::string m_help_text = 
-            "Usage: DASTool convert|list <input file> [output options]\n"\
+            "Usage: DASTool convert|list|validate <input file> [output options]\n"\
             "Valid conversion options:\n"\
-            "-c / --compressed - create a compressed DAS file\n"\
             "--author \"<Author>\" - specify model author's name\n"\
             "--copyright \"<Message>\" - specify copyright message as an argument string\n"\
             "-cf / --copyright-file \"<FileName>\"- specify copyright message from file\n"\
             "-et / --embed-texture \"<FileName>\" - embed an image file to the output\n"\
-            "-rt / --remove-texture \"<Id>\" - remove texture from das input file by its id\n"\
             "--model \"<ModelName>\" - specify model name\n"\
             "-o / --output \"<OutFile>\" - specify output file name\n"\
             "-h / --help - display help text\n"\
@@ -156,6 +154,11 @@ class DASTool {
          * @param _opts specifies output options
          */
         void List(const std::string &_input_file, const std::vector<std::string> &_opts);
+        /**
+         * Validate DAS file
+         * @param _input_file specifies the input file used for reading
+         */
+        void Validate(const std::string &_input_file);
         /**
          * Get DASTool help text
          */

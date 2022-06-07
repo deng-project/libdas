@@ -14,6 +14,7 @@ set(LIBDAS_SOURCES
     src/DasParser.cpp
     src/DasReaderCore.cpp
     src/DasStructures.cpp
+    src/DasValidator.cpp
     src/DasWriterCore.cpp
     src/Debug.cpp
     src/ErrorHandlers.cpp
@@ -45,6 +46,7 @@ set(LIBDAS_HEADERS
     include/DasParser.h
     include/DasReaderCore.h
     include/DasStructures.h
+    include/DasValidator.h
     include/DasWriterCore.h
     include/Debug.h
     include/ErrorHandlers.h

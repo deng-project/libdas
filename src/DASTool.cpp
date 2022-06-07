@@ -18,10 +18,6 @@ void DASTool::_ConvertDAS(const std::string &_input_file) {
     _MakeOutputFile(_input_file);
     Libdas::DasParser parser(_input_file);
     parser.Parse(true);
-
-    // check if there are any textures to be supplemented or removed
-    if(m_flags & USAGE_FLAG_REMOVE_TEXTURE) {
-    }
 }
 
 
@@ -782,9 +778,7 @@ void DASTool::_ParseFlags(const std::vector<std::string> &_opts) {
         }
 
         // check the string values
-        if(_opts[i] == "-c" || _opts[i] == "--compressed")
-            m_flags |= USAGE_FLAG_COMPRESSED;
-        else if(_opts[i] == "--author") {
+        if(_opts[i] == "--author") {
             m_flags |= USAGE_FLAG_AUTHOR;
             info_flag = USAGE_FLAG_AUTHOR; 
             skip_it = true;
@@ -802,11 +796,6 @@ void DASTool::_ParseFlags(const std::vector<std::string> &_opts) {
         else if(_opts[i] == "-et" || _opts[i] == "--embed-texture") {
             m_flags |= USAGE_FLAG_EMBED_TEXTURE;
             info_flag = USAGE_FLAG_EMBED_TEXTURE; 
-            skip_it = true;
-        }
-        else if(_opts[i] == "-rt" || _opts[i] == "--remove-texture") {
-            m_flags |= USAGE_FLAG_REMOVE_TEXTURE;
-            info_flag = USAGE_FLAG_REMOVE_TEXTURE;
             skip_it = true;
         }
         else if(_opts[i] == "--model") {
@@ -846,11 +835,7 @@ void DASTool::_ExcludeFlags(bool _is_convert) {
     // * --model
     // * -o / --output
     else {
-        if((m_flags & USAGE_FLAG_COMPRESSED) == USAGE_FLAG_COMPRESSED) {
-            std::cerr << "Invalid use of compression flag in listing mode" << std::endl;
-            EXIT_ON_ERROR(LIBDAS_ERROR_INVALID_KEYWORD);
-        }
-        else if((m_flags & USAGE_FLAG_AUTHOR) == USAGE_FLAG_AUTHOR) {
+        if((m_flags & USAGE_FLAG_AUTHOR) == USAGE_FLAG_AUTHOR) {
             std::cerr << "Invalid use of author flag in listing mode" << std::endl;
             EXIT_ON_ERROR(LIBDAS_ERROR_INVALID_KEYWORD);
         }
@@ -864,10 +849,6 @@ void DASTool::_ExcludeFlags(bool _is_convert) {
         }
         else if((m_flags & USAGE_FLAG_EMBED_TEXTURE) == USAGE_FLAG_EMBED_TEXTURE) {
             std::cerr << "Invalid use of embed texture flag in listing mode" << std::endl;
-            EXIT_ON_ERROR(LIBDAS_ERROR_INVALID_KEYWORD);
-        }
-        else if((m_flags & USAGE_FLAG_REMOVE_TEXTURE) == USAGE_FLAG_REMOVE_TEXTURE) {
-            std::cerr << "Invalid use of remove texture flag in listing mode" << std::endl;
             EXIT_ON_ERROR(LIBDAS_ERROR_INVALID_KEYWORD);
         }
         else if((m_flags & USAGE_FLAG_MODEL) == USAGE_FLAG_MODEL) {
@@ -930,10 +911,26 @@ void DASTool::List(const std::string &_input_file, const std::vector<std::string
 }
 
 
+void DASTool::Validate(const std::string &_input_file) {
+    Libdas::DasParser parser(_input_file);
+    parser.Parse(true);
+
+    Libdas::DasValidator validator(parser);
+
+    // warnings
+    while(!validator.IsWarningStackEmpty())
+        std::cout << validator.PopWarningStack() << std::endl;
+
+    // errors
+    while(!validator.IsErrorStackEmpty())
+        std::cerr << validator.PopErrorStack() << std::endl;
+}
+
+
 // main method
 int main(int argc, char *argv[]) {
     DASTool tool;
-    if(argc < 3 || (std::string(argv[1]) != "convert" && std::string(argv[1]) != "list")) {
+    if(argc < 3 || (std::string(argv[1]) != "convert" && std::string(argv[1]) != "list" && std::string(argv[1]) != "validate")) {
         std::cout << tool.GetHelpText();
         return 0;
     }
@@ -949,6 +946,8 @@ int main(int argc, char *argv[]) {
         tool.Convert(argv[2], opts);
     else if(std::string(argv[1]) == "list")
         tool.List(argv[2], opts);
+    else if(std::string(argv[1]) == "validate")
+        tool.Validate(argv[2]);
 
     return 0;
 }

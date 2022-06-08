@@ -338,7 +338,7 @@ namespace Libdas {
             const size_t mesh_id = mesh_it - _root.meshes.begin();
             m_meshes.emplace_back();
             m_meshes[mesh_id].primitives = new uint32_t[mesh_it->primitives.size()];
-            m_meshes[mesh_id].primitive_count = mesh_it->primitives.size();
+            m_meshes[mesh_id].primitive_count = static_cast<uint32_t>(mesh_it->primitives.size());
 
             // for each mesh primitive
             for(auto prim_it = mesh_it->primitives.begin(); prim_it != mesh_it->primitives.end(); prim_it++) {
@@ -354,7 +354,7 @@ namespace Libdas {
                     }
 
                     _IndexMeshPrimitive(_root, gen_acc);
-                    prim_it->indices = _root.accessors.size() - 1;
+                    prim_it->indices = static_cast<int32_t>(_root.accessors.size()) - 1;
                 } else {
                     BufferAccessorData acc_data = _FindAccessorData(_root, gen_acc.pos_accessor);
                     for(uint32_t i = 0; i < acc_data.used_size / acc_data.unit_stride; i++) {
@@ -595,7 +595,7 @@ namespace Libdas {
         if(_gen_acc.pos_accessor != UINT32_MAX) {
             LIBDAS_ASSERT(_gen_acc.pos_accessor != UINT32_MAX);
             accessor_data = _FindAccessorData(_root, _gen_acc.pos_accessor);
-            size_t offset = accessor_data.buffer_offset + accessor_data.unit_stride * _index;
+            offset = accessor_data.buffer_offset + accessor_data.unit_stride * _index;
             v.pos = *reinterpret_cast<const Libdas::Vector3<float>*>(m_uri_resolvers[accessor_data.buffer_id].GetBuffer().first + offset);
         }
         
@@ -884,7 +884,7 @@ namespace Libdas {
             // create a new accessor for index components
             _root.accessors.emplace_back();
             _root.accessors.back().type = "SCALAR";
-            _root.accessors.back().count = m_generated_indices.size();
+            _root.accessors.back().count = static_cast<int32_t>(m_generated_indices.size());
             _root.accessors.back().component_type = KHRONOS_UNSIGNED_INT;
             _root.accessors.back().accumulated_offset = _buffer.data_len;
             _root.accessors.back().buffer_id = 0;

@@ -723,10 +723,6 @@ void DASTool::_FetchArg(FlagType _type, const std::string &_arg) {
             m_copyright = _arg;
             break;
 
-        case USAGE_FLAG_COPYRIGHT_FILE:
-            m_copyright = Libdas::String::ReadFileToString(_arg);
-            break;
-
         case USAGE_FLAG_EMBED_TEXTURE:
             m_embedded_textures.push_back(_arg);
             break;
@@ -789,12 +785,7 @@ void DASTool::_ParseFlags(const std::vector<std::string> &_opts) {
             info_flag = USAGE_FLAG_COPYRIGHT; 
             skip_it = true;
         }
-        else if(_opts[i] == "-cf" || _opts[i] == "--copyright-file") {
-            m_flags |= USAGE_FLAG_COPYRIGHT_FILE;
-            info_flag = USAGE_FLAG_COPYRIGHT_FILE; 
-            skip_it = true;
-        }
-        else if(_opts[i] == "-et" || _opts[i] == "--embed-texture") {
+        else if(_opts[i] == "--embed-texture") {
             m_flags |= USAGE_FLAG_EMBED_TEXTURE;
             info_flag = USAGE_FLAG_EMBED_TEXTURE; 
             skip_it = true;
@@ -842,10 +833,6 @@ void DASTool::_ExcludeFlags(bool _is_convert) {
         }
         else if((m_flags & USAGE_FLAG_COPYRIGHT) == USAGE_FLAG_COPYRIGHT) {
             std::cerr << "Invalid use of copyright specifier flag in listing mode" << std::endl;
-            EXIT_ON_ERROR(LIBDAS_ERROR_INVALID_KEYWORD);
-        }
-        else if((m_flags & USAGE_FLAG_COPYRIGHT_FILE) == USAGE_FLAG_COPYRIGHT_FILE) {
-            std::cerr << "Invalid use of no curves flag in listing mode" << std::endl;
             EXIT_ON_ERROR(LIBDAS_ERROR_INVALID_KEYWORD);
         }
         else if((m_flags & USAGE_FLAG_EMBED_TEXTURE) == USAGE_FLAG_EMBED_TEXTURE) {

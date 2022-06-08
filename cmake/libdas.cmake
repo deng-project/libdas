@@ -16,19 +16,14 @@ set(LIBDAS_SOURCES
     src/DasStructures.cpp
     src/DasValidator.cpp
     src/DasWriterCore.cpp
-    src/Debug.cpp
     src/ErrorHandlers.cpp
     src/GLTFCompiler.cpp
     src/GLTFParser.cpp
     src/Hash.cpp
-    src/HuffmanCompression.cpp
-    src/interpolation
     src/JSONParser.cpp
     src/STLCompiler.cpp
     src/STLParser.cpp
     src/STLStructures.cpp
-    src/tests
-    src/TextureDump.cpp
     src/TextureReader.cpp
     src/URIResolver.cpp
     src/WavefrontObjCompiler.cpp
@@ -62,9 +57,7 @@ set(LIBDAS_HEADERS
     include/Matrix.h
     include/Points.h
     include/Quaternion.h
-    include/SIMD.h
     include/stb_image.h
-    include/STDUtils.h
     include/STLCompiler.h
     include/STLParser.h
     include/STLStructures.h
@@ -75,6 +68,10 @@ set(LIBDAS_HEADERS
     include/WavefrontObjParser.h
     include/WavefrontObjStructures.h
 )
+
+if(CMAKE_BUILD_TYPE MATCHES Debug)
+    list(APPEND LIBDAS_SOURCES src/Debug.cpp)
+endif()
 
 # Static library configuration
 if(LIBDAS_BUILD_STATIC_LIB)

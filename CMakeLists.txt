@@ -17,7 +17,7 @@ option(LIBDAS_BUILD_DASTOOL "Build dastool application" ON)
 
 # Set appropriate compiler flags
 if(MSVC)
-    add_compile_options(/W4 /std:c++17 /wd4251)
+    add_compile_options(/W3 /std:c++17 /wd4251)
     add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
 
     # Set correct optimisation flags

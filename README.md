@@ -14,7 +14,7 @@ in-game entities (also known as assets) during the rendering process.
 The project is set up to use CMake for generating build files.  
 `mkdir build`  
 `cd build`  
-`cmake ..`  
+`cmake .. -DCMAKE_BUILD_TYPE=Release`  
 `make`  
 
 

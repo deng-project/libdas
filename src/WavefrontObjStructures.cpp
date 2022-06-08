@@ -20,13 +20,14 @@ namespace Libdas {
             size_t fsep = std::string::npos, ssep = std::string::npos;
             fsep = _block.find("/", 0);
 
-            if(fsep != std::string::npos)
+            if(fsep != std::string::npos) {
                 ssep = _block.find("/", fsep + 1);
+            }
 
             Point3D<uint32_t> index_block(UINT32_MAX, UINT32_MAX, UINT32_MAX);
             std::string pos, tex, normal;
 
-            // first seperator was found
+            // first seperator was not found
             if(fsep == std::string::npos)
                 index_block.x = static_cast<uint32_t>(std::atoi(_block.c_str()));
             else {
@@ -34,12 +35,14 @@ namespace Libdas {
 
                 if(ssep != std::string::npos && ssep - fsep > 1)
                     index_block.y = static_cast<uint32_t>(std::atoi(_block.substr(fsep + 1, ssep - fsep).c_str()));
+                else if(ssep == std::string::npos)
+                    index_block.y = static_cast<uint32_t>(std::atoi(_block.substr(fsep + 1).c_str()));
 
                 // error if there is no index after second seperator
                 if(ssep == _block.size() - 1)
                     _error.Error(LIBDAS_ERROR_INVALID_ARGUMENT, _line, _keyword, _block);
-
-                else index_block.z = static_cast<uint32_t>(std::atoi(_block.substr(ssep + 1, _block.size() - ssep - 1).c_str()));
+                else if(ssep != std::string::npos) 
+                    index_block.z = static_cast<uint32_t>(std::atoi(_block.substr(ssep + 1, _block.size() - ssep - 1).c_str()));
             }
 
             _error.CheckIntArgs(&index_block.x, &index_block.z, _block, _keyword, _line);

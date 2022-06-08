@@ -165,10 +165,6 @@ namespace Libdas {
 
                 // quad triangulation
                 if(group_it->indices.faces[i].size() == 4) {
-                    //std::array<std::vector<WavefrontObjIndex>, 2> new_faces;
-                    //new_faces[0].resize(3);
-                    //new_faces[1].resize(3);
-
                     new_faces.emplace_back();
                     new_faces.back().resize(3);
                     new_faces.back()[0] = group_it->indices.faces[i][0];
@@ -198,6 +194,8 @@ namespace Libdas {
                         indices.pop_front();
                         ni.back()[2] = indices.front();
                     }
+                } else {
+                    new_faces.push_back(group_it->indices.faces[i]);
                 }
             }
 

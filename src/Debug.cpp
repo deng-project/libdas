@@ -28,5 +28,13 @@ namespace Libdas {
                 }
             }
         }
+
+
+        void PrintWavefrontObjFacesCount(const WavefrontObjData &_data) {
+            // for each group
+            for(size_t i = 0; i < _data.groups.size(); i++) {
+                std::cout << "Group " << i << ": " << _data.groups[i].indices.faces.size() << std::endl;
+            }
+        }
     }
 }

@@ -70,14 +70,15 @@ namespace Libdas {
         const DasBuffer &ibuffer = m_parser.AccessBuffer(_prim.index_buffer_id);
         const uint32_t *ptr = reinterpret_cast<const uint32_t*>(ibuffer.data_ptrs.back().first + _prim.index_buffer_offset);
 
-        std::vector<uint32_t> sorted_indices(_prim.indices_count);
+        std::vector<uint32_t> sorted_indices;
+        sorted_indices.reserve(_prim.indices_count);
         sorted_indices.insert(sorted_indices.begin(), ptr, ptr + _prim.indices_count);
         std::sort(sorted_indices.begin(), sorted_indices.end(), std::less());
 
         // continuity check
         bool is_continuous = true;
         for(size_t i = 0; i < sorted_indices.size() - 2; i++) {
-            if(sorted_indices[i + 1] - sorted_indices[i] != 1) {
+            if(sorted_indices[i + 1] - sorted_indices[i] > 1) {
                 is_continuous = false;
                 break;
             }
@@ -269,10 +270,11 @@ namespace Libdas {
 
     void DasValidator::_VerifySkeletons() {
         std::vector<bool> consumed_joint_table(m_parser.GetSkeletonJointCount());
+        std::vector<uint32_t> joint_nr_table(m_parser.GetSkeletonJointCount());
 
         for(uint32_t i = 0; i < m_parser.GetSkeletonCount(); i++) {
             const DasSkeleton &skeleton = m_parser.AccessSkeleton(i);
-            std::vector<uint32_t> joint_nr_table(skeleton.joint_count);
+            std::fill(joint_nr_table.begin(), joint_nr_table.end(), 0);
 
             // check nr 5.1
             if(skeleton.parent >= m_parser.GetSkeletonJointCount()) {
@@ -280,6 +282,9 @@ namespace Libdas {
                                           " for skeleton " + std::to_string(i);
                 m_error_stack.push(errme);
                 m_critical_bit = true;
+            } else {
+                joint_nr_table[skeleton.parent]++;
+                consumed_joint_table[skeleton.parent] = true;
             }
 
             for(uint32_t j = 0; j < skeleton.joint_count; j++) {

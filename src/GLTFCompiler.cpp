@@ -140,6 +140,9 @@ namespace Libdas {
         m_skeleton_joint_id_table.resize(_root.nodes.size());
 
         for(auto skin_it = _root.skins.begin(); skin_it != _root.skins.end(); skin_it++) {
+            if(skin_it->skeleton != INT32_MAX)
+                skin_joint_table[skin_it->skeleton] = true;
+
             for(size_t i = 0; i < skin_it->joints.size(); i++)
                 skin_joint_table[skin_it->joints[i]] = true;
         }
@@ -218,7 +221,7 @@ namespace Libdas {
         // vertex tangents
         if(_gen_acc.tangent_accessor != UINT32_MAX) {
             m_mesh_primitives.back().vertex_tangent_buffer_id = _root.accessors[_gen_acc.tangent_accessor].buffer_id;
-            m_mesh_primitives.back().vertex_tangent_buffer_id = _root.accessors[_gen_acc.tangent_accessor].accumulated_offset;
+            m_mesh_primitives.back().vertex_tangent_buffer_offset = _root.accessors[_gen_acc.tangent_accessor].accumulated_offset;
         }
 
         // uv coordinates
@@ -280,7 +283,7 @@ namespace Libdas {
         // vertex tangents
         if(_gen_acc.tangent_accessor != UINT32_MAX) {
             m_morph_targets.back().vertex_tangent_buffer_id = _root.accessors[_gen_acc.tangent_accessor].buffer_id;
-            m_morph_targets.back().vertex_tangent_buffer_id = _root.accessors[_gen_acc.tangent_accessor].accumulated_offset;
+            m_morph_targets.back().vertex_tangent_buffer_offset = _root.accessors[_gen_acc.tangent_accessor].accumulated_offset;
         }
 
         // uv coordinates
@@ -901,8 +904,9 @@ namespace Libdas {
             _props.copyright = _root.asset.copyright;
 
         // check if default scene exists
-        if(_root.load_time_scene)
+        if(_root.load_time_scene != INT32_MAX)
             _props.default_scene = static_cast<uint32_t>(_root.load_time_scene);
+        else _props.default_scene = 0; // default scene generation not implemented
     }
 
 

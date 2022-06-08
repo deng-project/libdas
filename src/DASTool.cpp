@@ -198,8 +198,9 @@ void DASTool::_ListDasProperties(const Libdas::DasProperties &_props) {
         std::cout << "Author: " << _props.author << std::endl;
     if(_props.copyright != "")
         std::cout << "Copyright: " << _props.copyright << std::endl;
+    std::cout << "Default scene: " << _props.default_scene << std::endl;
 
-    const int n = 64;
+    const int n = 128;
     char date_and_time[n] = {};
 
     // convert unix timestamp into human readable string

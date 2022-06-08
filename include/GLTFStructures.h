@@ -460,7 +460,7 @@ namespace Libdas {
         std::vector<GLTFNode> nodes;                                        // not required
         std::vector<GLTFSampler> samplers;                                  // not required
         std::vector<GLTFScene> scenes;                                      // not required
-        int32_t load_time_scene;                                            // not required
+        int32_t load_time_scene = INT32_MAX;                                // not required
         std::vector<GLTFSkin> skins;                                        // not required
         std::vector<GLTFTexture> textures;                                  // not required
         std::vector<std::any> extensions;                                   // ignored

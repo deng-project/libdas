@@ -480,7 +480,7 @@ namespace Libdas {
 
             case DasProperties::LIBDAS_PROPERTIES_DEFAULT_SCENE:
                 _props->default_scene = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                _SkipData(sizeof(bool));
+                _SkipData(sizeof(uint32_t));
                 break;
 
             default:

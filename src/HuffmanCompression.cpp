@@ -13,7 +13,7 @@
 
 
 #define HUFFMAN_COMPRESSION_CPP
-#include <HuffmanCompression.h>
+#include "das/HuffmanCompression.h"
 
 
 namespace Libdas {

@@ -4,7 +4,7 @@
 /// author: Karl-Mihkel Ott
 
 #define GLTF_PARSER_CPP
-#include <GLTFParser.h>
+#include "das/GLTFParser.h"
 
 
 namespace Libdas {
@@ -569,7 +569,7 @@ namespace Libdas {
 
             // check if emissive factor should be considered
             if(emissive_factor.size() == 3)
-                material.emissive_factor = *reinterpret_cast<Point3D<JSONNumber>*>(emissive_factor.data());
+                material.emissive_factor = *reinterpret_cast<TRS::Point3D<JSONNumber>*>(emissive_factor.data());
             m_root.materials.push_back(material);
             material = GLTFMaterial();
         }
@@ -724,21 +724,21 @@ namespace Libdas {
 
             // append matrix data into correct data structure if possible
             if(matrix.size() == 16) {
-                Matrix4<float> *data = reinterpret_cast<Matrix4<float>*>(matrix.data());
+                TRS::Matrix4<float> *data = reinterpret_cast<TRS::Matrix4<float>*>(matrix.data());
                 node.matrix = data->Transpose(); // transpose from column major to row major matrix
             }
 
             // append rotation data into correct data structure if possible
             if(rotation.size() == 4)
-                node.rotation = *reinterpret_cast<Quaternion*>(rotation.data());
+                node.rotation = *reinterpret_cast<TRS::Quaternion*>(rotation.data());
 
             // append scale data into correct data structure if possible
             if(scale.size() == 3)
-                node.scale = *reinterpret_cast<Point3D<float>*>(scale.data());
+                node.scale = *reinterpret_cast<TRS::Point3D<float>*>(scale.data());
 
             // append translation data into correct data structure if possible
             if(translation.size() == 3)
-                node.translation = *reinterpret_cast<Point3D<float>*>(translation.data());
+                node.translation = *reinterpret_cast<TRS::Point3D<float>*>(translation.data());
 
             // clear all tmp structures
             matrix.clear();

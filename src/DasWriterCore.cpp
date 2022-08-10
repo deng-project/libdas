@@ -4,7 +4,7 @@
 /// author: Karl-Mihkel Ott
 
 #define DAS_WRITER_CORE_CPP
-#include <DasWriterCore.h>
+#include "das/DasWriterCore.h"
 
 namespace Libdas {
 
@@ -325,8 +325,8 @@ namespace Libdas {
         _WriteNumericalValue<uint32_t>("CHILDRENCOUNT", _joint.children_count);
         _WriteArrayValue<uint32_t>("CHILDREN", _joint.children_count, _joint.children);
         _WriteNumericalValue<float>("SCALE", _joint.scale);
-        _WriteGenericDataValue(reinterpret_cast<const char*>(&_joint.rotation), sizeof(Quaternion), true, "ROTATION");
-        _WriteGenericDataValue(reinterpret_cast<const char*>(&_joint.translation), sizeof(Point3D<float>), true, "TRANSLATION");
+        _WriteGenericDataValue(reinterpret_cast<const char*>(&_joint.rotation), sizeof(TRS::Quaternion), true, "ROTATION");
+        _WriteGenericDataValue(reinterpret_cast<const char*>(&_joint.translation), sizeof(TRS::Point3D<float>), true, "TRANSLATION");
 
         _EndScope();
     }
@@ -352,11 +352,11 @@ namespace Libdas {
                 break;
 
             case LIBDAS_ANIMATION_TARGET_TRANSLATION:
-                type_stride = static_cast<uint32_t>(sizeof(Libdas::Vector3<float>));
+                type_stride = static_cast<uint32_t>(sizeof(TRS::Vector3<float>));
                 break;
 
             case LIBDAS_ANIMATION_TARGET_ROTATION:
-                type_stride = static_cast<uint32_t>(sizeof(Libdas::Quaternion));
+                type_stride = static_cast<uint32_t>(sizeof(TRS::Quaternion));
                 break;
 
             case LIBDAS_ANIMATION_TARGET_SCALE:

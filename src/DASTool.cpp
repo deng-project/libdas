@@ -149,7 +149,7 @@ void DASTool::_ListWavefrontObj(const std::string &_input_file) {
     if(data.vertices.position.size())
         std::cout << "Position vertices count: " << data.vertices.position.size() << std::endl;
     if(data.vertices.points.size())
-        std::cout << "Point vertices count: " << data.vertices.points.size() << std::endl;
+        std::cout << "TRS::Point vertices count: " << data.vertices.points.size() << std::endl;
     if(data.vertices.normals.size())
         std::cout << "Vertex normals count: " << data.vertices.normals.size() << std::endl;
     if(data.vertices.texture.size())
@@ -169,7 +169,7 @@ void DASTool::_ListWavefrontObj(const std::string &_input_file) {
         if(groups[i].indices.faces.size())
             std::cout << "Faces count: " << groups[i].indices.faces.size() << std::endl;
         if(groups[i].indices.pt.size())
-            std::cout << "Points count: " << groups[i].indices.pt.size() << std::endl;
+            std::cout << "TRS::Points count: " << groups[i].indices.pt.size() << std::endl;
         if(groups[i].indices.lines.size())
             std::cout << "Lines count: " << groups[i].indices.lines.size() << std::endl;
     }
@@ -288,7 +288,7 @@ void DASTool::_ListDasNodes(Libdas::DasParser &_parser) {
 
         // output transformation matrix
         std::cout << "Transformation matrix: " << std::endl;
-        for(struct {Libdas::Matrix4<float>::iterator it; uint32_t i; } s = {node.transform.BeginRowMajor(), 0}; s.it != node.transform.EndRowMajor(); s.it++, s.i++) {
+        for(struct {TRS::Matrix4<float>::iterator it; uint32_t i; } s = {node.transform.BeginRowMajor(), 0}; s.it != node.transform.EndRowMajor(); s.it++, s.i++) {
             if(s.i % 4 == 3) 
                 std::cout << *s.it << std::endl;
             else std::cout << *s.it << " ";
@@ -484,7 +484,7 @@ void DASTool::_ListDasSkeletonJoints(Libdas::DasParser &_parser) {
         const Libdas::DasSkeletonJoint &joint = _parser.AccessSkeletonJoint(i);
         // output inverse bind position matrix
         std::cout << "Inverse bind position matrix: " << std::endl;
-        for(struct {Libdas::Matrix4<float>::iterator it; uint32_t j; } s = {joint.inverse_bind_pos.BeginRowMajor(), 0}; s.it != joint.inverse_bind_pos.EndRowMajor(); s.it++, s.j++) {
+        for(struct {TRS::Matrix4<float>::iterator it; uint32_t j; } s = {joint.inverse_bind_pos.BeginRowMajor(), 0}; s.it != joint.inverse_bind_pos.EndRowMajor(); s.it++, s.j++) {
             if(s.j % 4 == 3) std::cout << *s.it << std::endl;
             else std::cout << *s.it << " ";
         }
@@ -595,10 +595,10 @@ void DASTool::_ListDasAnimationChannels(Libdas::DasParser &_parser) {
 
                     case LIBDAS_ANIMATION_TARGET_TRANSLATION:
                         {
-                            const Libdas::Vector3<float> *in = reinterpret_cast<const Libdas::Vector3<float>*>(tang);
-                            tang += sizeof(Libdas::Vector3<float>);
-                            const Libdas::Vector3<float> *out = reinterpret_cast<const Libdas::Vector3<float>*>(tang);
-                            tang += sizeof(Libdas::Vector3<float>);
+                            const TRS::Vector3<float> *in = reinterpret_cast<const TRS::Vector3<float>*>(tang);
+                            tang += sizeof(TRS::Vector3<float>);
+                            const TRS::Vector3<float> *out = reinterpret_cast<const TRS::Vector3<float>*>(tang);
+                            tang += sizeof(TRS::Vector3<float>);
                             std::cout << "{{ " << in->first << ", " << in->second << ", " << in->third << "}, " <<
                                          "{" << out->first << ", " << out->second << ", " << out->third << "}} ";
                         }
@@ -606,10 +606,10 @@ void DASTool::_ListDasAnimationChannels(Libdas::DasParser &_parser) {
 
                     case LIBDAS_ANIMATION_TARGET_ROTATION:
                         {
-                            const Libdas::Quaternion *in = reinterpret_cast<const Libdas::Quaternion*>(tang); 
-                            tang += sizeof(Libdas::Quaternion);
-                            const Libdas::Quaternion *out = reinterpret_cast<const Libdas::Quaternion*>(tang);
-                            tang += sizeof(Libdas::Quaternion);
+                            const TRS::Quaternion *in = reinterpret_cast<const TRS::Quaternion*>(tang); 
+                            tang += sizeof(TRS::Quaternion);
+                            const TRS::Quaternion *out = reinterpret_cast<const TRS::Quaternion*>(tang);
+                            tang += sizeof(TRS::Quaternion);
                             std::cout << "{{ " << in->x << ", " << in->y << ", " << in->z << ", " << in->w << "}, " <<
                                          "{" << out->x << ", " << out->y << ", " << out->z << ", " << out->w << "}} ";
                         }
@@ -648,16 +648,16 @@ void DASTool::_ListDasAnimationChannels(Libdas::DasParser &_parser) {
 
                 case LIBDAS_ANIMATION_TARGET_ROTATION:
                     {
-                        const Libdas::Quaternion *r = reinterpret_cast<const Libdas::Quaternion*>(target);
-                        target += sizeof(Libdas::Quaternion);
+                        const TRS::Quaternion *r = reinterpret_cast<const TRS::Quaternion*>(target);
+                        target += sizeof(TRS::Quaternion);
                         std::cout << "{ " << r->x << ", " << r->y << ", " << r->z << ", " << r->w << " } ";
                     }
                     break;
 
                 case LIBDAS_ANIMATION_TARGET_TRANSLATION:
                     {
-                        const Libdas::Vector3<float> *t = reinterpret_cast<const Libdas::Vector3<float>*>(target);
-                        target += sizeof(Libdas::Vector3<float>);
+                        const TRS::Vector3<float> *t = reinterpret_cast<const TRS::Vector3<float>*>(target);
+                        target += sizeof(TRS::Vector3<float>);
                         std::cout << "{ " << t->first << ", " << t->second << ", " << t->third << " } ";
                     }
                     break;

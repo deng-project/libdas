@@ -4,7 +4,7 @@
 // author: Karl-Mihkel Ott
 
 #define STL_COMPILER_CPP
-#include <STLCompiler.h>
+#include "das/STLCompiler.h"
 
 namespace Libdas {
 
@@ -23,7 +23,7 @@ namespace Libdas {
         for(const STLObject &obj : _objects) {
             for(size_t i = 0; i < obj.facets.size(); i++) {
                 // for each position vertex construct 
-                for(const Point3D<float> &pos : obj.facets[i].vertices) {
+                for(const TRS::Point3D<float> &pos : obj.facets[i].vertices) {
                     Vertex v = { pos, obj.facets[i].normal };
 
                     // check if given vertex already exists in map
@@ -48,11 +48,11 @@ namespace Libdas {
         DasBuffer buffer;
 
         buffer.type = LIBDAS_BUFFER_TYPE_VERTEX | LIBDAS_BUFFER_TYPE_VERTEX_NORMAL | LIBDAS_BUFFER_TYPE_INDICES;
-        buffer.data_len = static_cast<uint32_t>(sizeof(Point3D<float>) * (m_unique_positions.size() + m_unique_normals.size()) + m_indices.size() * sizeof(uint32_t));
+        buffer.data_len = static_cast<uint32_t>(sizeof(TRS::Point3D<float>) * (m_unique_positions.size() + m_unique_normals.size()) + m_indices.size() * sizeof(uint32_t));
 
         // push data pointers
-        buffer.data_ptrs.push_back(std::make_pair(reinterpret_cast<const char*>(m_unique_positions.data()), m_unique_positions.size() * sizeof(Point3D<float>)));
-        buffer.data_ptrs.push_back(std::make_pair(reinterpret_cast<const char*>(m_unique_normals.data()), m_unique_normals.size() * sizeof(Point3D<float>)));
+        buffer.data_ptrs.push_back(std::make_pair(reinterpret_cast<const char*>(m_unique_positions.data()), m_unique_positions.size() * sizeof(TRS::Point3D<float>)));
+        buffer.data_ptrs.push_back(std::make_pair(reinterpret_cast<const char*>(m_unique_normals.data()), m_unique_normals.size() * sizeof(TRS::Point3D<float>)));
         buffer.data_ptrs.push_back(std::make_pair(reinterpret_cast<const char*>(m_indices.data()), m_indices.size() * sizeof(uint32_t)));
 
         return buffer;
@@ -64,8 +64,8 @@ namespace Libdas {
         primitives.reserve(_objects.size());
 
         for(size_t i = 0; i < _objects.size(); i++) {
-            const uint32_t pos_size = static_cast<uint32_t>(m_unique_positions.size() * sizeof(Point3D<float>));
-            const uint32_t norm_size = static_cast<uint32_t>(m_unique_normals.size() * sizeof(Point3D<float>));
+            const uint32_t pos_size = static_cast<uint32_t>(m_unique_positions.size() * sizeof(TRS::Point3D<float>));
+            const uint32_t norm_size = static_cast<uint32_t>(m_unique_normals.size() * sizeof(TRS::Point3D<float>));
 
             DasMeshPrimitive prim;
             // indices

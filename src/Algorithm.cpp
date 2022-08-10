@@ -4,7 +4,7 @@
 // author: Karl-Mihkel Ott
 
 #define ALGORITHM_CPP
-#include <Algorithm.h>
+#include "das/Algorithm.h"
 
 
 namespace Libdas {

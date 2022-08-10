@@ -4,7 +4,7 @@
 // author: Karl-Mihkel Ott
 
 #define URI_RESOLVER_CPP
-#include <URIResolver.h>
+#include "das/URIResolver.h"
 
 
 namespace Libdas {

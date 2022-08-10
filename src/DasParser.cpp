@@ -4,7 +4,7 @@
 // author: Karl-Mihkel Ott
 
 #define DAS_PARSER_CPP
-#include <DasParser.h>
+#include "das/DasParser.h"
 
 namespace Libdas {
 

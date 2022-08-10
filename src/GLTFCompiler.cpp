@@ -4,7 +4,7 @@
 // author: Karl-Mihkel Ott
 
 #define GLTF_COMPILER_CPP
-#include <GLTFCompiler.h>
+#include "das/GLTFCompiler.h"
 
 
 namespace Libdas {
@@ -411,10 +411,10 @@ namespace Libdas {
     }
 
 
-    Libdas::Vector2<float> GLTFCompiler::_GetUV(BufferAccessorData &_ad, uint32_t index) {
+    TRS::Vector2<float> GLTFCompiler::_GetUV(BufferAccessorData &_ad, uint32_t index) {
         // access correct buffer entry point
         const char *ptr = m_uri_resolvers[_ad.buffer_id].GetBuffer().first + _ad.buffer_offset + index * _ad.unit_stride;
-        Libdas::Vector2<float> uv;
+        TRS::Vector2<float> uv;
         switch(_ad.component_type) {
             case KHRONOS_UNSIGNED_BYTE:
                 uv.first = (float) (*reinterpret_cast<const unsigned char*>(ptr));
@@ -446,9 +446,9 @@ namespace Libdas {
 
 
 
-    Libdas::Vector4<float> GLTFCompiler::_GetColorMultiplier(BufferAccessorData &_ad, uint32_t _index) {
+    TRS::Vector4<float> GLTFCompiler::_GetColorMultiplier(BufferAccessorData &_ad, uint32_t _index) {
         const char *ptr = m_uri_resolvers[_ad.buffer_id].GetBuffer().first + _ad.buffer_offset + _index * _ad.unit_stride;
-        Libdas::Vector4<float> color;
+        TRS::Vector4<float> color;
         switch(_ad.component_type) {
             case KHRONOS_UNSIGNED_BYTE:
                 color.first = (float)(*reinterpret_cast<const unsigned char*>(ptr));
@@ -494,9 +494,9 @@ namespace Libdas {
     }
 
 
-    Libdas::Vector4<uint16_t> GLTFCompiler::_GetJointIndices(BufferAccessorData &_ad, uint32_t _index) {
+    TRS::Vector4<uint16_t> GLTFCompiler::_GetJointIndices(BufferAccessorData &_ad, uint32_t _index) {
         const char *ptr = m_uri_resolvers[_ad.buffer_id].GetBuffer().first + _ad.buffer_offset + _index * _ad.unit_stride;
-        Libdas::Vector4<uint16_t> jindex;
+        TRS::Vector4<uint16_t> jindex;
         switch(_ad.component_type) {
             case KHRONOS_UNSIGNED_BYTE:
                 jindex.first = (uint16_t)(*reinterpret_cast<const unsigned char*>(ptr));
@@ -522,9 +522,9 @@ namespace Libdas {
     }
 
 
-    Libdas::Vector4<float> GLTFCompiler::_GetJointWeights(BufferAccessorData &_ad, uint32_t _index) {
+    TRS::Vector4<float> GLTFCompiler::_GetJointWeights(BufferAccessorData &_ad, uint32_t _index) {
         const char *ptr = m_uri_resolvers[_ad.buffer_id].GetBuffer().first + _ad.buffer_offset + _index * _ad.unit_stride;
-        Libdas::Vector4<float> weights;
+        TRS::Vector4<float> weights;
         switch(_ad.component_type) {
             case KHRONOS_UNSIGNED_BYTE:
                 weights.first = (float)(*reinterpret_cast<const unsigned char*>(ptr));
@@ -596,21 +596,21 @@ namespace Libdas {
             LIBDAS_ASSERT(_gen_acc.pos_accessor != UINT32_MAX);
             accessor_data = _FindAccessorData(_root, _gen_acc.pos_accessor);
             offset = accessor_data.buffer_offset + accessor_data.unit_stride * _index;
-            v.pos = *reinterpret_cast<const Libdas::Vector3<float>*>(m_uri_resolvers[accessor_data.buffer_id].GetBuffer().first + offset);
+            v.pos = *reinterpret_cast<const TRS::Vector3<float>*>(m_uri_resolvers[accessor_data.buffer_id].GetBuffer().first + offset);
         }
         
         // vertex normal
         if(_gen_acc.normal_accessor != UINT32_MAX) {
             accessor_data = _FindAccessorData(_root, _gen_acc.normal_accessor);
             offset = accessor_data.buffer_offset + accessor_data.unit_stride * _index;
-            v.normal = *reinterpret_cast<const Vector3<float>*>(m_uri_resolvers[accessor_data.buffer_id].GetBuffer().first + offset);
+            v.normal = *reinterpret_cast<const TRS::Vector3<float>*>(m_uri_resolvers[accessor_data.buffer_id].GetBuffer().first + offset);
         }
 
         // vertex tangent
         if(_gen_acc.tangent_accessor != UINT32_MAX) {
             accessor_data = _FindAccessorData(_root, _gen_acc.tangent_accessor);
             offset = accessor_data.buffer_offset + accessor_data.unit_stride * _index;
-            v.tangent = *reinterpret_cast<const Vector4<float>*>(m_uri_resolvers[accessor_data.buffer_id].GetBuffer().first + offset);
+            v.tangent = *reinterpret_cast<const TRS::Vector4<float>*>(m_uri_resolvers[accessor_data.buffer_id].GetBuffer().first + offset);
         }
 
         // uv accessors
@@ -632,7 +632,7 @@ namespace Libdas {
         v.joints.reserve(_gen_acc.joints_accessors.size());
         for(auto it = _gen_acc.joints_accessors.begin(); it != _gen_acc.joints_accessors.end(); it++) {
             accessor_data = _FindAccessorData(_root, *it);
-            offset = accessor_data.buffer_offset + sizeof(Vector4<uint16_t>) * _index;
+            offset = accessor_data.buffer_offset + sizeof(TRS::Vector4<uint16_t>) * _index;
             v.joints.push_back(_GetJointIndices(accessor_data, _index));
         }
 
@@ -640,7 +640,7 @@ namespace Libdas {
         v.weights.reserve(_gen_acc.weights_accessors.size());
         for(auto it = _gen_acc.weights_accessors.begin(); it != _gen_acc.weights_accessors.end(); it++) {
             accessor_data = _FindAccessorData(_root, *it);
-            offset = accessor_data.buffer_offset + sizeof(Vector4<float>) * _index;
+            offset = accessor_data.buffer_offset + sizeof(TRS::Vector4<float>) * _index;
             v.weights.push_back(_GetJointWeights(accessor_data, _index));
         }
 
@@ -758,12 +758,12 @@ namespace Libdas {
         // pos
         if(_gen_acc.pos_accessor != UINT32_MAX && _root.accessors[_gen_acc.pos_accessor].buffer_id == UINT32_MAX) {
             acc = &_root.accessors[_gen_acc.pos_accessor];
-            len = m_indexed_attrs.size() * sizeof(Libdas::Vector3<float>);
+            len = m_indexed_attrs.size() * sizeof(TRS::Vector3<float>);
             buf = new char[len];
             acc->buffer_id = 0;
             acc->accumulated_offset = _buffer.data_len;
             for(size_t i = 0; i < m_indexed_attrs.size(); i++)
-                reinterpret_cast<Libdas::Vector3<float>*>(buf)[i] = m_indexed_attrs[i].pos;
+                reinterpret_cast<TRS::Vector3<float>*>(buf)[i] = m_indexed_attrs[i].pos;
             
             m_allocated_memory.push_back(buf);
             _buffer.data_len += static_cast<uint32_t>(len);
@@ -773,12 +773,12 @@ namespace Libdas {
         // normal
         if(_gen_acc.normal_accessor != UINT32_MAX && _root.accessors[_gen_acc.normal_accessor].buffer_id == UINT32_MAX) {
             acc = &_root.accessors[_gen_acc.normal_accessor];
-            len = m_indexed_attrs.size() * sizeof(Libdas::Vector3<float>);
+            len = m_indexed_attrs.size() * sizeof(TRS::Vector3<float>);
             buf = new char[len];
             acc->buffer_id = 0;
             acc->accumulated_offset = _buffer.data_len;
             for(size_t i = 0; i < m_indexed_attrs.size(); i++)
-                reinterpret_cast<Libdas::Vector3<float>*>(buf)[i] = m_indexed_attrs[i].normal;
+                reinterpret_cast<TRS::Vector3<float>*>(buf)[i] = m_indexed_attrs[i].normal;
 
             m_allocated_memory.push_back(buf);
             _buffer.data_len += static_cast<uint32_t>(len);
@@ -788,12 +788,12 @@ namespace Libdas {
         // tangent
         if(_gen_acc.tangent_accessor != UINT32_MAX && _root.accessors[_gen_acc.tangent_accessor].buffer_id == UINT32_MAX) {
             acc = &_root.accessors[_gen_acc.tangent_accessor];
-            len = m_indexed_attrs.size() * sizeof(Libdas::Vector4<float>);
+            len = m_indexed_attrs.size() * sizeof(TRS::Vector4<float>);
             buf = new char[len];
             acc->buffer_id = 0;
             acc->accumulated_offset = _buffer.data_len;
             for(size_t i = 0; i < m_indexed_attrs.size(); i++)
-                reinterpret_cast<Libdas::Vector4<float>*>(buf)[i] = m_indexed_attrs[i].tangent;
+                reinterpret_cast<TRS::Vector4<float>*>(buf)[i] = m_indexed_attrs[i].tangent;
 
             m_allocated_memory.push_back(buf);
             _buffer.data_len += static_cast<uint32_t>(len);
@@ -805,12 +805,12 @@ namespace Libdas {
             if(_root.accessors[*uv_it].buffer_id == UINT32_MAX) {
                 acc = &_root.accessors[*uv_it];
                 const size_t id = uv_it - _gen_acc.uv_accessors.begin();
-                len = m_indexed_attrs.size() * sizeof(Libdas::Vector2<float>);
+                len = m_indexed_attrs.size() * sizeof(TRS::Vector2<float>);
                 buf = new char[len];
                 acc->buffer_id = 0;
                 acc->accumulated_offset = _buffer.data_len;
                 for(size_t i = 0; i < m_indexed_attrs.size(); i++)
-                    reinterpret_cast<Libdas::Vector2<float>*>(buf)[i] = m_indexed_attrs[i].uv[id];
+                    reinterpret_cast<TRS::Vector2<float>*>(buf)[i] = m_indexed_attrs[i].uv[id];
 
                 m_allocated_memory.push_back(buf);
                 _buffer.data_len += static_cast<uint32_t>(len);
@@ -823,12 +823,12 @@ namespace Libdas {
             if(_root.accessors[*cl_it].buffer_id == UINT32_MAX) {
                 acc = &_root.accessors[*cl_it];
                 const size_t id = cl_it - _gen_acc.color_mul_accessors.begin();
-                len = m_indexed_attrs.size() * sizeof(Libdas::Vector4<float>);
+                len = m_indexed_attrs.size() * sizeof(TRS::Vector4<float>);
                 buf = new char[len];
                 acc->buffer_id = 0;
                 acc->accumulated_offset = _buffer.data_len;
                 for(size_t i = 0; i < m_indexed_attrs.size(); i++)
-                    reinterpret_cast<Libdas::Vector4<float>*>(buf)[i] = m_indexed_attrs[i].color[id];
+                    reinterpret_cast<TRS::Vector4<float>*>(buf)[i] = m_indexed_attrs[i].color[id];
 
                 m_allocated_memory.push_back(buf);
                 _buffer.data_len += static_cast<uint32_t>(len);
@@ -841,12 +841,12 @@ namespace Libdas {
             if(_root.accessors[*ji_it].buffer_id == UINT32_MAX) {
                 acc = &_root.accessors[*ji_it];
                 const size_t id = ji_it - _gen_acc.joints_accessors.begin();
-                len = m_indexed_attrs.size() * sizeof(Libdas::Vector4<uint16_t>);
+                len = m_indexed_attrs.size() * sizeof(TRS::Vector4<uint16_t>);
                 buf = new char[len];
                 acc->buffer_id = 0;
                 acc->accumulated_offset = _buffer.data_len;
                 for(size_t i = 0; i < m_indexed_attrs.size(); i++)
-                    reinterpret_cast<Libdas::Vector4<uint16_t>*>(buf)[i] = m_indexed_attrs[i].joints[id];
+                    reinterpret_cast<TRS::Vector4<uint16_t>*>(buf)[i] = m_indexed_attrs[i].joints[id];
 
                 m_allocated_memory.push_back(buf);
                 _buffer.data_len += static_cast<uint32_t>(len);
@@ -859,12 +859,12 @@ namespace Libdas {
             if(_root.accessors[*we_it].buffer_id == UINT32_MAX) {
                 acc = &_root.accessors[*we_it];
                 const size_t id = we_it - _gen_acc.weights_accessors.begin();
-                len = m_indexed_attrs.size() * sizeof(Libdas::Vector4<float>);
+                len = m_indexed_attrs.size() * sizeof(TRS::Vector4<float>);
                 buf = new char[len];
                 acc->buffer_id = 0;
                 acc->accumulated_offset = _buffer.data_len;
                 for(size_t i = 0; i < m_indexed_attrs.size(); i++)
-                    reinterpret_cast<Libdas::Vector4<float>*>(buf)[i] = m_indexed_attrs[i].weights[id];
+                    reinterpret_cast<TRS::Vector4<float>*>(buf)[i] = m_indexed_attrs[i].weights[id];
 
                 m_allocated_memory.push_back(buf);
                 _buffer.data_len += static_cast<uint32_t>(len);
@@ -1000,19 +1000,19 @@ namespace Libdas {
             if(_root.nodes[i].skin != INT32_MAX)
                 node.skeleton = _root.nodes[i].skin;
 
-            const Matrix4<float> def_mat;
+            const TRS::Matrix4<float> def_mat;
             if(_root.nodes[i].matrix != def_mat) {
                 node.transform = _root.nodes[i].matrix.Transpose();
             } else {
-                const Libdas::Matrix4<float> t = {
+                const TRS::Matrix4<float> t = {
                     { 1.0f, 0.0f, 0.0f, _root.nodes[i].translation.x },
                     { 0.0f, 1.0f, 0.0f, _root.nodes[i].translation.y },
                     { 0.0f, 0.0f, 1.0f, _root.nodes[i].translation.z },
                     { 0.0f, 0.0f, 0.0f, 1.0f },
                 };
-                const Libdas::Matrix4<float> r = _root.nodes[i].rotation.ExpandToMatrix4();
+                const TRS::Matrix4<float> r = _root.nodes[i].rotation.ExpandToMatrix4();
                 const float uni_scale = (_root.nodes[i].scale.x + _root.nodes[i].scale.y + _root.nodes[i].scale.z) / 3;
-                const Libdas::Matrix4<float> s = {
+                const TRS::Matrix4<float> s = {
                     { uni_scale, 0.0f, 0.0f, 0.0f },
                     { 0.0f, uni_scale, 0.0f, 0.0f },
                     { 0.0f, 0.0f, uni_scale, 0.0f },
@@ -1099,7 +1099,7 @@ namespace Libdas {
                 if(m_skeleton_joint_id_table[skin_it->joints[i]] == UINT32_MAX) continue;
 
                 DasSkeletonJoint joint;
-                joint.inverse_bind_pos = reinterpret_cast<const Matrix4<float>*>(buf)[i].Transpose();
+                joint.inverse_bind_pos = reinterpret_cast<const TRS::Matrix4<float>*>(buf)[i].Transpose();
                 joint.rotation = _root.nodes[skin_it->joints[i]].rotation;
 
                 // for each child in joint
@@ -1146,11 +1146,11 @@ namespace Libdas {
                 bool scale = false;
                 if(ch_it->target.path == "translation") {
                     channel.target = LIBDAS_ANIMATION_TARGET_TRANSLATION;
-                    type_stride = static_cast<uint32_t>(sizeof(Libdas::Vector3<float>));
+                    type_stride = static_cast<uint32_t>(sizeof(TRS::Vector3<float>));
                 }
                 else if(ch_it->target.path == "rotation") {
                     channel.target = LIBDAS_ANIMATION_TARGET_ROTATION;
-                    type_stride = static_cast<uint32_t>(sizeof(Libdas::Quaternion));
+                    type_stride = static_cast<uint32_t>(sizeof(TRS::Quaternion));
                 }
                 else if(ch_it->target.path == "scale") {
                     channel.target = LIBDAS_ANIMATION_TARGET_SCALE;
@@ -1207,7 +1207,7 @@ namespace Libdas {
                     buf = m_uri_resolvers[accessor_data.buffer_id].GetBuffer().first + accessor_data.buffer_offset;
 
                     for(uint32_t i = 0; i < channel.keyframe_count; i++) {
-                        const Libdas::Vector3<float> &s = reinterpret_cast<const Libdas::Vector3<float>*>(buf)[i];
+                        const TRS::Vector3<float> &s = reinterpret_cast<const TRS::Vector3<float>*>(buf)[i];
                         float fscale = (s.first + s.second + s.third) / 3;
                         reinterpret_cast<float*>(channel.target_values)[i] = fscale;
                     }

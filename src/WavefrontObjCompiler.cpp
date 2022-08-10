@@ -4,7 +4,7 @@
 /// author: Karl-Mihkel Ott
 
 #define WAVEFRONT_OBJ_COMPILER_CPP
-#include <WavefrontObjCompiler.h>
+#include "das/WavefrontObjCompiler.h"
 
 
 namespace Libdas {
@@ -31,19 +31,19 @@ namespace Libdas {
         buffers.reserve(1 + _embedded_textures.size());
 
         buffers.back().type = LIBDAS_BUFFER_TYPE_VERTEX | LIBDAS_BUFFER_TYPE_INDICES;
-        buffers.back().data_len = static_cast<uint32_t>(m_unique_pos.size() * sizeof(Point3D<float>));
-        buffers.back().data_ptrs.push_back(std::make_pair(reinterpret_cast<const char*>(m_unique_pos.data()), m_unique_pos.size() * sizeof(Point3D<float>)));
+        buffers.back().data_len = static_cast<uint32_t>(m_unique_pos.size() * sizeof(TRS::Point3D<float>));
+        buffers.back().data_ptrs.push_back(std::make_pair(reinterpret_cast<const char*>(m_unique_pos.data()), m_unique_pos.size() * sizeof(TRS::Point3D<float>)));
 
         if(m_unique_uv.size()) {
-            buffers.back().data_len += static_cast<uint32_t>(m_unique_uv.size() * sizeof(Point2D<float>));
-            buffers.back().data_ptrs.push_back(std::make_pair(reinterpret_cast<const char*>(m_unique_uv.data()), m_unique_uv.size() * sizeof(Point2D<float>)));
+            buffers.back().data_len += static_cast<uint32_t>(m_unique_uv.size() * sizeof(TRS::Point2D<float>));
+            buffers.back().data_ptrs.push_back(std::make_pair(reinterpret_cast<const char*>(m_unique_uv.data()), m_unique_uv.size() * sizeof(TRS::Point2D<float>)));
             buffers.back().type |= LIBDAS_BUFFER_TYPE_TEXTURE_MAP;
         }
 
         if(m_unique_normals.size()) {
-            buffers.back().data_len += static_cast<uint32_t>(m_unique_normals.size() * sizeof(Point3D<float>));
+            buffers.back().data_len += static_cast<uint32_t>(m_unique_normals.size() * sizeof(TRS::Point3D<float>));
             buffers.back().type |= LIBDAS_BUFFER_TYPE_VERTEX_NORMAL;
-            buffers.back().data_ptrs.push_back(std::make_pair(reinterpret_cast<const char*>(m_unique_normals.data()), m_unique_normals.size() * sizeof(Point3D<float>)));
+            buffers.back().data_ptrs.push_back(std::make_pair(reinterpret_cast<const char*>(m_unique_normals.data()), m_unique_normals.size() * sizeof(TRS::Point3D<float>)));
         }
 
         buffers.back().data_len += static_cast<uint32_t>(m_indices.size() * sizeof(uint32_t));
@@ -69,9 +69,9 @@ namespace Libdas {
 
         const uint32_t buffer_id = 0;
         const uint32_t base_vertex_pos_offset = 0;
-        const uint32_t base_uv_vertex_offset = static_cast<uint32_t>(m_unique_pos.size() * sizeof(Point3D<float>));
-        const uint32_t base_vertex_normal_offset = base_uv_vertex_offset + static_cast<uint32_t>(m_unique_uv.size() * sizeof(Point2D<float>));
-        const uint32_t base_index_offset = base_vertex_normal_offset + static_cast<uint32_t>(m_unique_normals.size() * sizeof(Point3D<float>));
+        const uint32_t base_uv_vertex_offset = static_cast<uint32_t>(m_unique_pos.size() * sizeof(TRS::Point3D<float>));
+        const uint32_t base_vertex_normal_offset = base_uv_vertex_offset + static_cast<uint32_t>(m_unique_uv.size() * sizeof(TRS::Point2D<float>));
+        const uint32_t base_index_offset = base_vertex_normal_offset + static_cast<uint32_t>(m_unique_normals.size() * sizeof(TRS::Point3D<float>));
 
         for(size_t i = 0; i < _data.groups.size(); i++) {
             if(_data.groups[i].indices.faces.size()) {

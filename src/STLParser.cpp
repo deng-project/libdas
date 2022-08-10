@@ -4,7 +4,7 @@
 /// author: Karl-Mihkel Ott
 
 #define STL_PARSER_CPP
-#include <STLParser.h>
+#include "das/STLParser.h"
 
 
 namespace Libdas {
@@ -15,7 +15,7 @@ namespace Libdas {
     /***********************************************/
 
     AsciiSTLParser::AsciiSTLParser(const std::string &_file_name, size_t _chunk_size) : 
-        AsciiLineReader(_file_name, _chunk_size, "\n"), m_error(MODEL_FORMAT_STLA)
+        MAR::AsciiLineReader(_file_name, _chunk_size, "\n"), m_error(MODEL_FORMAT_STLA)
     {
         _Tokenise();
     }
@@ -214,10 +214,10 @@ namespace Libdas {
         // read all vertices blocks
         for(uint32_t i = 0; i < m_header.facet_c; i++) {
             // read normals
-            m_stream.read(reinterpret_cast<char*>(&m_object.facets[i].normal), sizeof(Point3D<float>));
+            m_stream.read(reinterpret_cast<char*>(&m_object.facets[i].normal), sizeof(TRS::Point3D<float>));
 
             // read vertices
-            m_stream.read(reinterpret_cast<char*>(m_object.facets[i].vertices.data()), 3 * sizeof(Point3D<float>));
+            m_stream.read(reinterpret_cast<char*>(m_object.facets[i].vertices.data()), 3 * sizeof(TRS::Point3D<float>));
 
             // skip attribute byte count
             std::size_t pos = m_stream.tellg();

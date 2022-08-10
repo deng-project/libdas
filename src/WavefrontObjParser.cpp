@@ -5,12 +5,12 @@
 
 
 #define WAVEFRONT_OBJ_PARSER_CPP
-#include <WavefrontObjParser.h>
+#include "das/WavefrontObjParser.h"
 
 namespace Libdas {
 
     WavefrontObjParser::WavefrontObjParser(const std::string &_file_name, size_t _chunk_size) : 
-        AsciiLineReader(_file_name, _chunk_size, "\n"), m_file_name(_file_name), m_error(MODEL_FORMAT_WOBJ) {
+        MAR::AsciiLineReader(_file_name, _chunk_size, "\n"), m_file_name(_file_name), m_error(MODEL_FORMAT_WOBJ) {
         std::vector<std::string> names = {"main"};
         m_parsed_data.groups.emplace_back(std::vector<std::string>{ "default" });
         _Tokenize();

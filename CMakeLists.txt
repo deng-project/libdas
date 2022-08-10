@@ -8,12 +8,12 @@ project(libdas LANGUAGES CXX)
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(CMAKE_GENERATOR_PLATFORM x64)
 
 option(LIBDAS_BUILD_TESTS "Build all tests along with main libdas libraries" OFF)
 option(LIBDAS_BUILD_STATIC_LIB "Build static libdas library" ON)
 option(LIBDAS_BUILD_SHARED_LIB "Build shared libdas library" ON)
 option(LIBDAS_BUILD_DASTOOL "Build dastool application" ON)
+option(LIBDAS_BUILD_DEPENDENCIES "Fetch and build libdas dependencies" ON)
 
 # Set appropriate compiler flags
 if(MSVC)
@@ -38,6 +38,10 @@ endif()
 
 if(CMAKE_BUILD_TYPE MATCHES Debug)
     add_definitions(-D_DEBUG)
+endif()
+
+if(LIBDAS_BUILD_DEPENDENCIES)
+    include(cmake/FetchDependencies.cmake)
 endif()
 
 # Include main library build config

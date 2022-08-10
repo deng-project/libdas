@@ -4,13 +4,13 @@
 // author: Karl-Mihkel Ott
 
 #define JSON_PARSER_CPP
-#include <JSONParser.h>
+#include "das/JSONParser.h"
 
 
 namespace Libdas {
     
     JSONParser::JSONParser(ModelFormat _format, const std::string &_file_name) : 
-        AsciiStreamReader(_file_name, DEFAULT_CHUNK, "}"), 
+        MAR::AsciiStreamReader(_file_name, DEFAULT_CHUNK, "}"), 
         m_file_name(_file_name),
         m_error(_format) {}
 

@@ -5,7 +5,7 @@
 
 
 #define DAS_VALIDATOR_CPP
-#include <DasValidator.h>
+#include "das/DasValidator.h"
 
 namespace Libdas {
     
@@ -28,10 +28,10 @@ namespace Libdas {
                 if(_prim.joint_index_buffer_ids[i] >= m_parser.GetBufferCount()) {
                     std::string errme = "DAS validation error: Invalid joint index buffer id " + std::to_string(_prim.joint_index_buffer_ids[i]) + " for mesh primitive " + std::to_string(_cur_index);
                     m_error_stack.push(errme);
-                } else if(m_parser.AccessBuffer(_prim.joint_index_buffer_ids[i]).data_len < _prim.joint_index_buffer_offsets[i] + _max_index * static_cast<uint32_t>(sizeof(Libdas::Vector4<uint16_t>))) {
+                } else if(m_parser.AccessBuffer(_prim.joint_index_buffer_ids[i]).data_len < _prim.joint_index_buffer_offsets[i] + _max_index * static_cast<uint32_t>(sizeof(TRS::Vector4<uint16_t>))) {
                     std::string errme = "DAS validation error: Invalid joint index buffer(" + std::to_string(_prim.joint_index_buffer_ids[i]) +
                                         ") region with offset " + std::to_string(_prim.joint_index_buffer_offsets[i]) + " and size " + 
-                                        std::to_string(_max_index * static_cast<uint32_t>(sizeof(Libdas::Vector4<uint16_t>))) + 
+                                        std::to_string(_max_index * static_cast<uint32_t>(sizeof(TRS::Vector4<uint16_t>))) + 
                                         " for mesh primitive " + std::to_string(_cur_index);
                     m_error_stack.push(errme);
                 }
@@ -40,10 +40,10 @@ namespace Libdas {
                 if(_prim.joint_weight_buffer_ids[i] >= m_parser.GetBufferCount()) {
                     std::string errme = "DAS validation error: Invalid joint weight buffer id " + std::to_string(_prim.joint_weight_buffer_ids[i]) + " for mesh primitive " + std::to_string(_cur_index);
                     m_error_stack.push(errme);
-                } else if(m_parser.AccessBuffer(_prim.joint_weight_buffer_ids[i]).data_len < _prim.joint_weight_buffer_offsets[i] + _max_index * static_cast<uint32_t>(sizeof(Libdas::Vector4<float>))) {
+                } else if(m_parser.AccessBuffer(_prim.joint_weight_buffer_ids[i]).data_len < _prim.joint_weight_buffer_offsets[i] + _max_index * static_cast<uint32_t>(sizeof(TRS::Vector4<float>))) {
                     std::string errme = "DAS validation error: Invalid joint weight buffer(" + std::to_string(_prim.joint_weight_buffer_ids[i]) +
                                         ") region with offset " + std::to_string(_prim.joint_weight_buffer_offsets[i]) + " and size " +
-                                        std::to_string(_max_index * static_cast<uint32_t>(sizeof(Libdas::Vector4<float>))) +
+                                        std::to_string(_max_index * static_cast<uint32_t>(sizeof(TRS::Vector4<float>))) +
                                         " for mesh primitive " + std::to_string(i); 
                     m_error_stack.push(errme);
                 }

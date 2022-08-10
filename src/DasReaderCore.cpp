@@ -4,12 +4,12 @@
 // author: Karl-Mihkel Ott
 
 #define DAS_READER_CORE_CPP
-#include <DasReaderCore.h>
+#include "das/DasReaderCore.h"
 
 namespace Libdas {
 
     DasReaderCore::DasReaderCore(const std::string &_file_name) : 
-        AsciiLineReader(_file_name, DEFAULT_CHUNK, std::string("ENDSCOPE") + LIBDAS_DAS_NEWLINE), 
+        MAR::AsciiLineReader(_file_name, DEFAULT_CHUNK, std::string("ENDSCOPE") + LIBDAS_DAS_NEWLINE), 
         m_error(MODEL_FORMAT_DAS) 
     {
         _CreateScopeNameMap();
@@ -19,7 +19,7 @@ namespace Libdas {
 
 
     DasReaderCore::DasReaderCore(DasReaderCore &&_drc) noexcept :
-        AsciiLineReader(std::move(_drc)),
+        MAR::AsciiLineReader(std::move(_drc)),
         m_error(std::move(_drc.m_error)),
         m_scope_name_map(std::move(_drc.m_scope_name_map)),
         m_unique_val_map(std::move(_drc.m_unique_val_map)),
@@ -854,7 +854,7 @@ namespace Libdas {
                 break;
 
             case DasNode::LIBDAS_NODE_TRANSFORM:
-                for(struct { Matrix4<float>::iterator it; int i; } s = {_node->transform.BeginRowMajor(), 0}; s.it != _node->transform.EndRowMajor(); s.it++, s.i++)
+                for(struct { TRS::Matrix4<float>::iterator it; int i; } s = {_node->transform.BeginRowMajor(), 0}; s.it != _node->transform.EndRowMajor(); s.it++, s.i++)
                     *s.it = reinterpret_cast<float*>(_GetReadPtr())[s.i];
 
                 _SkipData(sizeof(float[16]));
@@ -930,7 +930,7 @@ namespace Libdas {
     void DasReaderCore::_ReadSkeletonJointValue(DasSkeletonJoint *_joint, DasSkeletonJoint::ValueType _type) {
         switch(_type) {
             case DasSkeletonJoint::LIBDAS_SKELETON_JOINT_INVERSE_BIND_POS:
-                for(struct { Matrix4<float>::iterator it; int i; } s = {_joint->inverse_bind_pos.BeginRowMajor(), 0}; s.it != _joint->inverse_bind_pos.EndRowMajor(); s.it++, s.i++)
+                for(struct { TRS::Matrix4<float>::iterator it; int i; } s = {_joint->inverse_bind_pos.BeginRowMajor(), 0}; s.it != _joint->inverse_bind_pos.EndRowMajor(); s.it++, s.i++)
                     *s.it = reinterpret_cast<float*>(_GetReadPtr())[s.i];
                 _SkipData(sizeof(float[16]));
                 break;
@@ -960,13 +960,13 @@ namespace Libdas {
                 break;
 
             case DasSkeletonJoint::LIBDAS_SKELETON_JOINT_ROTATION:
-                _joint->rotation = *reinterpret_cast<Quaternion*>(_GetReadPtr());
-                if(!_SkipData(sizeof(Quaternion))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                _joint->rotation = *reinterpret_cast<TRS::Quaternion*>(_GetReadPtr());
+                if(!_SkipData(sizeof(TRS::Quaternion))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
                 break;
 
             case DasSkeletonJoint::LIBDAS_SKELETON_JOINT_TRANSLATION:
-                _joint->translation = *reinterpret_cast<Point3D<float>*>(_GetReadPtr());
-                if(!_SkipData(sizeof(Point3D<float>))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                _joint->translation = *reinterpret_cast<TRS::Point3D<float>*>(_GetReadPtr());
+                if(!_SkipData(sizeof(TRS::Point3D<float>))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
                 break;
 
             default:
@@ -1036,11 +1036,11 @@ namespace Libdas {
                     uint32_t type_stride = 0;
                     switch(_channel->target) {
                         case LIBDAS_ANIMATION_TARGET_TRANSLATION:
-                            type_stride = static_cast<uint32_t>(sizeof(Libdas::Vector3<float>));
+                            type_stride = static_cast<uint32_t>(sizeof(TRS::Vector3<float>));
                             break;
 
                         case LIBDAS_ANIMATION_TARGET_ROTATION:
-                            type_stride = static_cast<uint32_t>(sizeof(Libdas::Quaternion));
+                            type_stride = static_cast<uint32_t>(sizeof(TRS::Quaternion));
                             break;
 
                         case LIBDAS_ANIMATION_TARGET_SCALE:
@@ -1083,11 +1083,11 @@ namespace Libdas {
                             break;
 
                         case LIBDAS_ANIMATION_TARGET_TRANSLATION:
-                            type_stride = static_cast<uint32_t>(sizeof(Libdas::Vector3<float>));
+                            type_stride = static_cast<uint32_t>(sizeof(TRS::Vector3<float>));
                             break;
 
                         case LIBDAS_ANIMATION_TARGET_ROTATION:
-                            type_stride = static_cast<uint32_t>(sizeof(Libdas::Quaternion));
+                            type_stride = static_cast<uint32_t>(sizeof(TRS::Quaternion));
                             break;
 
                         case LIBDAS_ANIMATION_TARGET_SCALE:
@@ -1118,11 +1118,11 @@ namespace Libdas {
                             break;
 
                         case LIBDAS_ANIMATION_TARGET_TRANSLATION:
-                            type_stride = static_cast<uint32_t>(sizeof(Libdas::Vector3<float>));
+                            type_stride = static_cast<uint32_t>(sizeof(TRS::Vector3<float>));
                             break;
 
                         case LIBDAS_ANIMATION_TARGET_ROTATION:
-                            type_stride = static_cast<uint32_t>(sizeof(Libdas::Quaternion));
+                            type_stride = static_cast<uint32_t>(sizeof(TRS::Quaternion));
                             break;
 
                         case LIBDAS_ANIMATION_TARGET_SCALE:

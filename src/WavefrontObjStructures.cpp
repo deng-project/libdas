@@ -1,10 +1,10 @@
-/// libdas: DENG asset handling management library
-/// licence: Apache, see LICENCE file
-/// file: WavefrontObjStructures.cpp - Wavefront Obj parsing functions and structures implementation
-/// author: Karl-Mihkel Ott
+// libdas: DENG asset handling management library
+// licence: Apache, see LICENCE file
+// file: WavefrontObjStructures.cpp - Wavefront Obj parsing functions and structures implementation
+// author: Karl-Mihkel Ott
 
 #define WAVEFRONT_OBJ_STRUCTURES_CPP
-#include <WavefrontObjStructures.h>
+#include "das/WavefrontObjStructures.h"
 
 namespace Libdas {
 
@@ -14,7 +14,7 @@ namespace Libdas {
         /*************** Custom functions ***************/
         /************************************************/
 
-        Point3D<uint32_t> _TripleIndexBlockCallback(AsciiFormatErrorHandler &_error, const std::string &_block, 
+        TRS::Point3D<uint32_t> _TripleIndexBlockCallback(AsciiFormatErrorHandler &_error, const std::string &_block, 
                                                     const std::string &_keyword, const uint32_t _line) {
             // get all separator locations if they even exist
             size_t fsep = std::string::npos, ssep = std::string::npos;
@@ -24,7 +24,7 @@ namespace Libdas {
                 ssep = _block.find("/", fsep + 1);
             }
 
-            Point3D<uint32_t> index_block(UINT32_MAX, UINT32_MAX, UINT32_MAX);
+            TRS::Point3D<uint32_t> index_block(UINT32_MAX, UINT32_MAX, UINT32_MAX);
             std::string pos, tex, normal;
 
             // first seperator was not found
@@ -60,7 +60,7 @@ namespace Libdas {
         void VertexKeywordArgsCallback(WavefrontObjData &_wobj_data, AsciiFormatErrorHandler &_error, ArgsType &_args) {
             const std::string keyword = "v";
             _error.ArgCountCheck(keyword, _args.first, static_cast<uint32_t>(_args.second.size()), 3, 4, TERMINATE);
-            Point3D<float> pt(0.0f, 0.0f, 0.0f);
+            TRS::Point3D<float> pt(0.0f, 0.0f, 0.0f);
 
             pt.x = std::stof(_args.second[0]);
             pt.y = std::stof(_args.second[1]);
@@ -74,7 +74,7 @@ namespace Libdas {
         void PointKeywordArgsCallback(WavefrontObjData &_wobj_data, AsciiFormatErrorHandler &_error, ArgsType &_args) {
             const std::string keyword = "vp";
             _error.ArgCountCheck(keyword, _args.first, static_cast<uint32_t>(_args.second.size()), 1, 3, TERMINATE);
-            Point3D<float> pt(0.0f, 0.0f, 0.0f);
+            TRS::Point3D<float> pt(0.0f, 0.0f, 0.0f);
 
             pt.x = std::stof(_args.second[0]);
             
@@ -93,7 +93,7 @@ namespace Libdas {
         void VertexNormalKeywordArgsCallback(WavefrontObjData &_wobj_data, AsciiFormatErrorHandler &_error, ArgsType &_args) {
             const std::string keyword = "vn";
             _error.ArgCountCheck(keyword, _args.first, static_cast<uint32_t>(_args.second.size()), 3, 3, TERMINATE);
-            Point3D<float> pt(0.0f, 0.0f, 0.0f);
+            TRS::Point3D<float> pt(0.0f, 0.0f, 0.0f);
 
             pt.x = std::stof(_args.second[0]);
             pt.y = std::stof(_args.second[1]);
@@ -107,7 +107,7 @@ namespace Libdas {
         void TextureVertexKeywordArgsCallback(WavefrontObjData &_wobj_data, AsciiFormatErrorHandler &_error, ArgsType &_args) {
             const std::string keyword = "vt";
             _error.ArgCountCheck(keyword, _args.first, static_cast<uint32_t>(_args.second.size()), 1, 3, TERMINATE);
-            Point2D<float> pt(0.0f, 0.0f);
+            TRS::Point2D<float> pt(0.0f, 0.0f);
 
             pt.x = std::stof(_args.second[0]);
             if(_args.second.size() > 1) {
@@ -122,7 +122,7 @@ namespace Libdas {
         // curves and surfaces are not yet supported ! ! !
         //void CSTypeArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
         //void PolynomialDegreeArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        //void BasisMatrixArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        //void BasisTRS::MatrixArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
         //void CSStepArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
         
         void PointsArgsCallback(WavefrontObjData &_wobj_data, AsciiFormatErrorHandler &_error, ArgsType &_args) {
@@ -158,7 +158,7 @@ namespace Libdas {
             auto &face  = _wobj_data.groups.back().indices.faces.back();
 
             for(size_t i = 0; i < _args.second.size(); i++) {
-                Point3D<uint32_t> elem = _TripleIndexBlockCallback(_error, _args.second[i], keyword, _args.first);
+                TRS::Point3D<uint32_t> elem = _TripleIndexBlockCallback(_error, _args.second[i], keyword, _args.first);
 
                 if(elem.x != UINT32_MAX)
                     face[i].vert = elem.x - 1;
@@ -178,7 +178,7 @@ namespace Libdas {
         //void TrimmingCurveArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
         //void HoleCurveArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
         //void SpecialCurveArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
-        //void SpecialPointArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
+        //void SpecialTRS::PointArgsCallback(Groups &_groups, AsciiFormatErrorHandler &_error, ArgsType &_args);
         
 
         void GroupArgsCallback(WavefrontObjData &_wobj_data, AsciiFormatErrorHandler &_error, ArgsType &_args) {

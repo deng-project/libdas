@@ -4,7 +4,7 @@
 // author: Karl-Mihkel Ott
 
 #define DAS_STRUCTURES_CPP
-#include <DasStructures.h>
+#include "das/DasStructures.h"
 
 namespace Libdas {
 
@@ -578,11 +578,11 @@ namespace Libdas {
                     break;
 
                 case LIBDAS_ANIMATION_TARGET_TRANSLATION:
-                    type_stride = static_cast<uint32_t>(sizeof(Libdas::Vector3<float>));
+                    type_stride = static_cast<uint32_t>(sizeof(TRS::Vector3<float>));
                     break;
 
                 case LIBDAS_ANIMATION_TARGET_ROTATION:
-                    type_stride = static_cast<uint32_t>(sizeof(Libdas::Quaternion));
+                    type_stride = static_cast<uint32_t>(sizeof(TRS::Quaternion));
                     break;
 
                 case LIBDAS_ANIMATION_TARGET_SCALE:

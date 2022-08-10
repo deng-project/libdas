@@ -4,7 +4,7 @@
 // author: Karl-Mihkel Ott
 
 #define HASH_CPP
-#include <Hash.h>
+#include "das/Hash.h"
 
 namespace Libdas {
     static uint32_t crc32_table[] = {

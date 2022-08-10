@@ -4,7 +4,7 @@
 /// author: Karl-Mihkel Ott
 
 #define TEXTURE_READER_CPP
-#include <TextureReader.h>
+#include "das/TextureReader.h"
 
 namespace Libdas {
 

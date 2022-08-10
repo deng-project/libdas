@@ -25,39 +25,41 @@
     #include <filesystem>
     #include <unordered_map>
     
-    #include <Api.h>
-    #include <Algorithm.h>
-    #include <LibdasAssert.h>
-    #include <ErrorHandlers.h>
-    #include <AsciiStreamReader.h>
-    #include <AsciiLineReader.h>
-    #include <Iterators.h>
-    #include <Points.h>
-    #include <Vector.h>
-    #include <Matrix.h>
-    #include <Hash.h>
-    #include <Quaternion.h>
-    #include <DasStructures.h>
-    #include <TextureReader.h>
-    #include <DasWriterCore.h>
-    #include <DasReaderCore.h>
-    #include <DasParser.h>
-    #include <STLStructures.h>
-    #include <STLParser.h>
-    #include <STLCompiler.h>
+    #include "trs/Iterators.h"
+    #include "trs/Points.h"
+    #include "trs/Vector.h"
+    #include "trs/Matrix.h"
+    #include "trs/Quaternion.h"
+
+    #include "mar/AsciiStreamReader.h"
+    #include "mar/AsciiLineReader.h"
+
+    #include "das/Api.h"
+    #include "das/Algorithm.h"
+    #include "das/LibdasAssert.h"
+    #include "das/ErrorHandlers.h"
+    #include "das/Hash.h"
+    #include "das/DasStructures.h"
+    #include "das/TextureReader.h"
+    #include "das/DasWriterCore.h"
+    #include "das/DasReaderCore.h"
+    #include "das/DasParser.h"
+    #include "das/STLStructures.h"
+    #include "das/STLParser.h"
+    #include "das/STLCompiler.h"
 #define LIBDAS_DEFS_ONLY
-    #include <HuffmanCompression.h>
+    #include "das/HuffmanCompression.h"
 #undef LIBDAS_DEFS_ONLY
-    #include <Base64Decoder.h>
-    #include <URIResolver.h>
-    #include <GLTFStructures.h>
-    #include <JSONParser.h>
-    #include <GLTFParser.h>
-    #include <GLTFCompiler.h>
-    #include <WavefrontObjStructures.h>
-    #include <WavefrontObjParser.h>
-    #include <WavefrontObjCompiler.h>
-    #include <DasValidator.h>
+    #include "das/Base64Decoder.h"
+    #include "das/URIResolver.h"
+    #include "das/GLTFStructures.h"
+    #include "das/JSONParser.h"
+    #include "das/GLTFParser.h"
+    #include "das/GLTFCompiler.h"
+    #include "das/WavefrontObjStructures.h"
+    #include "das/WavefrontObjParser.h"
+    #include "das/WavefrontObjCompiler.h"
+    #include "das/DasValidator.h"
 #endif
 
 typedef uint16_t FlagType;

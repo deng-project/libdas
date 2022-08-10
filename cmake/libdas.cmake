@@ -7,8 +7,6 @@ set(LIBDAS_SHARED_TARGET das-shared)
 set(LIBDAS_STATIC_TARGET das-static)
 set(LIBDAS_SOURCES
     src/Algorithm.cpp
-    src/AsciiLineReader.cpp
-    src/AsciiStreamReader.cpp
     src/Base64Decoder.cpp
     src/BufferImageTypeResolver.cpp
     src/DasParser.cpp
@@ -32,41 +30,34 @@ set(LIBDAS_SOURCES
 )
 
 set(LIBDAS_HEADERS
-    include/Algorithm.h
-    include/Api.h
-    include/AsciiLineReader.h
-    include/AsciiStreamReader.h
-    include/Base64Decoder.h
-    include/BufferImageTypeResolver.h
-    include/DasParser.h
-    include/DasReaderCore.h
-    include/DasStructures.h
-    include/DasValidator.h
-    include/DasWriterCore.h
-    include/Debug.h
-    include/ErrorHandlers.h
-    include/GLTFCompiler.h
-    include/GLTFParser.h
-    include/GLTFStructures.h
-    include/Hash.h
-    include/HuffmanCompression.h
-    include/Iterators.h
-    include/JSONParser.h
-    include/LibdasAssert.h
-    include/Libdas.h
-    include/Matrix.h
-    include/Points.h
-    include/Quaternion.h
-    include/stb_image.h
-    include/STLCompiler.h
-    include/STLParser.h
-    include/STLStructures.h
-    include/TextureReader.h
-    include/URIResolver.h
-    include/Vector.h
-    include/WavefrontObjCompiler.h
-    include/WavefrontObjParser.h
-    include/WavefrontObjStructures.h
+    include/das/Algorithm.h
+    include/das/Api.h
+    include/das/Base64Decoder.h
+    include/das/BufferImageTypeResolver.h
+    include/das/DasParser.h
+    include/das/DasReaderCore.h
+    include/das/DasStructures.h
+    include/das/DasValidator.h
+    include/das/DasWriterCore.h
+    include/das/Debug.h
+    include/das/ErrorHandlers.h
+    include/das/GLTFCompiler.h
+    include/das/GLTFParser.h
+    include/das/GLTFStructures.h
+    include/das/Hash.h
+    include/das/HuffmanCompression.h
+    include/das/JSONParser.h
+    include/das/LibdasAssert.h
+    include/das/Libdas.h
+    include/das/stb_image.h
+    include/das/STLCompiler.h
+    include/das/STLParser.h
+    include/das/STLStructures.h
+    include/das/TextureReader.h
+    include/das/URIResolver.h
+    include/das/WavefrontObjCompiler.h
+    include/das/WavefrontObjParser.h
+    include/das/WavefrontObjStructures.h
 )
 
 if(CMAKE_BUILD_TYPE MATCHES Debug)
@@ -80,7 +71,13 @@ if(LIBDAS_BUILD_STATIC_LIB)
 		${LIBDAS_SOURCES}
 	)
 
-	target_include_directories(${LIBDAS_STATIC_TARGET} PUBLIC include)
+    target_include_directories(${LIBDAS_STATIC_TARGET} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+    if(LIBDAS_BUILD_DEPENDENCIES)
+        target_include_directories(${LIBDAS_STATIC_TARGET} 
+            PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/deps/mar/include
+            PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/deps/trs/include)
+    endif()
+    target_link_libraries(${LIBDAS_STATIC_TARGET} PRIVATE mar)
 	target_compile_definitions(${LIBDAS_STATIC_TARGET} PUBLIC LIBDAS_STATIC)
 endif()
 
@@ -93,5 +90,10 @@ if(LIBDAS_BUILD_SHARED_LIB)
 	)
 
 	target_include_directories(${LIBDAS_SHARED_TARGET} PUBLIC include)
+    if(LIBDAS_BUILD_DEPENDENCIES)
+        target_include_directories(${LIBDAS_SHARED_TARGET} 
+            PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/deps/mar/include
+            PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/deps/trs/include)
+    endif()
 	target_compile_definitions(${LIBDAS_SHARED_TARGET} PRIVATE LIBDAS_EXPORT_LIBRARY)
 endif()

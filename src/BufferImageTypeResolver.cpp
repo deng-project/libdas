@@ -4,7 +4,7 @@
 // author: Karl-Mihkel Ott
 
 #define BUFFER_IMAGE_TYPE_RESOLVER_CPP
-#include <BufferImageTypeResolver.h>
+#include "das/BufferImageTypeResolver.h"
 
 
 namespace Libdas {

@@ -4,7 +4,7 @@
 /// author: Karl-Mihkel Ott
 
 #define STL_STRUCTURES_CPP
-#include <STLStructures.h>
+#include "das/STLStructures.h"
 
 
 namespace Libdas {
@@ -72,7 +72,7 @@ namespace Libdas {
             if(_args.second[0] != keywords[1])
                 _error.Error(LIBDAS_ERROR_INVALID_KEYWORD, _args.first, keywords[0], "", TERMINATE);
             
-            Point3D<float> normal;
+            TRS::Point3D<float> normal;
             normal.x = std::stof(_args.second[1]);
             normal.y = std::stof(_args.second[2]);
             normal.z = std::stof(_args.second[3]);
@@ -120,7 +120,7 @@ namespace Libdas {
             
             _error.ArgCountCheck(keyword, _args.first, static_cast<uint32_t>(_args.second.size()), 3, 3, TERMINATE);
 
-            Point3D<float> vertex;
+            TRS::Point3D<float> vertex;
             vertex.x = std::stof(_args.second[0]);
             vertex.y = std::stof(_args.second[1]);
             vertex.z = std::stof(_args.second[2]);

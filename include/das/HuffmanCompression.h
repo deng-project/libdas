@@ -86,7 +86,7 @@ namespace Libdas {
         LIBDAS_API void ShiftToLSB(unsigned char *_bytes, size_t _len, int _shift);
 
 
-#ifdef _DEBUG
+#ifdef __DEBUG
         /// Log the encoding table to stdout
         LIBDAS_API void LogEntable(BinaryKey *entable);
 #else 

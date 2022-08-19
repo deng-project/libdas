@@ -37,7 +37,7 @@ else()
 endif()
 
 if(CMAKE_BUILD_TYPE MATCHES Debug)
-    add_definitions(-D_DEBUG)
+    add_definitions(-D__DEBUG)
 endif()
 
 if(LIBDAS_BUILD_DEPENDENCIES)

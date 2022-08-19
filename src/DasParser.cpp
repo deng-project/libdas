@@ -8,7 +8,7 @@
 
 namespace Libdas {
 
-#ifdef _DEBUG
+#ifdef __DEBUG
     std::vector<std::vector<DasSkeletonJoint>::iterator> _JointCheck(std::vector<DasSkeletonJoint> &_joints) {
         std::vector<std::vector<DasSkeletonJoint>::iterator> overlapping_children;
         overlapping_children.reserve(_joints.size());

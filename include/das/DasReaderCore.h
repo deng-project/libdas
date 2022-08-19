@@ -14,7 +14,7 @@
     #include <cmath>
     #include <string>
     #include <fstream>
-#ifdef _DEBUG
+#ifdef __DEBUG
     #include <iostream>
 #endif
     #include <vector>

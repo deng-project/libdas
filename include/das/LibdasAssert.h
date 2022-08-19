@@ -6,7 +6,7 @@
 #ifndef LIBDAS_ASSERT_H
 #define LIBDAS_ASSERT_H
 
-#ifdef _DEBUG
+#ifdef __DEBUG
     #include <cassert>
     #define LIBDAS_ASSERT(_val) assert(_val)
 #else 

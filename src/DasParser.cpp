@@ -187,4 +187,16 @@ namespace Libdas {
 
         Clear();
     }
+
+
+    void DasParser::DeleteBuffers() {
+        for (auto buf_it = m_buffers.begin(); buf_it != m_buffers.end(); buf_it++) {
+            for (auto ptr_it = buf_it->data_ptrs.begin(); ptr_it != buf_it->data_ptrs.end(); ptr_it++) {
+                std::free(const_cast<char*>(ptr_it->first));
+            }
+        }
+
+        _ClearBlobs();
+        m_buffers.clear();
+    }
 }

@@ -73,6 +73,10 @@ namespace Libdas {
              * @param _file_name is an optional argument that specifies new file to use
              */
             void Parse(bool _clean_read = false, const std::string &_file_name = "");
+            /**
+             * Delete all heap allocated buffer data. Call this when all mesh primitives are copied into video memory.
+             */
+            void DeleteBuffers();
 
             ////////////////////////////////
             // ***** Getter methods ***** //
@@ -82,7 +86,7 @@ namespace Libdas {
              * @return reference to DasProperties object that specifies all parsed properties
              */
             inline const DasProperties &GetProperties() const { 
-                return m_props; 
+                return m_props;
             }
 
             /**

@@ -77,7 +77,7 @@ if(LIBDAS_BUILD_STATIC_LIB)
             PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/deps/mar/include
             PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/deps/trs/include)
     endif()
-    target_link_libraries(${LIBDAS_STATIC_TARGET} PRIVATE mar)
+    target_link_libraries(${LIBDAS_STATIC_TARGET} PUBLIC mar)
 	target_compile_definitions(${LIBDAS_STATIC_TARGET} PUBLIC LIBDAS_STATIC)
 endif()
 
@@ -95,5 +95,7 @@ if(LIBDAS_BUILD_SHARED_LIB)
             PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/deps/mar/include
             PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/deps/trs/include)
     endif()
+	
+	target_link_libraries(${LIBDAS_SHARED_TARGET} PUBLIC mar)
 	target_compile_definitions(${LIBDAS_SHARED_TARGET} PRIVATE LIBDAS_EXPORT_LIBRARY)
 endif()

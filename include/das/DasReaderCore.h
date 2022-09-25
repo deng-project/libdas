@@ -270,6 +270,14 @@ namespace Libdas {
              */
             inline std::any _GetAnyScopeStructure(DasScopeType _type);
 
+        protected:
+            /**
+             * Clear all pointers from m_buffer_blobs, so they won't get deleted on destruction
+             */
+            inline void _ClearBlobs() {
+                m_buffer_blobs.clear();
+            }
+
         public:
             DasReaderCore(const std::string &_file_name = "");
             DasReaderCore(DasReaderCore &&_drc) noexcept;
@@ -289,6 +297,9 @@ namespace Libdas {
              * @return DasScopeType value that specifies currently parsed scope
              */
             DasScopeType ParseScopeDeclaration(const std::string &_scope_str = "");
+            /**
+             * Close the file stream and delete heap allocated maps
+             */
             void Clear();
     };
 }

@@ -177,13 +177,6 @@ namespace Libdas {
              * @return DasUniqueValueType enumeral, that defines the unique value type
              */
             DasUniqueValueType _FindUniqueValueType(const std::string &_value);
-            /**
-             * Parse the next value declaration and retrieve information about the type and size of the value
-             * @param _parent is a parent scope type
-             * @param _value is a string value declaration name that is used
-             * @return std::any value specifying any scope value type 
-             */
-            std::any _GetValueInformation(const DasScopeType _parent, const std::string &_value);
 
             ////////////////////////////////////////////////
             // ***** Property value reading methods ***** //
@@ -194,67 +187,67 @@ namespace Libdas {
              * @param _props is a reference to DasProperties instance, where all data is stored
              * @param _type is a type value specifying the current value type that is read
              */
-            void _ReadPropertiesValue(DasProperties *_props, DasProperties::ValueType _type);
+            void _ReadPropertiesValue(DasProperties *_props, DasUniqueValueType _type);
             /**
              * Read buffer scope value according to the value type 
              * @param _buffer is a reference to DasBuffer instance, where all data is stored
              * @param _type is a type value specifying the current value type
              */
-            void _ReadBufferValue(DasBuffer *_buffer, DasBuffer::ValueType _type);
+            void _ReadBufferValue(DasBuffer *_buffer, DasUniqueValueType _type);
             /**
              * Read mesh primitive value scope according to the specified value type
              * @param _primitive is a valid pointer to DasMeshPrimitive instance
              * @param _type is a type value specifying the current value type
              */
-            void _ReadMeshPrimitiveValue(DasMeshPrimitive *_primitive, DasMeshPrimitive::ValueType _type);
+            void _ReadMeshPrimitiveValue(DasMeshPrimitive *_primitive, DasUniqueValueType _type);
             /**
              * Read morph target scope value according to the specified value type
              * @param _morph_target is a valid pointer to DasMorphTarget instance
              * @param _type is a type value specifying the current value type
              */
-            void _ReadMorphTargetValue(DasMorphTarget *_morph_target, DasMorphTarget::ValueType _type);
+            void _ReadMorphTargetValue(DasMorphTarget *_morph_target, DasUniqueValueType _type);
             /**
              * Read mesh scope value according to the specified value type
              * @param _mesh is a valid pointer to DasMesh instance, where all data is stored
              * @param _type is a type value specifying the current value type
              */
-            void _ReadMeshValue(DasMesh *_mesh, DasMesh::ValueType _type);
+            void _ReadMeshValue(DasMesh *_mesh, DasUniqueValueType _type);
             /**
              * Read node scope value according to the the specified value type
              * @param _node is a valid pointer to DasNode instance, where all data is stored
              * @param _type is a type value specifying the current value type
              */
-            void _ReadNodeValue(DasNode *_node, DasNode::ValueType _type);
+            void _ReadNodeValue(DasNode *_node, DasUniqueValueType _type);
             /**
              * Read scene scope value according to the specified value type
              * @param _scene is a valid pointer to DasScene instance, where all data is stored
              * @param _type is a value specifying the current value type
              */
-            void _ReadSceneValue(DasScene *_scene, DasScene::ValueType _type);
+            void _ReadSceneValue(DasScene *_scene, DasUniqueValueType _type);
             /**
              * Read specified value about skeleton joint from its scope
              * @param _joint is a valid pointer to DasSkeletonJoint instance, where all data is stored
              * @param _type is a value specifying the current value type
              */
-            void _ReadSkeletonJointValue(DasSkeletonJoint *_joint, DasSkeletonJoint::ValueType _type);
+            void _ReadSkeletonJointValue(DasSkeletonJoint *_joint, DasUniqueValueType _type);
             /**
              * Read specified value about skeleton from its scope
              * @param _skeleton is a valid pointer to DasSkeleton instance, where all data is stored
              * @param _type is a value specifying the current value type
              */
-            void _ReadSkeletonValue(DasSkeleton *_skeleton, DasSkeleton::ValueType _type);
+            void _ReadSkeletonValue(DasSkeleton *_skeleton, DasUniqueValueType _type);
             /**
              * Read animation scope value according to the specified value type
              * @param _animation is a reference to DasAnimation instance, where all data is stored
              * @param _type is a type value specifying the current value type
              */
-            void _ReadAnimationValue(DasAnimation *_animation, DasAnimation::ValueType _type);
+            void _ReadAnimationValue(DasAnimation *_animation, DasUniqueValueType _type);
             /**
              * Read animation channel scope value according to the specified value type
              * @param _channel is a reference to DasAnimationChannel instance
              * @param _type is a type value specifying the current value type
              */
-            void _ReadAnimationChannelValue(DasAnimationChannel *_channel, DasAnimationChannel::ValueType _type);
+            void _ReadAnimationChannelValue(DasAnimationChannel *_channel, DasUniqueValueType _type);
             /**
              * Call correct scope value data reader method according to the type specified
              * @param _scope specifies any _scope value that is read
@@ -262,7 +255,7 @@ namespace Libdas {
              * @param _value_type specifies the scope value type
              * @param _val_str specifies the value string that was read
              */
-            void _ReadScopeValueDataCaller(std::any &_scope, DasScopeType _type, std::any &_value_type, const std::string &_val_str);
+            void _ReadScopeValueDataCaller(std::any &_scope, DasScopeType _type, DasUniqueValueType _value_type, const std::string &_val_str);
             /**
              * Retrieve correct initialised scope structure in std::any format
              * @param _type specifies the scope type

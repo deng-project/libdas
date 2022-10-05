@@ -140,345 +140,26 @@ namespace Libdas {
     }
 
 
-    std::any DasReaderCore::_GetValueInformation(const DasScopeType _parent, const std::string &_value) {
-        DasUniqueValueType type = _FindUniqueValueType(_value);
-
-        // nested switch statement mess
-        switch(_parent) {
-            case LIBDAS_DAS_SCOPE_PROPERTIES:
-                switch(type) {
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_MODEL:
-                        return DasProperties::LIBDAS_PROPERTIES_MODEL;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_AUTHOR:
-                        return DasProperties::LIBDAS_PROPERTIES_AUTHOR;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_COPYRIGHT:
-                        return DasProperties::LIBDAS_PROPERTIES_COPYRIGHT;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_MODDATE:
-                        return DasProperties::LIBDAS_PROPERTIES_MODDATE;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_DEFAULT_SCENE:
-                        return DasProperties::LIBDAS_PROPERTIES_DEFAULT_SCENE;
-
-                    default:
-                        return LIBDAS_DAS_UNIQUE_VALUE_TYPE_UNKNOWN;
-                }
-                break;
-
-            case LIBDAS_DAS_SCOPE_BUFFER:
-                switch(type) {
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_BUFFER_TYPE:
-                        return DasBuffer::LIBDAS_BUFFER_BUFFER_TYPE;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_DATA_LEN:
-                        return DasBuffer::LIBDAS_BUFFER_DATA_LEN;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_DATA:
-                        return DasBuffer::LIBDAS_BUFFER_DATA;
-
-                    default:
-                        return LIBDAS_DAS_UNIQUE_VALUE_TYPE_UNKNOWN;
-                }
-                break;
-
-            case LIBDAS_DAS_SCOPE_MESH:
-                switch(type) {
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_NAME:
-                        return DasMesh::LIBDAS_MESH_NAME;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_PRIMITIVE_COUNT:
-                        return DasMesh::LIBDAS_MESH_PRIMITIVE_COUNT;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_PRIMITIVES:
-                        return DasMesh::LIBDAS_MESH_PRIMITIVES;
-
-                    default:
-                        return LIBDAS_DAS_UNIQUE_VALUE_TYPE_UNKNOWN;
-                }
-                break;
-
-            case LIBDAS_DAS_SCOPE_MESH_PRIMITIVE:
-                switch(type) {
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_INDEX_BUFFER_ID:
-                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_INDEX_BUFFER_ID;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_INDEX_BUFFER_OFFSET:
-                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_INDEX_BUFFER_OFFSET;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_INDICES_COUNT:
-                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_INDICES_COUNT;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_BUFFER_ID:
-                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_VERTEX_BUFFER_ID;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_BUFFER_OFFSET:
-                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_VERTEX_BUFFER_OFFSET;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_NORMAL_BUFFER_ID:
-                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_VERTEX_NORMAL_BUFFER_ID;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_NORMAL_BUFFER_OFFSET:
-                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_VERTEX_NORMAL_BUFFER_OFFSET;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_TANGENT_BUFFER_ID:
-                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_VERTEX_TANGENT_BUFFER_ID;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_TANGENT_BUFFER_OFFSET:
-                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_VERTEX_TANGENT_BUFFER_OFFSET;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_TEXTURE_COUNT:
-                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_TEXTURE_COUNT;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_UV_BUFFER_IDS:
-                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_UV_BUFFER_IDS;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_UV_BUFFER_OFFSETS:
-                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_UV_BUFFER_OFFSETS;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_TEXTURE_IDS:
-                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_TEXTURE_IDS;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_COLOR_MUL_COUNT:
-                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_COLOR_MUL_COUNT;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_COLOR_MUL_BUFFER_IDS:
-                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_COLOR_MUL_BUFFER_IDS;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_COLOR_MUL_BUFFER_OFFSETS:
-                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_COLOR_MUL_BUFFER_OFFSETS;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_JOINT_SET_COUNT:
-                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_JOINT_SET_COUNT;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_JOINT_INDEX_BUFFER_IDS:
-                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_JOINT_INDEX_BUFFER_IDS;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_JOINT_INDEX_BUFFER_OFFSETS:
-                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_JOINT_INDEX_BUFFER_OFFSETS;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_JOINT_WEIGHT_BUFFER_IDS:
-                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_JOINT_WEIGHT_BUFFER_IDS;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_JOINT_WEIGHT_BUFFER_OFFSETS:
-                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_JOINT_WEIGHT_BUFFER_OFFSETS;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_MORPH_TARGET_COUNT:
-                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_MORPH_TARGET_COUNT;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_MORPH_TARGETS:
-                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_MORPH_TARGETS;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_MORPH_WEIGHTS:
-                        return DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_MORPH_WEIGHTS;
-
-                    default:
-                        return LIBDAS_DAS_UNIQUE_VALUE_TYPE_UNKNOWN;
-                }
-                break;
-
-            case LIBDAS_DAS_SCOPE_MORPH_TARGET:
-                switch(type) {
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_BUFFER_ID:
-                        return DasMorphTarget::LIBDAS_MORPH_TARGET_VERTEX_BUFFER_ID;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_BUFFER_OFFSET:
-                        return DasMorphTarget::LIBDAS_MORPH_TARGET_VERTEX_BUFFER_OFFSET;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_UV_BUFFER_IDS:
-                        return DasMorphTarget::LIBDAS_MORPH_TARGET_UV_BUFFER_IDS;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_UV_BUFFER_OFFSETS:
-                        return DasMorphTarget::LIBDAS_MORPH_TARGET_UV_BUFFER_OFFSETS;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_COLOR_MUL_BUFFER_IDS:
-                        return DasMorphTarget::LIBDAS_MORPH_TARGET_COLOR_MUL_BUFFER_IDS;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_COLOR_MUL_BUFFER_OFFSETS:
-                        return DasMorphTarget::LIBDAS_MORPH_TARGET_COLOR_MUL_BUFFER_OFFSETS;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_NORMAL_BUFFER_ID:
-                        return DasMorphTarget::LIBDAS_MORPH_TARGET_VERTEX_NORMAL_BUFFER_ID;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_NORMAL_BUFFER_OFFSET:
-                        return DasMorphTarget::LIBDAS_MORPH_TARGET_VERTEX_NORMAL_BUFFER_OFFSET;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_TANGENT_BUFFER_ID:
-                        return DasMorphTarget::LIBDAS_MORPH_TARGET_VERTEX_TANGENT_BUFFER_ID;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_TANGENT_BUFFER_OFFSET:
-                        return DasMorphTarget::LIBDAS_MORPH_TARGET_VERTEX_TANGENT_BUFFER_OFFSET;
-
-                    default:
-                        return LIBDAS_DAS_UNIQUE_VALUE_TYPE_UNKNOWN;
-                }
-                break;
-
-            case LIBDAS_DAS_SCOPE_NODE:
-                switch(type) {
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_NAME:
-                        return DasNode::LIBDAS_NODE_NAME;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_CHILDREN_COUNT:
-                        return DasNode::LIBDAS_NODE_CHILDREN_COUNT;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_CHILDREN:
-                        return DasNode::LIBDAS_NODE_CHILDREN;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_MESH:
-                        return DasNode::LIBDAS_NODE_MESH;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_SKELETON:
-                        return DasNode::LIBDAS_NODE_SKELETON;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_TRANSFORM:
-                        return DasNode::LIBDAS_NODE_TRANSFORM;
-
-                    default:
-                        return LIBDAS_DAS_UNIQUE_VALUE_TYPE_UNKNOWN;
-                }
-                break;
-
-            case LIBDAS_DAS_SCOPE_SCENE:
-                switch(type) {
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_NAME:
-                        return DasScene::LIBDAS_SCENE_NAME;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_NODE_COUNT:
-                        return DasScene::LIBDAS_SCENE_NODE_COUNT;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_NODES:
-                        return DasScene::LIBDAS_SCENE_NODES;
-
-                    default:
-                        return LIBDAS_DAS_UNIQUE_VALUE_TYPE_UNKNOWN;
-                }
-                break;
-
-            case LIBDAS_DAS_SCOPE_SKELETON_JOINT:
-                switch(type) {
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_INVERSE_BIND_POS:
-                        return DasSkeletonJoint::LIBDAS_SKELETON_JOINT_INVERSE_BIND_POS;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_NAME:
-                        return DasSkeletonJoint::LIBDAS_SKELETON_JOINT_NAME;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_CHILDREN_COUNT:
-                        return DasSkeletonJoint::LIBDAS_SKELETON_JOINT_CHILDREN_COUNT;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_CHILDREN:
-                        return DasSkeletonJoint::LIBDAS_SKELETON_JOINT_CHILDREN;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_SCALE:
-                        return DasSkeletonJoint::LIBDAS_SKELETON_JOINT_SCALE;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_ROTATION:
-                        return DasSkeletonJoint::LIBDAS_SKELETON_JOINT_ROTATION;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_TRANSLATION:
-                        return DasSkeletonJoint::LIBDAS_SKELETON_JOINT_TRANSLATION;
-
-                    default:
-                        return LIBDAS_DAS_UNIQUE_VALUE_TYPE_UNKNOWN;
-                }
-                break;
-
-            case LIBDAS_DAS_SCOPE_SKELETON:
-                switch(type) {
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_NAME:
-                        return DasSkeleton::LIBDAS_SKELETON_NAME;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_PARENT:
-                        return DasSkeleton::LIBDAS_SKELETON_PARENT;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_JOINT_COUNT:
-                        return DasSkeleton::LIBDAS_SKELETON_JOINT_COUNT;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_JOINTS:
-                        return DasSkeleton::LIBDAS_SKELETON_JOINTS;
-
-                    default:
-                        return LIBDAS_DAS_UNIQUE_VALUE_TYPE_UNKNOWN;
-                }
-                break;
-
-            case LIBDAS_DAS_SCOPE_ANIMATION:
-                switch(type) {
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_NAME:
-                        return DasAnimation::LIBDAS_ANIMATION_NAME;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_CHANNEL_COUNT:
-                        return DasAnimation::LIBDAS_ANIMATION_CHANNEL_COUNT;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_CHANNELS:
-                        return DasAnimation::LIBDAS_ANIMATION_CHANNELS;
-
-                    default:
-                        return LIBDAS_DAS_UNIQUE_VALUE_TYPE_UNKNOWN;
-                }
-                break;
-
-            case LIBDAS_DAS_SCOPE_ANIMATION_CHANNEL:
-                switch(type) {
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_NODE_ID:
-                        return DasAnimationChannel::LIBDAS_ANIMATION_CHANNEL_NODE_ID;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_JOINT_ID:
-                        return DasAnimationChannel::LIBDAS_ANIMATION_CHANNEL_JOINT_ID;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_TARGET:
-                        return DasAnimationChannel::LIBDAS_ANIMATION_CHANNEL_TARGET;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_INTERPOLATION:
-                        return DasAnimationChannel::LIBDAS_ANIMATION_CHANNEL_INTERPOLATION;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_KEYFRAME_COUNT:
-                        return DasAnimationChannel::LIBDAS_ANIMATION_CHANNEL_KEYFRAME_COUNT;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_WEIGHT_COUNT:
-                        return DasAnimationChannel::LIBDAS_ANIMATION_CHANNEL_WEIGHT_COUNT;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_KEYFRAMES:
-                        return DasAnimationChannel::LIBDAS_ANIMATION_CHANNEL_KEYFRAMES;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_TANGENTS:
-                        return DasAnimationChannel::LIBDAS_ANIMATION_CHANNEL_TANGENTS;
-
-                    case LIBDAS_DAS_UNIQUE_VALUE_TYPE_TARGET_VALUES:
-                        return DasAnimationChannel::LIBDAS_ANIMATION_CHANNEL_TARGET_VALUES;
-
-                    default:
-                        return LIBDAS_DAS_UNIQUE_VALUE_TYPE_UNKNOWN;
-                }
-                break;
-
-            default:
-                return LIBDAS_DAS_UNIQUE_VALUE_TYPE_UNKNOWN;
-        }
-    }
-
-
-    void DasReaderCore::_ReadPropertiesValue(DasProperties *_props, DasProperties::ValueType _type) {
+    void DasReaderCore::_ReadPropertiesValue(DasProperties *_props, DasUniqueValueType _type) {
         switch(_type) {
-            case DasProperties::LIBDAS_PROPERTIES_MODEL: 
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_MODEL:
                 _props->model = _ExtractString();
                 break;
 
-            case DasProperties::LIBDAS_PROPERTIES_AUTHOR:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_AUTHOR:
                 _props->author = _ExtractString();
                 break;
 
-            case DasProperties::LIBDAS_PROPERTIES_COPYRIGHT:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_COPYRIGHT:
                 _props->copyright = _ExtractString();
                 break;
 
-            case DasProperties::LIBDAS_PROPERTIES_MODDATE:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_MODDATE:
                 _props->moddate = *reinterpret_cast<uint64_t*>(_GetReadPtr());
                 _SkipData(sizeof(uint64_t));
                 break;
 
-            case DasProperties::LIBDAS_PROPERTIES_DEFAULT_SCENE:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_DEFAULT_SCENE:
                 _props->default_scene = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                 _SkipData(sizeof(uint32_t));
                 break;
@@ -490,19 +171,19 @@ namespace Libdas {
     }
 
 
-    void DasReaderCore::_ReadBufferValue(DasBuffer *_buffer, DasBuffer::ValueType _type) {
+    void DasReaderCore::_ReadBufferValue(DasBuffer *_buffer, DasUniqueValueType _type) {
         switch(_type) {
-            case DasBuffer::LIBDAS_BUFFER_BUFFER_TYPE:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_BUFFER_TYPE:
                 _buffer->type = *reinterpret_cast<BufferType*>(_GetReadPtr());
                 _SkipData(sizeof(BufferType));
                 break;
 
-            case DasBuffer::LIBDAS_BUFFER_DATA_LEN:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_DATA_LEN:
                 _buffer->data_len = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                 _SkipData(sizeof(uint32_t));
                 break;
 
-            case DasBuffer::LIBDAS_BUFFER_DATA:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_DATA:
                 _buffer->data_ptrs.push_back(std::make_pair(_ExtractBlob(_buffer->data_len), _buffer->data_len));
 
                 // check if blob reading was successful
@@ -518,54 +199,54 @@ namespace Libdas {
     }
 
 
-    void DasReaderCore::_ReadMeshPrimitiveValue(DasMeshPrimitive *_primitive, DasMeshPrimitive::ValueType _type) {
+    void DasReaderCore::_ReadMeshPrimitiveValue(DasMeshPrimitive *_primitive, DasUniqueValueType _type) {
         switch(_type) {
-            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_INDEX_BUFFER_ID:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_INDEX_BUFFER_ID:
                 _primitive->index_buffer_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                 if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
                 break;
 
-            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_INDEX_BUFFER_OFFSET:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_INDEX_BUFFER_OFFSET:
                 _primitive->index_buffer_offset = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                 if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
                 break;
 
-            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_INDICES_COUNT:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_INDICES_COUNT:
                 _primitive->indices_count = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                 if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
                 break;
 
-            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_VERTEX_BUFFER_ID:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_BUFFER_ID:
                 _primitive->vertex_buffer_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                 if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
                 break;
 
-            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_VERTEX_BUFFER_OFFSET:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_BUFFER_OFFSET:
                 _primitive->vertex_buffer_offset = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                 if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
                 break;
 
-            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_VERTEX_NORMAL_BUFFER_ID:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_NORMAL_BUFFER_ID:
                 _primitive->vertex_normal_buffer_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                 if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
                 break;
 
-            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_VERTEX_NORMAL_BUFFER_OFFSET:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_NORMAL_BUFFER_OFFSET:
                 _primitive->vertex_normal_buffer_offset = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                 if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
                 break;
 
-            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_VERTEX_TANGENT_BUFFER_ID:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_TANGENT_BUFFER_ID:
                 _primitive->vertex_tangent_buffer_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                 if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
                 break;
 
-            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_VERTEX_TANGENT_BUFFER_OFFSET:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_TANGENT_BUFFER_OFFSET:
                 _primitive->vertex_tangent_buffer_offset = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                 if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
                 break;
 
-            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_TEXTURE_COUNT:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_TEXTURE_COUNT:
                 _primitive->texture_count = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                 if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
 
@@ -576,21 +257,21 @@ namespace Libdas {
                 }
                 break;
 
-            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_UV_BUFFER_IDS:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_UV_BUFFER_IDS:
                 for(uint32_t i = 0; i < _primitive->texture_count; i++) {
                     _primitive->uv_buffer_ids[i] = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                     if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
                 }
                 break;
 
-            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_UV_BUFFER_OFFSETS:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_UV_BUFFER_OFFSETS:
                 for(uint32_t i = 0; i < _primitive->texture_count; i++) {
                     _primitive->uv_buffer_offsets[i] = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                     if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
                 }
                 break;
 
-            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_TEXTURE_IDS:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_TEXTURE_IDS:
                 // allocate memory for texture ids
                 if(_primitive->texture_count) {
                     _primitive->texture_ids = new uint32_t[_primitive->texture_count];
@@ -602,7 +283,7 @@ namespace Libdas {
                 }
                 break;
 
-            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_COLOR_MUL_COUNT:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_COLOR_MUL_COUNT:
                 _primitive->color_mul_count = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                 if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
 
@@ -613,21 +294,21 @@ namespace Libdas {
                 }
                 break;
 
-            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_COLOR_MUL_BUFFER_IDS:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_COLOR_MUL_BUFFER_IDS:
                 for(uint32_t i = 0; i < _primitive->color_mul_count; i++) {
                     _primitive->color_mul_buffer_ids[i] = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                     if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
                 }
                 break;
 
-            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_COLOR_MUL_BUFFER_OFFSETS:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_COLOR_MUL_BUFFER_OFFSETS:
                 for(uint32_t i = 0; i < _primitive->color_mul_count; i++) {
                     _primitive->color_mul_buffer_offsets[i] = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                     if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
                 }
                 break;
 
-            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_JOINT_SET_COUNT:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_JOINT_SET_COUNT:
                 _primitive->joint_set_count = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                 if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
 
@@ -640,35 +321,35 @@ namespace Libdas {
                 }
                 break;
 
-            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_JOINT_INDEX_BUFFER_IDS:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_JOINT_INDEX_BUFFER_IDS:
                 for(uint32_t i = 0; i < _primitive->joint_set_count; i++) {
                     _primitive->joint_index_buffer_ids[i] = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                     if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
                 }
                 break;
-
-            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_JOINT_INDEX_BUFFER_OFFSETS:
+                
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_JOINT_INDEX_BUFFER_OFFSETS:
                 for(uint32_t i = 0; i < _primitive->joint_set_count; i++) {
                     _primitive->joint_index_buffer_offsets[i] = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                     if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
                 }
                 break;
 
-            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_JOINT_WEIGHT_BUFFER_IDS:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_JOINT_WEIGHT_BUFFER_IDS:
                 for(uint32_t i = 0; i < _primitive->joint_set_count; i++) {
                     _primitive->joint_weight_buffer_ids[i] = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                     if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
                 }
                 break;
 
-            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_JOINT_WEIGHT_BUFFER_OFFSETS:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_JOINT_WEIGHT_BUFFER_OFFSETS:
                 for(uint32_t i = 0; i < _primitive->joint_set_count; i++) {
                     _primitive->joint_weight_buffer_offsets[i] = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                     if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
                 }
                 break;
 
-            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_MORPH_TARGET_COUNT:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_MORPH_TARGET_COUNT:
                 _primitive->morph_target_count = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                 if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
 
@@ -679,14 +360,14 @@ namespace Libdas {
                 }
                 break;
 
-            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_MORPH_TARGETS:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_MORPH_TARGETS:
                 for(uint32_t i = 0; i < _primitive->morph_target_count; i++) {
                     _primitive->morph_targets[i] = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                     if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
                 }
                 break;
 
-            case DasMeshPrimitive::LIBDAS_MESH_PRIMITIVE_MORPH_WEIGHTS:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_MORPH_WEIGHTS:
                 for(uint32_t i = 0; i < _primitive->morph_target_count; i++) {
                     _primitive->morph_weights[i] = *reinterpret_cast<float*>(_GetReadPtr());
                     if(!_SkipData(sizeof(float))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
@@ -700,9 +381,9 @@ namespace Libdas {
     }
 
 
-    void DasReaderCore::_ReadMorphTargetValue(DasMorphTarget *_morph_target, DasMorphTarget::ValueType _type) {
+    void DasReaderCore::_ReadMorphTargetValue(DasMorphTarget *_morph_target, DasUniqueValueType _type) {
         switch(_type) {
-            case DasMorphTarget::LIBDAS_MORPH_TARGET_VERTEX_BUFFER_ID:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_BUFFER_ID:
                 {
                     _morph_target->vertex_buffer_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                     if(!_SkipData(sizeof(uint32_t))) {
@@ -711,12 +392,12 @@ namespace Libdas {
                 }
                 break;
 
-            case DasMorphTarget::LIBDAS_MORPH_TARGET_VERTEX_BUFFER_OFFSET:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_BUFFER_OFFSET:
                 _morph_target->vertex_buffer_offset = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                 if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
                 break;
 
-            case DasMorphTarget::LIBDAS_MORPH_TARGET_TEXTURE_COUNT:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_TEXTURE_COUNT:
                 _morph_target->texture_count = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                 if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
 
@@ -727,21 +408,21 @@ namespace Libdas {
                 }
                 break;
 
-            case DasMorphTarget::LIBDAS_MORPH_TARGET_UV_BUFFER_IDS:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_UV_BUFFER_IDS:
                 for(uint32_t i = 0; i < _morph_target->texture_count; i++) {
                     _morph_target->uv_buffer_ids[i] = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                     if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
                 }
                 break;
 
-            case DasMorphTarget::LIBDAS_MORPH_TARGET_UV_BUFFER_OFFSETS:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_UV_BUFFER_OFFSETS:
                 for(uint32_t i = 0; i < _morph_target->texture_count; i++) {
                     _morph_target->uv_buffer_offsets[i] = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                     if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
                 }
                 break;
 
-            case DasMorphTarget::LIBDAS_MORPH_TARGET_COLOR_MUL_COUNT:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_COLOR_MUL_COUNT:
                 _morph_target->color_mul_count = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                 if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
 
@@ -752,36 +433,36 @@ namespace Libdas {
                 }
                 break;
 
-            case DasMorphTarget::LIBDAS_MORPH_TARGET_COLOR_MUL_BUFFER_IDS:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_COLOR_MUL_BUFFER_IDS:
                 for(uint32_t i = 0; i < _morph_target->color_mul_count; i++) {
                     _morph_target->color_mul_buffer_ids[i] = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                     if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
                 }
                 break;
 
-            case DasMorphTarget::LIBDAS_MORPH_TARGET_COLOR_MUL_BUFFER_OFFSETS:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_COLOR_MUL_BUFFER_OFFSETS:
                 for(uint32_t i = 0; i < _morph_target->color_mul_count; i++) {
                     _morph_target->color_mul_buffer_offsets[i] = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                     if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
                 }
                 break;
 
-            case DasMorphTarget::LIBDAS_MORPH_TARGET_VERTEX_NORMAL_BUFFER_ID:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_NORMAL_BUFFER_ID:
                 _morph_target->vertex_normal_buffer_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                 if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
                 break;
 
-            case DasMorphTarget::LIBDAS_MORPH_TARGET_VERTEX_NORMAL_BUFFER_OFFSET:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_NORMAL_BUFFER_OFFSET:
                 _morph_target->vertex_normal_buffer_offset = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                 if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
                 break;
 
-            case DasMorphTarget::LIBDAS_MORPH_TARGET_VERTEX_TANGENT_BUFFER_ID:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_TANGENT_BUFFER_ID:
                 _morph_target->vertex_tangent_buffer_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                 if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
                 break;
 
-            case DasMorphTarget::LIBDAS_MORPH_TARGET_VERTEX_TANGENT_BUFFER_OFFSET:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_TANGENT_BUFFER_OFFSET:
                 _morph_target->vertex_tangent_buffer_offset = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                 if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
                 break;
@@ -794,13 +475,13 @@ namespace Libdas {
     }
 
 
-    void DasReaderCore::_ReadMeshValue(DasMesh *_mesh, DasMesh::ValueType _type) {
+    void DasReaderCore::_ReadMeshValue(DasMesh *_mesh, DasUniqueValueType _type) {
         switch(_type) {
-            case DasMesh::LIBDAS_MESH_NAME:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_NAME:
                 _mesh->name = _ExtractString();
                 break;
 
-            case DasMesh::LIBDAS_MESH_PRIMITIVE_COUNT:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_PRIMITIVE_COUNT:
                 _mesh->primitive_count = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                 if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
 
@@ -808,7 +489,7 @@ namespace Libdas {
                 _mesh->primitives = new uint32_t[_mesh->primitive_count];
                 break;
 
-            case DasMesh::LIBDAS_MESH_PRIMITIVES:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_PRIMITIVES:
                 for(uint32_t i = 0; i < _mesh->primitive_count; i++) {
                     _mesh->primitives[i] = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                     if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
@@ -822,13 +503,13 @@ namespace Libdas {
     }
 
 
-    void DasReaderCore::_ReadNodeValue(DasNode *_node, DasNode::ValueType _type) {
+    void DasReaderCore::_ReadNodeValue(DasNode *_node, DasUniqueValueType _type) {
         switch(_type) {
-            case DasNode::LIBDAS_NODE_NAME:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_NAME:
                 _node->name = _ExtractString();
                 break;
 
-            case DasNode::LIBDAS_NODE_CHILDREN_COUNT:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_CHILDREN_COUNT:
                 _node->children_count = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                 _SkipData(sizeof(uint32_t));
 
@@ -836,24 +517,24 @@ namespace Libdas {
                 _node->children = new uint32_t[_node->children_count];
                 break;
 
-            case DasNode::LIBDAS_NODE_CHILDREN:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_CHILDREN:
                 for(uint32_t i = 0; i < _node->children_count; i++) {
                     _node->children[i] = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                     if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
                 }
                 break;
 
-            case DasNode::LIBDAS_NODE_MESH:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_MESH:
                 _node->mesh = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                 if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
                 break;
 
-            case DasNode::LIBDAS_NODE_SKELETON:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_SKELETON:
                 _node->skeleton = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                 if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
                 break;
 
-            case DasNode::LIBDAS_NODE_TRANSFORM:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_TRANSFORM:
                 for(struct { TRS::Matrix4<float>::iterator it; int i; } s = {_node->transform.BeginRowMajor(), 0}; s.it != _node->transform.EndRowMajor(); s.it++, s.i++)
                     *s.it = reinterpret_cast<float*>(_GetReadPtr())[s.i];
 
@@ -867,13 +548,13 @@ namespace Libdas {
     }
 
 
-    void DasReaderCore::_ReadSceneValue(DasScene *_scene, DasScene::ValueType _type) {
+    void DasReaderCore::_ReadSceneValue(DasScene *_scene, DasUniqueValueType _type) {
         switch(_type) {
-            case DasScene::LIBDAS_SCENE_NAME:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_NAME:
                 _scene->name = _ExtractString();
                 break;
 
-            case DasScene::LIBDAS_SCENE_NODE_COUNT:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_NODE_COUNT:
                 _scene->node_count = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                 _SkipData(sizeof(uint32_t));
 
@@ -881,7 +562,7 @@ namespace Libdas {
                 _scene->nodes = new uint32_t[_scene->node_count];
                 break;
 
-            case DasScene::LIBDAS_SCENE_NODES:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_NODES:
                 for(uint32_t i = 0; i < _scene->node_count; i++) {
                     _scene->nodes[i] = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                     if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
@@ -895,18 +576,18 @@ namespace Libdas {
     }
 
 
-    void DasReaderCore::_ReadSkeletonValue(DasSkeleton *_skeleton, DasSkeleton::ValueType _type) {
+    void DasReaderCore::_ReadSkeletonValue(DasSkeleton *_skeleton, DasUniqueValueType _type) {
         switch(_type) {
-            case DasSkeleton::LIBDAS_SKELETON_NAME:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_NAME:
                 _skeleton->name = _ExtractString();
                 break;
 
-            case DasSkeleton::LIBDAS_SKELETON_PARENT:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_PARENT:
                 _skeleton->parent = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                 if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
                 break;
 
-            case DasSkeleton::LIBDAS_SKELETON_JOINT_COUNT:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_JOINT_COUNT:
                 _skeleton->joint_count = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                 if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
 
@@ -914,7 +595,7 @@ namespace Libdas {
                 _skeleton->joints = new uint32_t[_skeleton->joint_count];
                 break;
 
-            case DasSkeleton::LIBDAS_SKELETON_JOINTS:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_JOINTS:
                 for(uint32_t i = 0; i < _skeleton->joint_count; i++) {
                     _skeleton->joints[i] = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                     if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
@@ -927,19 +608,19 @@ namespace Libdas {
     }
 
 
-    void DasReaderCore::_ReadSkeletonJointValue(DasSkeletonJoint *_joint, DasSkeletonJoint::ValueType _type) {
+    void DasReaderCore::_ReadSkeletonJointValue(DasSkeletonJoint *_joint, DasUniqueValueType _type) {
         switch(_type) {
-            case DasSkeletonJoint::LIBDAS_SKELETON_JOINT_INVERSE_BIND_POS:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_INVERSE_BIND_POS:
                 for(struct { TRS::Matrix4<float>::iterator it; int i; } s = {_joint->inverse_bind_pos.BeginRowMajor(), 0}; s.it != _joint->inverse_bind_pos.EndRowMajor(); s.it++, s.i++)
                     *s.it = reinterpret_cast<float*>(_GetReadPtr())[s.i];
                 _SkipData(sizeof(float[16]));
                 break;
 
-            case DasSkeletonJoint::LIBDAS_SKELETON_JOINT_NAME:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_NAME:
                 _joint->name = _ExtractString();
                 break;
 
-            case DasSkeletonJoint::LIBDAS_SKELETON_JOINT_CHILDREN_COUNT:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_CHILDREN_COUNT:
                 _joint->children_count = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                 if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
 
@@ -947,24 +628,24 @@ namespace Libdas {
                 _joint->children = new uint32_t[_joint->children_count];
                 break;
 
-            case DasSkeletonJoint::LIBDAS_SKELETON_JOINT_CHILDREN:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_CHILDREN:
                 for(uint32_t i = 0; i < _joint->children_count; i++) {
                     _joint->children[i] = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                     if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
                 }
                 break;
 
-            case DasSkeletonJoint::LIBDAS_SKELETON_JOINT_SCALE:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_SCALE:
                 _joint->scale = *reinterpret_cast<float*>(_GetReadPtr());
                 _SkipData(sizeof(float));
                 break;
 
-            case DasSkeletonJoint::LIBDAS_SKELETON_JOINT_ROTATION:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_ROTATION:
                 _joint->rotation = *reinterpret_cast<TRS::Quaternion*>(_GetReadPtr());
                 if(!_SkipData(sizeof(TRS::Quaternion))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
                 break;
 
-            case DasSkeletonJoint::LIBDAS_SKELETON_JOINT_TRANSLATION:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_TRANSLATION:
                 _joint->translation = *reinterpret_cast<TRS::Point3D<float>*>(_GetReadPtr());
                 if(!_SkipData(sizeof(TRS::Point3D<float>))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
                 break;
@@ -975,13 +656,13 @@ namespace Libdas {
     }
 
 
-    void DasReaderCore::_ReadAnimationValue(DasAnimation *_animation, DasAnimation::ValueType _type) {
+    void DasReaderCore::_ReadAnimationValue(DasAnimation *_animation, DasUniqueValueType _type) {
         switch(_type) {
-            case DasAnimation::LIBDAS_ANIMATION_NAME:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_NAME:
                 _animation->name = _ExtractString();
                 break;
 
-            case DasAnimation::LIBDAS_ANIMATION_CHANNEL_COUNT:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_CHANNEL_COUNT:
                 _animation->channel_count = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                 if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
 
@@ -989,7 +670,7 @@ namespace Libdas {
                 _animation->channels = new uint32_t[_animation->channel_count];
                 break;
 
-            case DasAnimation::LIBDAS_ANIMATION_CHANNELS:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_CHANNELS:
                 for(uint32_t i = 0; i < _animation->channel_count; i++) {
                     _animation->channels[i] = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                     if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
@@ -1003,29 +684,29 @@ namespace Libdas {
     }
 
 
-    void DasReaderCore::_ReadAnimationChannelValue(DasAnimationChannel *_channel, DasAnimationChannel::ValueType _type) {
+    void DasReaderCore::_ReadAnimationChannelValue(DasAnimationChannel *_channel, DasUniqueValueType _type) {
         switch(_type) {
-            case DasAnimationChannel::LIBDAS_ANIMATION_CHANNEL_NODE_ID:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_NODE_ID:
                 _channel->node_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                 if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
                 break;
 
-            case DasAnimationChannel::LIBDAS_ANIMATION_CHANNEL_JOINT_ID:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_JOINT_ID:
                 _channel->joint_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                 if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
                 break;
 
-            case DasAnimationChannel::LIBDAS_ANIMATION_CHANNEL_TARGET:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_TARGET:
                 _channel->target = *reinterpret_cast<AnimationTarget*>(_GetReadPtr());
                 if(!_SkipData(sizeof(AnimationTarget))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
                 break;
 
-            case DasAnimationChannel::LIBDAS_ANIMATION_CHANNEL_INTERPOLATION:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_INTERPOLATION:
                 _channel->interpolation = *reinterpret_cast<InterpolationType*>(_GetReadPtr());
                 if(!_SkipData(sizeof(InterpolationType))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
                 break;
 
-            case DasAnimationChannel::LIBDAS_ANIMATION_CHANNEL_KEYFRAME_COUNT:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_KEYFRAME_COUNT:
                 _channel->keyframe_count = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                 if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
 
@@ -1059,19 +740,19 @@ namespace Libdas {
                 }
                 break;
 
-            case DasAnimationChannel::LIBDAS_ANIMATION_CHANNEL_WEIGHT_COUNT:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_WEIGHT_COUNT:
                 _channel->weight_count = *reinterpret_cast<uint32_t*>(_GetReadPtr());
                 if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
                 break;
 
-            case DasAnimationChannel::LIBDAS_ANIMATION_CHANNEL_KEYFRAMES:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_KEYFRAMES:
                 for(uint32_t i = 0; i < _channel->keyframe_count; i++) {
                     _channel->keyframes[i] = *reinterpret_cast<float*>(_GetReadPtr());
                     if(!_SkipData(sizeof(float))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
                 }
                 break;
 
-            case DasAnimationChannel::LIBDAS_ANIMATION_CHANNEL_TANGENTS:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_TANGENTS:
                 if(_channel->keyframe_count) {
                     uint32_t type_stride = 0;
                     switch(_channel->target) {
@@ -1106,7 +787,7 @@ namespace Libdas {
                 }
                 break;
 
-            case DasAnimationChannel::LIBDAS_ANIMATION_CHANNEL_TARGET_VALUES:
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_TARGET_VALUES:
                 if(_channel->keyframe_count) {
                     uint32_t type_stride = 0;
                     switch(_channel->target) {
@@ -1148,73 +829,51 @@ namespace Libdas {
     }
 
 
-    void DasReaderCore::_ReadScopeValueDataCaller(std::any &_scope, DasScopeType _type, std::any &_value_type, const std::string &_val_str) {
+    void DasReaderCore::_ReadScopeValueDataCaller(std::any &_scope, DasScopeType _type, DasUniqueValueType _value_type, const std::string &_val_str) {
         // any type check is necessary for correct error output
         switch(_type) {
             case LIBDAS_DAS_SCOPE_PROPERTIES:
-                if(_value_type.type() != typeid(DasProperties::ValueType))
-                    m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH, _val_str);
-                _ReadPropertiesValue(std::any_cast<DasProperties>(&_scope), std::any_cast<DasProperties::ValueType>(_value_type));
+                _ReadPropertiesValue(std::any_cast<DasProperties>(&_scope), _value_type);
                 break;
 
             case LIBDAS_DAS_SCOPE_BUFFER:
-                if(_value_type.type() != typeid(DasBuffer::ValueType))
-                    m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH, _val_str);
-                _ReadBufferValue(std::any_cast<DasBuffer>(&_scope), std::any_cast<DasBuffer::ValueType>(_value_type));
+                _ReadBufferValue(std::any_cast<DasBuffer>(&_scope), _value_type);
                 break;
 
             case LIBDAS_DAS_SCOPE_MESH_PRIMITIVE:
-                if(_value_type.type() != typeid(DasMeshPrimitive::ValueType))
-                    m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH, _val_str);
-                _ReadMeshPrimitiveValue(std::any_cast<DasMeshPrimitive>(&_scope), std::any_cast<DasMeshPrimitive::ValueType>(_value_type));
+                _ReadMeshPrimitiveValue(std::any_cast<DasMeshPrimitive>(&_scope), _value_type);
                 break;
 
             case LIBDAS_DAS_SCOPE_MORPH_TARGET:
-                if(_value_type.type() != typeid(DasMorphTarget::ValueType))
-                    m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH, _val_str);
-                _ReadMorphTargetValue(std::any_cast<DasMorphTarget>(&_scope), std::any_cast<DasMorphTarget::ValueType>(_value_type));
+                _ReadMorphTargetValue(std::any_cast<DasMorphTarget>(&_scope), _value_type);
                 break;
 
             case LIBDAS_DAS_SCOPE_MESH:
-                if(_value_type.type() != typeid(DasMesh::ValueType))
-                    m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH, _val_str);
-                _ReadMeshValue(std::any_cast<DasMesh>(&_scope), std::any_cast<DasMesh::ValueType>(_value_type));
+                _ReadMeshValue(std::any_cast<DasMesh>(&_scope), _value_type);
                 break;
 
             case LIBDAS_DAS_SCOPE_NODE:
-                if(_value_type.type() != typeid(DasNode::ValueType))
-                    m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH, _val_str);
-                _ReadNodeValue(std::any_cast<DasNode>(&_scope), std::any_cast<DasNode::ValueType>(_value_type));
+                _ReadNodeValue(std::any_cast<DasNode>(&_scope), _value_type);
                 break;
 
             case LIBDAS_DAS_SCOPE_SCENE:
-                if(_value_type.type() != typeid(DasScene::ValueType))
-                    m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH, _val_str);
-                _ReadSceneValue(std::any_cast<DasScene>(&_scope), std::any_cast<DasScene::ValueType>(_value_type));
+                _ReadSceneValue(std::any_cast<DasScene>(&_scope), _value_type);
                 break;
 
             case LIBDAS_DAS_SCOPE_SKELETON:
-                if(_value_type.type() != typeid(DasSkeleton::ValueType))
-                    m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH, _val_str);
-                _ReadSkeletonValue(std::any_cast<DasSkeleton>(&_scope), std::any_cast<DasSkeleton::ValueType>(_value_type));
+                _ReadSkeletonValue(std::any_cast<DasSkeleton>(&_scope), _value_type);
                 break;
 
             case LIBDAS_DAS_SCOPE_SKELETON_JOINT:
-                if(_value_type.type() != typeid(DasSkeletonJoint::ValueType))
-                    m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH, _val_str);
-                _ReadSkeletonJointValue(std::any_cast<DasSkeletonJoint>(&_scope), std::any_cast<DasSkeletonJoint::ValueType>(_value_type));
+                _ReadSkeletonJointValue(std::any_cast<DasSkeletonJoint>(&_scope), _value_type);
                 break;
 
             case LIBDAS_DAS_SCOPE_ANIMATION:
-                if(_value_type.type() != typeid(DasAnimation::ValueType))
-                    m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH, _val_str);
-                _ReadAnimationValue(std::any_cast<DasAnimation>(&_scope), std::any_cast<DasAnimation::ValueType>(_value_type));
+                _ReadAnimationValue(std::any_cast<DasAnimation>(&_scope), _value_type);
                 break;
 
             case LIBDAS_DAS_SCOPE_ANIMATION_CHANNEL:
-                if(_value_type.type() != typeid(DasAnimationChannel::ValueType))
-                    m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH, _val_str);
-                _ReadAnimationChannelValue(std::any_cast<DasAnimationChannel>(&_scope), std::any_cast<DasAnimationChannel::ValueType>(_value_type));
+                _ReadAnimationChannelValue(std::any_cast<DasAnimationChannel>(&_scope), _value_type);
                 break;
 
             default:
@@ -1342,13 +1001,13 @@ namespace Libdas {
                     m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
             }
                 
-            std::any value_info = _GetValueInformation(_type, val_statement);
-            
             // skip the whitespace following the declaration
             _SkipData(1);
 
+            DasUniqueValueType val = _FindUniqueValueType(val_statement);
+            
             // data is in correct format type thus read its value
-            _ReadScopeValueDataCaller(scope, _type, value_info, val_statement);
+            _ReadScopeValueDataCaller(scope, _type, val, val_statement);
 
         } while(_GetReadPtr() < m_buffer + m_buffer_size);
 

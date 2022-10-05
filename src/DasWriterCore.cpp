@@ -172,10 +172,14 @@ namespace Libdas {
     void DasWriterCore::WriteMeshPrimitive(const DasMeshPrimitive &_primitive) {
         _WriteScopeBeginning("MESHPRIMITIVE");
 
-        _WriteNumericalValue<uint32_t>("INDEXBUFFERID", _primitive.index_buffer_id);
-        if(_primitive.index_buffer_offset)
-            _WriteNumericalValue<uint32_t>("INDEXBUFFEROFFSET", _primitive.index_buffer_offset);
-        _WriteNumericalValue<uint32_t>("INDICESCOUNT", _primitive.indices_count);
+        // indices are optional
+        if (_primitive.index_buffer_id != UINT32_MAX) {
+            _WriteNumericalValue<uint32_t>("INDEXBUFFERID", _primitive.index_buffer_id);
+            if (_primitive.index_buffer_offset)
+                _WriteNumericalValue<uint32_t>("INDEXBUFFEROFFSET", _primitive.index_buffer_offset);
+            _WriteNumericalValue<uint32_t>("INDICESCOUNT", _primitive.indices_count);
+        }
+
         _WriteNumericalValue<uint32_t>("VERTEXBUFFERID", _primitive.vertex_buffer_id);
         if(_primitive.vertex_buffer_offset)
             _WriteNumericalValue<uint32_t>("VERTEXBUFFEROFFSET", _primitive.vertex_buffer_offset);

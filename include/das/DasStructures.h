@@ -111,7 +111,7 @@ namespace Libdas {
         void operator=(const DasBuffer &_buf);
         void operator=(DasBuffer &&_buf);
 
-        std::vector<std::pair<const char*, size_t>> data_ptrs;
+        std::vector<std::pair<char*, size_t>> data_ptrs;
         uint32_t data_len = 0;
         BufferType type = 0;
 

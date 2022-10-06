@@ -40,7 +40,7 @@ namespace Libdas {
     }
 
 
-    TextureReader::TextureReader(std::pair<const char*, size_t> _raw_data, bool _use_raw) : 
+    TextureReader::TextureReader(std::pair<char*, size_t> _raw_data, bool _use_raw) : 
         m_buffer(_raw_data.first), 
         m_buffer_size(_raw_data.second),
         m_is_attached_buffer(true)

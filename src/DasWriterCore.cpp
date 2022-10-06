@@ -177,8 +177,8 @@ namespace Libdas {
             _WriteNumericalValue<uint32_t>("INDEXBUFFERID", _primitive.index_buffer_id);
             if (_primitive.index_buffer_offset)
                 _WriteNumericalValue<uint32_t>("INDEXBUFFEROFFSET", _primitive.index_buffer_offset);
-            _WriteNumericalValue<uint32_t>("INDICESCOUNT", _primitive.indices_count);
         }
+        _WriteNumericalValue<uint32_t>("INDICESCOUNT", _primitive.indices_count);
 
         _WriteNumericalValue<uint32_t>("VERTEXBUFFERID", _primitive.vertex_buffer_id);
         if(_primitive.vertex_buffer_offset)
@@ -406,12 +406,12 @@ namespace Libdas {
             } 
             else {
                 int x, y;
-                const char *raw_data = m_texture_readers.back().GetRawBuffer(x, y, len);
+                char *raw_data = m_texture_readers.back().GetRawBuffer(x, y, len);
                 m_raw_img_header.width = static_cast<uint32_t>(x);
                 m_raw_img_header.height = static_cast<uint32_t>(y);
                 m_raw_img_header.bit_depth = 4;
 
-                buf.data_ptrs.push_back(std::make_pair(reinterpret_cast<const char*>(&m_raw_img_header), sizeof(RawImageDataHeader)));
+                buf.data_ptrs.push_back(std::make_pair(reinterpret_cast<char*>(&m_raw_img_header), sizeof(RawImageDataHeader)));
                 buf.data_len += static_cast<uint32_t>(sizeof(RawImageDataHeader) + len);
                 buf.data_ptrs.push_back(std::make_pair(raw_data, len));
                 buf.type = LIBDAS_BUFFER_TYPE_TEXTURE_RAW;

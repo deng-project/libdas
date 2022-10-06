@@ -32,29 +32,29 @@ namespace Libdas {
 
         buffers.back().type = LIBDAS_BUFFER_TYPE_VERTEX | LIBDAS_BUFFER_TYPE_INDICES;
         buffers.back().data_len = static_cast<uint32_t>(m_unique_pos.size() * sizeof(TRS::Point3D<float>));
-        buffers.back().data_ptrs.push_back(std::make_pair(reinterpret_cast<const char*>(m_unique_pos.data()), m_unique_pos.size() * sizeof(TRS::Point3D<float>)));
+        buffers.back().data_ptrs.push_back(std::make_pair(reinterpret_cast<char*>(m_unique_pos.data()), m_unique_pos.size() * sizeof(TRS::Point3D<float>)));
 
         if(m_unique_uv.size()) {
             buffers.back().data_len += static_cast<uint32_t>(m_unique_uv.size() * sizeof(TRS::Point2D<float>));
-            buffers.back().data_ptrs.push_back(std::make_pair(reinterpret_cast<const char*>(m_unique_uv.data()), m_unique_uv.size() * sizeof(TRS::Point2D<float>)));
+            buffers.back().data_ptrs.push_back(std::make_pair(reinterpret_cast<char*>(m_unique_uv.data()), m_unique_uv.size() * sizeof(TRS::Point2D<float>)));
             buffers.back().type |= LIBDAS_BUFFER_TYPE_TEXTURE_MAP;
         }
 
         if(m_unique_normals.size()) {
             buffers.back().data_len += static_cast<uint32_t>(m_unique_normals.size() * sizeof(TRS::Point3D<float>));
             buffers.back().type |= LIBDAS_BUFFER_TYPE_VERTEX_NORMAL;
-            buffers.back().data_ptrs.push_back(std::make_pair(reinterpret_cast<const char*>(m_unique_normals.data()), m_unique_normals.size() * sizeof(TRS::Point3D<float>)));
+            buffers.back().data_ptrs.push_back(std::make_pair(reinterpret_cast<char*>(m_unique_normals.data()), m_unique_normals.size() * sizeof(TRS::Point3D<float>)));
         }
 
         buffers.back().data_len += static_cast<uint32_t>(m_indices.size() * sizeof(uint32_t));
-        buffers.back().data_ptrs.push_back(std::make_pair(reinterpret_cast<const char*>(m_indices.data()), m_indices.size() * sizeof(uint32_t)));
+        buffers.back().data_ptrs.push_back(std::make_pair(reinterpret_cast<char*>(m_indices.data()), m_indices.size() * sizeof(uint32_t)));
 
         // append all textures to buffers vector
         for(auto it = _embedded_textures.begin(); it != _embedded_textures.end(); it++) {
             buffers.emplace_back();
             TextureReader reader(*it, false);
             size_t size;
-            const char *data = reader.GetBuffer(size);
+            char *data = reader.GetBuffer(size);
             buffers.back().type = reader.GetImageBufferType();
             buffers.back().data_len = static_cast<uint32_t>(size);
             buffers.back().data_ptrs.push_back(std::make_pair(data, size));

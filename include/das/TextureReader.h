@@ -47,7 +47,7 @@ namespace Libdas {
     class LIBDAS_API TextureReader {
         private:
             std::string m_file_name = "";
-            const char *m_buffer = nullptr;
+            char *m_buffer = nullptr;
             size_t m_buffer_size = 0;
             char *m_raw_buffer = nullptr;
             size_t m_raw_buffer_size = 0;
@@ -58,7 +58,7 @@ namespace Libdas {
 
         public:
             TextureReader(const std::string &_file_name, bool _use_raw = true);
-            TextureReader(std::pair<const char*, size_t> _raw_data, bool _use_raw = true);
+            TextureReader(std::pair<char*, size_t> _raw_data, bool _use_raw = true);
             TextureReader(TextureReader &&_mov);
             ~TextureReader();
             /**
@@ -66,7 +66,7 @@ namespace Libdas {
              * Allocated heap memory is automatically freed
              * @return const char* pointer to the image file buffer read into memory
              */
-            const char* GetBuffer(size_t &_len) {
+            char* GetBuffer(size_t &_len) {
                 _len = m_buffer_size;
                 return m_buffer;
             }
@@ -75,7 +75,7 @@ namespace Libdas {
              * Allocated heap memory is automatically freed
              * @return const char* pointer to the raw image data buffer
              */
-            const char *GetRawBuffer(int &_x, int &_y, size_t &_len) {
+            char *GetRawBuffer(int &_x, int &_y, size_t &_len) {
                 _x = m_x;
                 _y = m_y;
                 _len = m_raw_buffer_size;

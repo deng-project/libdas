@@ -51,9 +51,9 @@ namespace Libdas {
         buffer.data_len = static_cast<uint32_t>(sizeof(TRS::Point3D<float>) * (m_unique_positions.size() + m_unique_normals.size()) + m_indices.size() * sizeof(uint32_t));
 
         // push data pointers
-        buffer.data_ptrs.push_back(std::make_pair(reinterpret_cast<const char*>(m_unique_positions.data()), m_unique_positions.size() * sizeof(TRS::Point3D<float>)));
-        buffer.data_ptrs.push_back(std::make_pair(reinterpret_cast<const char*>(m_unique_normals.data()), m_unique_normals.size() * sizeof(TRS::Point3D<float>)));
-        buffer.data_ptrs.push_back(std::make_pair(reinterpret_cast<const char*>(m_indices.data()), m_indices.size() * sizeof(uint32_t)));
+        buffer.data_ptrs.push_back(std::make_pair(reinterpret_cast<char*>(m_unique_positions.data()), m_unique_positions.size() * sizeof(TRS::Point3D<float>)));
+        buffer.data_ptrs.push_back(std::make_pair(reinterpret_cast<char*>(m_unique_normals.data()), m_unique_normals.size() * sizeof(TRS::Point3D<float>)));
+        buffer.data_ptrs.push_back(std::make_pair(reinterpret_cast<char*>(m_indices.data()), m_indices.size() * sizeof(uint32_t)));
 
         return buffer;
     }

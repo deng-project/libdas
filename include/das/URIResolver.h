@@ -76,8 +76,8 @@ namespace Libdas {
              * Get a reference of the buffer containing data found on the resouce
              * @return std::pair moveable object containing buffer pointer and its size
              */
-            inline std::pair<const char*, size_t> GetBuffer() {
-                return std::make_pair(reinterpret_cast<const char*>(m_buffer.data()), m_buffer.size());
+            inline std::pair<char*, size_t> GetBuffer() {
+                return std::make_pair(m_buffer.data(), m_buffer.size());
             }
     };
 }

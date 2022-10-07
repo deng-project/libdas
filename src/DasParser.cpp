@@ -65,6 +65,7 @@ namespace Libdas {
 
 
     DasParser::DasParser(DasParser &&_parser) noexcept :
+        DasReaderCore(std::move(_parser)),
         m_props(std::move(_parser.m_props)),
         m_buffers(std::move(_parser.m_buffers)),
         m_meshes(std::move(_parser.m_meshes)),

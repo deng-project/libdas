@@ -213,6 +213,10 @@ namespace Libdas {
             m_indices_offsets_per_group.push_back(static_cast<uint32_t>(m_indices.size() * sizeof(uint32_t)));
             for(auto face_it = group_it->indices.faces.begin(); face_it != group_it->indices.faces.end(); face_it++) {
                 for(size_t i = 0; i < face_it->size(); i++) {
+                    // silently continue
+                    if (face_it->at(i).vert >= _data.vertices.position.size())
+                        continue;
+
                     Vertex v;
                     v.pos = _data.vertices.position[face_it->at(i).vert];
 

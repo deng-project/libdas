@@ -60,7 +60,6 @@ namespace Libdas {
         GLTFCompiler::BufferAccessorData accessor_data;
         accessor_data.buffer_id = static_cast<uint32_t>(_root.buffer_views[_root.accessors[_accessor_id].buffer_view].buffer);
 
-
         if(!_root.accessors[_accessor_id].accumulated_offset) {
             accessor_data.buffer_offset = static_cast<uint32_t>(_root.buffer_views[_root.accessors[_accessor_id].buffer_view].byte_offset +
                                                                 _root.accessors[_accessor_id].byte_offset);
@@ -308,20 +307,9 @@ namespace Libdas {
             }
         }
 
-        // calculate mesh relative morph id
-        uint32_t mesh_rel_morph_id = 0;
-        for(auto prim_it = _root.meshes[_mesh_id].primitives.begin(); prim_it != _root.meshes[_mesh_id].primitives.end(); prim_it++) {
-            const size_t id = prim_it - _root.meshes[_mesh_id].primitives.begin();
-            if(id == static_cast<size_t>(_prim_id))
-                break;
-
-            mesh_rel_morph_id += static_cast<uint32_t>(prim_it->targets.size());
-        }
-
-
         // write morph target id to mesh primitive
         m_mesh_primitives[_prim_id].morph_targets[_morph_id] = static_cast<uint32_t>(m_morph_targets.size() - 1);
-        m_mesh_primitives[_prim_id].morph_weights[_morph_id] = _root.meshes[_mesh_id].weights[mesh_rel_morph_id];
+        m_mesh_primitives[_prim_id].morph_weights[_morph_id] = _root.meshes[_mesh_id].weights[_morph_id];
     }
 
 
@@ -350,7 +338,7 @@ namespace Libdas {
                     // check if morph targets are used and throw an error
                     if(prim_it->targets.size()) {
                         std::cerr << "GLTF error: Morph targets are not allowed for unindexed mesh primitives" << std::endl;
-                        std::exit(LIBDAS_ERROR_INVALID_TYPE);
+                        EXIT_ON_ERROR(LIBDAS_ERROR_INVALID_TYPE);
                     }
 
                     _IndexMeshPrimitive(_root, gen_acc);
@@ -928,8 +916,7 @@ namespace Libdas {
                         EXIT_ON_ERROR(1);
                     }
 
-                    const int32_t buffer_id = _root.buffer_views[_root.accessors[map_it->second].buffer_view].buffer;
-                    _buffers[buffer_id].type |= m_attribute_type_map.find(no_nr)->second;
+                    _buffers[0].type |= m_attribute_type_map.find(no_nr)->second;
                 }
             }
         }

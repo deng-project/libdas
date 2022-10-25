@@ -454,6 +454,25 @@ namespace Libdas {
             LIBDAS_ANIMATION_CHANNEL_TARGET_VALUES
         };
     };
+
+
+    struct DasModel {
+        DasModel() = default;
+        DasModel(DasModel&& _model) = default;
+        DasModel(const DasModel& _model) = default;
+
+        DasProperties props;
+        std::vector<DasBuffer> buffers;
+        std::vector<DasMesh> meshes;
+        std::vector<DasMeshPrimitive> mesh_primitives;
+        std::vector<DasMorphTarget> morph_targets;
+        std::vector<DasNode> nodes;
+        std::vector<DasScene> scenes;
+        std::vector<DasSkeletonJoint> joints;
+        std::vector<DasSkeleton> skeletons;
+        std::vector<DasAnimationChannel> channels;
+        std::vector<DasAnimation> animations;
+    };
 }
 
 #endif

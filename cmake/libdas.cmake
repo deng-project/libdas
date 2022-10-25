@@ -55,6 +55,7 @@ set(LIBDAS_HEADERS
     include/das/STLStructures.h
     include/das/TextureReader.h
     include/das/URIResolver.h
+	include/das/Version.h
     include/das/WavefrontObjCompiler.h
     include/das/WavefrontObjParser.h
     include/das/WavefrontObjStructures.h

@@ -5,6 +5,7 @@ deps
 compile_commands.json
 compile_flags.txt
 scripts/Compile_Test/
+scripts/Models
 .clangd/
 *.o
 *.jpeg

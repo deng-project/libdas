@@ -49,80 +49,58 @@ namespace Libdas {
 
 
     DasParser::DasParser(const std::string &_file_name) : 
-        DasReaderCore(_file_name) 
-    {
-        // some default reservation values
-        m_buffers.reserve(4);
-        m_meshes.reserve(10);
-        m_mesh_primitives.reserve(40);
-        m_morph_targets.reserve(30);
-        m_nodes.reserve(10);
-        m_scenes.reserve(2);
-        m_joints.reserve(32);
-        m_skeletons.reserve(4);
-        m_animations.reserve(10);
-    }
+        DasReaderCore(_file_name) {}
 
 
     DasParser::DasParser(DasParser &&_parser) noexcept :
         DasReaderCore(std::move(_parser)),
-        m_props(std::move(_parser.m_props)),
-        m_buffers(std::move(_parser.m_buffers)),
-        m_meshes(std::move(_parser.m_meshes)),
-        m_mesh_primitives(std::move(_parser.m_mesh_primitives)),
-        m_morph_targets(std::move(_parser.m_morph_targets)),
-        m_nodes(std::move(_parser.m_nodes)),
-        m_scenes(std::move(_parser.m_scenes)),
-        m_joints(std::move(_parser.m_joints)),
-        m_skeletons(std::move(_parser.m_skeletons)),
-        m_channels(std::move(_parser.m_channels)),
-        m_animations(std::move(_parser.m_animations)) {}
+        m_model(std::move(_parser.m_model)) {}
 
 
     void DasParser::_DataCast(std::any &_any_scope, DasScopeType _type) {
         switch(_type) {
             case LIBDAS_DAS_SCOPE_PROPERTIES:
-                m_props = std::any_cast<DasProperties&&>(std::move(_any_scope));
+                m_model.props = std::any_cast<DasProperties&&>(std::move(_any_scope));
                 break;
 
             case LIBDAS_DAS_SCOPE_BUFFER:
-                m_buffers.emplace_back(std::any_cast<DasBuffer&&>(std::move(_any_scope)));
+                m_model.buffers.emplace_back(std::any_cast<DasBuffer&&>(std::move(_any_scope)));
                 break;
 
             case LIBDAS_DAS_SCOPE_MESH_PRIMITIVE:
-                m_mesh_primitives.emplace_back(std::any_cast<DasMeshPrimitive&&>(std::move(_any_scope)));
+                m_model.mesh_primitives.emplace_back(std::any_cast<DasMeshPrimitive&&>(std::move(_any_scope)));
                 break;
 
             case LIBDAS_DAS_SCOPE_MORPH_TARGET:
-                m_morph_targets.emplace_back(std::any_cast<DasMorphTarget&&>(std::move(_any_scope)));
+                m_model.morph_targets.emplace_back(std::any_cast<DasMorphTarget&&>(std::move(_any_scope)));
                 break;
 
             case LIBDAS_DAS_SCOPE_MESH:
-                m_meshes.emplace_back(std::any_cast<DasMesh&&>(std::move(_any_scope)));
+                m_model.meshes.emplace_back(std::any_cast<DasMesh&&>(std::move(_any_scope)));
                 break;
 
             case LIBDAS_DAS_SCOPE_NODE:
-                m_nodes.emplace_back(std::any_cast<DasNode&&>(std::move(_any_scope)));
+                m_model.nodes.emplace_back(std::any_cast<DasNode&&>(std::move(_any_scope)));
                 break;
 
             case LIBDAS_DAS_SCOPE_SCENE:
-                m_scenes.emplace_back(std::any_cast<DasScene&&>(std::move(_any_scope)));
+                m_model.scenes.emplace_back(std::any_cast<DasScene&&>(std::move(_any_scope)));
                 break;
 
             case LIBDAS_DAS_SCOPE_SKELETON:
-                m_skeletons.emplace_back(std::any_cast<DasSkeleton&&>(std::move(_any_scope)));
+                m_model.skeletons.emplace_back(std::any_cast<DasSkeleton&&>(std::move(_any_scope)));
                 break;
 
             case LIBDAS_DAS_SCOPE_SKELETON_JOINT:
-                m_joints.emplace_back(std::any_cast<DasSkeletonJoint&&>(std::move(_any_scope)));
+                m_model.joints.emplace_back(std::any_cast<DasSkeletonJoint&&>(std::move(_any_scope)));
                 break;
 
             case LIBDAS_DAS_SCOPE_ANIMATION_CHANNEL:
-                m_channels.emplace_back(std::any_cast<DasAnimationChannel&&>(std::move(_any_scope)));
+                m_model.channels.emplace_back(std::any_cast<DasAnimationChannel&&>(std::move(_any_scope)));
                 break;
 
             case LIBDAS_DAS_SCOPE_ANIMATION:
-                m_animations.emplace_back(std::any_cast<DasAnimation&&>(std::move(_any_scope)));
+                m_model.animations.emplace_back(std::any_cast<DasAnimation&&>(std::move(_any_scope)));
                 break;
 
             default:
@@ -137,11 +115,11 @@ namespace Libdas {
         _scene.root_count = 0;
 
         // array for containing boolean values about nodes being used as children
-        std::vector<bool> is_child(m_nodes.size(), false);
+        std::vector<bool> is_child(m_model.nodes.size(), false);
 
         // search for child nodes
         for(uint32_t i = 0; i < _scene.node_count; i++) {
-            const Libdas::DasNode &node = m_nodes[_scene.nodes[i]];
+            const Libdas::DasNode &node = m_model.nodes[_scene.nodes[i]];
             for(uint32_t j = 0; j < node.children_count; j++)
                 is_child[node.children[j]] = true;
         }
@@ -172,18 +150,8 @@ namespace Libdas {
 
         if(_clean_read) CloseFile();
 
-        m_buffers.shrink_to_fit();
-        m_meshes.shrink_to_fit();
-        m_mesh_primitives.shrink_to_fit();
-        m_morph_targets.shrink_to_fit();
-        m_nodes.shrink_to_fit();
-        m_scenes.shrink_to_fit();
-        m_joints.shrink_to_fit();
-        m_skeletons.shrink_to_fit();
-        m_animations.shrink_to_fit();
-
         // search and find root nodes for each given scene
-        for(auto it = m_scenes.begin(); it != m_scenes.end(); it++)
+        for(auto it = m_model.scenes.begin(); it != m_model.scenes.end(); it++)
             _FindSceneNodeRoots(*it);
 
         Clear();
@@ -191,13 +159,13 @@ namespace Libdas {
 
 
     void DasParser::DeleteBuffers() {
-        for (auto buf_it = m_buffers.begin(); buf_it != m_buffers.end(); buf_it++) {
+        for (auto buf_it = m_model.buffers.begin(); buf_it != m_model.buffers.end(); buf_it++) {
             for (auto ptr_it = buf_it->data_ptrs.begin(); ptr_it != buf_it->data_ptrs.end(); ptr_it++) {
                 std::free(ptr_it->first);
             }
         }
 
         _ClearBlobs();
-        m_buffers.clear();
+        m_model.buffers.clear();
     }
 }

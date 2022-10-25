@@ -35,6 +35,7 @@
     #include "mar/AsciiLineReader.h"
 
     #include "das/Api.h"
+    #include "das/Version.h"
     #include "das/Algorithm.h"
     #include "das/LibdasAssert.h"
     #include "das/ErrorHandlers.h"
@@ -72,13 +73,11 @@ typedef uint16_t FlagType;
 #define USAGE_FLAG_HELP             0x0020
 #define USAGE_FLAG_VERBOSE          0x0040
 
-#define VERSION_MAJOR       0
-#define VERSION_MINOR       1
-
 
 class DASTool {
     private:
-        const std::string m_help_text = 
+        const std::string m_help_text =
+            "DASTool version " + std::to_string(LIBDAS_VERSION_MAJOR) + "." + std::to_string(LIBDAS_VERSION_MINOR) + "." + std::to_string(LIBDAS_VERSION_REVISION) + "\n"\
             "Usage: DASTool convert|list|validate <input file> [output options]\n"\
             "Valid conversion options:\n"\
             "--author \"<Author>\" - specify model author's name\n"\
@@ -93,7 +92,7 @@ class DASTool {
 
         FlagType m_flags = 0;
         Libdas::DasProperties m_props;
-        std::string m_author = std::string("DASTool v") + std::to_string(VERSION_MAJOR) + std::string(".") + std::to_string(VERSION_MINOR);
+        std::string m_author = std::string("DASTool v") + std::to_string(LIBDAS_VERSION_MAJOR) + std::string(".") + std::to_string(LIBDAS_VERSION_MINOR) + "." + std::to_string(LIBDAS_VERSION_REVISION);
         std::string m_copyright;
         std::vector<std::string> m_embedded_textures;
         std::vector<uint32_t> m_removed_textures;

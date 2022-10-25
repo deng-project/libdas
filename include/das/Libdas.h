@@ -44,19 +44,22 @@
 #include "trs/Vector.h"
 #include "trs/Matrix.h"
 
+// version
+#include "das/Version.h"
+
 // DAS format handling related includes
-#include "DasStructures.h"
-#include "DasWriterCore.h"
+#include "das/DasStructures.h"
+#include "das/DasWriterCore.h"
 
 // Wavefront OBJ format handling related includes
-#include "WavefrontObjStructures.h"
-#include "WavefrontObjCompiler.h"
+#include "das/WavefrontObjStructures.h"
+#include "das/WavefrontObjCompiler.h"
 
 // STL format handling related includes
-#include "STLStructures.h"
-#include "STLParser.h"
+#include "das/STLStructures.h"
+#include "das/STLParser.h"
 
 // Texture reading
-#include "TextureReader.h"
+#include "das/TextureReader.h"
 
 #endif

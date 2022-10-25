@@ -60,7 +60,7 @@ namespace Libdas {
      */
     class LIBDAS_API DasValidator {
         private:
-            DasParser &m_parser;
+            DasModel &m_model;
             std::stack<std::string> m_warning_stack;
             std::stack<std::string> m_error_stack;
             std::vector<uint32_t> m_max_index_table;
@@ -70,7 +70,7 @@ namespace Libdas {
             // templated checking methods
             template<typename T>
             void _CheckPositionVertices(const T &_prim, uint32_t _cur_index, uint32_t _max_index) {
-                if(_prim.vertex_buffer_id >= m_parser.GetBufferCount()) {
+                if(_prim.vertex_buffer_id >= (uint32_t)m_model.buffers.size()) {
                     std::string errme;
                     if constexpr(std::is_same_v<T, DasMeshPrimitive>) {
                         errme = "DAS validation error: Invalid position vertex buffer id " + std::to_string(_prim.vertex_buffer_id) + " for mesh primitive " + std::to_string(_cur_index);
@@ -78,7 +78,7 @@ namespace Libdas {
                         errme = "DAS validation error: Invalid position vertex buffer id " + std::to_string(_prim.vertex_buffer_id) + " for morph target " + std::to_string(_cur_index);
                     }
                     m_error_stack.push(errme);
-                } else if(m_parser.AccessBuffer(_prim.vertex_buffer_id).data_len < _prim.vertex_buffer_offset + _max_index * sizeof(TRS::Vector3<float>)) {
+                } else if(m_model.buffers[_prim.vertex_buffer_id].data_len < _prim.vertex_buffer_offset + _max_index * sizeof(TRS::Vector3<float>)) {
                     std::string errme;
                     if constexpr(std::is_same_v<T, DasMeshPrimitive>) {
                         errme = "DAS validation error: Invalid position vertex buffer(" + std::to_string(_prim.vertex_buffer_id) + 
@@ -97,7 +97,7 @@ namespace Libdas {
 
             template<typename T>
             void _CheckVertexNormal(const T &_prim, uint32_t _cur_index, uint32_t _max_index) {
-                if(_prim.vertex_normal_buffer_id != UINT32_MAX && _prim.vertex_normal_buffer_id >= m_parser.GetBufferCount()) {
+                if(_prim.vertex_normal_buffer_id != UINT32_MAX && _prim.vertex_normal_buffer_id >= (uint32_t)m_model.buffers.size()) {
                     std::string errme;
                     if constexpr(std::is_same_v<T, DasMeshPrimitive>) {
                         errme = "DAS validation error: Invalid vertex normal buffer id " + std::to_string(_prim.vertex_normal_buffer_id) + " for mesh primitive " + std::to_string(_cur_index);
@@ -105,7 +105,7 @@ namespace Libdas {
                         errme = "DAS validation error: Invalid vertex normal buffer id " + std::to_string(_prim.vertex_normal_buffer_id) + " for morph target " + std::to_string(_cur_index);
                     }
                     m_error_stack.push(errme);
-                } else if(_prim.vertex_normal_buffer_id != UINT32_MAX && m_parser.AccessBuffer(_prim.vertex_normal_buffer_id).data_len < _prim.vertex_normal_buffer_offset + _max_index * sizeof(TRS::Vector3<float>)) {
+                } else if(_prim.vertex_normal_buffer_id != UINT32_MAX && m_model.buffers[_prim.vertex_normal_buffer_id].data_len < _prim.vertex_normal_buffer_offset + _max_index * sizeof(TRS::Vector3<float>)) {
                     std::string errme;
                     if constexpr(std::is_same_v<T, DasMeshPrimitive>) {
                         errme = "DAS validation error: Invalid vertex normal buffer(" + std::to_string(_prim.vertex_normal_buffer_id) + 
@@ -124,7 +124,7 @@ namespace Libdas {
 
             template<typename T>
             void _CheckVertexTangent(const T &_prim, uint32_t _cur_index, uint32_t _max_index) {
-                if(_prim.vertex_tangent_buffer_id != UINT32_MAX && _prim.vertex_tangent_buffer_id >= m_parser.GetBufferCount()) {
+                if (_prim.vertex_tangent_buffer_id != UINT32_MAX && _prim.vertex_tangent_buffer_id >= (uint32_t)m_model.buffers.size()) {
                     std::string errme;
                     if constexpr(std::is_same_v<T, DasMeshPrimitive>) {
                         errme = "DAS validation error: Invalid vertex tangent buffer id " + std::to_string(_prim.vertex_tangent_buffer_id) + " for mesh primitive " + std::to_string(_cur_index);
@@ -132,7 +132,7 @@ namespace Libdas {
                         errme = "DAS validation error: Invalid vertex tangent buffer id " + std::to_string(_prim.vertex_tangent_buffer_id) + " for morph target " + std::to_string(_cur_index);
                     }
                     m_error_stack.push(errme);
-                } else if(_prim.vertex_tangent_buffer_id != UINT32_MAX && m_parser.AccessBuffer(_prim.vertex_tangent_buffer_id).data_len < _prim.vertex_tangent_buffer_offset + _max_index * sizeof(TRS::Vector4<float>)) {
+                } else if(_prim.vertex_tangent_buffer_id != UINT32_MAX && m_model.buffers[_prim.vertex_tangent_buffer_id].data_len < _prim.vertex_tangent_buffer_offset + _max_index * sizeof(TRS::Vector4<float>)) {
                     std::string errme;
                     if constexpr(std::is_same_v<T, DasMeshPrimitive>) {
                         errme = "DAS validation error: Invalid vertex tangent buffer(" + std::to_string(_prim.vertex_tangent_buffer_id) + 
@@ -154,7 +154,7 @@ namespace Libdas {
                 if(_prim.texture_count) {
                     // for each texture check it's buffer regions
                     for(uint32_t i = 0; i < _prim.texture_count; i++) {
-                        if(_prim.uv_buffer_ids[i] >= m_parser.GetBufferCount()) {
+                        if(_prim.uv_buffer_ids[i] >= (uint32_t)m_model.buffers.size()) {
                             std::string errme;
                             if constexpr(std::is_same_v<T, DasMeshPrimitive>) {
                                 errme = "DAS validation error: Invalid uv buffer id " + std::to_string(_prim.uv_buffer_ids[i]) + " for mesh primitive " + std::to_string(_cur_index);
@@ -162,7 +162,7 @@ namespace Libdas {
                                 errme = "DAS validation error: Invalid uv buffer id " + std::to_string(_prim.uv_buffer_ids[i]) + " for morph target " + std::to_string(_cur_index);
                             }
                             m_error_stack.push(errme);
-                        } else if(m_parser.AccessBuffer(_prim.uv_buffer_ids[i]).data_len < _prim.uv_buffer_offsets[i] + _max_index * sizeof(TRS::Vector2<float>)) {
+                        } else if(m_model.buffers[_prim.uv_buffer_ids[i]].data_len < _prim.uv_buffer_offsets[i] + _max_index * sizeof(TRS::Vector2<float>)) {
                             std::string errme;
                             if constexpr(std::is_same_v<T, DasMeshPrimitive>) {
                                 errme = "DAS validation error: Invalid uv vertex buffer(" + std::to_string(_prim.uv_buffer_ids[i]) +
@@ -186,7 +186,7 @@ namespace Libdas {
                 if(_prim.color_mul_count) {
                     // for each color multiplier check it's buffer regions
                     for(uint32_t i = 0; i < _prim.color_mul_count; i++) {
-                        if(_prim.color_mul_buffer_ids[i] >= m_parser.GetBufferCount()) {
+                        if(_prim.color_mul_buffer_ids[i] >= (uint32_t)m_model.buffers.size()) {
                             std::string errme;
                             if constexpr(std::is_same_v<T, DasMeshPrimitive>) {
                                 errme = "DAS validation error: Invalid color multiplier buffer id " + std::to_string(_prim.color_mul_buffer_ids[i]) + " for mesh primitive " + std::to_string(_cur_index);
@@ -194,7 +194,7 @@ namespace Libdas {
                                 errme = "DAS validation error: Invalid color multiplier buffer id " + std::to_string(_prim.color_mul_buffer_ids[i]) + " for morph target " + std::to_string(_cur_index);
                             }
                             m_error_stack.push(errme);
-                        } else if(m_parser.AccessBuffer(_prim.color_mul_buffer_ids[i]).data_len < _prim.color_mul_buffer_offsets[i] + _max_index * sizeof(TRS::Vector4<float>)) {
+                        } else if(m_model.buffers[_prim.color_mul_buffer_ids[i]].data_len < _prim.color_mul_buffer_offsets[i] + _max_index * sizeof(TRS::Vector4<float>)) {
                             std::string errme;
                             if constexpr(std::is_same_v<T, DasMeshPrimitive>) {
                                 errme = "DAS validation error: Invalid color multiplier buffer(" + std::to_string(_prim.color_mul_buffer_ids[i]) +
@@ -223,7 +223,7 @@ namespace Libdas {
             void _VerifySkeletons();
 
         public:
-            DasValidator(DasParser &_parser, bool _validate = true);
+            DasValidator(DasModel &_model, bool _validate = true);
             DasValidator(DasValidator &&_val) noexcept;
 
             void Validate();

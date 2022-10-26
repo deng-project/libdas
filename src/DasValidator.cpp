@@ -17,7 +17,7 @@ namespace Libdas {
 
 
     DasValidator::DasValidator(DasValidator &&_val) noexcept :
-        m_model(std::move(_val.m_model)),
+        m_model(_val.m_model),
         m_warning_stack(std::move(_val.m_warning_stack)),
         m_error_stack(std::move(_val.m_error_stack)) {}
 

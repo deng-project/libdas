@@ -183,6 +183,35 @@ namespace Libdas {
             ////////////////////////////////////////////////
 
             /**
+             * General template function for reading a single value from blob
+             * @param _dst specifies the destination variable reference
+             */
+            template<typename T>
+            void _ReadSingleValue(T &_dst) {
+                uint64_t sbck = _VerifyRead(sizeof(T));
+                if(!sbck) {
+                    _dst = *reinterpret_cast<T*>(_GetReadPtr());
+                    if(!_SkipData(sizeof(T))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                } else {
+                    if(!_ReadNewChunk(sbck)) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                    _SetReadPtr(m_buffer);
+                    _dst = *reinterpret_cast<T*>(_GetReadPtr());
+                    if(!_SkipData(sizeof(T))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                }
+            }
+
+            /**
+             * General template function for reading array values from a blob
+             * @param _dst specifies the destination array pointer
+             * @param _size specifies the array element count to read 
+             */
+            template<typename T>
+            void _ReadArrayValues(T *_dst, uint32_t _size) {
+                for(uint32_t i = 0; i < _size; i++)
+                    _ReadSingleValue(_dst[i]);
+            }
+
+            /**
              * Read properties scope value according to the value type
              * @param _props is a reference to DasProperties instance, where all data is stored
              * @param _type is a type value specifying the current value type that is read
@@ -255,7 +284,7 @@ namespace Libdas {
              * @param _value_type specifies the scope value type
              * @param _val_str specifies the value string that was read
              */
-            void _ReadScopeValueDataCaller(std::any &_scope, DasScopeType _type, DasUniqueValueType _value_type, const std::string &_val_str);
+            void _ReadScopeValueDataCaller(std::any &_scope, DasScopeType _type, DasUniqueValueType _value_type);
             /**
              * Retrieve correct initialised scope structure in std::any format
              * @param _type specifies the scope type

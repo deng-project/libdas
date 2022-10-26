@@ -154,14 +154,12 @@ namespace Libdas {
                 _props->copyright = _ExtractString();
                 break;
 
-            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_MODDATE:
-                _props->moddate = *reinterpret_cast<uint64_t*>(_GetReadPtr());
-                _SkipData(sizeof(uint64_t));
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_MODDATE: 
+                _ReadSingleValue(_props->moddate);
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_DEFAULT_SCENE:
-                _props->default_scene = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                _SkipData(sizeof(uint32_t));
+                _ReadSingleValue(_props->default_scene);
                 break;
 
             default:
@@ -174,13 +172,11 @@ namespace Libdas {
     void DasReaderCore::_ReadBufferValue(DasBuffer *_buffer, DasUniqueValueType _type) {
         switch(_type) {
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_BUFFER_TYPE:
-                _buffer->type = *reinterpret_cast<BufferType*>(_GetReadPtr());
-                _SkipData(sizeof(BufferType));
+                _ReadSingleValue(_buffer->type);
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_DATA_LEN:
-                _buffer->data_len = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                _SkipData(sizeof(uint32_t));
+                _ReadSingleValue(_buffer->data_len);
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_DATA:
@@ -202,53 +198,43 @@ namespace Libdas {
     void DasReaderCore::_ReadMeshPrimitiveValue(DasMeshPrimitive *_primitive, DasUniqueValueType _type) {
         switch(_type) {
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_INDEX_BUFFER_ID:
-                _primitive->index_buffer_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                _ReadSingleValue(_primitive->index_buffer_id);
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_INDEX_BUFFER_OFFSET:
-                _primitive->index_buffer_offset = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                _ReadSingleValue(_primitive->index_buffer_offset);
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_INDICES_COUNT:
-                _primitive->indices_count = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                _ReadSingleValue(_primitive->indices_count);
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_BUFFER_ID:
-                _primitive->vertex_buffer_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                _ReadSingleValue(_primitive->vertex_buffer_id);
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_BUFFER_OFFSET:
-                _primitive->vertex_buffer_offset = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                _ReadSingleValue(_primitive->vertex_buffer_offset);
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_NORMAL_BUFFER_ID:
-                _primitive->vertex_normal_buffer_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                _ReadSingleValue(_primitive->vertex_normal_buffer_id);
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_NORMAL_BUFFER_OFFSET:
-                _primitive->vertex_normal_buffer_offset = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                _ReadSingleValue(_primitive->vertex_normal_buffer_offset);
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_TANGENT_BUFFER_ID:
-                _primitive->vertex_tangent_buffer_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                _ReadSingleValue(_primitive->vertex_tangent_buffer_id);
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_TANGENT_BUFFER_OFFSET:
-                _primitive->vertex_tangent_buffer_offset = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                _ReadSingleValue(_primitive->vertex_tangent_buffer_offset);
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_TEXTURE_COUNT:
-                _primitive->texture_count = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                _ReadSingleValue(_primitive->texture_count);
 
                 // allocate memory for uv buffer ids and offsets
                 if(_primitive->texture_count) {
@@ -258,34 +244,23 @@ namespace Libdas {
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_UV_BUFFER_IDS:
-                for(uint32_t i = 0; i < _primitive->texture_count; i++) {
-                    _primitive->uv_buffer_ids[i] = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                    if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
-                }
+                _ReadArrayValues(_primitive->uv_buffer_ids, _primitive->texture_count);
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_UV_BUFFER_OFFSETS:
-                for(uint32_t i = 0; i < _primitive->texture_count; i++) {
-                    _primitive->uv_buffer_offsets[i] = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                    if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
-                }
+                _ReadArrayValues(_primitive->uv_buffer_offsets, _primitive->texture_count);
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_TEXTURE_IDS:
                 // allocate memory for texture ids
                 if(_primitive->texture_count) {
                     _primitive->texture_ids = new uint32_t[_primitive->texture_count];
-                    
-                    for(uint32_t i = 0; i < _primitive->texture_count; i++) {
-                        _primitive->texture_ids[i] = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                        if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
-                    }
+                    _ReadArrayValues(_primitive->texture_ids, _primitive->texture_count);
                 }
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_COLOR_MUL_COUNT:
-                _primitive->color_mul_count = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                _ReadSingleValue(_primitive->color_mul_count);
 
                 // allocate enough memory for buffer ids / offsets
                 if(_primitive->color_mul_count) {
@@ -295,22 +270,15 @@ namespace Libdas {
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_COLOR_MUL_BUFFER_IDS:
-                for(uint32_t i = 0; i < _primitive->color_mul_count; i++) {
-                    _primitive->color_mul_buffer_ids[i] = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                    if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
-                }
+                _ReadArrayValues(_primitive->color_mul_buffer_ids, _primitive->color_mul_count);
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_COLOR_MUL_BUFFER_OFFSETS:
-                for(uint32_t i = 0; i < _primitive->color_mul_count; i++) {
-                    _primitive->color_mul_buffer_offsets[i] = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                    if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
-                }
+                _ReadArrayValues(_primitive->color_mul_buffer_offsets, _primitive->color_mul_count);
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_JOINT_SET_COUNT:
-                _primitive->joint_set_count = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                _ReadSingleValue(_primitive->joint_set_count);
 
                 // allocate memory for index and weight buffer ids / offsets
                 if(_primitive->joint_set_count) {
@@ -322,36 +290,23 @@ namespace Libdas {
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_JOINT_INDEX_BUFFER_IDS:
-                for(uint32_t i = 0; i < _primitive->joint_set_count; i++) {
-                    _primitive->joint_index_buffer_ids[i] = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                    if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
-                }
+                _ReadArrayValues(_primitive->joint_index_buffer_ids, _primitive->joint_set_count);
                 break;
                 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_JOINT_INDEX_BUFFER_OFFSETS:
-                for(uint32_t i = 0; i < _primitive->joint_set_count; i++) {
-                    _primitive->joint_index_buffer_offsets[i] = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                    if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
-                }
+                _ReadArrayValues(_primitive->joint_index_buffer_offsets, _primitive->joint_set_count);
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_JOINT_WEIGHT_BUFFER_IDS:
-                for(uint32_t i = 0; i < _primitive->joint_set_count; i++) {
-                    _primitive->joint_weight_buffer_ids[i] = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                    if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
-                }
+                _ReadArrayValues(_primitive->joint_weight_buffer_ids, _primitive->joint_set_count);
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_JOINT_WEIGHT_BUFFER_OFFSETS:
-                for(uint32_t i = 0; i < _primitive->joint_set_count; i++) {
-                    _primitive->joint_weight_buffer_offsets[i] = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                    if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
-                }
+                _ReadArrayValues(_primitive->joint_weight_buffer_offsets, _primitive->joint_set_count);
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_MORPH_TARGET_COUNT:
-                _primitive->morph_target_count = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                _ReadSingleValue(_primitive->morph_target_count);
 
                 // allocate memory for morph target references
                 if(_primitive->morph_target_count) {
@@ -361,17 +316,11 @@ namespace Libdas {
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_MORPH_TARGETS:
-                for(uint32_t i = 0; i < _primitive->morph_target_count; i++) {
-                    _primitive->morph_targets[i] = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                    if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
-                }
+                _ReadArrayValues(_primitive->morph_targets, _primitive->morph_target_count);
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_MORPH_WEIGHTS:
-                for(uint32_t i = 0; i < _primitive->morph_target_count; i++) {
-                    _primitive->morph_weights[i] = *reinterpret_cast<float*>(_GetReadPtr());
-                    if(!_SkipData(sizeof(float))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
-                }
+                _ReadArrayValues(_primitive->morph_weights, _primitive->morph_target_count);
                 break;
 
             default:
@@ -384,22 +333,15 @@ namespace Libdas {
     void DasReaderCore::_ReadMorphTargetValue(DasMorphTarget *_morph_target, DasUniqueValueType _type) {
         switch(_type) {
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_BUFFER_ID:
-                {
-                    _morph_target->vertex_buffer_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                    if(!_SkipData(sizeof(uint32_t))) {
-                        m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
-                    }
-                }
+                _ReadSingleValue(_morph_target->vertex_buffer_id);
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_BUFFER_OFFSET:
-                _morph_target->vertex_buffer_offset = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                _ReadSingleValue(_morph_target->vertex_buffer_offset);
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_TEXTURE_COUNT:
-                _morph_target->texture_count = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                _ReadSingleValue(_morph_target->texture_count);
 
                 // allocate memory for buffer ids and offsets
                 if(_morph_target->texture_count) {
@@ -409,22 +351,15 @@ namespace Libdas {
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_UV_BUFFER_IDS:
-                for(uint32_t i = 0; i < _morph_target->texture_count; i++) {
-                    _morph_target->uv_buffer_ids[i] = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                    if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
-                }
+                _ReadArrayValues(_morph_target->uv_buffer_ids, _morph_target->texture_count);
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_UV_BUFFER_OFFSETS:
-                for(uint32_t i = 0; i < _morph_target->texture_count; i++) {
-                    _morph_target->uv_buffer_offsets[i] = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                    if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
-                }
+                _ReadArrayValues(_morph_target->uv_buffer_offsets, _morph_target->texture_count);
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_COLOR_MUL_COUNT:
-                _morph_target->color_mul_count = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                _ReadSingleValue(_morph_target->color_mul_count);
 
                 // allocate memory for buffer ids and offsets
                 if(_morph_target->color_mul_count) {
@@ -434,37 +369,27 @@ namespace Libdas {
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_COLOR_MUL_BUFFER_IDS:
-                for(uint32_t i = 0; i < _morph_target->color_mul_count; i++) {
-                    _morph_target->color_mul_buffer_ids[i] = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                    if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
-                }
+                _ReadArrayValues(_morph_target->color_mul_buffer_ids, _morph_target->color_mul_count);
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_COLOR_MUL_BUFFER_OFFSETS:
-                for(uint32_t i = 0; i < _morph_target->color_mul_count; i++) {
-                    _morph_target->color_mul_buffer_offsets[i] = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                    if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
-                }
+                _ReadArrayValues(_morph_target->color_mul_buffer_offsets, _morph_target->color_mul_count);
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_NORMAL_BUFFER_ID:
-                _morph_target->vertex_normal_buffer_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                _ReadSingleValue(_morph_target->vertex_normal_buffer_id);
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_NORMAL_BUFFER_OFFSET:
-                _morph_target->vertex_normal_buffer_offset = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                _ReadSingleValue(_morph_target->vertex_normal_buffer_offset);
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_TANGENT_BUFFER_ID:
-                _morph_target->vertex_tangent_buffer_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                _ReadSingleValue(_morph_target->vertex_tangent_buffer_id);
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_TANGENT_BUFFER_OFFSET:
-                _morph_target->vertex_tangent_buffer_offset = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                _ReadSingleValue(_morph_target->vertex_tangent_buffer_offset);
                 break;
 
             default:
@@ -482,18 +407,14 @@ namespace Libdas {
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_PRIMITIVE_COUNT:
-                _mesh->primitive_count = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                _ReadSingleValue(_mesh->primitive_count);
 
                 // allocate memory for primitive references
                 _mesh->primitives = new uint32_t[_mesh->primitive_count];
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_PRIMITIVES:
-                for(uint32_t i = 0; i < _mesh->primitive_count; i++) {
-                    _mesh->primitives[i] = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                    if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
-                }
+                _ReadArrayValues(_mesh->primitives, _mesh->primitive_count);
                 break;
 
             default:
@@ -510,35 +431,26 @@ namespace Libdas {
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_CHILDREN_COUNT:
-                _node->children_count = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                _SkipData(sizeof(uint32_t));
+                _ReadSingleValue(_node->children_count);
 
                 // allocate memory for children
                 _node->children = new uint32_t[_node->children_count];
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_CHILDREN:
-                for(uint32_t i = 0; i < _node->children_count; i++) {
-                    _node->children[i] = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                    if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
-                }
+                _ReadArrayValues(_node->children, _node->children_count);
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_MESH:
-                _node->mesh = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                _ReadSingleValue(_node->mesh);
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_SKELETON:
-                _node->skeleton = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                _ReadSingleValue(_node->skeleton);
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_TRANSFORM:
-                for(struct { TRS::Matrix4<float>::iterator it; int i; } s = {_node->transform.BeginRowMajor(), 0}; s.it != _node->transform.EndRowMajor(); s.it++, s.i++)
-                    *s.it = reinterpret_cast<float*>(_GetReadPtr())[s.i];
-
-                _SkipData(sizeof(float[16]));
+                _ReadSingleValue(_node->transform);
                 break;
 
             default:
@@ -555,18 +467,14 @@ namespace Libdas {
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_NODE_COUNT:
-                _scene->node_count = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                _SkipData(sizeof(uint32_t));
+                _ReadSingleValue(_scene->node_count);
 
                 // allocate memory for scene nodes
                 _scene->nodes = new uint32_t[_scene->node_count];
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_NODES:
-                for(uint32_t i = 0; i < _scene->node_count; i++) {
-                    _scene->nodes[i] = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                    if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
-                }
+                _ReadArrayValues(_scene->nodes, _scene->node_count);
                 break;
 
             default:
@@ -583,23 +491,18 @@ namespace Libdas {
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_PARENT:
-                _skeleton->parent = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                _ReadSingleValue(_skeleton->parent);
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_JOINT_COUNT:
-                _skeleton->joint_count = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                _ReadSingleValue(_skeleton->joint_count);
 
                 // allocate memory for skeletons
                 _skeleton->joints = new uint32_t[_skeleton->joint_count];
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_JOINTS:
-                for(uint32_t i = 0; i < _skeleton->joint_count; i++) {
-                    _skeleton->joints[i] = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                    if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
-                }
+                _ReadArrayValues(_skeleton->joints, _skeleton->joint_count);
                 break;
 
             default:
@@ -611,9 +514,7 @@ namespace Libdas {
     void DasReaderCore::_ReadSkeletonJointValue(DasSkeletonJoint *_joint, DasUniqueValueType _type) {
         switch(_type) {
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_INVERSE_BIND_POS:
-                for(struct { TRS::Matrix4<float>::iterator it; int i; } s = {_joint->inverse_bind_pos.BeginRowMajor(), 0}; s.it != _joint->inverse_bind_pos.EndRowMajor(); s.it++, s.i++)
-                    *s.it = reinterpret_cast<float*>(_GetReadPtr())[s.i];
-                _SkipData(sizeof(float[16]));
+                _ReadSingleValue(_joint->inverse_bind_pos);
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_NAME:
@@ -621,33 +522,26 @@ namespace Libdas {
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_CHILDREN_COUNT:
-                _joint->children_count = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                _ReadSingleValue(_joint->children_count);
 
                 // allocate memory for children
                 _joint->children = new uint32_t[_joint->children_count];
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_CHILDREN:
-                for(uint32_t i = 0; i < _joint->children_count; i++) {
-                    _joint->children[i] = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                    if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
-                }
+                _ReadArrayValues(_joint->children, _joint->children_count);
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_SCALE:
-                _joint->scale = *reinterpret_cast<float*>(_GetReadPtr());
-                _SkipData(sizeof(float));
+                _ReadSingleValue(_joint->scale);
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_ROTATION:
-                _joint->rotation = *reinterpret_cast<TRS::Quaternion*>(_GetReadPtr());
-                if(!_SkipData(sizeof(TRS::Quaternion))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                _ReadSingleValue(_joint->rotation);
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_TRANSLATION:
-                _joint->translation = *reinterpret_cast<TRS::Point3D<float>*>(_GetReadPtr());
-                if(!_SkipData(sizeof(TRS::Point3D<float>))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                _ReadSingleValue(_joint->translation);
                 break;
 
             default:
@@ -663,18 +557,14 @@ namespace Libdas {
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_CHANNEL_COUNT:
-                _animation->channel_count = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                _ReadSingleValue(_animation->channel_count);
 
                 // allocate memory for channels
                 _animation->channels = new uint32_t[_animation->channel_count];
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_CHANNELS:
-                for(uint32_t i = 0; i < _animation->channel_count; i++) {
-                    _animation->channels[i] = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                    if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
-                }
+                _ReadArrayValues(_animation->channels, _animation->channel_count);
                 break;
 
             default:
@@ -687,28 +577,23 @@ namespace Libdas {
     void DasReaderCore::_ReadAnimationChannelValue(DasAnimationChannel *_channel, DasUniqueValueType _type) {
         switch(_type) {
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_NODE_ID:
-                _channel->node_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                _ReadSingleValue(_channel->node_id);
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_JOINT_ID:
-                _channel->joint_id = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                _ReadSingleValue(_channel->joint_id);
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_TARGET:
-                _channel->target = *reinterpret_cast<AnimationTarget*>(_GetReadPtr());
-                if(!_SkipData(sizeof(AnimationTarget))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                _ReadSingleValue(_channel->target);
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_INTERPOLATION:
-                _channel->interpolation = *reinterpret_cast<InterpolationType*>(_GetReadPtr());
-                if(!_SkipData(sizeof(InterpolationType))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                _ReadSingleValue(_channel->interpolation);
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_KEYFRAME_COUNT:
-                _channel->keyframe_count = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                _ReadSingleValue(_channel->keyframe_count);
 
                 // allocate memory for keyframe data
                 LIBDAS_ASSERT(_channel->keyframe_count);
@@ -741,15 +626,11 @@ namespace Libdas {
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_WEIGHT_COUNT:
-                _channel->weight_count = *reinterpret_cast<uint32_t*>(_GetReadPtr());
-                if(!_SkipData(sizeof(uint32_t))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
+                _ReadSingleValue(_channel->weight_count);
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_KEYFRAMES:
-                for(uint32_t i = 0; i < _channel->keyframe_count; i++) {
-                    _channel->keyframes[i] = *reinterpret_cast<float*>(_GetReadPtr());
-                    if(!_SkipData(sizeof(float))) m_error.Error(LIBDAS_ERROR_INVALID_DATA_LENGTH);
-                }
+                _ReadArrayValues(_channel->keyframes, _channel->keyframe_count);
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_TANGENTS:
@@ -829,7 +710,7 @@ namespace Libdas {
     }
 
 
-    void DasReaderCore::_ReadScopeValueDataCaller(std::any &_scope, DasScopeType _type, DasUniqueValueType _value_type, const std::string &_val_str) {
+    void DasReaderCore::_ReadScopeValueDataCaller(std::any &_scope, DasScopeType _type, DasUniqueValueType _value_type) {
         // any type check is necessary for correct error output
         switch(_type) {
             case LIBDAS_DAS_SCOPE_PROPERTIES:
@@ -1007,7 +888,7 @@ namespace Libdas {
             DasUniqueValueType val = _FindUniqueValueType(val_statement);
             
             // data is in correct format type thus read its value
-            _ReadScopeValueDataCaller(scope, _type, val, val_statement);
+            _ReadScopeValueDataCaller(scope, _type, val);
 
         } while(_GetReadPtr() < m_buffer + m_buffer_size);
 

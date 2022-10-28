@@ -67,7 +67,7 @@ namespace Libdas {
         // MESHPRIMITIVE
         m_unique_val_map["INDEXBUFFERID"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_INDEX_BUFFER_ID;
         m_unique_val_map["INDEXBUFFEROFFSET"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_INDEX_BUFFER_OFFSET;
-        m_unique_val_map["INDICESCOUNT"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_INDICES_COUNT;
+        m_unique_val_map["DRAWCOUNT"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_DRAW_COUNT;
         m_unique_val_map["TEXTURECOUNT"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_TEXTURE_COUNT;
         m_unique_val_map["TEXTUREIDS"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_TEXTURE_IDS;
         m_unique_val_map["COLORMULCOUNT"] = LIBDAS_DAS_UNIQUE_VALUE_TYPE_COLOR_MUL_COUNT;
@@ -205,8 +205,8 @@ namespace Libdas {
                 _ReadSingleValue(_primitive->index_buffer_offset);
                 break;
 
-            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_INDICES_COUNT:
-                _ReadSingleValue(_primitive->indices_count);
+            case LIBDAS_DAS_UNIQUE_VALUE_TYPE_DRAW_COUNT:
+                _ReadSingleValue(_primitive->draw_count);
                 break;
 
             case LIBDAS_DAS_UNIQUE_VALUE_TYPE_VERTEX_BUFFER_ID:

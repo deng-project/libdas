@@ -184,7 +184,7 @@ namespace Libdas {
      * Structure containing a reference to binary goemetry animation or skins
      */
     struct GLTFBuffer {
-        std::string uri;                                // not required (really khronos?)
+        std::string uri;                                // not required
         uint32_t byte_length = 0;                       // required
         std::string name;                               // not required
         std::vector<std::any> extensions;               // ignored

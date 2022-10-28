@@ -178,7 +178,7 @@ namespace Libdas {
             if (_primitive.index_buffer_offset)
                 _WriteNumericalValue<uint32_t>("INDEXBUFFEROFFSET", _primitive.index_buffer_offset);
         }
-        _WriteNumericalValue<uint32_t>("INDICESCOUNT", _primitive.indices_count);
+        _WriteNumericalValue<uint32_t>("DRAWCOUNT", _primitive.draw_count);
 
         _WriteNumericalValue<uint32_t>("VERTEXBUFFERID", _primitive.vertex_buffer_id);
         if(_primitive.vertex_buffer_offset)

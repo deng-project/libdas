@@ -161,7 +161,7 @@ namespace Libdas {
 
         uint32_t index_buffer_id = UINT32_MAX;
         uint32_t index_buffer_offset = 0;
-        uint32_t indices_count = 0;
+        uint32_t draw_count = 0;
         uint32_t vertex_buffer_id = UINT32_MAX;
         uint32_t vertex_buffer_offset = 0;
         uint32_t vertex_normal_buffer_id = UINT32_MAX;

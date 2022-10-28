@@ -319,9 +319,11 @@ void DASTool::_ListDasMeshes(Libdas::DasParser &_parser) {
 void DASTool::_ListDasMeshPrimitive(Libdas::DasParser &_parser, uint32_t _rel_id, uint32_t _id) {
     const Libdas::DasMeshPrimitive &prim = _parser.GetModel().mesh_primitives[_id];
     std::cout << "---- Primitive nr " << _rel_id << " ----" << std::endl;
-    std::cout << "-- Index buffer id: " << prim.index_buffer_id << std::endl;
-    std::cout << "-- Index buffer offset: " << prim.index_buffer_offset << std::endl;
-    std::cout << "-- Indices count: " << prim.indices_count << std::endl;
+    if(prim.index_buffer_id != UINT32_MAX) {
+        std::cout << "-- Index buffer id: " << prim.index_buffer_id << std::endl;
+        std::cout << "-- Index buffer offset: " << prim.index_buffer_offset << std::endl;
+    }
+    std::cout << "-- Draw count: " << prim.draw_count << std::endl;
     std::cout << "-- Vertex buffer id: " << prim.vertex_buffer_id << std::endl;
     std::cout << "-- Vertex buffer offset: " << prim.vertex_buffer_offset << std::endl;
 

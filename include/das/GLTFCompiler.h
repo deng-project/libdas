@@ -44,6 +44,7 @@
     #include "das/GLTFStructures.h"
     #include "das/BufferImageTypeResolver.h"
 #endif
+#include <type_traits>
 
 namespace Libdas {
 
@@ -61,7 +62,6 @@ namespace Libdas {
 
             // buffer related
             std::vector<URIResolver> m_uri_resolvers;
-            std::vector<std::vector<char*>> m_supplemented_buffers; // cleanup bookmarking
             std::vector<TextureReader> m_tex_readers;
             std::vector<char*> m_allocated_memory;
 
@@ -81,7 +81,7 @@ namespace Libdas {
                 int32_t component_type = INT32_MAX; 
                 uint32_t used_size = UINT32_MAX;     // bytes
                 uint32_t unit_size = UINT32_MAX;     // bytes
-                uint32_t unit_stride = 0;            // if this is specified then compiler executes a lot of cpu instructions for no other reason that gltf just being a shit format
+                uint32_t unit_stride = 0;            // might be a necessary variable, since the data might not be tightly packed
 
                 struct less {
                     bool operator()(const BufferAccessorData &_s1, const BufferAccessorData &_s2) {
@@ -106,34 +106,9 @@ namespace Libdas {
                 uint32_t indices_accessor = UINT32_MAX;
             };
 
-
-            struct GenericVertexAttribute {
-                GenericVertexAttribute() = default;
-
-                inline bool operator==(const GenericVertexAttribute &_v) const {
-                    return pos == _v.pos &&
-                           normal == _v.normal &&
-                           tangent == _v.tangent &&
-                           uv == _v.uv &&
-                           color == _v.color &&
-                           weights == _v.weights;
-                }
-
-                TRS::Vector3<float> pos;
-                TRS::Vector3<float> normal;
-                TRS::Vector4<float> tangent;
-
-                std::vector<TRS::Vector2<float>> uv;
-                std::vector<TRS::Vector4<float>> color;
-                std::vector<TRS::Vector4<uint16_t>> joints;
-                std::vector<TRS::Vector4<float>> weights;
-            };
-
             std::vector<DasMesh> m_meshes;
             std::vector<DasMeshPrimitive> m_mesh_primitives;
             std::vector<DasMorphTarget> m_morph_targets;
-            std::vector<GenericVertexAttribute> m_indexed_attrs;
-            std::vector<uint32_t> m_generated_indices;
             std::vector<uint32_t> m_scene_node_id_table;
             std::vector<uint32_t> m_skeleton_joint_id_table;
 
@@ -142,7 +117,6 @@ namespace Libdas {
             BufferAccessorData _FindAccessorData(const GLTFRoot &_root, int32_t _accessor_id);
             size_t _FindPrimitiveCount(const GLTFRoot &_root);
             size_t _FindMorphTargetCount(const GLTFRoot &_root);
-            uint32_t _EnumerateAttributes(const std::string &_attr_name, const GLTFMeshPrimitive::AttributesType &_attrs);
 
             // node flagging method
             void _FlagJointNodes(const GLTFRoot &_root);
@@ -151,11 +125,9 @@ namespace Libdas {
             bool _IsRootNode(const GLTFRoot &_root, int32_t _node_id, const std::vector<int32_t> &_pool);
             uint32_t _FindCommonRootJoint(const GLTFRoot &_root, const GLTFSkin &_skin);
 
-            void _CreateMeshPrimitive(const GLTFRoot &_root, GenericVertexAttributeAccessors &_gen_acc, size_t _mesh_id, size_t _prim_id);
-            void _CreateMorphTarget(const GLTFRoot &_root, GenericVertexAttributeAccessors &_gen_acc, size_t _mesh_id, size_t _prim_id, size_t _morph_id);
             DasBuffer _RewriteMeshBuffer(GLTFRoot &_root);
 
-            // high level data type casts
+            // high level vertex attribute data type casts
             TRS::Vector2<float> _GetUV(BufferAccessorData &_ad, uint32_t _index);
             TRS::Vector4<float> _GetColorMultiplier(BufferAccessorData &_ad, uint32_t _index);
             TRS::Vector4<uint16_t> _GetJointIndices(BufferAccessorData &_ad, uint32_t _index);
@@ -163,14 +135,147 @@ namespace Libdas {
             uint32_t _GetIndex(BufferAccessorData &_ad, uint32_t _index);
 
             // indexing methods
-            GenericVertexAttribute _GenerateGenericVertexAttribute(GLTFRoot &_root, GenericVertexAttributeAccessors &_gen_acc, uint32_t _index);
             GenericVertexAttributeAccessors _GenerateGenericVertexAttributeAccessors(GLTFMeshPrimitive::AttributesType &_attrs);
-            /**
-             * @return new offset value in bytes
-             */
-            void _IndexMeshPrimitive(GLTFRoot &_root, GenericVertexAttributeAccessors &_gen_acc);
-            void _WriteIndexedData(GLTFRoot &_root, GenericVertexAttributeAccessors &_gen_acc, DasBuffer &_buffer, bool _write_indices = true);
+            void _CopyVertexAttributeAccessorDataToBuffer(GLTFRoot &_root, uint32_t _accessor, DasBuffer &_buffer, uint32_t &_attr_id, uint32_t &_attr_offset);
 
+            /**
+             * Write a single attribute values that might need casting
+             */
+            template<typename T>
+            void _RewriteSingleAttributeAccessorDataToBuffer(GLTFRoot &_root,
+                                                             uint32_t &_accessor,
+                                                             uint32_t &_prim_id,
+                                                             uint32_t &_prim_offset,
+                                                             DasBuffer &_buffer,
+                                                             T (GLTFCompiler::*GetAttrib)(BufferAccessorData &_acc, uint32_t _index))
+            {
+                BufferAccessorData acc = _FindAccessorData(_root, _accessor);
+                uint32_t stride = acc.unit_stride ? acc.unit_stride : acc.unit_size;
+                size_t len = acc.used_size / stride * sizeof(T);
+                char *buf = new char[len]{};
+                for(size_t j = 0; j < len / sizeof(T); j++) {
+                    *reinterpret_cast<T*>(buf) = (this->*GetAttrib)(acc, j);
+                }
+
+                _buffer.data_ptrs.push_back(std::make_pair(buf, len));
+                _prim_id = 0;
+                _prim_offset = _buffer.data_len;
+                _buffer.data_len += static_cast<uint32_t>(len);
+                m_allocated_memory.push_back(buf);
+            }
+            
+            /**
+             * Write attributes that can occur multiple times in a mesh primitive
+             */
+            template<typename T>
+            void _RewriteMultiAttributeAccessorsDataToBuffer(GLTFRoot &_root,
+                                                             std::vector<uint32_t> &_accessors, 
+                                                             uint32_t *_prim_ids,
+                                                             uint32_t *_prim_offsets,
+                                                             DasBuffer &_buffer,
+                                                             T (GLTFCompiler::*GetAttrib)(BufferAccessorData &_acc, uint32_t _index))
+            {
+                for(size_t i = 0; i < _accessors.size(); i++) {
+                    _RewriteSingleAttributeAccessorDataToBuffer(_root,
+                                                                _accessors[i],
+                                                                _prim_ids[i],
+                                                                _prim_offsets[i],
+                                                                _buffer,
+                                                                GetAttrib);
+                }
+            }
+
+            /**
+             * Write mesh primitive or morph target data 
+             */
+            template<typename T>
+            void _WritePrimitiveData(GLTFRoot &_root, GenericVertexAttributeAccessors &_gen_acc, DasBuffer &_buffer, T &_prim) {
+                LIBDAS_ASSERT(_gen_acc.pos_accessor != UINT32_MAX);
+                _CopyVertexAttributeAccessorDataToBuffer(_root, _gen_acc.pos_accessor, _buffer, 
+                                                         _prim.vertex_buffer_id, 
+                                                         _prim.vertex_buffer_offset);
+
+                if(_gen_acc.normal_accessor != UINT32_MAX) {
+                    _CopyVertexAttributeAccessorDataToBuffer(_root, _gen_acc.normal_accessor, _buffer,
+                                                             _prim.vertex_normal_buffer_id, 
+                                                             _prim.vertex_normal_buffer_offset);
+                } 
+
+                if(_gen_acc.tangent_accessor != UINT32_MAX) {
+                    _CopyVertexAttributeAccessorDataToBuffer(_root, _gen_acc.tangent_accessor, _buffer,
+                                                             _prim.vertex_tangent_buffer_id, 
+                                                             _prim.vertex_tangent_buffer_offset);
+                }
+
+                // uv
+                if(_gen_acc.uv_accessors.size()) {
+                    _prim.texture_count = static_cast<uint32_t>(_gen_acc.uv_accessors.size());
+                    _prim.uv_buffer_ids = new uint32_t[_gen_acc.uv_accessors.size()];
+                    _prim.uv_buffer_offsets = new uint32_t[_gen_acc.uv_accessors.size()];
+                    _RewriteMultiAttributeAccessorsDataToBuffer(_root,
+                                                                _gen_acc.uv_accessors, 
+                                                                _prim.uv_buffer_ids,
+                                                                _prim.uv_buffer_offsets, 
+                                                                _buffer,
+                                                                &GLTFCompiler::_GetUV);
+                }
+
+                // color multipliers
+                if(_gen_acc.color_mul_accessors.size()) {
+                    _prim.color_mul_count = static_cast<uint32_t>(_gen_acc.color_mul_accessors.size());
+                    _prim.color_mul_buffer_ids = new uint32_t[_gen_acc.color_mul_accessors.size()];
+                    _prim.color_mul_buffer_offsets = new uint32_t[_gen_acc.color_mul_accessors.size()];
+                    _RewriteMultiAttributeAccessorsDataToBuffer(_root,
+                                                                _gen_acc.color_mul_accessors,
+                                                                _prim.color_mul_buffer_ids,
+                                                                _prim.color_mul_buffer_offsets,
+                                                                _buffer,
+                                                                &GLTFCompiler::_GetColorMultiplier);
+                }
+
+
+                // these properties apply only to DasMeshPrimitive template class
+                if constexpr(std::is_base_of<DasMeshPrimitive, T>::value) {
+                    // indices if they exist
+                    if(_gen_acc.indices_accessor != UINT32_MAX) {
+                        _RewriteSingleAttributeAccessorDataToBuffer(_root,
+                                                                    _gen_acc.indices_accessor,
+                                                                    _prim.index_buffer_id,
+                                                                    _prim.index_buffer_offset,
+                                                                    _buffer,
+                                                                    &GLTFCompiler::_GetIndex);
+                        _prim.draw_count = _buffer.data_ptrs.back().second / sizeof(uint32_t);
+                    } else {
+                        BufferAccessorData acc = _FindAccessorData(_root, _gen_acc.pos_accessor);
+                        _prim.draw_count = acc.used_size / acc.unit_stride;
+                    }
+
+                    // joint properties
+                    if(_gen_acc.joints_accessors.size() && _gen_acc.joints_accessors.size() == _gen_acc.weights_accessors.size()) {
+                        _prim.joint_set_count = static_cast<uint32_t>(_gen_acc.joints_accessors.size());
+
+                        // joint indices
+                        _prim.joint_index_buffer_ids = new uint32_t[_gen_acc.joints_accessors.size()];
+                        _prim.joint_index_buffer_offsets = new uint32_t[_gen_acc.joints_accessors.size()];
+                        _RewriteMultiAttributeAccessorsDataToBuffer(_root,
+                                                                    _gen_acc.joints_accessors,
+                                                                    _prim.joint_index_buffer_ids,
+                                                                    _prim.joint_index_buffer_offsets,
+                                                                    _buffer,
+                                                                    &GLTFCompiler::_GetJointIndices);
+
+                        // joint weights
+                        _prim.joint_weight_buffer_ids = new uint32_t[_gen_acc.weights_accessors.size()];
+                        _prim.joint_weight_buffer_offsets = new uint32_t[_gen_acc.weights_accessors.size()];
+                        _RewriteMultiAttributeAccessorsDataToBuffer(_root,
+                                                                    _gen_acc.weights_accessors,
+                                                                    _prim.joint_weight_buffer_ids,
+                                                                    _prim.joint_weight_buffer_offsets,
+                                                                    _buffer,
+                                                                    &GLTFCompiler::_GetJointWeights);
+                    }
+                }
+            }
 
             /**
              * Check if any properties are empty and if they are, supplement values from GLTFRoot::asset into it

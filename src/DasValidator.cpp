@@ -73,8 +73,8 @@ namespace Libdas {
         const uint32_t *ptr = reinterpret_cast<const uint32_t*>(ibuffer.data_ptrs.back().first + _prim.index_buffer_offset);
 
         std::vector<uint32_t> sorted_indices;
-        sorted_indices.reserve(_prim.indices_count);
-        sorted_indices.insert(sorted_indices.begin(), ptr, ptr + _prim.indices_count);
+        sorted_indices.reserve(_prim.draw_count);
+        sorted_indices.insert(sorted_indices.begin(), ptr, ptr + _prim.draw_count);
         std::sort(sorted_indices.begin(), sorted_indices.end(), std::less());
 
         // continuity check
@@ -122,20 +122,23 @@ namespace Libdas {
             const uint32_t index = static_cast<uint32_t>(it - prims.begin());
             // check if indices data region is correct
             // 2.2
+            if(it->index_buffer_id == UINT32_MAX)
+                continue;
+
             if (it->index_buffer_id >= (uint32_t)m_model.buffers.size()) {
                 const std::string errme = "DAS validation error: Invalid index buffer id " + std::to_string(it->index_buffer_id) + " for mesh primitive " + std::to_string(index);
                 m_error_stack.push(errme);
-            } else if(m_model.buffers[it->index_buffer_id].data_len < it->index_buffer_offset + it->indices_count * static_cast<uint32_t>(sizeof(uint32_t))) {
+            } else if(m_model.buffers[it->index_buffer_id].data_len < it->index_buffer_offset + it->draw_count * static_cast<uint32_t>(sizeof(uint32_t))) {
                 const std::string errme = "DAS validation error: Invalid index buffer(" + std::to_string(it->index_buffer_id) + 
                                           ") region with offset " + std::to_string(it->index_buffer_offset) + " and size " +
-                                          std::to_string(it->indices_count * static_cast<uint32_t>(sizeof(uint32_t))) +
+                                          std::to_string(it->draw_count * static_cast<uint32_t>(sizeof(uint32_t))) +
                                           " for mesh primitive " + std::to_string(index);
                 m_error_stack.push(errme);
             } else {
                 // get the max index
                 const DasBuffer &index_buffer = m_model.buffers[it->index_buffer_id];
                 const uint32_t max_index = *std::max_element(index_buffer.data_ptrs.front().first + it->index_buffer_offset, 
-                                                             index_buffer.data_ptrs.front().first + it->index_buffer_offset + it->indices_count * static_cast<uint32_t>(sizeof(uint32_t))) + 1;
+                                                             index_buffer.data_ptrs.front().first + it->index_buffer_offset + it->draw_count * static_cast<uint32_t>(sizeof(uint32_t))) + 1;
                 m_max_index_table[index] = max_index;
 
                 // 2.2

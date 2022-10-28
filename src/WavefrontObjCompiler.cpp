@@ -78,7 +78,7 @@ namespace Libdas {
                 primitives.emplace_back();
                 primitives.back().index_buffer_id = buffer_id;
                 primitives.back().index_buffer_offset = base_index_offset + m_indices_offsets_per_group[i];
-                primitives.back().indices_count = _data.groups[i].indices.indices_count;
+                primitives.back().draw_count = _data.groups[i].indices.indices_count;
                 primitives.back().vertex_buffer_id = buffer_id;
                 primitives.back().vertex_buffer_offset = base_vertex_pos_offset;
 

@@ -111,7 +111,7 @@ namespace Libdas {
     DasMeshPrimitive::DasMeshPrimitive(const DasMeshPrimitive &_prim) : 
         index_buffer_id(_prim.index_buffer_id), 
         index_buffer_offset(_prim.index_buffer_offset),
-        indices_count(_prim.indices_count), 
+        draw_count(_prim.draw_count), 
         vertex_buffer_id(_prim.vertex_buffer_id), 
         vertex_buffer_offset(_prim.vertex_buffer_offset), 
         vertex_normal_buffer_id(_prim.vertex_normal_buffer_id), 
@@ -186,7 +186,7 @@ namespace Libdas {
     DasMeshPrimitive::DasMeshPrimitive(DasMeshPrimitive &&_prim) : 
         index_buffer_id(_prim.index_buffer_id), 
         index_buffer_offset(_prim.index_buffer_offset),
-        indices_count(_prim.indices_count), 
+        draw_count(_prim.draw_count), 
         vertex_buffer_id(_prim.vertex_buffer_id), 
         vertex_buffer_offset(_prim.vertex_buffer_offset), 
         vertex_normal_buffer_id(_prim.vertex_normal_buffer_id), 

@@ -71,7 +71,7 @@ namespace Libdas {
             // indices
             prim.index_buffer_id = 0;
             prim.index_buffer_offset = pos_size + norm_size;
-            prim.indices_count = static_cast<uint32_t>(m_indices.size());
+            prim.draw_count = static_cast<uint32_t>(m_indices.size());
 
             // vertices
             prim.vertex_buffer_id = 0;
@@ -110,7 +110,7 @@ namespace Libdas {
         DasScene scene;
         scene.name = "Imported from STL";
         scene.node_count = 1;
-        scene.nodes = new uint32_t;
+        scene.nodes = new uint32_t[1];
         scene.nodes[0] = 0;
         
         WriteScene(scene);

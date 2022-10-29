@@ -81,13 +81,14 @@ namespace Libdas {
         else if(_root.accessors[_accessor_id].type == "MAT4")
             type_mul = 16;
 
-        accessor_data.used_size = _root.accessors[_accessor_id].count * type_mul * component_mul;
         accessor_data.component_type = _root.accessors[_accessor_id].component_type;
         accessor_data.unit_size = type_mul * component_mul;
       
         if(_root.buffer_views[_root.accessors[_accessor_id].buffer_view].byte_stride)
             accessor_data.unit_stride = _root.buffer_views[_root.accessors[_accessor_id].buffer_view].byte_stride;
         else accessor_data.unit_stride = accessor_data.unit_size;
+
+        accessor_data.used_size = _root.accessors[_accessor_id].count * accessor_data.unit_stride;
 
         return accessor_data;
     }
@@ -199,6 +200,9 @@ namespace Libdas {
             // for each mesh primitive
             for(auto prim_it = mesh_it->primitives.begin(); prim_it != mesh_it->primitives.end(); prim_it++) {
                 auto gen_acc = _GenerateGenericVertexAttributeAccessors(prim_it->attributes);
+
+                if (prim_it->indices != INT32_MAX)
+                    gen_acc.indices_accessor = prim_it->indices;
 
                 m_mesh_primitives.emplace_back();
                 _WritePrimitiveData(_root, gen_acc, buffer, m_mesh_primitives.back());

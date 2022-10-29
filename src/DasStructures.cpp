@@ -47,19 +47,22 @@ namespace Libdas {
     DasBuffer::DasBuffer(const DasBuffer &_buf) : 
         data_ptrs(_buf.data_ptrs), 
         data_len(_buf.data_len), 
-        type(_buf.type) {}
+        type(_buf.type),
+        _free_bit(_buf._free_bit) {}
 
 
     DasBuffer::DasBuffer(DasBuffer &&_buf) : 
         data_ptrs(std::move(_buf.data_ptrs)), 
         data_len(_buf.data_len), 
-        type(_buf.type) {}
+        type(_buf.type),
+        _free_bit(_buf._free_bit) {}
 
 
     void DasBuffer::operator=(const DasBuffer &_buf) {
         data_ptrs = _buf.data_ptrs;
         data_len = _buf.data_len;
         type = _buf.type;
+        _free_bit = _buf._free_bit;
     }
 
 
@@ -67,6 +70,7 @@ namespace Libdas {
         data_ptrs = std::move(_buf.data_ptrs);
         data_len = _buf.data_len;
         type = _buf.type;
+        _free_bit = _buf._free_bit;
     }
 
 
@@ -638,5 +642,18 @@ namespace Libdas {
     void DasAnimationChannel::operator=(DasAnimationChannel &&_ch) {
         this->~DasAnimationChannel();
         new (this) DasAnimationChannel(_ch);
+    }
+
+
+    void DasModel::DeleteBuffers() {
+        for (auto buffer_it = buffers.begin(); buffer_it != buffers.end(); buffer_it++) {
+            if (buffer_it->_free_bit) {
+                for (auto ptr_it = buffer_it->data_ptrs.begin(); ptr_it != buffer_it->data_ptrs.end(); ptr_it++) {
+                    std::free(ptr_it->first);
+                }
+            }
+        }
+
+        buffers.clear();
     }
 }

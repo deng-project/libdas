@@ -154,7 +154,7 @@ namespace Libdas {
                 size_t len = acc.used_size / stride * sizeof(T);
                 char *buf = new char[len]{};
                 for(size_t j = 0; j < len / sizeof(T); j++) {
-                    *reinterpret_cast<T*>(buf) = (this->*GetAttrib)(acc, j);
+                    reinterpret_cast<T*>(buf)[j] = (this->*GetAttrib)(acc, j);
                 }
 
                 _buffer.data_ptrs.push_back(std::make_pair(buf, len));
@@ -244,7 +244,7 @@ namespace Libdas {
                                                                     _prim.index_buffer_offset,
                                                                     _buffer,
                                                                     &GLTFCompiler::_GetIndex);
-                        _prim.draw_count = _buffer.data_ptrs.back().second / sizeof(uint32_t);
+                        _prim.draw_count = static_cast<uint32_t>(_buffer.data_ptrs.back().second / sizeof(uint32_t));
                     } else {
                         BufferAccessorData acc = _FindAccessorData(_root, _gen_acc.pos_accessor);
                         _prim.draw_count = acc.used_size / acc.unit_stride;

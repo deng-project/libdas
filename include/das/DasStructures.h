@@ -115,6 +115,10 @@ namespace Libdas {
         uint32_t data_len = 0;
         BufferType type = 0;
 
+        // should the memory be freed under data_ptrs
+        bool _free_bit = true;
+
+
         enum ValueType {
             LIBDAS_BUFFER_BUFFER_TYPE,
             LIBDAS_BUFFER_DATA_LEN,
@@ -460,6 +464,8 @@ namespace Libdas {
         DasModel() = default;
         DasModel(DasModel&& _model) = default;
         DasModel(const DasModel& _model) = default;
+
+        void DeleteBuffers();
 
         DasProperties props;
         std::vector<DasBuffer> buffers;

@@ -4,7 +4,7 @@ $BinarySTLPath = "..\third_party\3DModelSamples\stlb\*.stl"
 $WavefrontOBJPath = "..\third_party\3DModelSamples\wobj\*.obj"
 $GLTFBlobbedPath = "..\third_party\glTF-Sample-Models\2.0\*\glTF\*.gltf"
 $GLTFEmbeddedPath = "..\third_party\glTF-Sample-Models\2.0\*\glTF-Embedded\*.gltf"
-$dastool_Binary = "..\build\Debug\dastool.exe"
+$dastool_Binary = "..\build\dastool.exe"
 
 # Destination paths
 $AsciiSTLDestination = ".\Models\stla"

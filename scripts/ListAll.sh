@@ -7,22 +7,21 @@ GLTF_BLOBBED_DESTINATION=./Models/glTF/Blobbed/*.das
 GLTF_EMBEDDED_DESTINATION=./Models/glTF/Embedded/*.das
 dastool_Binary=../build/dastool
 
-# For each das file generated from blobbed GLTF
-validate() {
+listall() {
     set +f
     for f in $1; do
-        echo "Validating $f"
-        valgrind $dastool_Binary validate "$f"
+        echo "Listing $f"
+        valgrind $dastool_Binary list "$f" 1>/dev/null
     done
 }
 
 set -f
-validate ${ASCII_STL_DESTINATION}
+listall ${ASCII_STL_DESTINATION}
 set -f
-validate ${BINARY_STL_DESTINATION}
+listall ${ASCII_BINARY_DESTINATION}
 set -f
-validate ${WAVEFRONT_OBJ_DESTINATION}
+listall ${WAVEFRONT_OBJ_DESTINATION}
 set -f
-validate ${GLTF_BLOBBED_DESTINATION}
+listall ${GLTF_BLOBBED_DESTINATION}
 set -f
-validate ${GLTF_EMBEDDED_DESTINATION}
+listall ${GLTF_EMBEDDED_DESTINATION}

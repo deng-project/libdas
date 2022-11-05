@@ -10,7 +10,8 @@ namespace Libdas {
 
     TextureReader::TextureReader(const std::string &_file_name, bool _use_raw) : 
         m_file_name(_file_name),
-        m_is_attached_buffer(false)
+        m_is_attached_buffer(false),
+        m_is_attached_raw_buffer(false)
     {
         std::ifstream file(_file_name, std::ios_base::binary);
 
@@ -40,16 +41,22 @@ namespace Libdas {
     }
 
 
-    TextureReader::TextureReader(std::pair<char*, size_t> _raw_data, bool _use_raw) : 
+    TextureReader::TextureReader(std::pair<char*, size_t> _raw_data, int _x, int _y, bool _use_raw) : 
         m_buffer(_raw_data.first), 
         m_buffer_size(_raw_data.second),
-        m_is_attached_buffer(true)
+        m_is_attached_buffer(true),
+        m_is_attached_raw_buffer(!_use_raw),
+        m_x(_x),
+        m_y(_y)
     {
         if(_use_raw) {
             int n;
             m_raw_buffer = reinterpret_cast<char*>(stbi_load_from_memory(reinterpret_cast<const unsigned char*>(m_buffer),
                                                                          static_cast<int>(m_buffer_size), &m_x, &m_y, &n, 4));
             m_raw_buffer_size = static_cast<size_t>(m_x * m_y * 4);
+        } else {
+            m_raw_buffer = _raw_data.first;
+            m_raw_buffer_size = _raw_data.second;
         }
     }
 
@@ -72,7 +79,7 @@ namespace Libdas {
     TextureReader::~TextureReader() {
         if(!m_is_attached_buffer && m_buffer) 
             delete [] m_buffer;
-        if(m_raw_buffer)
+        if(!m_is_attached_raw_buffer && m_raw_buffer)
             std::free(m_raw_buffer);
     }
 

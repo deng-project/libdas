@@ -19,13 +19,6 @@ option(LIBDAS_BUILD_DEPENDENCIES "Fetch and build libdas dependencies" ON)
 if(MSVC)
     add_compile_options(/W3 /std:c++17 /wd4251)
     add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
-
-    # Set correct optimisation flags
-    if(CMAKE_BUILD_TYPE MATCHES Debug)
-        add_compile_options(/Od)
-    else()
-        add_compile_options(/O2)
-    endif()
 else()
     add_compile_options(-Wall -Wextra -std=c++17)
 

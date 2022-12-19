@@ -8,6 +8,7 @@
 
 #ifdef BUFFER_IMAGE_TYPE_RESOLVER_CPP
     #include <any>
+    #include <algorithm>
     #include <string>
     #include <optional>
     #include <cstdint>
@@ -18,6 +19,10 @@
     #include <string>
     #include <vector>
     #include <unordered_map>
+
+#ifdef _WIN32
+    #include <Windows.h>
+#endif
 
     #include "trs/Points.h"
     #include "trs/Vector.h"

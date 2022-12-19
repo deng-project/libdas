@@ -68,6 +68,7 @@ namespace Libdas {
         m_raw_buffer(_mov.m_raw_buffer), 
         m_raw_buffer_size(_mov.m_raw_buffer_size), 
         m_is_attached_buffer(_mov.m_is_attached_buffer),
+        m_is_attached_raw_buffer(_mov.m_is_attached_raw_buffer),
         m_x(_mov.m_x), 
         m_y(_mov.m_y)
     {

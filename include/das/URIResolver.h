@@ -11,9 +11,14 @@
     #include <vector>
     #include <string>
     #include <fstream>
+    #include <algorithm>
     #include <iostream>
     #include <sstream>
     #include <map>
+
+#ifdef _WIN32
+    #include <Windows.h>
+#endif
 
     #include "das/Api.h"
 #define LIBDAS_DEFS_ONLY

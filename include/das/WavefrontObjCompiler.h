@@ -8,6 +8,7 @@
 
 
 #ifdef WAVEFRONT_OBJ_COMPILER_CPP
+    #include <algorithm>
     #include <string>
     #include <climits>
     #include <cstring>
@@ -20,6 +21,10 @@
     #include <queue>
     #include <deque>
     #include <unordered_map>
+
+#ifdef _WIN32
+    #include <Windows.h>
+#endif
 
     #include "trs/Points.h"
     #include "trs/Vector.h"

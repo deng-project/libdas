@@ -9,6 +9,7 @@
 
 #ifdef GLTF_COMPILER_CPP
     #include <any>
+    #include <algorithm>
     #include <fstream>
     #include <iostream>
     #include <optional>
@@ -20,6 +21,10 @@
     #include <unordered_map>
     #include <algorithm>
     #include <string>
+
+#ifdef _WIN32
+    #include <Windows.h>
+#endif
 
     #include "trs/Points.h"
     #include "trs/Vector.h"

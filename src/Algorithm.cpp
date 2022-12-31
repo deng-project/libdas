@@ -49,8 +49,9 @@ namespace Libdas {
             DWORD copied = 0;
             do {
                 path_buf.resize(path_buf.size()+1);
-                copied = GetModuleFileNameA(NULL, path_buf.data(), static_cast<DWORD>(path_buf.size()));
-            } while (!copied);
+                GetModuleFileNameA(NULL, path_buf.data(), static_cast<DWORD>(path_buf.size()));
+                copied = GetLastError();
+            } while (copied == ERROR_INSUFFICIENT_BUFFER);
 
             std::transform(path_buf.begin(), path_buf.end(), std::back_inserter(path),
                 [](char c) {

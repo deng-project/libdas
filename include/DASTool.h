@@ -19,11 +19,13 @@
     #include <iostream>
     #include <cstring>
     #include <cmath>
+    #include <queue>
     #include <vector>
     #include <stack>
     #include <stdexcept>
     #include <filesystem>
     #include <unordered_map>
+    #include <unordered_set>
     
     #include "trs/Iterators.h"
     #include "trs/Points.h"
@@ -61,6 +63,7 @@
     #include "das/WavefrontObjParser.h"
     #include "das/WavefrontObjCompiler.h"
     #include "das/DasValidator.h"
+    #include "das/LodGenerator.h"
 #endif
 
 typedef uint16_t FlagType;
@@ -69,21 +72,23 @@ typedef uint16_t FlagType;
 #define USAGE_FLAG_COPYRIGHT        0x0002
 #define USAGE_FLAG_EMBED_TEXTURE    0x0004
 #define USAGE_FLAG_MODEL            0x0008
-#define USAGE_FLAG_OUT_FILE         0x0010
-#define USAGE_FLAG_HELP             0x0020
-#define USAGE_FLAG_VERBOSE          0x0040
+#define USAGE_FLAG_LOD              0x0010
+#define USAGE_FLAG_OUT_FILE         0x0020
+#define USAGE_FLAG_HELP             0x0040
+#define USAGE_FLAG_VERBOSE          0x0080
 
 
 class DASTool {
     private:
         const std::string m_help_text =
             "DASTool version " + std::to_string(LIBDAS_VERSION_MAJOR) + "." + std::to_string(LIBDAS_VERSION_MINOR) + "." + std::to_string(LIBDAS_VERSION_REVISION) + "\n"\
-            "Usage: DASTool convert|list|validate <input file> [output options]\n"\
+            "Usage: dastool convert|list|validate <input file> [output options]\n"\
             "Valid conversion options:\n"\
             "--author \"<Author>\" - specify model author's name\n"\
             "--copyright \"<Message>\" - specify copyright message as an argument string\n"\
             "--embed-texture \"<FileName>\" - embed an image file to the output\n"\
             "--model \"<ModelName>\" - specify model name\n"\
+            "-L / --lod <N%> - specify level of detail in percentage\n"\
             "-o / --output \"<OutFile>\" - specify output file name\n"\
             "-h / --help - display help text\n"\
             "Valid listing options:\n"\
@@ -91,6 +96,7 @@ class DASTool {
             "-h / --help - display help text\n";
 
         FlagType m_flags = 0;
+        uint32_t m_lod = 90;
         Libdas::DasProperties m_props;
         std::string m_author = std::string("DASTool v") + std::to_string(LIBDAS_VERSION_MAJOR) + std::string(".") + std::to_string(LIBDAS_VERSION_MINOR) + "." + std::to_string(LIBDAS_VERSION_REVISION);
         std::string m_copyright;

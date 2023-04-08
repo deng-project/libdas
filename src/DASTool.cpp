@@ -13,11 +13,31 @@
 
 // incomplete method
 void DASTool::_ConvertDAS(const std::string &_input_file) {
-    std::cerr << "Feature not yet implemented" << std::endl;
-    LIBDAS_ASSERT(false);
-    _MakeOutputFile(_input_file);
-    Libdas::DasParser parser(_input_file);
-    parser.Parse(true);
+    if (m_flags & USAGE_FLAG_LOD) {
+        Libdas::DasParser parser(_input_file);
+        parser.Parse();
+
+        Libdas::DasModel& model = parser.GetModel();
+
+        for (auto it = model.meshes.begin(); it != model.meshes.end(); it++) {
+            for (uint32_t i = 0; i < it->primitive_count; i++) {
+                Libdas::DasMeshPrimitive& prim = model.mesh_primitives[i];
+                
+                if (prim.index_buffer_id == UINT32_MAX) {
+                    std::cout << "Generating LODs for unindexed meshes is not supported :(" << std::endl;
+                    std::exit(0);
+                }
+
+                Libdas::LodGenerator gen(
+                    reinterpret_cast<uint32_t*>(model.buffers[prim.index_buffer_id].data_ptrs.back().first + prim.index_buffer_offset),
+                    reinterpret_cast<TRS::Vector3<float>*>(model.buffers[prim.vertex_buffer_id].data_ptrs.back().first + prim.vertex_buffer_offset),
+                    prim.draw_count);
+
+                gen.Simplify(static_cast<float>(m_lod) / 100.f);
+            }
+        }
+
+    }
 }
 
 
@@ -734,6 +754,10 @@ void DASTool::_FetchArg(FlagType _type, const std::string &_arg) {
             m_out_file = _arg;
             break;
 
+        case USAGE_FLAG_LOD:
+            m_lod = static_cast<uint32_t>(std::stoi(_arg));
+            break;
+
         default:
             break;
     }
@@ -796,6 +820,11 @@ void DASTool::_ParseFlags(const std::vector<std::string> &_opts) {
         else if(_opts[i] == "--model") {
             m_flags |= USAGE_FLAG_MODEL;
             info_flag = USAGE_FLAG_MODEL; 
+            skip_it = true;
+        }
+        else if (_opts[i] == "-L" || _opts[i] == "--lod") {
+            m_flags |= USAGE_FLAG_LOD;
+            info_flag = USAGE_FLAG_LOD;
             skip_it = true;
         }
         else if(_opts[i] == "-o" || _opts[i] == "--output") {
@@ -864,16 +893,18 @@ void DASTool::Convert(const std::string &_input_file, const std::vector<std::str
     }
 
     std::string ext = Libdas::Algorithm::ExtractFileExtension(_input_file);
-    if(ext == "stl")
+    if (ext == "stl")
         _ConvertSTL(_input_file);
-    else if(ext == "obj")
+    else if (ext == "obj")
         _ConvertWavefrontObj(_input_file);
-    else if(ext == "gltf")
+    else if (ext == "gltf")
         _ConvertGLTF(_input_file);
-    else if(ext == "glb")
+    else if (ext == "glb")
         _ConvertGLB(_input_file);
-    else if(ext == "fbx")
+    else if (ext == "fbx")
         _ConvertFBX(_input_file);
+    else if (ext == "das")
+        _ConvertDAS(_input_file);
 
     return;
 }

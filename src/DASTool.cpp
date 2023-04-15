@@ -19,24 +19,69 @@ void DASTool::_ConvertDAS(const std::string &_input_file) {
 
         Libdas::DasModel& model = parser.GetModel();
 
-        for (auto it = model.meshes.begin(); it != model.meshes.end(); it++) {
-            for (uint32_t i = 0; i < it->primitive_count; i++) {
-                Libdas::DasMeshPrimitive& prim = model.mesh_primitives[i];
-                
-                if (prim.index_buffer_id == UINT32_MAX) {
-                    std::cout << "Generating LODs for unindexed meshes is not supported :(" << std::endl;
-                    std::exit(0);
-                }
+        size_t buffer_size = 0;
+        std::vector<std::vector<uint32_t>> indices;
+        indices.resize(model.mesh_primitives.size());
+        std::vector<std::vector<TRS::Vector3<float>>> vertices;
+        vertices.resize(model.mesh_primitives.size());
 
-                Libdas::LodGenerator gen(
-                    reinterpret_cast<uint32_t*>(model.buffers[prim.index_buffer_id].data_ptrs.back().first + prim.index_buffer_offset),
-                    reinterpret_cast<TRS::Vector3<float>*>(model.buffers[prim.vertex_buffer_id].data_ptrs.back().first + prim.vertex_buffer_offset),
-                    prim.draw_count);
-
-                gen.Simplify(static_cast<float>(m_lod) / 100.f);
+        for (size_t i = 0; i < model.mesh_primitives.size(); i++) {
+            Libdas::DasMeshPrimitive& prim = model.mesh_primitives[i];
+            if (prim.index_buffer_id == UINT32_MAX) {
+                std::cout << "Generating LODs for unindexed meshes is not supported :(" << std::endl;
+                std::exit(0);
             }
+
+            Libdas::LodGenerator gen(
+                reinterpret_cast<uint32_t*>(model.buffers[prim.index_buffer_id].data_ptrs.back().first + prim.index_buffer_offset),
+                reinterpret_cast<TRS::Vector3<float>*>(model.buffers[prim.vertex_buffer_id].data_ptrs.back().first + prim.vertex_buffer_offset),
+                prim.draw_count);
+
+            gen.Simplify(static_cast<float>(m_lod) / 100.f);
+            indices[i] = gen.GetLodIndices();
+            vertices[i] = gen.GetLodVertices();
+            buffer_size += indices[i].size() * sizeof(uint32_t) + vertices[i].size() * sizeof(TRS::Vector3<float>);
         }
 
+        // create a new DasModel instance to write as output
+        Libdas::DasModel lod_model;
+        lod_model.props = std::move(model.props);
+        lod_model.buffers.emplace_back();
+        lod_model.buffers.back().data_len = static_cast<uint32_t>(buffer_size);
+        lod_model.buffers.back().data_ptrs.push_back(
+            std::make_pair(new char[buffer_size], buffer_size)
+        );
+
+        lod_model.meshes = std::move(model.meshes);
+        lod_model.mesh_primitives.resize(model.mesh_primitives.size());
+    
+        size_t offset = 0;
+        for (size_t i = 0; i < lod_model.mesh_primitives.size(); i++) {
+            Libdas::DasMeshPrimitive& prim = lod_model.mesh_primitives[i];
+            prim.index_buffer_id = 0;
+            prim.index_buffer_offset = static_cast<uint32_t>(offset);
+
+            char* buf = lod_model.buffers.back().data_ptrs.back().first + offset;
+            std::memcpy(buf, indices[i].data(), indices[i].size() * sizeof(uint32_t));
+            offset += indices[i].size() * sizeof(uint32_t);
+            buf += indices[i].size() * sizeof(uint32_t);
+
+            prim.vertex_buffer_id = 0;
+            prim.vertex_buffer_offset = static_cast<uint32_t>(offset);
+            
+            std::memcpy(buf, vertices[i].data(), vertices[i].size() * sizeof(TRS::Vector3<float>));
+            offset += vertices[i].size() * sizeof(TRS::Vector3<float>);
+        }
+
+        size_t pos = _input_file.find(".das");
+        Libdas::DasWriterCore writer(_input_file.substr(0, pos) + "_" + std::to_string(m_lod) + _input_file.substr(pos));
+        writer.InitialiseFile(lod_model.props);
+        writer.WriteBuffer(lod_model.buffers[0]);
+        
+        for (Libdas::DasMesh& mesh : lod_model.meshes)
+            writer.WriteMesh(mesh);
+        for (Libdas::DasMeshPrimitive& prim : lod_model.mesh_primitives)
+            writer.WriteMeshPrimitive(prim);
     }
 }
 

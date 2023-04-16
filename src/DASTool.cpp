@@ -52,6 +52,8 @@ void DASTool::_ConvertDAS(const std::string &_input_file) {
             std::make_pair(new char[buffer_size], buffer_size)
         );
 
+        lod_model.scenes = std::move(model.scenes);
+        lod_model.nodes = std::move(model.nodes);
         lod_model.meshes = std::move(model.meshes);
         lod_model.mesh_primitives.resize(model.mesh_primitives.size());
     
@@ -60,6 +62,7 @@ void DASTool::_ConvertDAS(const std::string &_input_file) {
             Libdas::DasMeshPrimitive& prim = lod_model.mesh_primitives[i];
             prim.index_buffer_id = 0;
             prim.index_buffer_offset = static_cast<uint32_t>(offset);
+            prim.draw_count = static_cast<uint32_t>(indices[i].size());
 
             char* buf = lod_model.buffers.back().data_ptrs.back().first + offset;
             std::memcpy(buf, indices[i].data(), indices[i].size() * sizeof(uint32_t));
@@ -78,6 +81,12 @@ void DASTool::_ConvertDAS(const std::string &_input_file) {
         writer.InitialiseFile(lod_model.props);
         writer.WriteBuffer(lod_model.buffers[0]);
         
+        for (Libdas::DasScene& scene : lod_model.scenes)
+            writer.WriteScene(scene);
+
+        for (Libdas::DasNode& node : lod_model.nodes)
+            writer.WriteNode(node);
+
         for (Libdas::DasMesh& mesh : lod_model.meshes)
             writer.WriteMesh(mesh);
         for (Libdas::DasMeshPrimitive& prim : lod_model.mesh_primitives)

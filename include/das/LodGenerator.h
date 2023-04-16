@@ -66,6 +66,7 @@ namespace Libdas {
 			std::vector<TRS::Matrix4<float>> m_errors;
 
 		private:
+			bool _IsTriangle(uint32_t _second, uint32_t _third);
 			void _FindUniqueEdges();
 			void _FindVertexNeighbours();
 			std::vector<Edge> _RemoveDuplicateEdges();
@@ -77,7 +78,7 @@ namespace Libdas {
 				Edge& _edge, 
 				const std::vector<TRS::Vector3<float>>& _vertices,
 				const std::vector<TRS::Matrix4<float>>& _errors);
-			void _RemoveInvalidFaces(uint32_t _first, uint32_t _second, std::vector<Edge>& _edges, float& _facec);
+			void _RemoveInvalidFaces(uint32_t _first, uint32_t _second, std::vector<Edge>& _edges);
 
 		public:
 			LodGenerator(const uint32_t* _indices, 

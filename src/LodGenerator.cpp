@@ -24,7 +24,6 @@ namespace Libdas {
 			m_vertices.push_back(_vertices[i]);
 		}
 
-
 		_FindUniqueEdges();
 		_FindVertexNeighbours();
 
@@ -37,6 +36,19 @@ namespace Libdas {
 		for (size_t i = 0; i < m_edges.size(); i++) {
 			_CalculateEdgeErrors(m_edges[i], m_vertices, m_errors);
 		}
+	}
+
+
+	bool LodGenerator::_IsTriangle(uint32_t _second, uint32_t _third) {
+		pair<multimap<uint32_t, uint32_t>::iterator, multimap<uint32_t, uint32_t>::iterator> res = m_neighbours.equal_range(_second);
+
+		for (auto it = res.first; it != res.second; it++) {
+			if (_third == it->second) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	
@@ -60,14 +72,29 @@ namespace Libdas {
 					counter = 0;
 
 					Edge e1, e2, e3;
-					e1.first_vertex = min(*a, *b);
-					e1.second_vertex = max(*a, *b);
+					e1.first_vertex = *a;
+					e1.second_vertex = *b;
 
-					e2.first_vertex = min(*b, *c);
-					e2.second_vertex = max(*b, *c);
+					if (*a > *b) {
+						e1.first_vertex = *b;
+						e1.second_vertex = *a;
+					}
 
-					e3.first_vertex = min(*a, *c);
-					e3.second_vertex = max(*a, *c);
+					e2.first_vertex = *a;
+					e2.second_vertex = *c;
+
+					if (*a > *c) {
+						e1.first_vertex = *c;
+						e1.second_vertex = *a;
+					}
+
+					e3.first_vertex = *b;
+					e3.second_vertex = *c;
+
+					if (*b > *c) {
+						e1.first_vertex = *c;
+						e1.second_vertex = *b;
+					}
 
 					m_edges.push_back(e1);
 					m_edges.push_back(e2);
@@ -84,13 +111,9 @@ namespace Libdas {
 		for (size_t i = 0; i < m_vertices.size(); i++) {
 			for (size_t j = 0; j < m_edges.size(); j++) {
 				if (i == m_edges[j].first_vertex)
-					m_neighbours.insert(pair<uint32_t, uint32_t>(
-						static_cast<uint32_t>(i), 
-						m_edges[j].first_vertex));
-				else if (i == m_edges[j].second_vertex)
-					m_neighbours.insert(pair<uint32_t, uint32_t>(
-						static_cast<uint32_t>(i), 
-						m_edges[j].second_vertex));
+					m_neighbours.insert(make_pair(static_cast<uint32_t>(i), m_edges[j].second_vertex));
+				if (i == m_edges[j].second_vertex)
+					m_neighbours.insert(make_pair(static_cast<uint32_t>(i), m_edges[j].first_vertex));
 			}
 		}
 	}
@@ -127,20 +150,22 @@ namespace Libdas {
 
 				// NOTE: For now we assume that adjacent vertices form a triangle, although some kind of 
 				//		 verification should be implemented later
-				TRS::Vector3<float> n = TRS::Vector3<float>::Cross(
-					m_vertices[it2->second] - m_vertices[_index],
-					m_vertices[it->second] - m_vertices[_index]);
-				n.Normalise();
+				if (_IsTriangle(it->second, it2->second)) {
+					TRS::Vector3<float> n = TRS::Vector3<float>::Cross(
+						m_vertices[it2->second] - m_vertices[_index],
+						m_vertices[it->second] - m_vertices[_index]);
+					n.Normalise();
 
-				const float a = n.first, b = n.second, c = n.third;
-				const float d = -(m_vertices[_index] * n);
+					const float a = n.first, b = n.second, c = n.third;
+					const float d = -(m_vertices[_index] * n);
 
-				Q_matrix += TRS::Matrix4<float>{
-					{ SQ(a), a*b, a*c, a*d },
-					{ a*b, SQ(b), b*c, b*d },
-					{ a*c, b*c, SQ(c), c*d },
-					{ a*d, b*d, c*d, SQ(d) }
-				};
+					Q_matrix += TRS::Matrix4<float>{
+						{ SQ(a), a* b, a* c, a* d },
+						{ a * b, SQ(b), b * c, b * d },
+						{ a * c, b * c, SQ(c), c * d },
+						{ a * d, b * d, c * d, SQ(d) }
+					};
+				}
 			}
 		}
 
@@ -161,7 +186,7 @@ namespace Libdas {
 		_edge.edge_error = mid * tmp;
 	}
 
-	void LodGenerator::_RemoveInvalidFaces(uint32_t _first, uint32_t _second, vector<Edge>& _edges, float& _facec) {
+	void LodGenerator::_RemoveInvalidFaces(uint32_t _first, uint32_t _second, vector<Edge>& _edges) {
 		bool fallback = false;
 		uint32_t a, b, c;
 		int counter = 0;
@@ -183,25 +208,26 @@ namespace Libdas {
 					break;
 
 				case(2):
+				{
 					c = *it;
 					counter = 0;
-					
+
 					// if the current face contains given edge indices
 					if ((_first == a || _first == b || _first == c) && (_second == a || _second == b || _second == c)) {
 						for (size_t j = 0; j < _edges.size(); ) {
 							const uint32_t current_edge_first_vertex = _edges[j].first_vertex;
 							const uint32_t current_edge_second_vertex = _edges[j].second_vertex;
 
-							// if the current edge is part of the current face and is not connected to _first then remove it
-							if ((current_edge_first_vertex != _first && current_edge_second_vertex != _first) &&
-								(current_edge_first_vertex == a || current_edge_first_vertex == b || current_edge_first_vertex == c) &&
+							if ((current_edge_first_vertex == a || current_edge_first_vertex == b || current_edge_first_vertex == c) &&
 								(current_edge_second_vertex == a || current_edge_second_vertex == b || current_edge_second_vertex == c))
 							{
-								_edges.erase(_edges.begin() + j);
+								if ((current_edge_first_vertex != _first || current_edge_second_vertex != _second) ||
+									(current_edge_first_vertex == _first && current_edge_second_vertex == _first)) {
+									_edges.erase(_edges.begin() + j);
+								}
+								else j++;
 							}
-							else {
-								j++;
-							}
+							else j++;
 						}
 
 						it--;
@@ -210,15 +236,19 @@ namespace Libdas {
 						m_generated_indices.erase(it++);
 						m_generated_indices.erase(it++);
 
-						_facec--;
-
 						if (it != m_generated_indices.begin())
 							it--;
 						else
 							fallback = true;
 					}
 					break;
+				}
 			}
+		}
+
+		for (list<uint32_t>::iterator it = m_generated_indices.begin(); it != m_generated_indices.end(); it++) {
+			if (*it == _second)
+				*it = _first;
 		}
 	}
 
@@ -243,34 +273,59 @@ namespace Libdas {
 			errors[removed_edge.first_vertex] = removed_edge.Q;
 			m_generated_vertices[removed_edge.first_vertex] = removed_edge.new_pos;
 
-			// get all neighbours to the vertex we are removing (second_vertex)
-			pair<multimap<uint32_t, uint32_t>::iterator, multimap<uint32_t, uint32_t>::iterator> res =
-				neighbours.equal_range(removed_edge.second_vertex);
-			
-			for (auto it = res.first; it != res.second; it++) {
-				bool neighbour_to_both_vertices = false;
-				pair<multimap<uint32_t, uint32_t>::iterator, multimap<uint32_t, uint32_t>::iterator> nbr =
-					neighbours.equal_range(it->second);
+			// remove invalid vertices
+			for (uint32_t i = 0; i < static_cast<uint32_t>(m_generated_vertices.size()); i++) {
+				int count = 0;
 
-				for (auto it2 = nbr.first; it2 != nbr.second; it2++) {
-					if (it2->second == removed_edge.first_vertex)
-						neighbour_to_both_vertices = true;
+				pair<multimap<uint32_t, uint32_t>::iterator, multimap<uint32_t, uint32_t>::iterator> ret = neighbours.equal_range(i);
+
+				for (auto it = ret.first; it != ret.second;) {
+					if (i != removed_edge.first_vertex) {
+						if (it->second == removed_edge.second_vertex && count == 0) {
+							it->second = removed_edge.first_vertex;
+							count++;
+							it++;
+						}
+						else if (it->second == removed_edge.second_vertex) {
+							neighbours.erase(it++);
+						}
+						else it++;
+					}
+					else {
+						if (it->second == removed_edge.second_vertex)
+							neighbours.erase(it++);
+						else it++;
+					}
 				}
+			}
 
-				// contract vertices
-				if (it->second != removed_edge.first_vertex && !neighbour_to_both_vertices)
-					neighbours.insert(pair<uint32_t, uint32_t>(it->second, removed_edge.first_vertex));
+			for (uint32_t i = 0; i < static_cast<uint32_t>(m_generated_vertices.size()); i++) {
+				int count = 0;
+
+				pair<multimap<uint32_t, uint32_t>::iterator, multimap<uint32_t, uint32_t>::iterator> ret = neighbours.equal_range(i);
+				
+				for (auto it = ret.first; it != ret.second;) {
+					if (it->second == removed_edge.first_vertex && count == 0) {
+						count++;
+						it++;
+					}
+					else if (it->second == removed_edge.first_vertex)
+						neighbours.erase(it++);
+					else it++;
+				}
 			}
 
 			// remove the edge with minimal error
 			edges.pop_back();
+
+			facec -= 2.f;
+
 			neighbours.erase(removed_edge.second_vertex);
 
-			_RemoveInvalidFaces(removed_edge.first_vertex, removed_edge.second_vertex, edges, facec);
+			_RemoveInvalidFaces(removed_edge.first_vertex, removed_edge.second_vertex, edges);
 
 			// update edge vector, so any edge that was connected to the removed edge has it's error recalculated
 			// and is only connected to the remaining vertex
-			
 			for (size_t i = 0; i < edges.size(); i++) {
 				if (edges[i].second_vertex == removed_edge.second_vertex) {
 					edges[i].second_vertex = removed_edge.first_vertex;
@@ -278,7 +333,9 @@ namespace Libdas {
 				else if (edges[i].first_vertex == removed_edge.second_vertex) {
 					edges[i].first_vertex = removed_edge.first_vertex;
 				}
-				
+			}
+
+			for (size_t i = 0; i < edges.size(); i++) {
 				if (edges[i].first_vertex == removed_edge.first_vertex || edges[i].second_vertex == removed_edge.first_vertex)
 					_CalculateEdgeErrors(edges[i], m_generated_vertices, errors);
 			}

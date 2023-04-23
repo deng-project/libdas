@@ -177,7 +177,7 @@ namespace Libdas {
 		const vector<TRS::Vector3<float>>& _vertices,
 		const vector<TRS::Matrix4<float>>& _errors) 
 	{
-		_edge.Q = m_errors[_edge.first_vertex] + m_errors[_edge.second_vertex];
+		_edge.Q = _errors[_edge.first_vertex] + _errors[_edge.second_vertex];
 		_edge.new_pos = (_vertices[_edge.first_vertex] + _vertices[_edge.second_vertex]) / 2.f;
 
 		TRS::Vector4<float> mid(_edge.new_pos.first, _edge.new_pos.second, _edge.new_pos.third, 1.f);
@@ -214,20 +214,19 @@ namespace Libdas {
 
 					// if the current face contains given edge indices
 					if ((_first == a || _first == b || _first == c) && (_second == a || _second == b || _second == c)) {
-						for (size_t j = 0; j < _edges.size(); ) {
-							const uint32_t current_edge_first_vertex = _edges[j].first_vertex;
-							const uint32_t current_edge_second_vertex = _edges[j].second_vertex;
-
-							if ((current_edge_first_vertex == a || current_edge_first_vertex == b || current_edge_first_vertex == c) &&
-								(current_edge_second_vertex == a || current_edge_second_vertex == b || current_edge_second_vertex == c))
+						for (size_t i = 0; i < _edges.size(); ) {
+							if ((_edges[i].first_vertex == a || _edges[i].first_vertex == b || _edges[i].first_vertex == c) &&
+								(_edges[i].second_vertex == a || _edges[i].second_vertex == b || _edges[i].second_vertex == c))
 							{
-								if ((current_edge_first_vertex != _first || current_edge_second_vertex != _second) ||
-									(current_edge_first_vertex == _first && current_edge_second_vertex == _first)) {
-									_edges.erase(_edges.begin() + j);
-								}
-								else j++;
+								if (_edges[i].first_vertex != _first && _edges[i].second_vertex != _first)
+									_edges.erase(_edges.begin() + i);
+								else if (_edges[i].first_vertex == _first && _edges[i].second_vertex == _first)
+									_edges.erase(_edges.begin() + i);
+								else 
+									i++;
 							}
-							else j++;
+							else
+								i++;
 						}
 
 						it--;

@@ -46,6 +46,8 @@ endif()
 
 # Add test configurations
 if(LIBDAS_BUILD_TESTS)
+	include(cmake/tests/VectorNTest.cmake)
+	include(cmake/tests/MatrixNTest.cmake)
     include(cmake/tests/AsciiSTLParser.cmake)
     include(cmake/tests/BinarySTLParser.cmake)
     include(cmake/tests/HuffmanCompression.cmake)

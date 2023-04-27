@@ -20,6 +20,7 @@ set(LIBDAS_SOURCES
     src/Hash.cpp
     src/JSONParser.cpp
 	src/LodGenerator.cpp
+	src/MultiAttributeLodGenerator.cpp
     src/STLCompiler.cpp
     src/STLParser.cpp
     src/STLStructures.cpp
@@ -51,6 +52,7 @@ set(LIBDAS_HEADERS
     include/das/LibdasAssert.h
     include/das/Libdas.h
 	include/das/LodGenerator.h
+	include/das/MultiAttributeLodGenerator.h
     include/das/stb_image.h
     include/das/STLCompiler.h
     include/das/STLParser.h

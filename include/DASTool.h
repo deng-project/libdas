@@ -32,6 +32,7 @@
     #include "trs/Vector.h"
     #include "trs/Matrix.h"
     #include "trs/Quaternion.h"
+    #include "trs/MatrixN.h"
 
     #include "mar/AsciiStreamReader.h"
     #include "mar/AsciiLineReader.h"
@@ -64,6 +65,7 @@
     #include "das/WavefrontObjCompiler.h"
     #include "das/DasValidator.h"
     #include "das/LodGenerator.h"
+    #include "das/MultiAttributeLodGenerator.h"
 #endif
 
 typedef uint16_t FlagType;

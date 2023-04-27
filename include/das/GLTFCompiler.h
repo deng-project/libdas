@@ -159,7 +159,7 @@ namespace Libdas {
                 size_t len = acc.used_size / stride * sizeof(T);
                 char *buf = new char[len]{};
                 for(size_t j = 0; j < len / sizeof(T); j++) {
-                    reinterpret_cast<T*>(buf)[j] = (this->*GetAttrib)(acc, j);
+                    reinterpret_cast<T*>(buf)[j] = (this->*GetAttrib)(acc, static_cast<uint32_t>(j));
                 }
 
                 _buffer.data_ptrs.push_back(std::make_pair(buf, len));

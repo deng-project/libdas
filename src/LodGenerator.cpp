@@ -148,8 +148,6 @@ namespace Libdas {
 				if (it->second == it2->second)
 					continue;
 
-				// NOTE: For now we assume that adjacent vertices form a triangle, although some kind of 
-				//		 verification should be implemented later
 				if (_IsTriangle(it->second, it2->second)) {
 					TRS::Vector3<float> n = TRS::Vector3<float>::Cross(
 						m_vertices[it2->second] - m_vertices[_index],
@@ -190,6 +188,7 @@ namespace Libdas {
 		bool fallback = false;
 		uint32_t a, b, c;
 		int counter = 0;
+
 		for (auto it = m_generated_indices.begin(); it != m_generated_indices.end(); it++) {
 			if (fallback) {
 				it--;

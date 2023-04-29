@@ -11,8 +11,7 @@
 	#include <vector>
 	#include <array>
 	#include <string>
-	#include <unordered_set>
-	#include <queue>
+	#include <unordered_map>
 	#include <algorithm>
 	#include <map>
 	#include <iostream>
@@ -69,6 +68,7 @@ namespace Libdas {
 			std::vector<TRS::Matrix4<float>> m_errors;
 
 		private:
+			void _ReindexMesh(const uint32_t* _indices, const TRS::Vector3<float>* _vertices, uint32_t _draw_count);
 			bool _IsTriangle(uint32_t _second, uint32_t _third);
 			void _FindUniqueEdges();
 			void _FlagDiscontinuities();
@@ -88,7 +88,8 @@ namespace Libdas {
 		public:
 			LodGenerator(const uint32_t* _indices, 
 						 const TRS::Vector3<float>* _vertices,
-						 uint32_t _draw_count);
+						 uint32_t _draw_count,
+						 bool _preserve_discontinuities = false);
 
 			void Simplify(float _t);
 

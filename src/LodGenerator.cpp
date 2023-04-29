@@ -10,34 +10,42 @@ using namespace std;
 
 namespace Libdas {
 
-	LodGenerator::LodGenerator(const uint32_t* _indices, const TRS::Vector3<float>* _vertices, uint32_t _draw_count) {
+	LodGenerator::LodGenerator(const uint32_t* _indices, const TRS::Vector3<float>* _vertices, uint32_t _draw_count, bool _preserve_discontinuities) {
 		// copy draw data to std::list
-		uint32_t max_vertex = 0;
-		for (uint32_t i = 0; i < _draw_count; i++) {
-			m_indices.push_back(_indices[i]);
-
-			if (_indices[i] > max_vertex)
-				max_vertex = _indices[i];
-		}
-
-		for (uint32_t i = 0; i < max_vertex+1; i++) {
-			m_vertices.push_back(_vertices[i]);
-		}
-
+		_ReindexMesh(_indices, _vertices, _draw_count);
 		_FindUniqueEdges();
 		_FindVertexNeighbours();
-		_FlagDiscontinuities();
+
+		if (_preserve_discontinuities) 
+			_FlagDiscontinuities();
 
 		// calculate vertex errors
 		for (size_t i = 0; i < m_vertices.size(); i++) {
 			m_errors.push_back(_CalculateVertexErrorQuadric(static_cast<uint32_t>(i)));
 		}
 
-		_AdjustVertexErrorQuadrics();
+		if (_preserve_discontinuities)
+			_AdjustVertexErrorQuadrics();
 
 		// calculate edge contraction errors
 		for (size_t i = 0; i < m_edges.size(); i++) {
 			_CalculateEdgeErrors(m_edges[i], m_vertices, m_errors);
+		}
+	}
+
+
+	void LodGenerator::_ReindexMesh(const uint32_t* _indices, const TRS::Vector3<float>* _vertices, uint32_t _draw_count) {
+		unordered_map<TRS::Vector3<float>, uint32_t, Hash<TRS::Vector3<float>>> usage_map;
+		uint32_t max_index = 0;
+
+		for (uint32_t i = 0; i < _draw_count; i++) {
+			if (usage_map.find(_vertices[_indices[i]]) != usage_map.end())
+				m_indices.push_back(usage_map[_vertices[_indices[i]]]);
+			else {
+				m_indices.push_back(max_index);
+				m_vertices.push_back(_vertices[_indices[i]]);
+				usage_map[_vertices[_indices[i]]] = max_index++;
+			}
 		}
 	}
 
@@ -336,7 +344,8 @@ namespace Libdas {
 			for (uint32_t i = 0; i < static_cast<uint32_t>(m_generated_vertices.size()); i++) {
 				int count = 0;
 
-				pair<multimap<uint32_t, uint32_t>::iterator, multimap<uint32_t, uint32_t>::iterator> ret = neighbours.equal_range(i);
+				pair<multimap<uint32_t, uint32_t>::iterator, multimap<uint32_t, uint32_t>::iterator> 
+					ret = neighbours.equal_range(i);
 
 				for (auto it = ret.first; it != ret.second;) {
 					if (i != removed_edge.first_vertex) {
@@ -361,7 +370,8 @@ namespace Libdas {
 			for (uint32_t i = 0; i < static_cast<uint32_t>(m_generated_vertices.size()); i++) {
 				int count = 0;
 
-				pair<multimap<uint32_t, uint32_t>::iterator, multimap<uint32_t, uint32_t>::iterator> ret = neighbours.equal_range(i);
+				pair<multimap<uint32_t, uint32_t>::iterator, multimap<uint32_t, uint32_t>::iterator> 
+					ret = neighbours.equal_range(i);
 				
 				for (auto it = ret.first; it != ret.second;) {
 					if (it->second == removed_edge.first_vertex && count == 0) {

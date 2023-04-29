@@ -27,6 +27,8 @@
 	#include "das/Api.h"
 	#include "das/Hash.h"
 	#include "das/DasStructures.h"
+
+	#define PENALTY_ERROR (1e7f);
 #endif
 
 namespace Libdas {
@@ -37,6 +39,7 @@ namespace Libdas {
 		uint32_t first_vertex = 0;
 		uint32_t second_vertex = 0;
 		float edge_error = 0.f;
+		bool is_discontinuity = false;
 
 		bool operator==(const Edge& e2) const {
 			return first_vertex == e2.first_vertex && second_vertex == e2.second_vertex;
@@ -68,11 +71,13 @@ namespace Libdas {
 		private:
 			bool _IsTriangle(uint32_t _second, uint32_t _third);
 			void _FindUniqueEdges();
+			void _FlagDiscontinuities();
 			void _FindVertexNeighbours();
 			std::vector<Edge> _RemoveDuplicateEdges();
 
 			// calculate error quadric matrix for single vertex
 			TRS::Matrix4<float> _CalculateVertexErrorQuadric(uint32_t _index);
+			void _AdjustVertexErrorQuadrics();
 
 			void _CalculateEdgeErrors(
 				Edge& _edge, 

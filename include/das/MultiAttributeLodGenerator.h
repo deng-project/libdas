@@ -78,7 +78,8 @@ namespace Libdas {
 			void _RemoveInvalidFaces(
 				uint32_t _uSubstitudedIndex,
 				uint32_t _uRemovedIndex,
-				std::vector<MultiAttributeEdge>& _errors);
+				std::vector<MultiAttributeEdge>& _errors,
+				float& _fFaceCount);
 
 
 		public:

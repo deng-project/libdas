@@ -18,4 +18,4 @@ function(GitClone git_url git_tag target_dir repo_name)
 endfunction()
 
 GitClone(https://git.dengproject.org/deng/minimal-ascii-reader 9c0ee1df7af34e543f30fd178f19937f1775ca0b ${CMAKE_CURRENT_SOURCE_DIR}/deps/mar mar)
-GitClone(https://git.dengproject.org/deng/trs-headers 898e58a49f8f8f76dc3b07407b879cb6836ddc93 ${CMAKE_CURRENT_SOURCE_DIR}/deps/trs trs)
+GitClone(https://git.dengproject.org/deng/trs-headers 86c1f036e8ee222f9c918970110a15bd1a9d74f9 ${CMAKE_CURRENT_SOURCE_DIR}/deps/trs trs)

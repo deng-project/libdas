@@ -26,11 +26,14 @@ namespace Libdas {
 
 		_FindUniqueEdges();
 		_FindVertexNeighbours();
+		_FlagDiscontinuities();
 
 		// calculate vertex errors
 		for (size_t i = 0; i < m_vertices.size(); i++) {
 			m_errors.push_back(_CalculateVertexErrorQuadric(static_cast<uint32_t>(i)));
 		}
+
+		_AdjustVertexErrorQuadrics();
 
 		// calculate edge contraction errors
 		for (size_t i = 0; i < m_edges.size(); i++) {
@@ -40,7 +43,8 @@ namespace Libdas {
 
 
 	bool LodGenerator::_IsTriangle(uint32_t _second, uint32_t _third) {
-		pair<multimap<uint32_t, uint32_t>::iterator, multimap<uint32_t, uint32_t>::iterator> res = m_neighbours.equal_range(_second);
+		pair<multimap<uint32_t, uint32_t>::iterator, multimap<uint32_t, uint32_t>::iterator> 
+			res = m_neighbours.equal_range(_second);
 
 		for (auto it = res.first; it != res.second; it++) {
 			if (_third == it->second) {
@@ -107,6 +111,26 @@ namespace Libdas {
 	}
 
 
+	void LodGenerator::_FlagDiscontinuities() {
+		for (size_t i = 0; i < m_edges.size(); i++) {
+			pair<multimap<uint32_t, uint32_t>::iterator, multimap<uint32_t, uint32_t>::iterator>
+				neighbour_range = m_neighbours.equal_range(m_edges[i].first_vertex);
+
+			int counter = 0;
+			for (auto it = neighbour_range.first; it != neighbour_range.second; it++) {
+				if (it->second == m_edges[i].second_vertex)
+					counter++;
+			}
+
+			if (counter < 2) {
+				m_edges[i].is_discontinuity = true;
+			}
+			else 
+				m_edges[i].is_discontinuity = false;
+		}
+	}
+
+
 	void LodGenerator::_FindVertexNeighbours() {
 		for (size_t i = 0; i < m_vertices.size(); i++) {
 			for (size_t j = 0; j < m_edges.size(); j++) {
@@ -169,6 +193,43 @@ namespace Libdas {
 
 		return Q_matrix;
 	}
+
+	// adjust these vertex quadrics which are part of discontinuous edges
+	void LodGenerator::_AdjustVertexErrorQuadrics() {
+		for (size_t i = 0; i < m_edges.size(); i++) {
+			if (m_edges[i].is_discontinuity) {
+				pair<multimap<uint32_t, uint32_t>::iterator, multimap<uint32_t, uint32_t>::iterator>
+					res = m_neighbours.equal_range(m_edges[i].first_vertex);
+
+				for (auto it = res.first; it != res.second; it++) {
+					if (_IsTriangle(it->second, m_edges[i].second_vertex)) {
+						TRS::Vector3<float> n1 = TRS::Vector3<float>::Cross(
+							m_vertices[m_edges[i].second_vertex] - m_vertices[m_edges[i].first_vertex],
+							m_vertices[it->second] - m_vertices[m_edges[i].first_vertex]);
+						n1.Normalise();
+
+						TRS::Vector3<float> n2 = TRS::Vector3<float>::Cross(
+							m_vertices[m_edges[i].second_vertex] - m_vertices[m_edges[i].first_vertex], n1);
+						n2.Normalise();
+
+						const float a = n2.first, b = n2.second, c = n2.third;
+						const float d = -(m_vertices[m_edges[i].first_vertex] * n2);
+
+						const TRS::Matrix4<float> Q_error = {
+							{ SQ(a), a * b, a * c, a * d },
+							{ a * b, SQ(b), b * c, b * d },
+							{ a * c, b * c, SQ(c), c * d },
+							{ a * d, b * d, c * d, SQ(d) }
+						};
+
+						m_errors[m_edges[i].first_vertex] += Q_error;
+						m_errors[m_edges[i].second_vertex] += Q_error;
+					}
+				}
+			}
+		}
+	}
+
 
 	void LodGenerator::_CalculateEdgeErrors(
 		Edge& _edge, 

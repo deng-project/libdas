@@ -22,7 +22,7 @@ void DASTool::_ConvertDAS(const std::string &_input_file) {
         size_t buffer_size = 0;
         std::vector<std::vector<uint32_t>> indices;
         indices.resize(model.mesh_primitives.size());
-        std::vector<std::vector<TRS::VectorN<float>>> vertices;
+        std::vector<std::vector<TRS::Vector3<float>>> vertices;
         vertices.resize(model.mesh_primitives.size());
 
         for (size_t i = 0; i < model.mesh_primitives.size(); i++) {
@@ -32,42 +32,17 @@ void DASTool::_ConvertDAS(const std::string &_input_file) {
                 std::exit(0);
             }
 
-            std::vector<std::pair<float*, uint32_t>> attributes;
-            attributes.push_back(std::make_pair(
-                reinterpret_cast<float*>(model.buffers[prim.vertex_buffer_id].data_ptrs.back().first + prim.vertex_buffer_offset), 3));
-
-            size_t uFloatAttributeCount = 3;
-            
-            // vertex normals
-            if (prim.vertex_normal_buffer_id != UINT32_MAX) {
-                attributes.push_back(std::make_pair(
-                    reinterpret_cast<float*>(model.buffers[prim.vertex_normal_buffer_id].data_ptrs.back().first + prim.vertex_normal_buffer_offset), 3));
-                uFloatAttributeCount += 3;
-            }
-
-            // uv coordinates
-            for (uint32_t i = 0; i < prim.texture_count; i++) {
-                attributes.push_back(std::make_pair(
-                    reinterpret_cast<float*>(model.buffers[prim.uv_buffer_ids[i]].data_ptrs.back().first + prim.uv_buffer_offsets[i]), 2));
-                uFloatAttributeCount += 2;
-            }
-
-            // color multipliers
-            for (uint32_t i = 0; i < prim.color_mul_count; i++) {
-                attributes.push_back(std::make_pair(
-                    reinterpret_cast<float*>(model.buffers[prim.color_mul_buffer_ids[i]].data_ptrs.back().first + prim.color_mul_buffer_offsets[i]), 4));
-                uFloatAttributeCount += 4;
-            }
-
-            Libdas::MultiAttributeLodGenerator gen(
-                attributes,
+            Libdas::LodGenerator gen(
                 reinterpret_cast<uint32_t*>(model.buffers[prim.index_buffer_id].data_ptrs.back().first + prim.index_buffer_offset),
+                reinterpret_cast<TRS::Vector3<float>*>(model.buffers[prim.vertex_buffer_id].data_ptrs.back().first + prim.vertex_buffer_offset),
                 prim.draw_count);
 
             gen.Simplify(static_cast<float>(m_lod) / 100.f);
             indices[i] = gen.GetLodIndices();
             vertices[i] = gen.GetLodVertices();
-            buffer_size += indices[i].size() * sizeof(uint32_t) + vertices[i].size() * uFloatAttributeCount * sizeof(float);
+
+            buffer_size += indices[i].size() * sizeof(uint32_t);
+            buffer_size += vertices[i].size() * sizeof(TRS::Vector3<float>);
         }
 
         // create a new DasModel instance to write as output
@@ -99,66 +74,9 @@ void DASTool::_ConvertDAS(const std::string &_input_file) {
 
             prim.vertex_buffer_id = 0;
             prim.vertex_buffer_offset = static_cast<uint32_t>(offset);
-            
-            size_t uStride = 0;
 
-            // position coordinates
-            for (size_t j = 0; j < vertices[i].size(); j++) {
-                std::memcpy(buf, vertices[i][j].data() + uStride, sizeof(TRS::Vector3<float>));
-                offset += sizeof(TRS::Vector3<float>);
-                buf += sizeof(TRS::Vector3<float>);
-            }
-            uStride += sizeof(TRS::Vector3<float>);
-
-            // vertex normals (if exists)
-            if (model.mesh_primitives[i].vertex_normal_buffer_id != UINT32_MAX) {
-                prim.vertex_normal_buffer_id = 0;
-                prim.vertex_buffer_offset = offset;
-                lod_model.buffers.back().type |= LIBDAS_BUFFER_TYPE_VERTEX_NORMAL;
-
-                for (size_t j = 0; j < vertices[i].size(); j++) {
-                    std::memcpy(buf, vertices[i][j].data() + uStride, sizeof(TRS::Vector3<float>));
-                    offset += sizeof(TRS::Vector3<float>);
-                    buf += sizeof(TRS::Vector3<float>);
-                }
-                uStride += sizeof(TRS::Vector3<float>);
-            }
-
-            // uv coordinates
-            if (model.mesh_primitives[i].texture_count > 0) {
-                prim.uv_buffer_ids = new uint32_t[model.mesh_primitives[i].texture_count]{0};
-                prim.uv_buffer_offsets = new uint32_t[model.mesh_primitives[i].texture_count]{};
-                lod_model.buffers.back().type |= LIBDAS_BUFFER_TYPE_TEXTURE;
-
-                for (uint32_t j = 0; j < model.mesh_primitives[i].texture_count; j++) {
-                    prim.uv_buffer_offsets[j] = offset;
-
-                    for (size_t k = 0; k < vertices[i].size(); k++) {
-                        std::memcpy(buf, vertices[i][k].data() + uStride, sizeof(TRS::Vector3<float>));
-                        offset += sizeof(TRS::Vector2<float>);
-                        buf += sizeof(TRS::Vector2<float>);
-                    }
-                    uStride += sizeof(TRS::Vector2<float>);
-                }
-            }
-
-            // color multipliers
-            if (model.mesh_primitives[i].color_mul_count > 0) {
-                prim.color_mul_buffer_ids = new uint32_t[model.mesh_primitives[i].color_mul_count]{0};
-                prim.color_mul_buffer_offsets = new uint32_t[model.mesh_primitives[i].color_mul_count]{};
-                lod_model.buffers.back().type |= LIBDAS_BUFFER_TYPE_COLOR;
-
-                for (uint32_t j = 0; j < model.mesh_primitives[i].color_mul_count; j++) {
-                    prim.color_mul_buffer_offsets[j] = offset;
-
-                    for (size_t k = 0; k < vertices[i].size(); k++) {
-                        std::memcpy(buf, vertices[i][k].data() + uStride, sizeof(TRS::Vector4<float>));
-                        offset += sizeof(TRS::Vector4<float>);
-                        buf += sizeof(TRS::Vector4<float>);
-                    }
-                    uStride += sizeof(TRS::Vector4<float>);
-                }
-            }
+            std::memcpy(buf, vertices[i].data(), vertices[i].size() * sizeof(TRS::Vector3<float>));
+            offset += vertices[i].size() * sizeof(TRS::Vector3<float>);
         }
 
         size_t pos = _input_file.find(".das");
@@ -174,6 +92,7 @@ void DASTool::_ConvertDAS(const std::string &_input_file) {
 
         for (Libdas::DasMesh& mesh : lod_model.meshes)
             writer.WriteMesh(mesh);
+        
         for (Libdas::DasMeshPrimitive& prim : lod_model.mesh_primitives)
             writer.WriteMeshPrimitive(prim);
     }

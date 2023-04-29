@@ -230,7 +230,8 @@ namespace Libdas {
 	void MultiAttributeLodGenerator::_RemoveInvalidFaces(
 		uint32_t _uSubstitudedIndex,
 		uint32_t _uRemovedIndex,
-		vector<MultiAttributeEdge>& _edges)
+		vector<MultiAttributeEdge>& _edges,
+		float& _fFaceCount)
 	{
 		bool bFallback = false;
 		uint32_t a, b, c;
@@ -301,6 +302,7 @@ namespace Libdas {
 						m_generatedIndices.erase(it++);
 						m_generatedIndices.erase(it++);
 						m_generatedIndices.erase(it++);
+						_fFaceCount--;
 
 						if (it != m_generatedIndices.begin())
 							it--;
@@ -387,11 +389,10 @@ namespace Libdas {
 
 			// remove the edge with minimal error
 			edges.pop_back();
-			fFaceCount -= 2.f;
 			neighbours.erase(removedEdge.uSecondVertex);
 
 			// remove any invalid faces
-			_RemoveInvalidFaces(removedEdge.uFirstVertex, removedEdge.uSecondVertex, edges);
+			_RemoveInvalidFaces(removedEdge.uFirstVertex, removedEdge.uSecondVertex, edges, fFaceCount);
 
 			// update edge vector, so any edge that was connected to the removed edge has it's error recalculated
 			// and is only connected to the remaining vertex
